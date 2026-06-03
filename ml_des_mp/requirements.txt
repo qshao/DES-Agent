@@ -1,0 +1,11 @@
+numpy
+pandas
+pyyaml
+scikit-learn
+matplotlib
+torch
+transformers
+rdkit-pypi
+tqdm
+# Optional for GNN:
+# torch-geometric

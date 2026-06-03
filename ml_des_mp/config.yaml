@@ -1,0 +1,122 @@
+# ======================================================================
+# DES melting point pipeline config (profile-based)
+# Choose ONE profile at the bottom: <<: *chemberta_profile / *morgan_profile / *rdkit_profile / *gnn_profile
+# ======================================================================
+
+# --------------------
+# Common (shared) setup
+# --------------------
+common: &common
+  seed: 42
+  device: "cuda"   # or "cpu"
+
+  data:
+    csv_path: "Melting_temperature_appended_35il_03082026.csv"
+    smiles1_col: "Smiles#1"
+    smiles2_col: "Smiles#2"
+    t1_col: "T#1"
+    t2_col: "T#2"
+    frac1_col: "X#1 (molar fraction)"
+    tm_col: "Tmelt, K"
+
+  splits:
+    k_folds: 5
+    split_methods: ["random_row", "strict_pair"]  # strict_pair = unordered SMILES pair never seen in train
+
+  output:
+    dir: "runs"
+    save_best: true
+    best_metric: "test_mae"
+    save_each_run: true
+
+# --------------------
+# Profiles
+# --------------------
+profiles:
+  chemberta: &chemberta_profile
+    <<: *common
+    embedding:
+      method: "chemberta"
+      chemberta:
+        model_name: "DeepChem/ChemBERTa-77M-MTR"
+        pooling: "mean"        # ["mean","cls"]
+        batch_size: 64
+        max_length: 128
+        cache_dir: ".cache/chemberta_emb"
+    training:
+      epochs: 1500
+      lr: 0.00497
+      weight_decay: 5.447e-5
+      grad_clip: 1.0
+      lambda_reg: 1.0e-10
+      log_every: 1
+
+  morgan: &morgan_profile
+    <<: *common
+    embedding:
+      method: "morgan"
+      morgan:
+        radius: 2
+        n_bits: 4096
+        use_chirality: false
+    training:
+      epochs: 1500
+      lr: 0.000565
+      weight_decay: 5.413e-5
+      grad_clip: 1.0
+      lambda_reg: 1.0e-10
+      log_every: 1
+
+  rdkit: &rdkit_profile
+    <<: *common
+    embedding:
+      method: "rdkit"
+      # Projector is enabled ONLY for RDKit to handle descriptor scale mismatch.
+      rdkit_projector:
+        out_dim: 32
+        hidden_sizes: [64, 64, 64]
+        dropout: 0.0838
+        activation: "relu"
+      rdkit:
+        descriptor_names:
+          - MolWt
+          - TPSA
+          - MolLogP
+          - NumHDonors
+          - NumHAcceptors
+          - NumRotatableBonds
+          - RingCount
+          - NumAromaticRings
+          - FractionCSP3
+          - HeavyAtomCount
+    training:
+      epochs: 1500
+      lr: 0.009
+      weight_decay: 6.139e-6
+      grad_clip: 1.0
+      lambda_reg: 1.0e-10
+      log_every: 1
+
+  gnn: &gnn_profile
+    <<: *common
+    embedding:
+      method: "gnn"
+      gnn:
+        emb_dim: 128
+        num_layers: 3
+        hidden_dim: 64
+        dropout: 0.0906
+        conv: "gin"      # ["gin","gcn"]
+        readout: "sum"   # ["mean","sum","max"]
+    training:
+      epochs: 1500
+      lr: 0.00073
+      weight_decay: 1.006e-5
+      grad_clip: 1.0
+      lambda_reg: 1.0e-10
+      log_every: 10
+
+# --------------------
+# Active profile (choose ONE)
+# --------------------
+<<: *chemberta_profile

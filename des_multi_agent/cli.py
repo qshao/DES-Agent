@@ -1,0 +1,68 @@
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+
+import yaml
+
+from .config import DEFAULT_CONFIG_PATH
+from .llm.config import LLMConfig
+from .orchestrator import run_search_report
+from .paths import resolve_existing_path
+from .reporting import format_report
+
+
+def build_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--component-a", required=True)
+    parser.add_argument("--n", type=int, required=True)
+    parser.add_argument("--checkpoint-path", required=True)
+    parser.add_argument("--config-path", default=str(DEFAULT_CONFIG_PATH))
+    parser.add_argument("--llm-config", default=None, help="Optional YAML file containing llm settings")
+    return parser
+
+
+def load_llm_config(path: str | Path | None) -> LLMConfig | None:
+    if path is None:
+        return None
+    llm_cfg_path = resolve_existing_path(path)
+    with Path(llm_cfg_path).open("r", encoding="utf-8") as fh:
+        raw = yaml.safe_load(fh) or {}
+    if isinstance(raw, dict) and "llm" in raw and isinstance(raw["llm"], dict):
+        raw = raw["llm"]
+    if not isinstance(raw, dict):
+        raise ValueError(f"LLM config file {llm_cfg_path} must contain a mapping")
+    cfg = LLMConfig.from_mapping(raw)
+    cfg.validate()
+    return cfg
+
+
+def main(argv=None):
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    checkpoint_path = resolve_existing_path(args.checkpoint_path)
+    config_path = resolve_existing_path(args.config_path)
+    try:
+        llm_cfg = load_llm_config(args.llm_config)
+    except ValueError as exc:
+        parser.error(str(exc))
+    outcome = run_search_report(
+        component_a=args.component_a,
+        n=args.n,
+        checkpoint_path=str(checkpoint_path),
+        config_path=str(config_path),
+        llm_cfg=llm_cfg,
+    )
+    print(
+        format_report(
+            outcome.results,
+            explanation_notes=outcome.explanation_notes,
+            critique_notes=outcome.critique_notes,
+            brainstorm_candidates=outcome.brainstorm_candidates,
+            llm_warnings=outcome.llm_warnings,
+        )
+    )
+
+
+if __name__ == "__main__":
+    main()

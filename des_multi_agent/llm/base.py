@@ -1,0 +1,104 @@
+from __future__ import annotations
+
+import os
+from abc import ABC, abstractmethod
+from urllib.parse import urlencode, urlsplit, urlunsplit, parse_qsl
+
+from ..evaluation import DesResult
+from .client import post_json_chat
+from .parser import parse_candidate_brainstorms, parse_critique_notes, parse_explanation_notes
+from .prompts import candidate_brainstorm_prompt, critique_prompt, explanation_prompt
+from .schemas import CandidateBrainstorm, CritiqueNote, ExplanationNote
+from .specs import RequestProfile
+from .transport import RequestTransport
+
+
+class BaseLLMProvider(ABC):
+    request_profile: RequestProfile
+
+    def __init__(
+        self,
+        *,
+        model_name: str,
+        api_base_url: str,
+        api_key_env: str | None = None,
+        max_candidates: int = 10,
+        max_tokens: int = 512,
+        temperature: float = 0.2,
+        timeout_seconds: float = 30.0,
+        request_fn=post_json_chat,
+    ):
+        self.model_name = model_name
+        self.api_base_url = api_base_url.rstrip("/")
+        self.api_key_env = api_key_env
+        self.max_candidates = max_candidates
+        self.max_tokens = max_tokens
+        self.temperature = temperature
+        self.timeout_seconds = timeout_seconds
+        self.transport = RequestTransport(request_fn=request_fn, timeout_seconds=timeout_seconds)
+
+    def _request(self, prompt: str) -> str:
+        api_key = os.getenv(self.api_key_env) if self.api_key_env else None
+        raw = self.transport.post_json(
+            self.request_url(api_key),
+            self.build_payload(prompt),
+            api_key=api_key,
+            include_api_key_in_header=self.request_profile.api_key_in_header,
+        )
+        return self.extract_text(raw)
+
+    def brainstorm_candidates(self, component_a: str, constraints: dict | None, context: str) -> list[CandidateBrainstorm]:
+        raw = self._request(candidate_brainstorm_prompt(component_a, constraints, context))
+        return parse_candidate_brainstorms(raw)[: self.max_candidates]
+
+    def generate_explanations(self, results: list[DesResult], context: str) -> list[ExplanationNote]:
+        raw = self._request(explanation_prompt(results, context))
+        return parse_explanation_notes(raw)
+
+    def critique_results(self, results: list[DesResult], context: str) -> list[CritiqueNote]:
+        raw = self._request(critique_prompt(results, context))
+        return parse_critique_notes(raw)
+
+    def request_url(self, api_key: str | None) -> str:
+        suffix = self.request_profile.path_template.format(model_name=self.model_name)
+        url = f"{self.api_base_url}{suffix}"
+        if api_key and self.request_profile.api_key_in_query:
+            parts = list(urlsplit(url))
+            query = dict(parse_qsl(parts[3]))
+            query["key"] = api_key
+            parts[3] = urlencode(query)
+            return urlunsplit(parts)
+        return url
+
+    def build_payload(self, prompt: str) -> dict:
+        style = self.request_profile.payload_style
+        if style == "ollama":
+            return {
+                "model": self.model_name,
+                "messages": [{"role": "user", "content": prompt}],
+                "stream": False,
+                "options": {
+                    "temperature": self.temperature,
+                    "num_predict": self.max_tokens,
+                },
+            }
+        if style == "openai":
+            return {
+                "model": self.model_name,
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": self.temperature,
+                "max_tokens": self.max_tokens,
+            }
+        if style == "gemini":
+            return {
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {
+                    "temperature": self.temperature,
+                    "maxOutputTokens": self.max_tokens,
+                },
+            }
+        raise ValueError(f"Unknown request payload style: {style}")
+
+    @abstractmethod
+    def extract_text(self, raw: str) -> str:
+        raise NotImplementedError

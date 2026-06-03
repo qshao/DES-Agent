@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+*.log
+*.png
+*.npz
+*.pt
+ml_des_mp/runs/
+ml_des_mp/Melting_temperature_appended_35il_03082026.csv
+.cache/
+record

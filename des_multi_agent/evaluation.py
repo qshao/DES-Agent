@@ -1,0 +1,37 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from .prediction import CurvePrediction
+from .schemas import DesThresholds
+
+
+@dataclass(frozen=True)
+class DesResult:
+    curve: CurvePrediction
+    absolute_pass: bool
+    relative_pass: bool
+    is_des: bool
+    rationale: str
+    min_tm_k: float
+
+
+def classify_des(curve: CurvePrediction, thresholds: DesThresholds) -> DesResult:
+    min_tm = min(curve.tm_pred_k)
+    absolute_pass = min_tm <= thresholds.absolute_tm_max_k
+    baseline = min(curve.t1_k, curve.t2_k)
+    relative_drop = (baseline - min_tm) / baseline if baseline else 0.0
+    relative_pass = relative_drop >= thresholds.relative_drop_min
+    is_des = absolute_pass and relative_pass
+    rationale = (
+        f"min Tm={min_tm:.2f} K, absolute<= {thresholds.absolute_tm_max_k:.2f} K, "
+        f"relative_drop={relative_drop:.3f}"
+    )
+    return DesResult(
+        curve=curve,
+        absolute_pass=absolute_pass,
+        relative_pass=relative_pass,
+        is_des=is_des,
+        rationale=rationale,
+        min_tm_k=min_tm,
+    )
