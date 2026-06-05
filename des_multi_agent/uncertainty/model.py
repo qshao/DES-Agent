@@ -1,0 +1,79 @@
+from __future__ import annotations
+
+from statistics import mean, pstdev
+from typing import Final
+
+from ..prediction import predict_curve
+from ..property_resolution import resolve_melting_point
+from .schemas import MinimumTmUncertainty
+
+
+_N_REPEATS: Final[int] = 3
+
+
+def _trust_score(std_tm_k: float) -> float:
+    trust = 1.0 / (1.0 + (std_tm_k / 10.0))
+    return max(0.0, min(1.0, trust))
+
+
+def _uncertainty_flag(std_tm_k: float) -> str:
+    if std_tm_k <= 2.0:
+        return "low"
+    if std_tm_k <= 8.0:
+        return "medium"
+    return "high"
+
+
+def _explanation(repeated_values: list[float], std_tm_k: float, trust_score: float, uncertainty_flag: str) -> str:
+    spread = ", ".join(f"{value:.2f}" for value in repeated_values)
+    return (
+        f"Repeated minimum-Tm predictions were {spread}. "
+        f"Std={std_tm_k:.2f} K, trust={trust_score:.2f}, flag={uncertainty_flag}."
+    )
+
+
+def estimate_min_tm_uncertainty(
+    component_a: str,
+    component_b: str,
+    checkpoint_path: str,
+    config_path: str,
+) -> MinimumTmUncertainty:
+    t1 = resolve_melting_point(component_a).tm_k
+    t2 = resolve_melting_point(component_b).tm_k
+
+    repeated_values: list[float] = []
+    for _ in range(_N_REPEATS):
+        curve = predict_curve(
+            component_a=component_a,
+            component_b=component_b,
+            t1_k=t1,
+            t2_k=t2,
+            checkpoint_path=checkpoint_path,
+            config_path=config_path,
+        )
+        if not curve.tm_pred_k:
+            raise ValueError("Predicted curve did not contain any melting-temperature values")
+        repeated_values.append(min(curve.tm_pred_k))
+
+    mean_tm_k = mean(repeated_values)
+    std_tm_k = pstdev(repeated_values) if len(repeated_values) > 1 else 0.0
+    min_tm_k = min(repeated_values)
+    max_tm_k = max(repeated_values)
+    trust_score = _trust_score(std_tm_k)
+    uncertainty_flag = _uncertainty_flag(std_tm_k)
+    explanation = _explanation(repeated_values, std_tm_k, trust_score, uncertainty_flag)
+
+    return MinimumTmUncertainty(
+        component_a=component_a,
+        component_b=component_b,
+        repeated_values=repeated_values,
+        mean_tm_k=float(mean_tm_k),
+        std_tm_k=float(std_tm_k),
+        min_tm_k=float(min_tm_k),
+        max_tm_k=float(max_tm_k),
+        trust_score=float(trust_score),
+        uncertainty_flag=uncertainty_flag,
+        explanation=explanation,
+        checkpoint_path=checkpoint_path,
+        config_path=config_path,
+    )
