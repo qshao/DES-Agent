@@ -6,9 +6,10 @@ from examples.demo_des_search import build_parser, resolve_defaults
 
 def test_demo_parser_accepts_overrides():
     parser = build_parser()
-    args = parser.parse_args(["--component-a", "CCO", "--n", "3"])
+    args = parser.parse_args(["--component-a", "CCO", "--n", "3", "--discovery-path", "tests/fixtures/discovery"])
     assert args.component_a == "CCO"
     assert args.n == 3
+    assert args.discovery_path == "tests/fixtures/discovery"
 
 
 def test_demo_resolve_defaults_returns_repo_paths():
@@ -64,6 +65,8 @@ def test_real_script_exists_and_is_simple():
     contents = script.read_text(encoding="utf-8")
     assert 'CHECKPOINT_PATH="${DES_CHECKPOINT_PATH:-ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt}"' in contents
     assert 'python -m examples.demo_des_search --component-a "CCO" --n 5 --checkpoint-path "$CHECKPOINT_PATH"' in contents
+    assert 'if [[ -n "${DES_DISCOVERY_PATH:-}" ]]; then' in contents
+    assert '--discovery-path "$DES_DISCOVERY_PATH"' in contents
 
 
 def test_mock_script_runs_from_other_directory(tmp_path):

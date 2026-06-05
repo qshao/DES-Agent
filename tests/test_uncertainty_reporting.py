@@ -55,3 +55,4 @@ def test_report_shows_uncertainty_fields_and_llm_sections():
     assert "LLM brainstorm" in report
     assert "LLM explanations" in report
     assert "LLM critique" in report
+    assert "Warnings" not in report

@@ -11,4 +11,14 @@ if [[ ! -f "$CHECKPOINT_PATH" ]]; then
   exit 1
 fi
 
-python -m examples.demo_des_search --component-a "CCO" --n 5 --checkpoint-path "$CHECKPOINT_PATH"
+ARGS=(python -m examples.demo_des_search --component-a "CCO" --n 5 --checkpoint-path "$CHECKPOINT_PATH")
+if [[ -n "${DES_DISCOVERY_PATH:-}" ]]; then
+  if [[ ! -d "$DES_DISCOVERY_PATH" ]]; then
+    echo "Discovery directory not found: $DES_DISCOVERY_PATH"
+    echo "Set DES_DISCOVERY_PATH to a local directory containing literature.yaml and library.yaml."
+    exit 1
+  fi
+  ARGS+=(--discovery-path "$DES_DISCOVERY_PATH")
+fi
+
+"${ARGS[@]}"

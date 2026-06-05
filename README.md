@@ -28,7 +28,7 @@ Quick deterministic run against a local checkpoint:
 Direct command if you prefer:
 
 ```bash
-DES_CHECKPOINT_PATH=ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt python -m examples.demo_des_search --component-a "CCO" --n 5 --checkpoint-path "$DES_CHECKPOINT_PATH"
+DES_CHECKPOINT_PATH=ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt DES_DISCOVERY_PATH=/path/to/discovery python -m examples.demo_des_search --component-a "CCO" --n 5 --checkpoint-path "$DES_CHECKPOINT_PATH" --discovery-path "$DES_DISCOVERY_PATH"
 ```
 
 Optional LLM run:

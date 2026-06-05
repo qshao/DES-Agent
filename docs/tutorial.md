@@ -35,7 +35,7 @@ Run the real demo from the repository root:
 Direct command if you prefer:
 
 ```bash
-DES_CHECKPOINT_PATH=ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt python -m examples.demo_des_search --component-a "CCO" --n 5 --checkpoint-path "$DES_CHECKPOINT_PATH"
+DES_CHECKPOINT_PATH=ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt DES_DISCOVERY_PATH=/path/to/discovery python -m examples.demo_des_search --component-a "CCO" --n 5 --checkpoint-path "$DES_CHECKPOINT_PATH" --discovery-path "$DES_DISCOVERY_PATH"
 ```
 
 The command uses the bundled `ml_des_mp/config.yaml` and a local trained checkpoint. If you have the shipped checkpoint available locally, set `DES_CHECKPOINT_PATH` to `ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt`.

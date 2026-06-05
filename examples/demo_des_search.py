@@ -5,13 +5,13 @@ import argparse
 from des_multi_agent.cli import load_llm_config
 from des_multi_agent.config import DEFAULT_CONFIG_PATH, PROJECT_ROOT
 from des_multi_agent.evaluation import DesResult
-from des_multi_agent.uncertainty import AnnotatedResult, MinimumTmUncertainty
 from des_multi_agent.llm.schemas import CandidateBrainstorm, CritiqueNote, ExplanationNote
 from des_multi_agent.orchestrator import SearchOutcome, run_search_report
 from des_multi_agent.paths import resolve_existing_path
 from des_multi_agent.prediction import CurvePrediction
 from des_multi_agent.reporting import format_report
-from des_multi_agent.uncertainty.schemas import AnnotatedResult, MinimumTmUncertainty
+from des_multi_agent.schemas import CandidateProposal
+from des_multi_agent.uncertainty import AnnotatedResult, MinimumTmUncertainty
 
 
 DEFAULT_CHECKPOINT = PROJECT_ROOT / "ml_des_mp" / "runs" / "chemberta_random_row_fold01of05_best.pt"
@@ -36,6 +36,11 @@ def build_parser():
         "--llm-config",
         default=None,
         help="Optional YAML file with llm settings; omit for deterministic mode",
+    )
+    parser.add_argument(
+        "--discovery-path",
+        default=None,
+        help="Optional local discovery directory containing literature.yaml and library.yaml",
     )
     parser.add_argument(
         "--mock",
@@ -128,6 +133,16 @@ def _mock_outcome(component_a: str, n: int) -> SearchOutcome:
     return SearchOutcome(
         results=mock_results,
         annotated_results=annotated_results,
+        candidate_proposals=[
+            CandidateProposal(
+                smiles=candidate.smiles,
+                rationale=candidate.rationale,
+                family=candidate.family,
+                source="mock",
+                source_id="mock-demo",
+            )
+            for candidate, _ in selected
+        ],
         brainstorm_candidates=[candidate for candidate, _ in selected],
         explanation_notes=explanations,
         critique_notes=critique,
@@ -144,17 +159,20 @@ def main(argv=None):
         checkpoint_path = resolve_existing_path(args.checkpoint_path)
         config_path = resolve_existing_path(args.config_path)
         llm_cfg = load_llm_config(args.llm_config) if args.llm_config else None
+        discovery_path = resolve_existing_path(args.discovery_path) if args.discovery_path else None
         outcome = run_search_report(
             component_a=args.component_a,
             n=args.n,
             checkpoint_path=str(checkpoint_path),
             config_path=str(config_path),
             llm_cfg=llm_cfg,
+            discovery_path=str(discovery_path) if discovery_path is not None else None,
         )
     print(
         format_report(
             outcome.results,
             annotated_results=outcome.annotated_results,
+            candidate_proposals=outcome.candidate_proposals,
             explanation_notes=outcome.explanation_notes,
             critique_notes=outcome.critique_notes,
             brainstorm_candidates=outcome.brainstorm_candidates,

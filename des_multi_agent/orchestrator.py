@@ -4,30 +4,25 @@ from dataclasses import dataclass
 from collections.abc import Mapping
 
 from .candidate_generation import generate_candidates
-from .chemistry_filter import filter_candidates
+from .chemistry_filter import canonicalize_smiles, filter_candidates
 from .config import DEFAULT_ABSOLUTE_TM_MAX_K, DEFAULT_RELATIVE_DROP_MIN
+from .discovery import load_discovery_library, literature_lookup, merge_discovery_candidates, similarity_search
 from .evaluation import DesResult, classify_des
-from .uncertainty import AnnotatedResult, UncertaintyPolicy, apply_uncertainty_policy, estimate_min_tm_uncertainty
 from .llm.factory import build_llm_provider
 from .llm.schemas import CandidateBrainstorm, CritiqueNote, ExplanationNote
 from .paths import resolve_existing_path
 from .prediction import predict_curve
 from .property_resolution import resolve_melting_point
 from .ranking import rank_results
-from .schemas import DesThresholds
-from .uncertainty import (
-    AnnotatedResult,
-    MinimumTmUncertainty,
-    UncertaintyPolicy,
-    apply_uncertainty_policy,
-    estimate_min_tm_uncertainty,
-)
+from .schemas import CandidateProposal, DesThresholds
+from .uncertainty import AnnotatedResult, MinimumTmUncertainty, UncertaintyPolicy, apply_uncertainty_policy, estimate_min_tm_uncertainty
 
 
 @dataclass(frozen=True)
 class SearchOutcome:
     results: list[DesResult]
     annotated_results: list[AnnotatedResult]
+    candidate_proposals: list[CandidateProposal]
     brainstorm_candidates: list[CandidateBrainstorm]
     explanation_notes: list[ExplanationNote]
     critique_notes: list[CritiqueNote]
@@ -40,9 +35,15 @@ def _merge_candidates(*candidate_groups):
     for group in candidate_groups:
         for candidate in group:
             smiles = candidate.smiles.strip()
-            if not smiles or smiles in seen:
+            if not smiles:
                 continue
-            seen.add(smiles)
+            try:
+                canonical = canonicalize_smiles(smiles)
+            except ValueError:
+                continue
+            if canonical in seen:
+                continue
+            seen.add(canonical)
             merged.append(candidate)
     return merged
 
@@ -79,6 +80,34 @@ def _fallback_uncertainty(
     )
 
 
+def _build_discovery_candidates(component_a: str, n: int, discovery_path: str | None, llm_warnings: list[str]) -> list[CandidateProposal]:
+    if not discovery_path:
+        return []
+    try:
+        library = load_discovery_library(discovery_path)
+    except Exception as exc:
+        llm_warnings.append(f"Discovery loading failed for {discovery_path}: {exc}")
+        return []
+    literature = literature_lookup(component_a, library)
+    similar = similarity_search(component_a, library, limit=n)
+    if not literature and not similar:
+        llm_warnings.append(f"No discovery candidates found at {discovery_path}; using heuristic generator only.")
+    return merge_discovery_candidates(literature, similar)
+
+
+def _promote_brainstorm_candidates(candidates: list[CandidateBrainstorm]) -> list[CandidateProposal]:
+    return [
+        CandidateProposal(
+            smiles=candidate.smiles,
+            rationale=candidate.rationale,
+            family=candidate.family,
+            source="llm",
+            source_id="brainstorm",
+        )
+        for candidate in candidates
+    ]
+
+
 def run_search_report(
     component_a: str,
     n: int,
@@ -88,12 +117,14 @@ def run_search_report(
     uncertainty_policy: UncertaintyPolicy | None = None,
     llm_cfg: Mapping[str, object] | None = None,
     llm_request_fn=None,
+    discovery_path: str | None = None,
 ):
     checkpoint_path = resolve_existing_path(checkpoint_path)
     config_path = resolve_existing_path(config_path)
-    proposals = generate_candidates(component_a, n=n, constraints=None)
-    llm_candidates: list[CandidateBrainstorm] = []
+    heuristic_candidates = generate_candidates(component_a, n=n, constraints=None)
     llm_warnings: list[str] = []
+    discovery_candidates = _build_discovery_candidates(component_a, n, discovery_path, llm_warnings)
+    candidate_proposals = _merge_candidates(discovery_candidates, heuristic_candidates)
     provider = build_llm_provider(llm_cfg, request_fn=llm_request_fn) if llm_cfg else None
     if provider is not None:
         try:
@@ -104,8 +135,11 @@ def run_search_report(
             )
         except Exception as exc:
             llm_warnings.append(f"LLM brainstorming failed: {exc}")
-    merged = _merge_candidates(proposals, llm_candidates)
-    filtered = filter_candidates(component_a, merged)
+            llm_candidates = []
+    else:
+        llm_candidates = []
+    candidate_proposals = _merge_candidates(candidate_proposals, _promote_brainstorm_candidates(llm_candidates))
+    filtered = filter_candidates(component_a, candidate_proposals)
     thresholds = thresholds or DesThresholds(
         absolute_tm_max_k=DEFAULT_ABSOLUTE_TM_MAX_K,
         relative_drop_min=DEFAULT_RELATIVE_DROP_MIN,
@@ -137,6 +171,7 @@ def run_search_report(
                 str(config_path),
             )
         except Exception as exc:
+            llm_warnings.append(f"Uncertainty estimation failed for {smiles_b}: {exc}")
             uncertainty_by_smiles[smiles_b] = _fallback_uncertainty(
                 component_a,
                 smiles_b,
@@ -161,6 +196,7 @@ def run_search_report(
     return SearchOutcome(
         results=final_results,
         annotated_results=annotated_results,
+        candidate_proposals=candidate_proposals,
         brainstorm_candidates=llm_candidates,
         explanation_notes=explanation_notes,
         critique_notes=critique_notes,

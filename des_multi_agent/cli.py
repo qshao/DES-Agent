@@ -20,6 +20,7 @@ def build_parser():
     parser.add_argument("--checkpoint-path", required=True)
     parser.add_argument("--config-path", default=str(DEFAULT_CONFIG_PATH))
     parser.add_argument("--llm-config", default=None, help="Optional YAML file containing llm settings")
+    parser.add_argument("--discovery-path", default=None, help="Optional local discovery directory containing literature.yaml and library.yaml")
     parser.add_argument(
         "--uncertainty-mode",
         choices=["filter", "penalize", "report_only"],
@@ -93,12 +94,14 @@ def main(argv=None):
         checkpoint_path=str(checkpoint_path),
         config_path=str(config_path),
         llm_cfg=llm_cfg,
+        discovery_path=args.discovery_path,
         uncertainty_policy=uncertainty_policy,
     )
     print(
         format_report(
             outcome.results,
             annotated_results=outcome.annotated_results,
+            candidate_proposals=getattr(outcome, "candidate_proposals", None),
             explanation_notes=outcome.explanation_notes,
             critique_notes=outcome.critique_notes,
             brainstorm_candidates=outcome.brainstorm_candidates,

@@ -1,0 +1,12 @@
+- smiles: O
+  family: alcohol
+  source: curated_library
+  note: Small hydrogen-bond donor.
+- smiles: OCCO
+  family: diol
+  source: curated_library
+  note: Local diol candidate.
+- smiles: OCC(O)CO
+  family: polyol
+  source: curated_library
+  note: Local polyol candidate.

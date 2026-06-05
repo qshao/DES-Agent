@@ -8,6 +8,10 @@ class CandidateProposal:
     smiles: str
     rationale: str
     family: str
+    source: str = "heuristic"
+    source_id: str = ""
+    similarity_score: float | None = None
+    reference_note: str = ""
 
 
 @dataclass(frozen=True)

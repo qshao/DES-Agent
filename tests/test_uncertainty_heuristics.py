@@ -197,3 +197,30 @@ def test_score_candidate_trust_missing_component_is_conservative():
     missing = score_candidate_trust("CCO", "O", uncertainty, missing_status)
 
     assert missing < explicit
+
+
+def test_uncertainty_policy_thresholds_affect_ranking(monkeypatch):
+    from des_multi_agent.uncertainty import filtering
+    from des_multi_agent.uncertainty.policy import UncertaintyPolicy
+
+    results = [_make_result("O", 220.0), _make_result("CO", 220.0)]
+    uncertainties = {
+        "O": _make_uncertainty("O", std_tm_k=1.0, trust_score=0.8),
+        "CO": _make_uncertainty("CO", std_tm_k=6.0, trust_score=0.8),
+    }
+    policy = UncertaintyPolicy(mode="penalize", min_trust_score=0.5, soft_penalty_weight=0.35, std_high_threshold_k=5.0, std_medium_threshold_k=2.0)
+
+    monkeypatch.setattr(filtering, "score_candidate_trust", lambda *args, **kwargs: uncertainties[args[1]].trust_score)
+    monkeypatch.setattr(
+        filtering,
+        "_lookup_neat_status",
+        lambda component_a, component_b: (
+            MeltingPointEstimate(component=component_a, tm_k=300.0, source="heuristic", confidence=0.9),
+            MeltingPointEstimate(component=component_b, tm_k=275.0, source="heuristic", confidence=0.9),
+        ),
+    )
+
+    annotated = filtering.apply_uncertainty_policy(results, uncertainties, policy)
+
+    assert [item.result.curve.smiles_b for item in annotated] == ["O", "CO"]
+    assert annotated[0].ranking_score > annotated[1].ranking_score

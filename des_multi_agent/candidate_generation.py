@@ -54,6 +54,8 @@ def generate_candidates(component_a: str, n: int, constraints=None):
                 smiles=smiles,
                 rationale=f"{rationale} candidate from a small rule-based family",
                 family=family,
+                source="heuristic",
+                source_id="rule-based-family-library",
             )
         )
         if len(proposals) >= n:
