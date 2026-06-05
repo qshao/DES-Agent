@@ -39,8 +39,9 @@ def test_demo_mock_mode_runs_without_real_pipeline(monkeypatch, capsys):
     )
     demo_des_search.main(["--mock", "--component-a", "CCO", "--n", "2"])
     out = capsys.readouterr().out
-    assert "smiles_b | is_des | min_tm_k | rationale" in out
+    assert "smiles_b | is_des | min_tm_k | trust_score | tm_min_mean_k | tm_min_std_k | uncertainty_flag | rationale" in out
     assert "Mock mode is using canned outputs" in out
+    assert "trust_score" in out
     assert "OCCO" in out
 
 
@@ -67,5 +68,5 @@ def test_real_script_exists_and_is_simple():
 def test_mock_script_runs_from_other_directory(tmp_path):
     import subprocess
     result = subprocess.run(["bash", str(Path("scripts/demo-mock.sh").resolve())], cwd=tmp_path, check=True, capture_output=True, text=True)
-    assert "smiles_b | is_des | min_tm_k | rationale" in result.stdout
+    assert "smiles_b | is_des | min_tm_k | trust_score | tm_min_mean_k | tm_min_std_k | uncertainty_flag | rationale" in result.stdout
     assert "OCCO" in result.stdout

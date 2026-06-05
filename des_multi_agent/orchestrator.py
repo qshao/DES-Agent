@@ -14,11 +14,19 @@ from .prediction import predict_curve
 from .property_resolution import resolve_melting_point
 from .ranking import rank_results
 from .schemas import DesThresholds
+from .uncertainty import (
+    AnnotatedResult,
+    MinimumTmUncertainty,
+    UncertaintyPolicy,
+    apply_uncertainty_policy,
+    estimate_min_tm_uncertainty,
+)
 
 
 @dataclass(frozen=True)
 class SearchOutcome:
     results: list[DesResult]
+    annotated_results: list[AnnotatedResult]
     brainstorm_candidates: list[CandidateBrainstorm]
     explanation_notes: list[ExplanationNote]
     critique_notes: list[CritiqueNote]
@@ -47,12 +55,36 @@ def _search_context(component_a: str, n: int, checkpoint_path: str, config_path:
     )
 
 
+def _fallback_uncertainty(
+    component_a: str,
+    component_b: str,
+    checkpoint_path: str,
+    config_path: str,
+    reason: str,
+) -> MinimumTmUncertainty:
+    return MinimumTmUncertainty(
+        component_a=component_a,
+        component_b=component_b,
+        repeated_values=(),
+        mean_tm_k=float("inf"),
+        std_tm_k=float("inf"),
+        min_tm_k=float("inf"),
+        max_tm_k=float("inf"),
+        trust_score=0.0,
+        uncertainty_flag="high",
+        explanation=reason,
+        checkpoint_path=checkpoint_path,
+        config_path=config_path,
+    )
+
+
 def run_search_report(
     component_a: str,
     n: int,
     checkpoint_path: str,
     config_path: str = "ml_des_mp/config.yaml",
     thresholds: DesThresholds | None = None,
+    uncertainty_policy: UncertaintyPolicy | None = None,
     llm_cfg: Mapping[str, object] | None = None,
     llm_request_fn=None,
 ):
@@ -92,20 +124,42 @@ def run_search_report(
         result = classify_des(curve, thresholds)
         results.append(result)
     ranked = rank_results(results)
+    policy = uncertainty_policy or UncertaintyPolicy()
+    uncertainty_by_smiles: dict[str, MinimumTmUncertainty] = {}
+    for result in ranked:
+        smiles_b = result.curve.smiles_b
+        try:
+            uncertainty_by_smiles[smiles_b] = estimate_min_tm_uncertainty(
+                component_a,
+                smiles_b,
+                str(checkpoint_path),
+                str(config_path),
+            )
+        except Exception as exc:
+            uncertainty_by_smiles[smiles_b] = _fallback_uncertainty(
+                component_a,
+                smiles_b,
+                str(checkpoint_path),
+                str(config_path),
+                f"Uncertainty estimation failed: {exc}",
+            )
+    annotated_results = apply_uncertainty_policy(ranked, uncertainty_by_smiles, policy)
+    final_results = [item.result for item in annotated_results]
     explanation_notes: list[ExplanationNote] = []
     critique_notes: list[CritiqueNote] = []
     if provider is not None:
         context = _search_context(component_a, n, str(checkpoint_path), str(config_path))
         try:
-            explanation_notes = provider.generate_explanations(ranked, context)
+            explanation_notes = provider.generate_explanations(final_results, context)
         except Exception as exc:
             llm_warnings.append(f"LLM explanation generation failed: {exc}")
         try:
-            critique_notes = provider.critique_results(ranked, context)
+            critique_notes = provider.critique_results(final_results, context)
         except Exception as exc:
             llm_warnings.append(f"LLM critique generation failed: {exc}")
     return SearchOutcome(
-        results=ranked,
+        results=final_results,
+        annotated_results=annotated_results,
         brainstorm_candidates=llm_candidates,
         explanation_notes=explanation_notes,
         critique_notes=critique_notes,
@@ -119,6 +173,7 @@ def run_search(
     checkpoint_path: str,
     config_path: str = "ml_des_mp/config.yaml",
     thresholds: DesThresholds | None = None,
+    uncertainty_policy: UncertaintyPolicy | None = None,
 ):
     return run_search_report(
         component_a=component_a,
@@ -126,4 +181,5 @@ def run_search(
         checkpoint_path=checkpoint_path,
         config_path=config_path,
         thresholds=thresholds,
+        uncertainty_policy=uncertainty_policy,
     ).results

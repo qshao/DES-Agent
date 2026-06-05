@@ -56,6 +56,7 @@ def main(argv=None):
     print(
         format_report(
             outcome.results,
+            annotated_results=outcome.annotated_results,
             explanation_notes=outcome.explanation_notes,
             critique_notes=outcome.critique_notes,
             brainstorm_candidates=outcome.brainstorm_candidates,

@@ -48,7 +48,12 @@ def test_estimate_min_tm_uncertainty_runs_three_predictions(monkeypatch):
     )
 
     assert len(calls) == 3
-    assert result.repeated_values == [240.0, 260.0, 250.0]
+    assert calls == [
+        ("CCO", "O", 300.0, 275.0, "ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt", "ml_des_mp/config.yaml"),
+        ("CCO", "O", 300.0, 275.0, "ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt", "ml_des_mp/config.yaml"),
+        ("CCO", "O", 300.0, 275.0, "ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt", "ml_des_mp/config.yaml"),
+    ]
+    assert result.repeated_values == (240.0, 260.0, 250.0)
     assert result.min_tm_k == 240.0
     assert result.max_tm_k == 260.0
     assert result.mean_tm_k == pytest.approx(250.0)

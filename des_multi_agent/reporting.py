@@ -3,18 +3,33 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 from .llm.schemas import CandidateBrainstorm, CritiqueNote, ExplanationNote
+from .uncertainty.schemas import AnnotatedResult
 
 
 def format_report(
     results,
+    annotated_results: Sequence[AnnotatedResult] | None = None,
     explanation_notes: Sequence[ExplanationNote] | None = None,
     critique_notes: Sequence[CritiqueNote] | None = None,
     brainstorm_candidates: Sequence[CandidateBrainstorm] | None = None,
     llm_warnings: Sequence[str] | None = None,
 ) -> str:
-    lines = ["smiles_b | is_des | min_tm_k | rationale"]
+    annotation_by_smiles = {item.result.curve.smiles_b: item for item in annotated_results or []}
+    has_annotations = bool(annotation_by_smiles)
+    if has_annotations:
+        lines = ["smiles_b | is_des | min_tm_k | trust_score | tm_min_mean_k | tm_min_std_k | uncertainty_flag | rationale"]
+    else:
+        lines = ["smiles_b | is_des | min_tm_k | rationale"]
     for r in results:
-        lines.append(f"{r.curve.smiles_b} | {r.is_des} | {r.min_tm_k:.2f} | {r.rationale}")
+        annotation = annotation_by_smiles.get(r.curve.smiles_b)
+        if annotation is None:
+            lines.append(f"{r.curve.smiles_b} | {r.is_des} | {r.min_tm_k:.2f} | {r.rationale}")
+            continue
+        lines.append(
+            f"{r.curve.smiles_b} | {r.is_des} | {r.min_tm_k:.2f} | "
+            f"{annotation.trust_score:.2f} | {annotation.uncertainty.mean_tm_k:.2f} | "
+            f"{annotation.uncertainty.std_tm_k:.2f} | {annotation.uncertainty.uncertainty_flag} | {r.rationale}"
+        )
     if brainstorm_candidates:
         lines.append("")
         lines.append("LLM brainstorm:")

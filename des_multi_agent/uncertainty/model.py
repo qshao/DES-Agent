@@ -66,7 +66,7 @@ def estimate_min_tm_uncertainty(
     return MinimumTmUncertainty(
         component_a=component_a,
         component_b=component_b,
-        repeated_values=repeated_values,
+        repeated_values=tuple(repeated_values),
         mean_tm_k=float(mean_tm_k),
         std_tm_k=float(std_tm_k),
         min_tm_k=float(min_tm_k),

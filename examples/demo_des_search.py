@@ -10,6 +10,7 @@ from des_multi_agent.orchestrator import SearchOutcome, run_search_report
 from des_multi_agent.paths import resolve_existing_path
 from des_multi_agent.prediction import CurvePrediction
 from des_multi_agent.reporting import format_report
+from des_multi_agent.uncertainty.schemas import AnnotatedResult, MinimumTmUncertainty
 
 
 DEFAULT_CHECKPOINT = PROJECT_ROOT / "ml_des_mp" / "runs" / "chemberta_random_row_fold01of05_best.pt"
@@ -51,6 +52,23 @@ def resolve_defaults():
     )
 
 
+def _mock_uncertainty(component_a: str, component_b: str, min_tm: float, trust_score: float, std_tm_k: float) -> MinimumTmUncertainty:
+    return MinimumTmUncertainty(
+        component_a=component_a,
+        component_b=component_b,
+        repeated_values=(min_tm - std_tm_k, min_tm, min_tm + std_tm_k),
+        mean_tm_k=min_tm,
+        std_tm_k=std_tm_k,
+        min_tm_k=min_tm - std_tm_k,
+        max_tm_k=min_tm + std_tm_k,
+        trust_score=trust_score,
+        uncertainty_flag="low" if std_tm_k <= 2.0 else "medium" if std_tm_k <= 8.0 else "high",
+        explanation=f"Mock uncertainty for {component_b}",
+        checkpoint_path="mock://demo",
+        config_path="mock://demo",
+    )
+
+
 def _mock_outcome(component_a: str, n: int) -> SearchOutcome:
     if n < 1:
         n = 1
@@ -68,7 +86,8 @@ def _mock_outcome(component_a: str, n: int) -> SearchOutcome:
     ]
     selected = catalog[:n]
     mock_results: list[DesResult] = []
-    for candidate, min_tm in selected:
+    annotated_results: list[AnnotatedResult] = []
+    for index, (candidate, min_tm) in enumerate(selected):
         curve = CurvePrediction(
             smiles_a=component_a,
             smiles_b=candidate.smiles,
@@ -78,14 +97,22 @@ def _mock_outcome(component_a: str, n: int) -> SearchOutcome:
             t2_k=300.0,
             checkpoint_path="mock://demo",
         )
-        mock_results.append(
-            DesResult(
-                curve=curve,
-                absolute_pass=True,
-                relative_pass=True,
-                is_des=True,
-                rationale=f"mock min Tm={min_tm:.2f} K, absolute<= 260.00 K, relative_drop=0.20",
-                min_tm_k=min_tm,
+        result = DesResult(
+            curve=curve,
+            absolute_pass=True,
+            relative_pass=True,
+            is_des=True,
+            rationale=f"mock min Tm={min_tm:.2f} K, absolute<= 260.00 K, relative_drop=0.20",
+            min_tm_k=min_tm,
+        )
+        mock_results.append(result)
+        uncertainty = _mock_uncertainty(component_a, candidate.smiles, min_tm, trust_score=0.95 - index * 0.03, std_tm_k=0.5 + 0.2 * index)
+        annotated_results.append(
+            AnnotatedResult(
+                result=result,
+                uncertainty=uncertainty,
+                trust_score=uncertainty.trust_score,
+                ranking_score=min_tm - index * 0.1,
             )
         )
     explanations = [
@@ -99,6 +126,7 @@ def _mock_outcome(component_a: str, n: int) -> SearchOutcome:
     warnings = ["Mock mode is using canned outputs and does not call the trained model."]
     return SearchOutcome(
         results=mock_results,
+        annotated_results=annotated_results,
         brainstorm_candidates=[candidate for candidate, _ in selected],
         explanation_notes=explanations,
         critique_notes=critique,
@@ -125,6 +153,7 @@ def main(argv=None):
     print(
         format_report(
             outcome.results,
+            annotated_results=outcome.annotated_results,
             explanation_notes=outcome.explanation_notes,
             critique_notes=outcome.critique_notes,
             brainstorm_candidates=outcome.brainstorm_candidates,
