@@ -2,7 +2,7 @@
 
 This folder contains the quickest way to try the DES multi-agent system end to end.
 
-## Mock demo
+## Mock Demo
 
 Run the fully offline mock demo:
 
@@ -16,9 +16,9 @@ Direct command if you prefer:
 python -m examples.demo_des_search --mock --component-a "CCO" --n 5
 ```
 
-## Real demo
+## Real Demo
 
-Run the default deterministic demo against a local checkpoint:
+Run the deterministic demo against the shipped checkpoint:
 
 ```bash
 ./scripts/demo-real.sh
@@ -27,10 +27,16 @@ Run the default deterministic demo against a local checkpoint:
 Direct command if you prefer:
 
 ```bash
-DES_CHECKPOINT_PATH=ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt DES_DISCOVERY_PATH=/path/to/discovery python -m examples.demo_des_search --component-a "CCO" --n 5 --checkpoint-path "$DES_CHECKPOINT_PATH" --discovery-path "$DES_DISCOVERY_PATH"
+python -m examples.demo_des_search --component-a "CCO" --n 5 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt
 ```
 
-## Optional LLM mode
+To add local discovery, pass the directory explicitly:
+
+```bash
+python -m examples.demo_des_search --component-a "CCO" --n 5 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --discovery-path /path/to/discovery
+```
+
+## Optional LLM Mode
 
 If you have an LLM provider configured, pass the sample config:
 
@@ -38,13 +44,13 @@ If you have an LLM provider configured, pass the sample config:
 python -m examples.demo_des_search --component-a "CCO" --n 5 --llm-config llm.example.yaml
 ```
 
-## More detail
+## More Detail
 
 See [`docs/tutorial.md`](/home/qshao/DES-Agent/docs/tutorial.md) for a short explanation of the output and common issues.
 
 ## Uncertainty Controls
 
-The library CLI [`des_multi_agent.cli`](/home/qshao/DES-Agent/des_multi_agent/cli.py) lets you tune how uncertainty affects filtering and ranking. Example:
+The library CLI [`des_multi_agent.cli`](/home/qshao/DES-Agent/des_multi_agent/cli.py) lets you tune how uncertainty affects filtering and ranking:
 
 ```bash
 python -m des_multi_agent.cli --component-a "CCO" --n 5 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --uncertainty-mode filter --min-trust-score 0.70 --soft-penalty-weight 0.20
