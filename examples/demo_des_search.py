@@ -5,6 +5,7 @@ import argparse
 from des_multi_agent.cli import load_llm_config
 from des_multi_agent.config import DEFAULT_CONFIG_PATH, PROJECT_ROOT
 from des_multi_agent.evaluation import DesResult
+from des_multi_agent.uncertainty import AnnotatedResult, MinimumTmUncertainty
 from des_multi_agent.llm.schemas import CandidateBrainstorm, CritiqueNote, ExplanationNote
 from des_multi_agent.orchestrator import SearchOutcome, run_search_report
 from des_multi_agent.paths import resolve_existing_path

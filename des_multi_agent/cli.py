@@ -8,6 +8,7 @@ import yaml
 from .config import DEFAULT_CONFIG_PATH
 from .llm.config import LLMConfig
 from .orchestrator import run_search_report
+from .uncertainty import UncertaintyPolicy
 from .paths import resolve_existing_path
 from .reporting import format_report
 
@@ -19,6 +20,36 @@ def build_parser():
     parser.add_argument("--checkpoint-path", required=True)
     parser.add_argument("--config-path", default=str(DEFAULT_CONFIG_PATH))
     parser.add_argument("--llm-config", default=None, help="Optional YAML file containing llm settings")
+    parser.add_argument(
+        "--uncertainty-mode",
+        choices=["filter", "penalize", "report_only"],
+        default="penalize",
+        help="How to apply uncertainty annotations to the ranked results",
+    )
+    parser.add_argument(
+        "--min-trust-score",
+        type=float,
+        default=0.55,
+        help="Minimum normalized trust score required before filtering or penalization",
+    )
+    parser.add_argument(
+        "--soft-penalty-weight",
+        type=float,
+        default=0.35,
+        help="Penalty weight applied when uncertainty is below the trust threshold",
+    )
+    parser.add_argument(
+        "--std-high-threshold-k",
+        type=float,
+        default=15.0,
+        help="Upper standard-deviation threshold used by the uncertainty policy",
+    )
+    parser.add_argument(
+        "--std-medium-threshold-k",
+        type=float,
+        default=5.0,
+        help="Middle standard-deviation threshold used by the uncertainty policy",
+    )
     return parser
 
 
@@ -46,12 +77,23 @@ def main(argv=None):
         llm_cfg = load_llm_config(args.llm_config)
     except ValueError as exc:
         parser.error(str(exc))
+    try:
+        uncertainty_policy = UncertaintyPolicy(
+            mode=args.uncertainty_mode,
+            min_trust_score=args.min_trust_score,
+            soft_penalty_weight=args.soft_penalty_weight,
+            std_high_threshold_k=args.std_high_threshold_k,
+            std_medium_threshold_k=args.std_medium_threshold_k,
+        )
+    except ValueError as exc:
+        parser.error(str(exc))
     outcome = run_search_report(
         component_a=args.component_a,
         n=args.n,
         checkpoint_path=str(checkpoint_path),
         config_path=str(config_path),
         llm_cfg=llm_cfg,
+        uncertainty_policy=uncertainty_policy,
     )
     print(
         format_report(

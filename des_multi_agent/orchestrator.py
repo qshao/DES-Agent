@@ -7,6 +7,7 @@ from .candidate_generation import generate_candidates
 from .chemistry_filter import filter_candidates
 from .config import DEFAULT_ABSOLUTE_TM_MAX_K, DEFAULT_RELATIVE_DROP_MIN
 from .evaluation import DesResult, classify_des
+from .uncertainty import AnnotatedResult, UncertaintyPolicy, apply_uncertainty_policy, estimate_min_tm_uncertainty
 from .llm.factory import build_llm_provider
 from .llm.schemas import CandidateBrainstorm, CritiqueNote, ExplanationNote
 from .paths import resolve_existing_path
