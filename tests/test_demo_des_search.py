@@ -75,6 +75,21 @@ def test_real_script_exists_and_is_simple():
     assert '--discovery-path "$DES_DISCOVERY_PATH"' in contents
 
 
+def test_model_specific_examples_exist():
+    for folder, llm_file in [
+        ("examples/gemma4_12b", "llm.gemma4_12b.yaml"),
+        ("examples/nemotron_3_nano", "llm.nemotron_3_nano.yaml"),
+        ("examples/qwen3_6", "llm.qwen3_6.yaml"),
+    ]:
+        base = Path(folder)
+        assert (base / "README.md").exists()
+        assert (base / "run.sh").exists()
+        assert (base / "output.txt").exists()
+        assert (base / llm_file).exists()
+        assert "--llm-config" in (base / "run.sh").read_text(encoding="utf-8")
+        assert "CCO" in (base / "README.md").read_text(encoding="utf-8")
+
+
 def test_mock_script_runs_from_other_directory(tmp_path):
     import subprocess
     result = subprocess.run(["bash", str(Path("scripts/demo-mock.sh").resolve())], cwd=tmp_path, check=True, capture_output=True, text=True)
