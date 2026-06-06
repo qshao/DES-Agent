@@ -14,13 +14,9 @@ from .qwen_provider import QwenProvider
 
 
 _PROVIDER_ALIASES = {
-    "local": "ollama",
-    "hosted": "openai",
-    "openai_chat": "openai",
     "nemotron-3-nano": "ollama",
     "nemotron3nano": "ollama",
     "qwen3.6": "ollama",
-    "qwen": "ollama",
 }
 
 
