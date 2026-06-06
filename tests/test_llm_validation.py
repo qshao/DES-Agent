@@ -10,6 +10,18 @@ def test_ollama_config_requires_model_and_base_url():
         cfg.validate()
 
 
+def test_ollama_config_rejects_unsupported_model_name():
+    cfg = LLMConfig(enabled=True, provider="ollama", model_name="mistral", api_base_url="http://localhost:11434")
+    with pytest.raises(ValueError, match="Unsupported Ollama model_name"):
+        cfg.validate()
+
+
+def test_nemotron_config_requires_model_and_base_url():
+    cfg = LLMConfig(enabled=True, provider="nemotron")
+    with pytest.raises(ValueError, match="model_name|api_base_url"):
+        cfg.validate()
+
+
 def test_openai_config_requires_model_and_api_key_env():
     cfg = LLMConfig(enabled=True, provider="openai", api_base_url="https://api.openai.com/v1")
     with pytest.raises(ValueError, match="model_name|api_key_env"):
@@ -35,12 +47,12 @@ def test_cli_loads_nested_llm_config(tmp_path):
 llm:
   enabled: true
   provider: ollama
-  model_name: llama3.1
+  model_name: qwen3.6
   api_base_url: http://localhost:11434
 """,
         encoding="utf-8",
     )
     cfg = load_llm_config(cfg_path)
     assert cfg.provider == "ollama"
-    assert cfg.model_name == "llama3.1"
+    assert cfg.model_name == "qwen3.6"
     assert cfg.api_base_url == "http://localhost:11434"

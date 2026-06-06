@@ -5,4 +5,4 @@ def test_llm_config_defaults():
     cfg = LLMConfig()
     assert cfg.enabled is False
     assert cfg.provider == "disabled"
-    assert cfg.max_candidates == 10
+    assert cfg.max_candidates == 20

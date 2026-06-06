@@ -7,7 +7,7 @@ This project combines a deterministic DES screening pipeline with optional layer
 - Python environment with the project dependencies installed
 - A trained checkpoint from `ml_des_mp/runs/`
 - Optional: a local discovery directory with `literature.yaml` and `library.yaml`
-- Optional: an LLM service such as Ollama, OpenAI, Gemini, or an OpenAI-compatible HTTP API
+- Optional: an Ollama service with Gemma, Nemotron, or Qwen available locally
 
 ## Mock Demo
 
@@ -39,6 +39,12 @@ Direct command if you prefer:
 python -m examples.demo_des_search --component-a "CCO" --n 5 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt
 ```
 
+If you prefer the wrapper-style override used by `scripts/demo-real.sh`, set the environment variable explicitly:
+
+```bash
+DES_CHECKPOINT_PATH=ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt ./scripts/demo-real.sh
+```
+
 If you want to add a local discovery directory, pass it explicitly:
 
 ```bash
@@ -52,10 +58,10 @@ The command uses the bundled `ml_des_mp/config.yaml` and a local trained checkpo
 If you want candidate brainstorming and explanation generation, pass an LLM config file:
 
 ```bash
-python -m examples.demo_des_search --component-a "CCO" --n 5 --llm-config llm.example.yaml
+python -m examples.demo_des_search --component-a "CCO" --n 20 --llm-config llm.example.yaml
 ```
 
-You can edit `llm.example.yaml` to point to your local Ollama server or API key based provider.
+You can edit `llm.example.yaml` to switch `model_name` between `gemma4:12b`, `nemotron-3-nano:latest`, and `qwen3.6` while keeping `provider: ollama`.
 
 ## What the Output Means
 
@@ -80,7 +86,7 @@ If local discovery is enabled, the report may also show provenance fields such a
 The library CLI [`des_multi_agent.cli`](/home/qshao/DES-Agent/des_multi_agent/cli.py) lets you tune how uncertainty affects filtering and ranking:
 
 ```bash
-python -m des_multi_agent.cli --component-a "CCO" --n 5 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --uncertainty-mode filter --min-trust-score 0.70 --soft-penalty-weight 0.20
+python -m des_multi_agent.cli --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --uncertainty-mode filter --min-trust-score 0.70 --soft-penalty-weight 0.20
 ```
 
 The default mode is `penalize`. Use `report_only` if you want to inspect the uncertainty columns without changing ranking.

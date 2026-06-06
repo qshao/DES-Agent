@@ -52,6 +52,12 @@ def test_tutorial_shows_explicit_real_checkpoint():
     assert "DES_CHECKPOINT_PATH=ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt" in text
 
 
+def test_llm_example_mentions_supported_ollama_models():
+    text = Path("llm.example.yaml").read_text(encoding="utf-8")
+    assert "provider: ollama" in text
+    assert "qwen3.6" in text
+
+
 def test_mock_script_exists_and_is_simple():
     script = Path("scripts/demo-mock.sh")
     assert script.exists()

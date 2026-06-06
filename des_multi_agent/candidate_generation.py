@@ -19,6 +19,16 @@ _FAMILY_LIBRARY: Sequence[tuple[str, str, str]] = (
     ("choline-like", "ionic partner", "C[N+](C)(C)CCO.[Cl-]"),
     ("urea", "hydrogen-bond donor", "NC(=O)N"),
     ("sugar-like polyol", "hydrogen-bond donor", "OC[C@H](O)[C@H](O)CO"),
+    ("short diol", "hydrogen-bond donor", "OCCCO"),
+    ("ether alcohol", "hydrogen-bond donor", "COCCO"),
+    ("lactam", "hydrogen-bond acceptor", "O=C1CCCN1"),
+    ("cyclic urea", "hydrogen-bond donor", "O=C1NC(=O)NC1"),
+    ("sulfoxide", "hydrogen-bond acceptor", "CS(=O)C"),
+    ("sulfone", "hydrogen-bond acceptor", "CS(=O)(=O)C"),
+    ("hydroxypyridine", "hydrogen-bond donor", "OC1=CC=CC=N1"),
+    ("dimethylformamide-like", "polar aprotic partner", "CN(C)C=O"),
+    ("ether", "polar aprotic partner", "CCOCC"),
+    ("hydroxyamide", "hydrogen-bond donor", "CC(=O)NCCO"),
 )
 
 

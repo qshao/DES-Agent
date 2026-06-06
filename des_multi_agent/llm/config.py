@@ -4,7 +4,15 @@ from dataclasses import dataclass
 from typing import Mapping
 
 
-_ALLOWED_PROVIDERS = {"disabled", "none", "off", "ollama", "openai", "gemini", "custom_http", "local", "hosted", "openai_chat"}
+_ALLOWED_PROVIDERS = {"disabled", "none", "off", "ollama", "nemotron", "openai", "gemini", "custom_http", "local", "hosted", "openai_chat"}
+_SUPPORTED_OLLAMA_MODEL_PREFIXES = ("gemma4:12b", "nemotron-3-nano", "qwen3.6")
+
+
+def _is_supported_ollama_model(model_name: str | None) -> bool:
+    if not model_name:
+        return False
+    normalized = model_name.strip().lower()
+    return any(normalized.startswith(prefix) for prefix in _SUPPORTED_OLLAMA_MODEL_PREFIXES)
 
 
 @dataclass(frozen=True)
@@ -14,7 +22,7 @@ class LLMConfig:
     model_name: str | None = None
     api_base_url: str | None = None
     api_key_env: str | None = None
-    max_candidates: int = 10
+    max_candidates: int = 20
     max_tokens: int = 512
     temperature: float = 0.2
     timeout_seconds: float = 30.0
@@ -29,7 +37,7 @@ class LLMConfig:
             model_name=mapping.get("model_name") or None,
             api_base_url=mapping.get("api_base_url") or None,
             api_key_env=mapping.get("api_key_env") or None,
-            max_candidates=int(mapping.get("max_candidates", 10)),
+            max_candidates=int(mapping.get("max_candidates", 20)),
             max_tokens=int(mapping.get("max_tokens", 512)),
             temperature=float(mapping.get("temperature", 0.2)),
             timeout_seconds=float(mapping.get("timeout_seconds", 30.0)),
@@ -41,7 +49,7 @@ class LLMConfig:
             return
         if provider not in _ALLOWED_PROVIDERS:
             raise ValueError(f"Unsupported llm.provider: {self.provider}")
-        if provider in {"local", "ollama"}:
+        if provider in {"local", "ollama", "nemotron"}:
             missing = []
             if not self.model_name:
                 missing.append("model_name")
@@ -49,6 +57,11 @@ class LLMConfig:
                 missing.append("api_base_url")
             if missing:
                 raise ValueError("Ollama LLM config requires " + ", ".join(missing))
+            if not _is_supported_ollama_model(self.model_name):
+                raise ValueError(
+                    "Unsupported Ollama model_name: "
+                    f"{self.model_name}; supported models are gemma4:12b, nemotron-3-nano:latest, and qwen3.6"
+                )
             return
         if provider in {"openai", "hosted", "openai_chat"}:
             missing = []

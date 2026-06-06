@@ -21,6 +21,15 @@ def test_parser_accepts_fenced_candidate_json():
     assert items[0].smiles == "OCCO"
 
 
+
+
+def test_parser_strips_thinking_trace_and_fenced_json():
+    raw = "Thinking...\n```json\n[{\"smiles\":\"OCCO\",\"rationale\":\"polyol\",\"family\":\"polyol\"}]\n```"
+    items = parse_candidate_brainstorms(raw)
+    assert len(items) == 1
+    assert items[0].smiles == "OCCO"
+
+
 def test_parser_discards_invalid_candidate_entries():
     raw = '[{"smiles":"OCCO","rationale":"polyol","family":"polyol"},{"smiles":"","rationale":"bad","family":"polyol"}]'
     items = parse_candidate_brainstorms(raw)

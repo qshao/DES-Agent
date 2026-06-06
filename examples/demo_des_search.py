@@ -21,7 +21,7 @@ DEFAULT_LLM_CONFIG = PROJECT_ROOT / "llm.example.yaml"
 def build_parser():
     parser = argparse.ArgumentParser(description="Run a DES screening demo")
     parser.add_argument("--component-a", default="CCO", help="SMILES for component A")
-    parser.add_argument("--n", type=int, default=5, help="Number of candidate partners to propose")
+    parser.add_argument("--n", type=int, default=20, help="Number of candidate partners to propose")
     parser.add_argument(
         "--checkpoint-path",
         default=str(DEFAULT_CHECKPOINT),
@@ -89,6 +89,16 @@ def _mock_outcome(component_a: str, n: int) -> SearchOutcome:
         (CandidateBrainstorm(smiles="C[N+](C)(C)C.[Cl-]", rationale="ionic salt-like DES partner", family="quaternary ammonium salt"), 214.62),
         (CandidateBrainstorm(smiles="C[N+](C)(C)CCO.[Cl-]", rationale="choline-like ionic partner", family="choline-like"), 216.44),
         (CandidateBrainstorm(smiles="OC[C@H](O)[C@H](O)CO", rationale="sugar-like polyol with multiple donors", family="sugar-like polyol"), 227.90),
+        (CandidateBrainstorm(smiles="OCCCO", rationale="short polyol with flexible hydrogen bonding", family="short diol"), 220.18),
+        (CandidateBrainstorm(smiles="COCCO", rationale="ether alcohol with strong polarity", family="ether alcohol"), 221.44),
+        (CandidateBrainstorm(smiles="O=C1CCCN1", rationale="lactam-like cyclic hydrogen-bonding partner", family="lactam"), 229.67),
+        (CandidateBrainstorm(smiles="O=C1NC(=O)NC1", rationale="cyclic urea with multiple donors and acceptors", family="cyclic urea"), 218.94),
+        (CandidateBrainstorm(smiles="CS(=O)C", rationale="sulfoxide with strong polarity", family="sulfoxide"), 233.41),
+        (CandidateBrainstorm(smiles="CS(=O)(=O)C", rationale="sulfone with high dipole moment", family="sulfone"), 239.02),
+        (CandidateBrainstorm(smiles="OC1=CC=CC=N1", rationale="hydroxypyridine with aromatic hydrogen bonding", family="hydroxypyridine"), 224.88),
+        (CandidateBrainstorm(smiles="CN(C)C=O", rationale="polar aprotic amide-like partner", family="dimethylformamide-like"), 231.75),
+        (CandidateBrainstorm(smiles="CCOCC", rationale="ether-like flexible partner", family="ether"), 226.05),
+        (CandidateBrainstorm(smiles="CC(=O)NCCO", rationale="hydroxyamide with multiple interaction sites", family="hydroxyamide"), 217.53),
     ]
     selected = catalog[:n]
     mock_results: list[DesResult] = []

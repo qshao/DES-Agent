@@ -12,12 +12,38 @@ def test_provider_ollama_returns_ollama_provider():
         {
             "enabled": True,
             "provider": "ollama",
-            "model_name": "llama3.1",
+            "model_name": "gemma4:12b",
             "api_base_url": "http://localhost:11434",
         },
         request_fn=lambda *args, **kwargs: '{"message":{"content":"[]"}}',
     )
     assert provider.__class__.__name__ == "OllamaProvider"
+
+
+def test_provider_ollama_returns_qwen_provider():
+    provider = build_llm_provider(
+        {
+            "enabled": True,
+            "provider": "ollama",
+            "model_name": "qwen3.6",
+            "api_base_url": "http://localhost:11434",
+        },
+        request_fn=lambda *args, **kwargs: '{"message":{"content":"[]"}}',
+    )
+    assert provider.__class__.__name__ == "QwenProvider"
+
+
+def test_provider_ollama_returns_nemotron_provider():
+    provider = build_llm_provider(
+        {
+            "enabled": True,
+            "provider": "ollama",
+            "model_name": "nemotron-3-nano:latest",
+            "api_base_url": "http://localhost:11434",
+        },
+        request_fn=lambda *args, **kwargs: '{"message":{"content":"[]"}}',
+    )
+    assert provider.__class__.__name__ == "NemotronProvider"
 
 
 def test_provider_openai_returns_openai_provider():

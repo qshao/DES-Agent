@@ -22,7 +22,7 @@ class BaseLLMProvider(ABC):
         model_name: str,
         api_base_url: str,
         api_key_env: str | None = None,
-        max_candidates: int = 10,
+        max_candidates: int = 20,
         max_tokens: int = 512,
         temperature: float = 0.2,
         timeout_seconds: float = 30.0,

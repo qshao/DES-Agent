@@ -15,6 +15,14 @@ def test_generation_and_filtering_returns_plausible_smiles():
     assert len({p.smiles for p in filtered}) == len(filtered)
 
 
+
+
+def test_generate_candidates_caps_at_twenty():
+    proposals = generate_candidates("CCO", n=20, constraints=None)
+    assert len(proposals) == 20
+    assert len({p.smiles for p in proposals}) == 20
+
+
 def test_generate_candidates_raises_when_constraints_make_generation_impossible(monkeypatch):
     monkeypatch.setattr(
         candidate_generation,

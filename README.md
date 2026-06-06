@@ -37,10 +37,10 @@ Optional local discovery:
 python -m examples.demo_des_search --component-a "CCO" --n 5 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --discovery-path /path/to/discovery
 ```
 
-Optional LLM run:
+Optional Ollama LLM run (Gemma, Nemotron, or Qwen via `model_name`):
 
 ```bash
-python -m examples.demo_des_search --component-a "CCO" --n 5 --llm-config llm.example.yaml
+python -m examples.demo_des_search --component-a "CCO" --n 20 --llm-config llm.example.yaml
 ```
 
 ## Project Layout
@@ -55,7 +55,7 @@ python -m examples.demo_des_search --component-a "CCO" --n 5 --llm-config llm.ex
 The library CLI [`des_multi_agent.cli`](/home/qshao/DES-Agent/des_multi_agent/cli.py) lets you tune how uncertainty affects filtering and ranking:
 
 ```bash
-python -m des_multi_agent.cli --component-a "CCO" --n 5 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --uncertainty-mode filter --min-trust-score 0.70 --soft-penalty-weight 0.20
+python -m des_multi_agent.cli --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --uncertainty-mode filter --min-trust-score 0.70 --soft-penalty-weight 0.20
 ```
 
 The default mode is `penalize`. Use `report_only` if you want to inspect the uncertainty columns without changing ranking.

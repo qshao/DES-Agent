@@ -2,6 +2,8 @@ from des_multi_agent.llm.local_provider import OllamaProvider
 from des_multi_agent.llm.hosted_provider import OpenAIProvider
 from des_multi_agent.llm.gemini_provider import GeminiProvider
 from des_multi_agent.llm.custom_http_provider import CustomHTTPProvider
+from des_multi_agent.llm.nemotron_provider import NemotronProvider
+from des_multi_agent.llm.qwen_provider import QwenProvider
 
 
 def test_ollama_provider_exposes_request_profile():
@@ -36,9 +38,45 @@ def test_custom_http_provider_exposes_request_profile():
     assert CustomHTTPProvider.request_profile.api_key_in_query is False
 
 
+def test_nemotron_provider_exposes_request_profile():
+    assert NemotronProvider.request_profile.name == "Nemotron"
+    assert NemotronProvider.request_profile.path_template == "/api/chat"
+    assert NemotronProvider.request_profile.payload_style == "ollama"
+    assert NemotronProvider.request_profile.api_key_in_header is True
+    assert NemotronProvider.request_profile.api_key_in_query is False
+
+
+def test_qwen_provider_exposes_request_profile():
+    assert QwenProvider.request_profile.name == "Qwen"
+    assert QwenProvider.request_profile.path_template == "/api/chat"
+    assert QwenProvider.request_profile.payload_style == "ollama"
+    assert QwenProvider.request_profile.api_key_in_header is True
+    assert QwenProvider.request_profile.api_key_in_query is False
+
+
 def test_ollama_provider_payload_disables_thinking():
     provider = OllamaProvider(
         model_name="gemma4:12b",
+        api_base_url="http://localhost:11434",
+    )
+    payload = provider.build_payload("Reply with just OK")
+    assert payload["think"] is False
+    assert payload["stream"] is False
+
+
+def test_nemotron_provider_payload_disables_thinking():
+    provider = NemotronProvider(
+        model_name="nemotron-3-nano:latest",
+        api_base_url="http://localhost:11434",
+    )
+    payload = provider.build_payload("Reply with just OK")
+    assert payload["think"] is False
+    assert payload["stream"] is False
+
+
+def test_qwen_provider_payload_disables_thinking():
+    provider = QwenProvider(
+        model_name="qwen3.6",
         api_base_url="http://localhost:11434",
     )
     payload = provider.build_payload("Reply with just OK")
