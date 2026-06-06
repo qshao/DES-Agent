@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Mapping
 
 
-_ALLOWED_PROVIDERS = {"disabled", "none", "off", "ollama", "nemotron", "openai", "gemini", "custom_http", "local", "hosted", "openai_chat"}
+_ALLOWED_PROVIDERS = {"disabled", "none", "off", "ollama", "openai", "gemini", "custom_http", "local", "hosted", "openai_chat"}
 _SUPPORTED_OLLAMA_MODEL_PREFIXES = ("gemma4:12b", "nemotron-3-nano", "qwen3.6")
 
 
@@ -49,7 +49,7 @@ class LLMConfig:
             return
         if provider not in _ALLOWED_PROVIDERS:
             raise ValueError(f"Unsupported llm.provider: {self.provider}")
-        if provider in {"local", "ollama", "nemotron"}:
+        if provider in {"local", "ollama"}:
             missing = []
             if not self.model_name:
                 missing.append("model_name")

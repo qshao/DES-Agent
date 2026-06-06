@@ -16,9 +16,9 @@ def test_ollama_config_rejects_unsupported_model_name():
         cfg.validate()
 
 
-def test_nemotron_config_requires_model_and_base_url():
-    cfg = LLMConfig(enabled=True, provider="nemotron")
-    with pytest.raises(ValueError, match="model_name|api_base_url"):
+def test_provider_nemotron_is_rejected():
+    cfg = LLMConfig(enabled=True, provider="nemotron", model_name="nemotron-3-nano:latest", api_base_url="http://localhost:11434")
+    with pytest.raises(ValueError, match="Unsupported llm.provider"):
         cfg.validate()
 
 

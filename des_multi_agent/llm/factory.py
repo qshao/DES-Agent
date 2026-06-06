@@ -58,17 +58,6 @@ def build_llm_provider(cfg: Mapping[str, object] | LLMConfig | None, request_fn=
             timeout_seconds=llm_cfg.timeout_seconds,
             request_fn=request_impl,
         )
-    if provider == "nemotron":
-        return NemotronProvider(
-            model_name=str(llm_cfg.model_name or "nemotron-3-nano:latest"),
-            api_base_url=str(llm_cfg.api_base_url or "http://localhost:11434"),
-            api_key_env=llm_cfg.api_key_env,
-            max_candidates=llm_cfg.max_candidates,
-            max_tokens=llm_cfg.max_tokens,
-            temperature=llm_cfg.temperature,
-            timeout_seconds=llm_cfg.timeout_seconds,
-            request_fn=request_impl,
-        )
     if provider == "openai":
         return OpenAIProvider(
             model_name=str(llm_cfg.model_name or ""),
