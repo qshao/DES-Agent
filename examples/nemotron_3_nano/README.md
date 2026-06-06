@@ -12,6 +12,8 @@ Uses Ollama with Nemotron 3 Nano and the shared DES demo script.
 
 ## Run
 
+The wrapper saves stdout to `output.txt` and suppresses stderr so the captured artifact starts with the report table.
+
 ```bash
 ./run.sh
 ```
@@ -25,4 +27,3 @@ The file [`output.txt`](./output.txt) contains the captured report output from t
 - LLM brainstorm candidates
 - explanation notes
 - critique notes
-- warnings if the model cannot be reached locally

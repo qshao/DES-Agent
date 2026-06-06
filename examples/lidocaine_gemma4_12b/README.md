@@ -13,6 +13,8 @@ This folder records a real DES screening run for lidocaine using the shared mult
 
 ## Run
 
+The wrapper saves stdout to `output.txt` and suppresses stderr so the captured artifact starts with the report table.
+
 ```bash
 ./run.sh
 ```
@@ -26,4 +28,3 @@ The file [`output.txt`](./output.txt) contains the captured report output from t
 - Gemma brainstorm candidates
 - explanation notes
 - critique notes
-- warnings if the local Ollama model is unavailable
