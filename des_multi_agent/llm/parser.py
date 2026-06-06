@@ -1,13 +1,41 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
 
 from .schemas import CandidateBrainstorm, CritiqueNote, ExplanationNote
 
 
+def _strip_code_fences(raw: str) -> str:
+    text = raw.strip()
+    if not text.startswith("```"):
+        return text
+    lines = text.splitlines()
+    if not lines:
+        return text
+    if lines[0].startswith("```"):
+        lines = lines[1:]
+    if lines and lines[-1].strip().startswith("```"):
+        lines = lines[:-1]
+    text = "\n".join(lines).strip()
+    if text.lower().startswith("json"):
+        text = text[4:].lstrip()
+    return text
+
+
+def _extract_json_block(raw: str) -> str:
+    text = _strip_code_fences(raw)
+    if text.startswith("[") or text.startswith("{"):
+        return text
+    match = re.search(r"(\[[\s\S]*\]|\{[\s\S]*\})", text)
+    if match:
+        return match.group(1)
+    return text
+
+
 def _coerce_json(raw: str) -> Any:
-    data = json.loads(raw)
+    data = json.loads(_extract_json_block(raw))
     if isinstance(data, dict):
         for key in ("candidates", "explanations", "critique", "notes", "items"):
             if key in data:

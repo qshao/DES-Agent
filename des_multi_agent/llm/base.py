@@ -48,15 +48,15 @@ class BaseLLMProvider(ABC):
         return self.extract_text(raw)
 
     def brainstorm_candidates(self, component_a: str, constraints: dict | None, context: str) -> list[CandidateBrainstorm]:
-        raw = self._request(candidate_brainstorm_prompt(component_a, constraints, context))
+        raw = self._request(candidate_brainstorm_prompt(component_a, constraints, context, self.max_candidates))
         return parse_candidate_brainstorms(raw)[: self.max_candidates]
 
     def generate_explanations(self, results: list[DesResult], context: str) -> list[ExplanationNote]:
-        raw = self._request(explanation_prompt(results, context))
+        raw = self._request(explanation_prompt(results, context, len(results) or None))
         return parse_explanation_notes(raw)
 
     def critique_results(self, results: list[DesResult], context: str) -> list[CritiqueNote]:
-        raw = self._request(critique_prompt(results, context))
+        raw = self._request(critique_prompt(results, context, len(results) or None))
         return parse_critique_notes(raw)
 
     def request_url(self, api_key: str | None) -> str:
@@ -77,6 +77,7 @@ class BaseLLMProvider(ABC):
                 "model": self.model_name,
                 "messages": [{"role": "user", "content": prompt}],
                 "stream": False,
+                "think": False,
                 "options": {
                     "temperature": self.temperature,
                     "num_predict": self.max_tokens,

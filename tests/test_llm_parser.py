@@ -10,6 +10,17 @@ from des_multi_agent.llm.custom_http_provider import CustomHTTPProvider
 import pytest
 
 
+
+
+def test_parser_accepts_fenced_candidate_json():
+    raw = """```json
+    [{"smiles":"OCCO","rationale":"polyol","family":"polyol"}]
+    ```"""
+    items = parse_candidate_brainstorms(raw)
+    assert len(items) == 1
+    assert items[0].smiles == "OCCO"
+
+
 def test_parser_discards_invalid_candidate_entries():
     raw = '[{"smiles":"OCCO","rationale":"polyol","family":"polyol"},{"smiles":"","rationale":"bad","family":"polyol"}]'
     items = parse_candidate_brainstorms(raw)

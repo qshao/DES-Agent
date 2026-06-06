@@ -34,3 +34,13 @@ def test_custom_http_provider_exposes_request_profile():
     assert CustomHTTPProvider.request_profile.payload_style == "openai"
     assert CustomHTTPProvider.request_profile.api_key_in_header is True
     assert CustomHTTPProvider.request_profile.api_key_in_query is False
+
+
+def test_ollama_provider_payload_disables_thinking():
+    provider = OllamaProvider(
+        model_name="gemma4:12b",
+        api_base_url="http://localhost:11434",
+    )
+    payload = provider.build_payload("Reply with just OK")
+    assert payload["think"] is False
+    assert payload["stream"] is False
