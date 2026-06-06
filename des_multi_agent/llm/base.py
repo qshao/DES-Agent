@@ -1,19 +1,19 @@
 from __future__ import annotations
 
 import os
-from abc import ABC, abstractmethod
 from urllib.parse import urlencode, urlsplit, urlunsplit, parse_qsl
 
 from ..evaluation import DesResult
 from .client import post_json_chat
-from .parser import parse_candidate_brainstorms, parse_critique_notes, parse_explanation_notes
-from .prompts import candidate_brainstorm_prompt, critique_prompt, explanation_prompt
-from .schemas import CandidateBrainstorm, CritiqueNote, ExplanationNote
+from .parser import parse_candidate_brainstorms, parse_candidate_review, parse_critique_notes, parse_explanation_notes
+from .prompts import candidate_brainstorm_prompt, candidate_review_prompt, critique_prompt, explanation_prompt
+from .provider import LLMProvider
+from .schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, ExplanationNote
 from .specs import RequestProfile
 from .transport import RequestTransport
 
 
-class BaseLLMProvider(ABC):
+class BaseLLMProvider(LLMProvider):
     request_profile: RequestProfile
 
     def __init__(
@@ -46,6 +46,11 @@ class BaseLLMProvider(ABC):
             include_api_key_in_header=self.request_profile.api_key_in_header,
         )
         return self.extract_text(raw)
+
+    def review_candidate(self, component_a: str, candidate_smiles: str, context: str) -> CandidateReview:
+        raw = self._request(candidate_review_prompt(component_a, candidate_smiles, context))
+        review = parse_candidate_review(raw)
+        return review
 
     def brainstorm_candidates(self, component_a: str, constraints: dict | None, context: str) -> list[CandidateBrainstorm]:
         raw = self._request(candidate_brainstorm_prompt(component_a, constraints, context, self.max_candidates))
@@ -100,6 +105,5 @@ class BaseLLMProvider(ABC):
             }
         raise ValueError(f"Unknown request payload style: {style}")
 
-    @abstractmethod
     def extract_text(self, raw: str) -> str:
         raise NotImplementedError

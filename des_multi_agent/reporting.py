@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from .llm.schemas import CandidateBrainstorm, CritiqueNote, ExplanationNote
+from .llm.schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, ExplanationNote
 from .schemas import CandidateProposal
 from .uncertainty import AnnotatedResult
 
@@ -11,6 +11,7 @@ def format_report(
     results,
     annotated_results: Sequence[AnnotatedResult] | None = None,
     candidate_proposals: Sequence[CandidateProposal] | None = None,
+    candidate_reviews: Sequence[CandidateReview] | None = None,
     explanation_notes: Sequence[ExplanationNote] | None = None,
     critique_notes: Sequence[CritiqueNote] | None = None,
     brainstorm_candidates: Sequence[CandidateBrainstorm] | None = None,
@@ -42,6 +43,12 @@ def format_report(
             f"spread={annotation.uncertainty.min_tm_k:.2f}-{annotation.uncertainty.max_tm_k:.2f} K | "
             f"std={annotation.uncertainty.std_tm_k:.2f} K | flag={annotation.uncertainty.uncertainty_flag} | {r.rationale}"
         )
+    if candidate_reviews:
+        lines.append("")
+        lines.append("LLM candidate reviews:")
+        for note in candidate_reviews:
+            notes = "; ".join(note.notes) if note.notes else "-"
+            lines.append(f"{note.smiles} | {note.decision} | confidence={note.confidence:.2f} | {note.rationale} | {notes}")
     if brainstorm_candidates:
         lines.append("")
         lines.append("LLM brainstorm:")

@@ -1,6 +1,6 @@
 # DES Multi-Agent Tutorial
 
-This project combines a deterministic DES screening pipeline with optional layers for uncertainty, local discovery, and LLM-assisted candidate brainstorming. The trained `ml_des_mp` model always makes the final prediction.
+This project combines a deterministic DES screening pipeline with optional layers for uncertainty, local discovery, and LLM-assisted candidate brainstorming. When LLM mode is enabled, candidates are reviewed one by one to keep the JSON payloads small. The trained `ml_des_mp` model always makes the final prediction.
 
 ## What You Need
 
@@ -52,6 +52,10 @@ python -m examples.demo_des_search --component-a "CCO" --n 5 --checkpoint-path m
 ```
 
 The command uses the bundled `ml_des_mp/config.yaml` and a local trained checkpoint.
+
+## Real Lidocaine Example
+
+For a real model-backed example, see [examples/lidocaine_gemma4_12b/](../examples/lidocaine_gemma4_12b/). It records a lidocaine free-base run with Gemma 4-12B and the shipped `ml_des_mp` checkpoint.
 
 ## Optional LLM Mode
 

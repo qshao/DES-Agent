@@ -1,54 +1,1349 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 44028.15it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+ChemBERTa embedding:   0%|          | 0/1 [00:00<?, ?it/s]ChemBERTa embedding: 100%|██████████| 1/1 [00:00<00:00,  2.91it/s]                                                                  ChemBERTa embedding:   0%|          | 0/1 [00:00<?, ?it/s]                                                          Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 28142.56it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+ChemBERTa embedding:   0%|          | 0/1 [00:00<?, ?it/s]                                                          Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 20409.30it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+ChemBERTa embedding:   0%|          | 0/1 [00:00<?, ?it/s]                                                          Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 59374.50it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+ChemBERTa embedding:   0%|          | 0/1 [00:00<?, ?it/s]                                                          Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 59902.48it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+ChemBERTa embedding:   0%|          | 0/1 [00:00<?, ?it/s]                                                          Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 43553.71it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+ChemBERTa embedding:   0%|          | 0/1 [00:00<?, ?it/s]                                                          Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 36634.49it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+ChemBERTa embedding:   0%|          | 0/1 [00:00<?, ?it/s]                                                          Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 49809.12it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+ChemBERTa embedding:   0%|          | 0/1 [00:00<?, ?it/s]                                                          Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 37285.83it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+ChemBERTa embedding:   0%|          | 0/1 [00:00<?, ?it/s]                                                          Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 31103.70it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+ChemBERTa embedding:   0%|          | 0/1 [00:00<?, ?it/s]                                                          Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 13014.35it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+ChemBERTa embedding:   0%|          | 0/1 [00:00<?, ?it/s]                                                          Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 34321.15it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+ChemBERTa embedding:   0%|          | 0/1 [00:00<?, ?it/s]                                                          Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 31921.04it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+ChemBERTa embedding:   0%|          | 0/1 [00:00<?, ?it/s]                                                          Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 38573.33it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+ChemBERTa embedding:   0%|          | 0/1 [00:00<?, ?it/s]                                                          Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 24141.85it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+ChemBERTa embedding:   0%|          | 0/1 [00:00<?, ?it/s]                                                          Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 63045.41it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+ChemBERTa embedding:   0%|          | 0/1 [00:00<?, ?it/s]                                                          Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 24675.12it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+ChemBERTa embedding:   0%|          | 0/1 [00:00<?, ?it/s]                                                          Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 36341.04it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+ChemBERTa embedding:   0%|          | 0/1 [00:00<?, ?it/s]                                                          Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 25607.43it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+ChemBERTa embedding:   0%|          | 0/1 [00:00<?, ?it/s]                                                          Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 35096.01it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+ChemBERTa embedding:   0%|          | 0/1 [00:00<?, ?it/s]                                                          Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 40337.16it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 29303.73it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 23541.05it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 60820.28it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 27346.30it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 55616.24it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 38221.82it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 22020.62it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 30531.26it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 35123.73it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 47418.54it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 45938.85it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 39470.55it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 41628.86it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 21666.48it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 58638.38it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 36969.58it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 39996.06it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 36981.89it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 33830.18it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 42181.80it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 30827.64it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 50384.88it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 39575.95it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 41597.70it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 57072.69it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 40863.62it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 54100.29it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 33783.91it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 35516.55it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 25098.58it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 23874.78it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 33579.78it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 44344.33it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 52453.54it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 33223.45it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 76601.69it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 63099.10it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 56320.78it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 22214.26it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 74923.53it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 61595.49it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 26460.91it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 30072.80it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 44539.79it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 30294.10it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 37550.36it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 45834.66it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 28203.26it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 61646.73it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 37633.00it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 27546.23it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 58545.72it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 34347.67it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 37000.35it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 37474.40it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 29734.90it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 41675.69it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 56999.52it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+Loading weights:   0%|          | 0/53 [00:00<?, ?it/s]Loading weights: 100%|██████████| 53/53 [00:00<00:00, 68547.06it/s]
+[transformers] [1mRobertaModel LOAD REPORT[0m from: DeepChem/ChemBERTa-77M-MTR
+Key                        | Status     | 
+---------------------------+------------+-
+regression.dense.bias      | UNEXPECTED | 
+regression.out_proj.bias   | UNEXPECTED | 
+norm_mean                  | UNEXPECTED | 
+regression.dense.weight    | UNEXPECTED | 
+regression.out_proj.weight | UNEXPECTED | 
+norm_std                   | UNEXPECTED | 
+pooler.dense.bias          | MISSING    | 
+pooler.dense.weight        | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
 smiles_b | is_des | min_tm_k | source | trust | mean_tm_k | spread_k | std_k | uncertainty_flag | rationale
-OCCO | True | 208.69 | source=mock; id=mock-demo | trust=0.95 | mean=208.69 K | spread=208.19-209.19 K | std=0.50 K | flag=low | mock min Tm=208.69 K, absolute<= 260.00 K, relative_drop=0.20
-OCC(O)CO | True | 223.28 | source=mock; id=mock-demo | trust=0.92 | mean=223.28 K | spread=222.58-223.98 K | std=0.70 K | flag=low | mock min Tm=223.28 K, absolute<= 260.00 K, relative_drop=0.20
-O | True | 225.27 | source=mock; id=mock-demo | trust=0.89 | mean=225.27 K | spread=224.37-226.17 K | std=0.90 K | flag=low | mock min Tm=225.27 K, absolute<= 260.00 K, relative_drop=0.20
-CC(=O)N | True | 222.77 | source=mock; id=mock-demo | trust=0.86 | mean=222.77 K | spread=221.67-223.87 K | std=1.10 K | flag=low | mock min Tm=222.77 K, absolute<= 260.00 K, relative_drop=0.20
-CC(=O)O | True | 236.03 | source=mock; id=mock-demo | trust=0.83 | mean=236.03 K | spread=234.73-237.33 K | std=1.30 K | flag=low | mock min Tm=236.03 K, absolute<= 260.00 K, relative_drop=0.20
-CN | True | 241.11 | source=mock; id=mock-demo | trust=0.80 | mean=241.11 K | spread=239.61-242.61 K | std=1.50 K | flag=low | mock min Tm=241.11 K, absolute<= 260.00 K, relative_drop=0.20
-NC(=O)N | True | 219.84 | source=mock; id=mock-demo | trust=0.77 | mean=219.84 K | spread=218.14-221.54 K | std=1.70 K | flag=low | mock min Tm=219.84 K, absolute<= 260.00 K, relative_drop=0.20
-C[N+](C)(C)C.[Cl-] | True | 214.62 | source=mock; id=mock-demo | trust=0.74 | mean=214.62 K | spread=212.72-216.52 K | std=1.90 K | flag=low | mock min Tm=214.62 K, absolute<= 260.00 K, relative_drop=0.20
-C[N+](C)(C)CCO.[Cl-] | True | 216.44 | source=mock; id=mock-demo | trust=0.71 | mean=216.44 K | spread=214.34-218.54 K | std=2.10 K | flag=medium | mock min Tm=216.44 K, absolute<= 260.00 K, relative_drop=0.20
-OC[C@H](O)[C@H](O)CO | True | 227.90 | source=mock; id=mock-demo | trust=0.68 | mean=227.90 K | spread=225.60-230.20 K | std=2.30 K | flag=medium | mock min Tm=227.90 K, absolute<= 260.00 K, relative_drop=0.20
-OCCCO | True | 220.18 | source=mock; id=mock-demo | trust=0.65 | mean=220.18 K | spread=217.68-222.68 K | std=2.50 K | flag=medium | mock min Tm=220.18 K, absolute<= 260.00 K, relative_drop=0.20
-COCCO | True | 221.44 | source=mock; id=mock-demo | trust=0.62 | mean=221.44 K | spread=218.74-224.14 K | std=2.70 K | flag=medium | mock min Tm=221.44 K, absolute<= 260.00 K, relative_drop=0.20
-O=C1CCCN1 | True | 229.67 | source=mock; id=mock-demo | trust=0.59 | mean=229.67 K | spread=226.77-232.57 K | std=2.90 K | flag=medium | mock min Tm=229.67 K, absolute<= 260.00 K, relative_drop=0.20
-O=C1NC(=O)NC1 | True | 218.94 | source=mock; id=mock-demo | trust=0.56 | mean=218.94 K | spread=215.84-222.04 K | std=3.10 K | flag=medium | mock min Tm=218.94 K, absolute<= 260.00 K, relative_drop=0.20
-CS(=O)C | True | 233.41 | source=mock; id=mock-demo | trust=0.53 | mean=233.41 K | spread=230.11-236.71 K | std=3.30 K | flag=medium | mock min Tm=233.41 K, absolute<= 260.00 K, relative_drop=0.20
-CS(=O)(=O)C | True | 239.02 | source=mock; id=mock-demo | trust=0.50 | mean=239.02 K | spread=235.52-242.52 K | std=3.50 K | flag=medium | mock min Tm=239.02 K, absolute<= 260.00 K, relative_drop=0.20
-OC1=CC=CC=N1 | True | 224.88 | source=mock; id=mock-demo | trust=0.47 | mean=224.88 K | spread=221.18-228.58 K | std=3.70 K | flag=medium | mock min Tm=224.88 K, absolute<= 260.00 K, relative_drop=0.20
-CN(C)C=O | True | 231.75 | source=mock; id=mock-demo | trust=0.44 | mean=231.75 K | spread=227.85-235.65 K | std=3.90 K | flag=medium | mock min Tm=231.75 K, absolute<= 260.00 K, relative_drop=0.20
-CCOCC | True | 226.05 | source=mock; id=mock-demo | trust=0.41 | mean=226.05 K | spread=221.95-230.15 K | std=4.10 K | flag=medium | mock min Tm=226.05 K, absolute<= 260.00 K, relative_drop=0.20
-CC(=O)NCCO | True | 217.53 | source=mock; id=mock-demo | trust=0.38 | mean=217.53 K | spread=213.23-221.83 K | std=4.30 K | flag=medium | mock min Tm=217.53 K, absolute<= 260.00 K, relative_drop=0.20
+OCCCO | True | 200.73 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=200.73 K | spread=200.73-200.73 K | std=0.00 K | flag=low | min Tm=200.73 K, absolute<= 260.00 K, relative_drop=0.260
+CN(C)C=O | True | 207.73 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=207.73 K | spread=207.73-207.73 K | std=0.00 K | flag=low | min Tm=207.73 K, absolute<= 260.00 K, relative_drop=0.234
+OCCO | True | 208.69 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=208.69 K | spread=208.69-208.69 K | std=0.00 K | flag=low | min Tm=208.69 K, absolute<= 260.00 K, relative_drop=0.230
+CN | True | 210.86 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=210.86 K | spread=210.86-210.86 K | std=0.00 K | flag=low | min Tm=210.86 K, absolute<= 260.00 K, relative_drop=0.206
+C[N+](C)(C)CCO.[Cl-] | True | 217.36 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=217.36 K | spread=217.36-217.36 K | std=0.00 K | flag=low | min Tm=217.36 K, absolute<= 260.00 K, relative_drop=0.199
+O=C1CCCN1 | True | 220.63 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=220.63 K | spread=220.63-220.63 K | std=0.00 K | flag=low | min Tm=220.63 K, absolute<= 260.00 K, relative_drop=0.186
+CC(=O)N | True | 222.77 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=222.77 K | spread=222.77-222.77 K | std=0.00 K | flag=low | min Tm=222.77 K, absolute<= 260.00 K, relative_drop=0.179
+CCOCC | True | 224.74 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=224.74 K | spread=224.74-224.74 K | std=0.00 K | flag=low | min Tm=224.74 K, absolute<= 260.00 K, relative_drop=0.171
+O | True | 225.27 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=225.27 K | spread=225.27-225.27 K | std=0.00 K | flag=low | min Tm=225.27 K, absolute<= 260.00 K, relative_drop=0.118
+C[N+](C)(C)C.[Cl-] | True | 232.36 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=232.36 K | spread=232.36-232.36 K | std=0.00 K | flag=low | min Tm=232.36 K, absolute<= 260.00 K, relative_drop=0.143
+CC(=O)O | True | 236.03 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=236.03 K | spread=236.03-236.03 K | std=0.00 K | flag=low | min Tm=236.03 K, absolute<= 260.00 K, relative_drop=0.130
+COCCO | True | 239.96 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=239.96 K | spread=239.96-239.96 K | std=0.00 K | flag=low | min Tm=239.96 K, absolute<= 260.00 K, relative_drop=0.115
+CS(=O)(=O)C | True | 243.14 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=243.14 K | spread=243.14-243.14 K | std=0.00 K | flag=low | min Tm=243.14 K, absolute<= 260.00 K, relative_drop=0.103
+O=C1NC(=O)NC1 | True | 221.71 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=221.71 K | spread=221.71-221.71 K | std=0.00 K | flag=low | min Tm=221.71 K, absolute<= 260.00 K, relative_drop=0.182
+OCC(O)CO | True | 223.28 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=223.28 K | spread=223.28-223.28 K | std=0.00 K | flag=low | min Tm=223.28 K, absolute<= 260.00 K, relative_drop=0.177
+NC(=O)N | True | 226.25 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=226.25 K | spread=226.25-226.25 K | std=0.00 K | flag=low | min Tm=226.25 K, absolute<= 260.00 K, relative_drop=0.166
+OC1=CC=CC=N1 | True | 226.96 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=226.96 K | spread=226.96-226.96 K | std=0.00 K | flag=low | min Tm=226.96 K, absolute<= 260.00 K, relative_drop=0.163
+CC(=O)NCCO | True | 228.33 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=228.33 K | spread=228.33-228.33 K | std=0.00 K | flag=low | min Tm=228.33 K, absolute<= 260.00 K, relative_drop=0.158
+CS(=O)C | True | 229.18 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=229.18 K | spread=229.18-229.18 K | std=0.00 K | flag=low | min Tm=229.18 K, absolute<= 260.00 K, relative_drop=0.155
+OC[C@H](O)[C@H](O)CO | False | 244.92 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=244.92 K | spread=244.92-244.92 K | std=0.00 K | flag=low | min Tm=244.92 K, absolute<= 260.00 K, relative_drop=0.097
 
-LLM brainstorm:
-OCCO | polyol | small polyol that can hydrogen bond
-OCC(O)CO | polyol | more strongly hydrogen-bonding polyol
-O | alcohol | minimal hydrogen-bond donor/acceptor
-CC(=O)N | amide | amide-like hydrogen-bonding partner
-CC(=O)O | carboxylic acid | acidic hydrogen-bond donor
-CN | amine | small amine that can pair through hydrogen bonding
-NC(=O)N | urea | urea-like strong hydrogen-bonding partner
-C[N+](C)(C)C.[Cl-] | quaternary ammonium salt | ionic salt-like DES partner
-C[N+](C)(C)CCO.[Cl-] | choline-like | choline-like ionic partner
-OC[C@H](O)[C@H](O)CO | sugar-like polyol | sugar-like polyol with multiple donors
-OCCCO | short diol | short polyol with flexible hydrogen bonding
-COCCO | ether alcohol | ether alcohol with strong polarity
-O=C1CCCN1 | lactam | lactam-like cyclic hydrogen-bonding partner
-O=C1NC(=O)NC1 | cyclic urea | cyclic urea with multiple donors and acceptors
-CS(=O)C | sulfoxide | sulfoxide with strong polarity
-CS(=O)(=O)C | sulfone | sulfone with high dipole moment
-OC1=CC=CC=N1 | hydroxypyridine | hydroxypyridine with aromatic hydrogen bonding
-CN(C)C=O | dimethylformamide-like | polar aprotic amide-like partner
-CCOCC | ether | ether-like flexible partner
-CC(=O)NCCO | hydroxyamide | hydroxyamide with multiple interaction sites
-
-LLM explanations:
-OCCO | Good hydrogen-bonding candidate in mock mode | low mock min Tm
-OCC(O)CO | Strong mock candidate for a DES pair | strong mock polarity
-CC(=O)N | Amide-like mock candidate with moderate interaction strength | intermediate mock min Tm
+LLM candidate reviews:
+OCCO | keep | confidence=0.92 | The molecule is a simple ether with moderate polarity and good hydrogen-bond acceptor capacity, making it a promising scaffold for further optimization. | Short chain length improves membrane permeability.
+OCC(O)CO | deprioritize | confidence=0.62 | The molecule contains an ether linkage and a primary alcohol, which may reduce metabolic stability compared to simpler aliphatic alcohols. | Potential for rapid oxidation of the benzylic-like carbon adjacent to oxygen.
+CC(=O)N | keep | confidence=0.92 | The SMILES represents an amide with a carbonyl and amine, fitting typical pharmacophore patterns for drug-like molecules. | Amide functionality is common in bioactive compounds.
+CC(=O)O | keep | confidence=0.92 | The molecule is a simple carboxylic acid derivative with moderate complexity and favorable physicochemical properties, making it a promising candidate for further evaluation. | Short chain length reduces synthetic difficulty.; Contains both carbonyl and hydroxyl groups enabling diverse functionalization.
+CN | keep | confidence=0.92 | The SMILES 'CN' represents a simple alkyl chain, which is chemically valid and likely to be considered in the design space. | Valid molecular representation.
+NC(=O)N | deprioritize | confidence=0.62 | The SMILES represents a simple amide, which is common and lacks novelty for drug design. | Amide functional group is ubiquitous in bioactive molecules but offers limited differentiation.
+COCCO | keep | confidence=0.92 | The SMILES 'COCCO' represents a simple ether structure with moderate molecular weight and favorable physicochemical properties, making it a promising candidate for further evaluation. | High confidence in structural validity; Potential for metabolic stability
+O=C1CCCN1 | keep | confidence=0.92 | The molecule is a saturated five-membered lactam (γ-lactam) with moderate complexity and favorable physicochemical properties; it fits typical drug-like criteria. | Contains one ring, no heteroatoms beyond N and O; LogP estimated around -0.5 to 0.5; Molecular weight ~85 Da
+O=C1NC(=O)NC1 | deprioritize | confidence=0.62 | The molecule contains a lactam ring fused to an amide, which may limit synthetic accessibility and functional diversity compared to simpler CCO scaffolds. | Lactam structure could reduce metabolic stability.; Potential for tautomerization affecting binding.
+CS(=O)C | deprioritize | confidence=0.62 | The molecule contains a thioether with an oxidized sulfur (sulfoxide), which may affect stability and synthetic accessibility; also lacks the desired CCO motif. | Potential oxidation side‑reaction risk; Sulfoxide could reduce binding affinity
+CS(=O)(=O)C | keep | confidence=0.92 | The molecule contains a sulfonyl group attached to a methyl and ethyl chain, which is chemically plausible for a CCO-based scaffold. | Sulfonyl functional groups are common in bioactive molecules.; Methyl and ethyl substituents provide moderate lipophilicity.
+OC1=CC=CC=N1 | deprioritize | confidence=0.65 | The SMILES encodes a heterocyclic aromatic system with nitrogen; while synthetically accessible, it lacks the CCO motif explicitly required for Component A. | No explicit C–C–O substructure present; Potential functional group mismatch
+CN(C)C=O | keep | confidence=0.92 | The molecule is a simple tertiary amine with a carbonyl group, representing a clear and synthetically accessible structure. | High confidence in structural validity.
+CC(=O)NCCO | deprioritize | confidence=0.62 | The molecule contains a carbonyl group adjacent to an amine and an ether, which may introduce metabolic liabilities or synthetic challenges; however, it is not outright unsuitable. | Potential amide-like functionality could affect stability; Ether linkage generally stable but may be metabolized
 
 LLM critique:
-O | Useful for demo only | small candidate space
+OCCCO | acceptable | -
+CN(C)C=O | acceptable | -
+OCCO | acceptable | -
+CN | acceptable | -
+C[N+](C)(C)CCO.[Cl-] | acceptable | -
+O=C1CCCN1 | acceptable | -
+CC(=O)N | acceptable | -
+CCOCC | acceptable | -
+O | acceptable | -
+C[N+](C)(C)C.[Cl-] | acceptable | -
+CC(=O)O | acceptable | -
+COCCO | acceptable | -
+CS(=O)(=O)C | acceptable | -
+O=C1NC(=O)NC1 | acceptable | -
+OCC(O)CO | acceptable | -
+NC(=O)N | acceptable | -
+OC1=CC=CC=N1 | acceptable | -
+CC(=O)NCCO | acceptable | -
+CS(=O)C | acceptable | -
 
 Warnings:
-- Mock mode is using canned outputs and does not call the trained model.
+- LLM brainstorming failed: Unterminated string starting at: line 98 column 15 (char 3926)
+- LLM candidate review returned wrong SMILES for O
+- LLM candidate review returned wrong SMILES for C[N+](C)(C)C.[Cl-]
+- LLM candidate review returned wrong SMILES for C[N+](C)(C)CCO.[Cl-]
+- LLM candidate review returned wrong SMILES for OC[C@H](O)[C@H](O)CO
+- LLM candidate review returned wrong SMILES for OCCCO
+- LLM candidate review returned wrong SMILES for CCOCC
+- LLM explanation generation failed: Unterminated string starting at: line 54 column 16 (char 2695)

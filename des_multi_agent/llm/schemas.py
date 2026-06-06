@@ -11,6 +11,15 @@ class CandidateBrainstorm:
 
 
 @dataclass(frozen=True)
+class CandidateReview:
+    smiles: str
+    decision: str
+    confidence: float
+    rationale: str
+    notes: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
 class ExplanationNote:
     smiles: str
     summary: str

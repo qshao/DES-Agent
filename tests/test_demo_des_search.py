@@ -1,7 +1,8 @@
 from pathlib import Path
 
 from examples import demo_des_search
-from examples.demo_des_search import build_parser, resolve_defaults
+from examples.demo_des_search import SearchOutcome, build_parser, resolve_defaults
+from des_multi_agent.llm.schemas import CandidateReview
 
 
 def test_demo_parser_accepts_overrides():
@@ -43,6 +44,7 @@ def test_demo_mock_mode_runs_without_real_pipeline(monkeypatch, capsys):
     assert "trust=" in out
     assert "std=" in out
     assert "flag=" in out
+    assert "LLM candidate reviews" in out
     assert "Mock mode is using canned outputs" in out
     assert "OCCO" in out
 
@@ -80,6 +82,7 @@ def test_model_specific_examples_exist():
         ("examples/gemma4_12b", "llm.gemma4_12b.yaml"),
         ("examples/nemotron_3_nano", "llm.nemotron_3_nano.yaml"),
         ("examples/qwen3_6", "llm.qwen3_6.yaml"),
+        ("examples/lidocaine_gemma4_12b", "llm.gemma4_12b.yaml"),
     ]:
         base = Path(folder)
         assert (base / "README.md").exists()
@@ -87,7 +90,11 @@ def test_model_specific_examples_exist():
         assert (base / "output.txt").exists()
         assert (base / llm_file).exists()
         assert "--llm-config" in (base / "run.sh").read_text(encoding="utf-8")
-        assert "CCO" in (base / "README.md").read_text(encoding="utf-8")
+        readme_text = (base / "README.md").read_text(encoding="utf-8")
+        if folder.endswith("lidocaine_gemma4_12b"):
+            assert "lidocaine" in readme_text
+        else:
+            assert "CCO" in readme_text
 
 
 def test_mock_script_runs_from_other_directory(tmp_path):
@@ -97,3 +104,24 @@ def test_mock_script_runs_from_other_directory(tmp_path):
     assert "std=" in result.stdout
     assert "flag=" in result.stdout
     assert "OCCO" in result.stdout
+
+
+
+def test_demo_renders_candidate_reviews(monkeypatch, capsys):
+    fake_outcome = SearchOutcome(
+        results=[],
+        annotated_results=[],
+        candidate_proposals=[],
+        candidate_reviews=[
+            CandidateReview(smiles="OCCO", decision="keep", confidence=0.9, rationale="demo review", notes=["stable"])
+        ],
+        brainstorm_candidates=[],
+        explanation_notes=[],
+        critique_notes=[],
+        llm_warnings=[],
+    )
+    monkeypatch.setattr(demo_des_search, "run_search_report", lambda *args, **kwargs: fake_outcome)
+    demo_des_search.main(["--component-a", "CCO", "--n", "1"])
+    out = capsys.readouterr().out
+    assert "LLM candidate reviews" in out
+    assert "demo review" in out

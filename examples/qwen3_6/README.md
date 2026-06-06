@@ -8,6 +8,7 @@ Uses Ollama with Qwen 3.6 and the shared DES demo script.
 - Candidate search count: `20`
 - Checkpoint: `ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt`
 - LLM config: [`llm.qwen3_6.yaml`](./llm.qwen3_6.yaml)
+- Captured input: [`input.txt`](./input.txt)
 
 ## Run
 

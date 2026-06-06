@@ -14,6 +14,19 @@ def _results_summary(results: Sequence[DesResult]) -> str:
     return "\n".join(lines) if lines else "- no ranked results yet"
 
 
+def candidate_review_prompt(component_a: str, candidate_smiles: str, context: str) -> str:
+    return (
+        "Return raw JSON only. Do not use markdown fences or commentary.\n"
+        "Return one JSON object for a single candidate review.\n"
+        f"Component A: {component_a}\n"
+        f"Candidate: {candidate_smiles}\n"
+        f"Context: {context}\n"
+        "The JSON object must contain smiles, decision, confidence, rationale, and notes.\n"
+        "decision must be one of keep, reject, or deprioritize.\n"
+        'Example: { "smiles": "OCCO", "decision": "keep", "confidence": 0.87, "rationale": "Good candidate.", "notes": ["short note"] }'
+    )
+
+
 def candidate_brainstorm_prompt(component_a: str, constraints: dict | None, context: str, max_items: int | None = None) -> str:
     parts = [
         "Return raw JSON only. Do not use markdown fences or commentary.\n",

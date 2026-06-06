@@ -5,7 +5,7 @@ import argparse
 from des_multi_agent.cli import load_llm_config
 from des_multi_agent.config import DEFAULT_CONFIG_PATH, PROJECT_ROOT
 from des_multi_agent.evaluation import DesResult
-from des_multi_agent.llm.schemas import CandidateBrainstorm, CritiqueNote, ExplanationNote
+from des_multi_agent.llm.schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, ExplanationNote
 from des_multi_agent.orchestrator import SearchOutcome, run_search_report
 from des_multi_agent.paths import resolve_existing_path
 from des_multi_agent.prediction import CurvePrediction
@@ -153,6 +153,29 @@ def _mock_outcome(component_a: str, n: int) -> SearchOutcome:
             )
             for candidate, _ in selected
         ],
+        candidate_reviews=[
+            CandidateReview(
+                smiles="OCCO",
+                decision="keep",
+                confidence=0.95,
+                rationale="Good hydrogen-bonding candidate in mock mode",
+                notes=["low mock min Tm"],
+            ),
+            CandidateReview(
+                smiles="OCC(O)CO",
+                decision="deprioritize",
+                confidence=0.74,
+                rationale="Still useful but less compelling than the top candidate",
+                notes=["mock review penalty"],
+            ),
+            CandidateReview(
+                smiles="O",
+                decision="reject",
+                confidence=0.33,
+                rationale="Too small to be informative in this mock review",
+                notes=["demo only"],
+            ),
+        ][: len(selected)],
         brainstorm_candidates=[candidate for candidate, _ in selected],
         explanation_notes=explanations,
         critique_notes=critique,
@@ -183,6 +206,7 @@ def main(argv=None):
             outcome.results,
             annotated_results=outcome.annotated_results,
             candidate_proposals=outcome.candidate_proposals,
+            candidate_reviews=outcome.candidate_reviews,
             explanation_notes=outcome.explanation_notes,
             critique_notes=outcome.critique_notes,
             brainstorm_candidates=outcome.brainstorm_candidates,

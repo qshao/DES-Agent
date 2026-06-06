@@ -8,6 +8,7 @@ Uses Ollama with Nemotron 3 Nano and the shared DES demo script.
 - Candidate search count: `20`
 - Checkpoint: `ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt`
 - LLM config: [`llm.nemotron_3_nano.yaml`](./llm.nemotron_3_nano.yaml)
+- Captured input: [`input.txt`](./input.txt)
 
 ## Run
 

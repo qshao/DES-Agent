@@ -4,7 +4,7 @@ import json
 import re
 from typing import Any
 
-from .schemas import CandidateBrainstorm, CritiqueNote, ExplanationNote
+from .schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, ExplanationNote
 
 
 def _strip_code_fences(raw: str) -> str:
@@ -58,6 +58,34 @@ def _normalize_list(value: Any) -> list[str]:
         return out
     text = str(value).strip()
     return [text] if text else []
+
+
+def parse_candidate_review(raw: str) -> CandidateReview:
+    data = json.loads(_extract_json_block(raw))
+    if not isinstance(data, dict):
+        raise ValueError("Candidate review must be a JSON object")
+    smiles = str(data.get("smiles", "")).strip()
+    decision = str(data.get("decision", "")).strip().lower()
+    rationale = str(data.get("rationale", "")).strip()
+    if not smiles:
+        raise ValueError("Candidate review is missing smiles")
+    if decision not in {"keep", "reject", "deprioritize"}:
+        raise ValueError(f"Unsupported candidate review decision: {decision}")
+    if not rationale:
+        raise ValueError("Candidate review is missing rationale")
+    if "confidence" not in data:
+        raise ValueError("Candidate review is missing confidence")
+    confidence = float(data["confidence"])
+    if not 0.0 <= confidence <= 1.0:
+        raise ValueError("Candidate review confidence must be within [0.0, 1.0]")
+    notes = _normalize_list(data.get("notes"))
+    return CandidateReview(
+        smiles=smiles,
+        decision=decision,
+        confidence=confidence,
+        rationale=rationale,
+        notes=notes,
+    )
 
 
 def parse_candidate_brainstorms(raw: str) -> list[CandidateBrainstorm]:

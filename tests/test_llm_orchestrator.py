@@ -1,11 +1,21 @@
 from des_multi_agent import orchestrator
 from des_multi_agent.evaluation import DesResult
-from des_multi_agent.llm.schemas import CandidateBrainstorm, CritiqueNote, ExplanationNote
+from des_multi_agent.llm.schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, ExplanationNote
 from des_multi_agent.prediction import CurvePrediction
 from des_multi_agent.schemas import CandidateProposal, MeltingPointEstimate
+from des_multi_agent.uncertainty import AnnotatedResult, MinimumTmUncertainty
 
 
 class _FakeLLM:
+    def review_candidate(self, component_a, candidate_smiles, context):
+        return CandidateReview(
+            smiles=candidate_smiles,
+            decision="keep",
+            confidence=0.9,
+            rationale="acceptable candidate",
+            notes=["demo review"],
+        )
+
     def brainstorm_candidates(self, component_a, constraints, context):
         return [CandidateBrainstorm(smiles="OCCO", rationale="polyol", family="polyol")]
 
@@ -17,6 +27,9 @@ class _FakeLLM:
 
 
 class _FailingLLM:
+    def review_candidate(self, component_a, candidate_smiles, context):
+        raise RuntimeError("boom")
+
     def brainstorm_candidates(self, component_a, constraints, context):
         raise RuntimeError("boom")
 
@@ -211,3 +224,107 @@ def test_llm_candidates_are_promoted_to_candidate_proposals(monkeypatch):
 
     assert any(proposal.source == "llm" for proposal in outcome.candidate_proposals)
     assert any(proposal.source_id == "brainstorm" for proposal in outcome.candidate_proposals)
+
+
+
+def test_apply_candidate_reviews_deprioritizes_candidate():
+    proposals = [
+        CandidateProposal(smiles="OCCO", rationale="demo", family="polyol", source="heuristic", source_id="rule"),
+        CandidateProposal(smiles="CC(=O)O", rationale="demo", family="acid", source="heuristic", source_id="rule"),
+    ]
+    reviews = {
+        "OCCO": CandidateReview(
+            smiles="OCCO",
+            decision="deprioritize",
+            confidence=0.25,
+            rationale="Looks plausible but less compelling than alternatives.",
+            notes=["low confidence"],
+        )
+    }
+    reviewed, penalties = orchestrator._apply_candidate_reviews(proposals, reviews)
+    assert [item.smiles for item in reviewed] == ["OCCO", "CC(=O)O"]
+    assert penalties == {"OCCO": 0.25}
+
+
+def test_apply_candidate_reviews_reject_drops_candidate():
+    proposals = [
+        CandidateProposal(smiles="OCCO", rationale="demo", family="polyol", source="heuristic", source_id="rule"),
+        CandidateProposal(smiles="CC(=O)O", rationale="demo", family="acid", source="heuristic", source_id="rule"),
+    ]
+    reviews = {
+        "OCCO": CandidateReview(
+            smiles="OCCO",
+            decision="reject",
+            confidence=0.93,
+            rationale="Does not look like a useful DES partner.",
+            notes=["too similar to the input"],
+        )
+    }
+    reviewed, penalties = orchestrator._apply_candidate_reviews(proposals, reviews)
+    assert [item.smiles for item in reviewed] == ["CC(=O)O"]
+    assert penalties == {}
+
+
+def test_apply_review_penalties_reorders_results():
+    def _annotated(smiles: str, ranking_score: float) -> AnnotatedResult:
+        curve = CurvePrediction(
+            smiles_a="CCO",
+            smiles_b=smiles,
+            ratios=[0.1],
+            tm_pred_k=[250.0],
+            t1_k=300.0,
+            t2_k=300.0,
+            checkpoint_path="ckpt.pt",
+        )
+        result = DesResult(
+            curve=curve,
+            absolute_pass=True,
+            relative_pass=True,
+            is_des=True,
+            rationale="ok",
+            min_tm_k=250.0,
+        )
+        uncertainty = MinimumTmUncertainty(
+            component_a="CCO",
+            component_b=smiles,
+            repeated_values=(250.0,),
+            mean_tm_k=250.0,
+            std_tm_k=0.0,
+            min_tm_k=250.0,
+            max_tm_k=250.0,
+            trust_score=0.9,
+            uncertainty_flag="low",
+            explanation="demo",
+            checkpoint_path="ckpt.pt",
+            config_path="cfg.yaml",
+        )
+        return AnnotatedResult(result=result, uncertainty=uncertainty, trust_score=0.9, ranking_score=ranking_score)
+
+    annotated = [_annotated("OCCO", 0.90), _annotated("CC(=O)O", 0.80)]
+    adjusted = orchestrator._apply_review_penalties(annotated, {"OCCO": 0.25})
+    assert [item.result.curve.smiles_b for item in adjusted] == ["CC(=O)O", "OCCO"]
+
+
+def test_review_top_candidates_ignores_wrong_smiles():
+    class DummyProvider:
+        def review_candidate(self, component_a, candidate_smiles, context):
+            return CandidateReview(
+                smiles="WRONG",
+                decision="keep",
+                confidence=0.9,
+                rationale="mismatch",
+                notes=[],
+            )
+
+    warnings = []
+    reviews, review_map = orchestrator._review_top_candidates(
+        DummyProvider(),
+        "CCO",
+        [CandidateProposal(smiles="OCCO", rationale="demo", family="polyol", source="heuristic", source_id="rule")],
+        "context",
+        1,
+        warnings,
+    )
+    assert reviews == []
+    assert review_map == {}
+    assert warnings and "wrong SMILES" in warnings[0]

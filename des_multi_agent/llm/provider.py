@@ -3,10 +3,14 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 from ..evaluation import DesResult
-from .schemas import CandidateBrainstorm, CritiqueNote, ExplanationNote
+from .schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, ExplanationNote
 
 
 class LLMProvider(ABC):
+    @abstractmethod
+    def review_candidate(self, component_a: str, candidate_smiles: str, context: str) -> CandidateReview:
+        raise NotImplementedError
+
     @abstractmethod
     def brainstorm_candidates(
         self,

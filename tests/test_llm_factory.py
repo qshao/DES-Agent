@@ -1,4 +1,5 @@
 from des_multi_agent.llm.factory import build_llm_provider
+import json
 import pytest
 
 
@@ -45,6 +46,31 @@ def test_provider_ollama_returns_nemotron_provider():
     )
     assert provider.__class__.__name__ == "NemotronProvider"
 
+
+
+def test_provider_ollama_reviews_one_candidate():
+    review_payload = {
+        "smiles": "OCCO",
+        "decision": "keep",
+        "confidence": 0.87,
+        "rationale": "Good candidate.",
+        "notes": ["stable"],
+    }
+    provider = build_llm_provider(
+        {
+            "enabled": True,
+            "provider": "ollama",
+            "model_name": "gemma4:12b",
+            "api_base_url": "http://localhost:11434",
+        },
+        request_fn=lambda *args, **kwargs: json.dumps({"message": {"content": json.dumps(review_payload)}}),
+    )
+    review = provider.review_candidate("CCO", "OCCO", "context")
+    assert review.smiles == "OCCO"
+    assert review.decision == "keep"
+    assert review.confidence == 0.87
+    assert review.rationale == "Good candidate."
+    assert review.notes == ["stable"]
 
 def test_provider_openai_returns_openai_provider():
     provider = build_llm_provider(

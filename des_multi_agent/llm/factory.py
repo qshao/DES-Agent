@@ -13,25 +13,17 @@ from .provider import LLMProvider
 from .qwen_provider import QwenProvider
 
 
-_PROVIDER_ALIASES = {
-    "nemotron-3-nano": "ollama",
-    "nemotron3nano": "ollama",
-    "qwen3.6": "ollama",
-}
-
-
 def _normalize_provider_name(name: str) -> str:
-    provider = name.strip().lower()
-    return _PROVIDER_ALIASES.get(provider, provider)
+    return name.strip().lower()
 
 
 def _ollama_provider_class(model_name: str):
     normalized = model_name.strip().lower()
     if normalized.startswith("nemotron-3-nano"):
-        return NemotronProvider, "nemotron-3-nano:latest"
+        return NemotronProvider
     if normalized.startswith("qwen3.6"):
-        return QwenProvider, "qwen3.6"
-    return OllamaProvider, model_name
+        return QwenProvider
+    return OllamaProvider
 
 
 def build_llm_provider(cfg: Mapping[str, object] | LLMConfig | None, request_fn=None) -> LLMProvider | None:
@@ -43,9 +35,9 @@ def build_llm_provider(cfg: Mapping[str, object] | LLMConfig | None, request_fn=
     request_impl = request_fn or post_json_chat
     provider = _normalize_provider_name(llm_cfg.provider)
     if provider == "ollama":
-        provider_cls, default_model_name = _ollama_provider_class(str(llm_cfg.model_name or ""))
+        provider_cls = _ollama_provider_class(str(llm_cfg.model_name or ""))
         return provider_cls(
-            model_name=str(llm_cfg.model_name or default_model_name),
+            model_name=str(llm_cfg.model_name),
             api_base_url=str(llm_cfg.api_base_url or "http://localhost:11434"),
             api_key_env=llm_cfg.api_key_env,
             max_candidates=llm_cfg.max_candidates,

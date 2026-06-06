@@ -3,11 +3,12 @@ from .config import LLMConfig
 from .factory import build_llm_provider
 from .nemotron_provider import NemotronProvider
 from .qwen_provider import QwenProvider
-from .schemas import CandidateBrainstorm, CritiqueNote, ExplanationNote
+from .schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, ExplanationNote
 
 __all__ = [
     "BaseLLMProvider",
     "CandidateBrainstorm",
+    "CandidateReview",
     "CritiqueNote",
     "ExplanationNote",
     "NemotronProvider",

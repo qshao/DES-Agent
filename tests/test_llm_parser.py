@@ -1,12 +1,14 @@
 from des_multi_agent.llm.parser import (
     parse_candidate_brainstorms,
+    parse_candidate_review,
     parse_critique_notes,
     parse_explanation_notes,
 )
-from des_multi_agent.llm.local_provider import OllamaProvider
-from des_multi_agent.llm.hosted_provider import OpenAIProvider
-from des_multi_agent.llm.gemini_provider import GeminiProvider
 from des_multi_agent.llm.custom_http_provider import CustomHTTPProvider
+from des_multi_agent.llm.gemini_provider import GeminiProvider
+from des_multi_agent.llm.hosted_provider import OpenAIProvider
+from des_multi_agent.llm.local_provider import OllamaProvider
+from des_multi_agent.llm.prompts import candidate_review_prompt
 import pytest
 
 
@@ -105,3 +107,32 @@ def test_custom_http_provider_rejects_malformed_response():
     message = str(exc.value)
     assert "Custom HTTP" in message
     assert "choices" in message
+
+
+
+def test_parse_candidate_review_accepts_strict_json():
+    raw = '{"smiles":"OCCO","decision":"keep","confidence":0.87,"rationale":"Good hydrogen bonding candidate.","notes":["Stable","Small polyol"]}'
+    review = parse_candidate_review(raw)
+    assert review.smiles == "OCCO"
+    assert review.decision == "keep"
+    assert review.confidence == 0.87
+    assert review.rationale == "Good hydrogen bonding candidate."
+    assert review.notes == ["Stable", "Small polyol"]
+
+
+def test_parse_candidate_review_rejects_invalid_decision():
+    raw = '{"smiles":"OCCO","decision":"maybe","confidence":0.87,"rationale":"Good hydrogen bonding candidate.","notes":[]}'
+    with pytest.raises(ValueError):
+        parse_candidate_review(raw)
+
+
+def test_candidate_review_prompt_requests_one_json_object():
+    prompt = candidate_review_prompt(
+        component_a="CCN(CC)CC(=O)Nc1c(C)cccc1C",
+        candidate_smiles="OCCO",
+        context="demo context",
+    )
+    assert "Return raw JSON only" in prompt
+    assert '"smiles": "OCCO"' in prompt
+    assert "decision" in prompt
+    assert "confidence" in prompt

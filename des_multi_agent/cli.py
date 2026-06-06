@@ -102,6 +102,7 @@ def main(argv=None):
             outcome.results,
             annotated_results=outcome.annotated_results,
             candidate_proposals=getattr(outcome, "candidate_proposals", None),
+            candidate_reviews=getattr(outcome, "candidate_reviews", None),
             explanation_notes=outcome.explanation_notes,
             critique_notes=outcome.critique_notes,
             brainstorm_candidates=outcome.brainstorm_candidates,
