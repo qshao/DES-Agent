@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 
 from .candidate_generation import generate_candidates
 from .chemistry_filter import canonicalize_smiles, filter_candidates
@@ -12,6 +12,7 @@ from .llm.factory import build_llm_provider
 from .llm.schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, ExplanationNote
 from .paths import resolve_existing_path
 from .prediction import predict_curve
+from .predictors.designsolvents import ViscosityPrediction, predict_viscosity
 from .property_resolution import resolve_melting_point
 from .ranking import rank_results
 from .schemas import CandidateProposal, DesThresholds
@@ -35,6 +36,7 @@ class SearchOutcome:
     explanation_notes: list[ExplanationNote]
     critique_notes: list[CritiqueNote]
     llm_warnings: list[str]
+    viscosity_predictions: list[ViscosityPrediction] = field(default_factory=list)
 
 
 def _merge_candidates(*candidate_groups):
@@ -175,6 +177,23 @@ def _apply_review_penalties(
     return rank_annotated_results(adjusted)
 
 
+def _predict_viscosity_predictions(
+    component_a: str,
+    proposals: list[CandidateProposal],
+    model_path: str | None,
+    llm_warnings: list[str],
+) -> list[ViscosityPrediction]:
+    predictions: list[ViscosityPrediction] = []
+    if model_path is None:
+        return predictions
+    for proposal in proposals:
+        try:
+            predictions.append(predict_viscosity(component_a, proposal.smiles, model_path=model_path, allow_fallback=True))
+        except Exception as exc:
+            llm_warnings.append(f"Viscosity prediction failed for {proposal.smiles}: {exc}")
+    return predictions
+
+
 def run_search_report(
     component_a: str,
     n: int,
@@ -185,6 +204,7 @@ def run_search_report(
     llm_cfg: Mapping[str, object] | None = None,
     llm_request_fn=None,
     discovery_path: str | None = None,
+    viscosity_model_path: str | None = None,
 ):
     checkpoint_path = resolve_existing_path(checkpoint_path)
     config_path = resolve_existing_path(config_path)
@@ -264,6 +284,7 @@ def run_search_report(
             )
     annotated_results = apply_uncertainty_policy(ranked, uncertainty_by_smiles, policy)
     annotated_results = _apply_review_penalties(annotated_results, review_penalties)
+    viscosity_predictions = _predict_viscosity_predictions(component_a, filtered, viscosity_model_path, llm_warnings)
     final_results = [item.result for item in annotated_results]
     explanation_notes: list[ExplanationNote] = []
     critique_notes: list[CritiqueNote] = []
@@ -285,6 +306,7 @@ def run_search_report(
         explanation_notes=explanation_notes,
         critique_notes=critique_notes,
         llm_warnings=llm_warnings,
+        viscosity_predictions=viscosity_predictions,
     )
 
 

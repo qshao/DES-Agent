@@ -24,6 +24,12 @@ def test_tutorial_and_readme_links_exist():
     assert Path("docs/tutorial.md").exists()
     readme = Path("README.md").read_text(encoding="utf-8")
     assert "docs/tutorial.md" in readme
+    assert "task-router" in readme
+    assert "workflow=clarify" in readme
+    assert "viscosity_template" in readme
+    assert "ligand_binding_template" in readme
+    assert "plain_language_gemma4_12b" in readme
+    assert "plain_language_metal_binding_gemma4_12b" in readme
 
 
 def test_examples_readme_exists_and_links_tutorial():
@@ -31,6 +37,11 @@ def test_examples_readme_exists_and_links_tutorial():
     assert examples_readme.exists()
     text = examples_readme.read_text(encoding="utf-8")
     assert "docs/tutorial.md" in text
+    assert "viscosity_template" in text
+    assert "ligand_binding_template" in text
+    assert "plain_language_gemma4_12b" in text
+    assert "plain_language_metal_binding_gemma4_12b" in text
+    assert "task_router" in text
 
 
 def test_demo_mock_mode_runs_without_real_pipeline(monkeypatch, capsys):
@@ -52,6 +63,12 @@ def test_demo_mock_mode_runs_without_real_pipeline(monkeypatch, capsys):
 def test_tutorial_shows_explicit_real_checkpoint():
     text = Path("docs/tutorial.md").read_text(encoding="utf-8")
     assert "DES_CHECKPOINT_PATH=ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt" in text
+    assert "task-router" in text
+    assert "workflow=clarify" in text
+    assert "viscosity_template" in text
+    assert "ligand_binding_template" in text
+    assert "plain_language_gemma4_12b" in text
+    assert "plain_language_metal_binding_gemma4_12b" in text
 
 
 def test_llm_example_mentions_supported_ollama_models():
@@ -78,23 +95,29 @@ def test_real_script_exists_and_is_simple():
 
 
 def test_model_specific_examples_exist():
-    for folder, llm_file in [
-        ("examples/gemma4_12b", "llm.gemma4_12b.yaml"),
-        ("examples/nemotron_3_nano", "llm.nemotron_3_nano.yaml"),
-        ("examples/qwen3_6", "llm.qwen3_6.yaml"),
-        ("examples/lidocaine_gemma4_12b", "llm.gemma4_12b.yaml"),
+    for folder, required_texts in [
+        ("examples/des_viscosity", ["--viscosity-model-path", "Viscosity predictions"]),
+        ("examples/viscosity_template", ["template-style DES viscosity example", "viscosity_model_path"]),
+        ("examples/metal_binding", ["--workflow metal-binding", "log K"]),
+        ("examples/ligand_binding_template", ["template-style metal-binding example", "stability_constant_model_path"]),
+        ("examples/gemma4_12b", ["--llm-config", "CCO"]),
+        ("examples/nemotron_3_nano", ["--llm-config", "CCO"]),
+        ("examples/qwen3_6", ["--llm-config", "CCO"]),
+        ("examples/lidocaine_gemma4_12b", ["--llm-config", "lidocaine"]),
+        ("examples/plain_language_gemma4_12b", ["task-router", "plain-language", "Gemma 4-12B"]),
+        ("examples/plain_language_metal_binding_gemma4_12b", ["task-router", "plain-language", "metal-binding", "Gemma 4-12B"]),
+        ("examples/task_router", ["task-router", "component_a", "checkpoint_path"]),
     ]:
         base = Path(folder)
         assert (base / "README.md").exists()
         assert (base / "run.sh").exists()
+        assert (base / "input.txt").exists()
         assert (base / "output.txt").exists()
-        assert (base / llm_file).exists()
-        assert "--llm-config" in (base / "run.sh").read_text(encoding="utf-8")
         readme_text = (base / "README.md").read_text(encoding="utf-8")
-        if folder.endswith("lidocaine_gemma4_12b"):
-            assert "lidocaine" in readme_text
-        else:
-            assert "CCO" in readme_text
+        run_text = (base / "run.sh").read_text(encoding="utf-8")
+        output_text = (base / "output.txt").read_text(encoding="utf-8")
+        for required in required_texts:
+            assert required in readme_text or required in run_text or required in output_text
 
 
 def test_mock_script_runs_from_other_directory(tmp_path):

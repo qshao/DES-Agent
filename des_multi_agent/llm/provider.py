@@ -7,7 +7,11 @@ from .schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, Explana
 
 
 class LLMProvider(ABC):
-    @abstractmethod
+    
+    def route_request(self, request: str) -> str:
+        raise NotImplementedError
+
+    
     def review_candidate(self, component_a: str, candidate_smiles: str, context: str) -> CandidateReview:
         raise NotImplementedError
 

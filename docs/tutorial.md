@@ -1,6 +1,6 @@
 # DES Multi-Agent Tutorial
 
-This project combines a deterministic DES screening pipeline with optional layers for uncertainty, local discovery, and LLM-assisted candidate brainstorming. When LLM mode is enabled, candidates are reviewed one by one to keep the JSON payloads small. The trained `ml_des_mp` model always makes the final prediction.
+This project combines a deterministic DES screening pipeline with optional layers for uncertainty, local discovery, LLM-assisted candidate brainstorming, DES viscosity prediction, and a separate metal-binding workflow for stability-constant prediction. When LLM mode is enabled, candidates are reviewed one by one to keep the JSON payloads small. The trained `ml_des_mp` model always makes the final prediction for DES melting temperature.
 
 ## What You Need
 
@@ -8,6 +8,7 @@ This project combines a deterministic DES screening pipeline with optional layer
 - A trained checkpoint from `ml_des_mp/runs/`
 - Optional: a local discovery directory with `literature.yaml` and `library.yaml`
 - Optional: an Ollama service with Gemma, Nemotron, or Qwen available locally
+- Optional: the bundled offline artifact JSON files under `artifacts/` for viscosity and metal-binding runs
 
 ## Mock Demo
 
@@ -57,6 +58,34 @@ The command uses the bundled `ml_des_mp/config.yaml` and a local trained checkpo
 
 For a real model-backed example, see [examples/lidocaine_gemma4_12b/](../examples/lidocaine_gemma4_12b/). It records a lidocaine free-base run with Gemma 4-12B and the shipped `ml_des_mp` checkpoint.
 
+## Plain-Language Gemma Example
+
+If you want to see the natural-language router in action, see [examples/plain_language_gemma4_12b/](../examples/plain_language_gemma4_12b/). It takes a plain-language request, turns it into a JSON job, and then runs the DES workflow with Gemma 4-12B.
+
+## Plain-Language Gemma Metal-Binding Example
+
+If you want to see the same idea applied to the metal-binding workflow, see [examples/plain_language_metal_binding_gemma4_12b/](../examples/plain_language_metal_binding_gemma4_12b/). It takes a plain-language request, turns it into a JSON job, and then runs the metal-binding workflow with Gemma 4-12B.
+
+## DES Viscosity Example
+
+Run the offline DES viscosity example from the repository root:
+
+```bash
+./examples/des_viscosity/run.sh
+```
+
+The captured output includes a `Viscosity predictions:` section after the DES screening table. For a user-editable starting point, see [`examples/viscosity_template/`](../viscosity_template).
+
+## Metal-Binding Example
+
+Run the metal-binding example from the repository root:
+
+```bash
+./examples/metal_binding/run.sh
+```
+
+This workflow is separate from DES screening and prints `log K` predictions for a metal ion and ligand pair. For a user-editable starting point, see [`examples/ligand_binding_template/`](../ligand_binding_template).
+
 ## Optional LLM Mode
 
 If you want candidate brainstorming and explanation generation, pass an LLM config file:
@@ -66,6 +95,17 @@ python -m examples.demo_des_search --component-a "CCO" --n 20 --llm-config llm.e
 ```
 
 You can edit `llm.example.yaml` to switch `model_name` between `gemma4:12b`, `nemotron-3-nano:latest`, and `qwen3.6` while keeping `provider: ollama`.
+
+
+## Task Router
+
+Use the task router when you want plain language translated into a JSON job without running a workflow:
+
+```bash
+python -m des_multi_agent.cli task-router "find DES partners for lidocaine"
+```
+
+The router loads `llm.example.yaml` by default, supports both `des` and `metal-binding`, and returns either a complete job, or clarification questions with `workflow=clarify`, as JSON only. For a worked example, see [`examples/task_router/`](/home/qshao/DES-Agent/examples/task_router/).
 
 ## What the Output Means
 

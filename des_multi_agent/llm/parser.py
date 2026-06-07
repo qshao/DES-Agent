@@ -34,6 +34,10 @@ def _extract_json_block(raw: str) -> str:
     return text
 
 
+def extract_json_object(raw: str) -> str:
+    return _extract_json_block(raw)
+
+
 def _coerce_json(raw: str) -> Any:
     data = json.loads(_extract_json_block(raw))
     if isinstance(data, dict):

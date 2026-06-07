@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 from .llm.schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, ExplanationNote
+from .predictors.designsolvents import ViscosityPrediction
 from .schemas import CandidateProposal
 from .uncertainty import AnnotatedResult
 
@@ -16,6 +17,7 @@ def format_report(
     critique_notes: Sequence[CritiqueNote] | None = None,
     brainstorm_candidates: Sequence[CandidateBrainstorm] | None = None,
     llm_warnings: Sequence[str] | None = None,
+    viscosity_predictions: Sequence[ViscosityPrediction] | None = None,
 ) -> str:
     proposal_by_smiles = {item.smiles: item for item in candidate_proposals or []}
     annotation_by_smiles = {item.result.curve.smiles_b: item for item in annotated_results or []}
@@ -66,9 +68,38 @@ def format_report(
         for note in critique_notes:
             concerns = "; ".join(note.concerns) if note.concerns else "-"
             lines.append(f"{note.smiles} | {note.assessment} | {concerns}")
+    if viscosity_predictions:
+        lines.append("")
+        lines.append("Viscosity predictions:")
+        lines.append("smiles_a | smiles_b | viscosity | units | model | source")
+        for pred in viscosity_predictions:
+            lines.append(
+                f"{pred.metadata.get('component_a', '?')} | {pred.metadata.get('component_b', '?')} | "
+                f"{pred.value:.2f} | {pred.units} | {pred.model_name} | {pred.source}"
+            )
     if llm_warnings:
         lines.append("")
         lines.append("Warnings:")
         for warning in llm_warnings:
             lines.append(f"- {warning}")
-    return "\n".join(lines)
+    return '\n'.join(lines)
+
+
+def format_metal_binding_report(outcome) -> str:
+    pred = outcome.prediction
+    lines = ["metal_ion | ligand_smiles | value | units | model | source"]
+    lines.append(
+        f"{outcome.metal_ion} | {outcome.ligand_smiles} | {getattr(pred, 'value', float('nan')):.2f} | "
+        f"{getattr(pred, 'units', '?')} | {getattr(pred, 'model_name', '?')} | {getattr(pred, 'source', '?')}"
+    )
+    if getattr(pred, 'warnings', None):
+        lines.append("")
+        lines.append("Warnings:")
+        for warning in pred.warnings:
+            lines.append(f"- {warning}")
+    if getattr(outcome, 'warnings', None) and not getattr(pred, 'warnings', None):
+        lines.append("")
+        lines.append("Warnings:")
+        for warning in outcome.warnings:
+            lines.append(f"- {warning}")
+    return '\n'.join(lines)

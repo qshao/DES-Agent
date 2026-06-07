@@ -43,6 +43,11 @@ def build_parser():
         help="Optional local discovery directory containing literature.yaml and library.yaml",
     )
     parser.add_argument(
+        "--viscosity-model-path",
+        default=None,
+        help="Optional local DESignSolvents viscosity model artifact",
+    )
+    parser.add_argument(
         "--mock",
         action="store_true",
         help="Run a fully offline mock demo with canned predictions and LLM notes",
@@ -200,6 +205,7 @@ def main(argv=None):
             config_path=str(config_path),
             llm_cfg=llm_cfg,
             discovery_path=str(discovery_path) if discovery_path is not None else None,
+            viscosity_model_path=args.viscosity_model_path,
         )
     print(
         format_report(
@@ -211,6 +217,7 @@ def main(argv=None):
             critique_notes=outcome.critique_notes,
             brainstorm_candidates=outcome.brainstorm_candidates,
             llm_warnings=outcome.llm_warnings,
+            viscosity_predictions=getattr(outcome, "viscosity_predictions", None),
         )
     )
 

@@ -7,6 +7,7 @@ from ..evaluation import DesResult
 from .client import post_json_chat
 from .parser import parse_candidate_brainstorms, parse_candidate_review, parse_critique_notes, parse_explanation_notes
 from .prompts import candidate_brainstorm_prompt, candidate_review_prompt, critique_prompt, explanation_prompt
+from ..task_router_prompts import task_router_prompt
 from .provider import LLMProvider
 from .schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, ExplanationNote
 from .specs import RequestProfile
@@ -46,6 +47,9 @@ class BaseLLMProvider(LLMProvider):
             include_api_key_in_header=self.request_profile.api_key_in_header,
         )
         return self.extract_text(raw)
+
+    def route_request(self, request: str) -> str:
+        return self._request(task_router_prompt(request))
 
     def review_candidate(self, component_a: str, candidate_smiles: str, context: str) -> CandidateReview:
         raw = self._request(candidate_review_prompt(component_a, candidate_smiles, context))

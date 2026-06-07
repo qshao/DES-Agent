@@ -1,9 +1,13 @@
 from des_multi_agent.llm.parser import (
+    extract_json_object,
     parse_candidate_brainstorms,
     parse_candidate_review,
     parse_critique_notes,
     parse_explanation_notes,
 )
+from des_multi_agent.task_router import parse_router_response
+from des_multi_agent.task_router_prompts import task_router_prompt
+
 from des_multi_agent.llm.custom_http_provider import CustomHTTPProvider
 from des_multi_agent.llm.gemini_provider import GeminiProvider
 from des_multi_agent.llm.hosted_provider import OpenAIProvider
@@ -26,11 +30,13 @@ def test_parser_accepts_fenced_candidate_json():
 
 
 def test_parser_strips_thinking_trace_and_fenced_json():
-    raw = "Thinking...\n```json\n[{\"smiles\":\"OCCO\",\"rationale\":\"polyol\",\"family\":\"polyol\"}]\n```"
+    raw = """Thinking...
+```json
+[{"smiles":"OCCO","rationale":"polyol","family":"polyol"}]
+```"""
     items = parse_candidate_brainstorms(raw)
     assert len(items) == 1
     assert items[0].smiles == "OCCO"
-
 
 def test_parser_discards_invalid_candidate_entries():
     raw = '[{"smiles":"OCCO","rationale":"polyol","family":"polyol"},{"smiles":"","rationale":"bad","family":"polyol"}]'
@@ -136,3 +142,83 @@ def test_candidate_review_prompt_requests_one_json_object():
     assert '"smiles": "OCCO"' in prompt
     assert "decision" in prompt
     assert "confidence" in prompt
+
+
+
+def test_extract_json_object_returns_json_payload():
+    raw = """thinking...
+```json
+{"workflow":"des"}
+```"""
+    payload = extract_json_object(raw)
+    assert payload == "{\"workflow\":\"des\"}"
+
+
+def test_parse_router_response_accepts_complete_job():
+    payload = (
+        "{\"workflow\":\"des\",\"needs_clarification\":false,\"clarifying_questions\":[],"
+        "\"job\":{\"component_a\":\"CCO\",\"n\":5,\"checkpoint_path\":\"ckpt.pt\",\"config_path\":\"ml_des_mp/config.yaml\"}}"
+    )
+    response = parse_router_response(payload)
+    assert response.workflow == "des"
+    assert response.needs_clarification is False
+    assert response.clarifying_questions == []
+    assert response.job is not None
+    assert response.job.component_a == "CCO"
+    assert response.job.n == 5
+
+
+def test_parse_router_response_accepts_clarification_state():
+    payload = (
+        "{\"workflow\":\"clarify\",\"needs_clarification\":true,\"clarifying_questions\":[\"Which workflow?\"],"
+        "\"job\":null}"
+    )
+    response = parse_router_response(payload)
+    assert response.workflow == "clarify"
+    assert response.needs_clarification is True
+    assert response.clarifying_questions == ["Which workflow?"]
+    assert response.job is None
+
+
+def test_parse_router_response_ignores_extra_job_fields():
+    payload = '{"workflow":"des","needs_clarification":false,"clarifying_questions":[],"job":{"component_a":"CCO","n":5,"checkpoint_path":"ckpt.pt","config_path":"ml_des_mp/config.yaml","model":"gemma4:12b"}}'
+    response = parse_router_response(payload)
+    assert response.job is not None
+    assert response.job.component_a == "CCO"
+    assert response.job.n == 5
+    assert not hasattr(response.job, "model")
+
+
+def test_task_router_prompt_mentions_clarify_state():
+    prompt = task_router_prompt("find DES partners for lidocaine")
+    assert "workflow=\"clarify\"" in prompt
+    assert "clarification questions" in prompt.lower() or "clarification" in prompt.lower()
+
+
+
+def test_parse_router_response_rejects_missing_des_required_field():
+    payload = (
+        "{\"workflow\":\"des\",\"needs_clarification\":false,\"clarifying_questions\":[],"
+        "\"job\":{\"component_a\":\"CCO\",\"n\":5,\"checkpoint_path\":\"ckpt.pt\"}}"
+    )
+    with pytest.raises(ValueError, match="missing required fields for des"):
+        parse_router_response(payload)
+
+
+def test_parse_router_response_rejects_job_when_clarifying():
+    payload = (
+        "{\"workflow\":\"clarify\",\"needs_clarification\":true,\"clarifying_questions\":[\"Which workflow?\"],"
+        "\"job\":{\"component_a\":\"CCO\"}}"
+    )
+    with pytest.raises(ValueError, match="must not include a job"):
+        parse_router_response(payload)
+
+
+
+def test_parse_router_response_rejects_missing_metal_binding_required_field():
+    payload = (
+        "{\"workflow\":\"metal-binding\",\"needs_clarification\":false,\"clarifying_questions\":[],"
+        "\"job\":{\"metal_ion\":\"Cu2+\",\"ligand_smiles\":\"NCCN\"}}"
+    )
+    with pytest.raises(ValueError, match="missing required fields for metal-binding"):
+        parse_router_response(payload)

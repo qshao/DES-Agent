@@ -1,0 +1,7 @@
+workflows:
+  des_viscosity:
+    artifacts:
+      model: designsolvents/viscosity/model.json
+  metal_binding:
+    artifacts:
+      model: stability_constants/model.json

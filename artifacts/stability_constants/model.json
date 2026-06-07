@@ -1,0 +1,19 @@
+{
+  "model_name": "stabilityconstant-ml-models",
+  "kind": "linear",
+  "units": "log K",
+  "bias": 5.25,
+  "coefficients": {
+    "ligand_hbd": 0.28,
+    "ligand_hba": 0.32,
+    "ligand_tpsa": 0.045,
+    "ligand_rings": 0.18,
+    "ligand_heavy_atoms": 0.015,
+    "ligand_aromatic_atoms": 0.04,
+    "abs_metal_charge": 0.55,
+    "metal_token_len": 0.08,
+    "ligand_logp": -0.04,
+    "ligand_to_metal_size_ratio": 0.06,
+    "ligand_formal_charge": -0.02
+  }
+}

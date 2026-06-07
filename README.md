@@ -1,6 +1,6 @@
 # DES-Agent
 
-This repository contains a deterministic DES screening pipeline plus optional layers for uncertainty, local discovery, and LLM-assisted candidate brainstorming.
+This repository contains a deterministic DES screening pipeline plus optional layers for uncertainty, local discovery, LLM-assisted candidate brainstorming, DES viscosity prediction, and a separate metal-binding workflow for stability-constant prediction.
 
 ## Quick Start
 
@@ -43,12 +43,53 @@ Optional Ollama LLM run (Gemma, Nemotron, or Qwen via `model_name`). The LLM now
 python -m examples.demo_des_search --component-a "CCO" --n 20 --llm-config llm.example.yaml
 ```
 
+Plain-language Gemma example that routes a request first and then runs the DES workflow:
+
+```bash
+./examples/plain_language_gemma4_12b/run.sh
+```
+
+Plain-language Gemma example for the metal-binding workflow:
+
+```bash
+./examples/plain_language_metal_binding_gemma4_12b/run.sh
+```
+
+DES viscosity example:
+
+```bash
+./examples/des_viscosity/run.sh
+```
+
+Metal-binding example:
+
+```bash
+./examples/metal_binding/run.sh
+```
+
+
+## Task Router
+
+Use the task router to turn a plain-language request into a JSON job without running the workflow:
+
+```bash
+python -m des_multi_agent.cli task-router "find DES partners for lidocaine"
+```
+
+The router loads `llm.example.yaml` by default, supports both `des` and `metal-binding`, and returns either a complete job, or clarification questions with `workflow=clarify`, as JSON only. For a worked example, see [`examples/task_router/`](/home/qshao/DES-Agent/examples/task_router/).
+
 ## Project Layout
 
 - `des_multi_agent/` contains the screening orchestration code
 - `ml_des_mp/` contains the trained model and the underlying predictor
 - `docs/tutorial.md` is the short user guide for the demo
+- `examples/des_viscosity/` is an offline DES viscosity example
+- `examples/viscosity_template/` is a template-style DES viscosity example you can adapt
+- `examples/metal_binding/` is an offline metal-binding example for stability constants
+- `examples/ligand_binding_template/` is a template-style metal-binding example you can adapt
 - `examples/lidocaine_gemma4_12b/` is a real lidocaine DES example with Gemma 4-12B
+- `examples/plain_language_gemma4_12b/` is a plain-language DES example routed through Gemma 4-12B
+- `examples/plain_language_metal_binding_gemma4_12b/` is a plain-language metal-binding example routed through Gemma 4-12B
 - `llm.example.yaml` is a ready-to-edit optional LLM config
 
 ## Uncertainty Controls

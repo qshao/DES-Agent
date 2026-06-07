@@ -1,0 +1,65 @@
+Plain-language request:
+Using Ollama Gemma 4-12B, find up to 5 candidate partners for ethanol (CCO) and predict DES melting temperature with the shipped ml_des_mp checkpoint and config.
+
+Raw Gemma router output:
+```json
+{
+  "workflow": "des",
+  "needs_clarification": false,
+  "clarifying_questions": [],
+  "job": {
+    "model": "Gemma 4-12B",
+    "target_substance": "ethanol (CCO)",
+    "max_candidates": 5,
+    "prediction_type": "melting_temperature",
+    "checkpoint": "ml_des_mp"
+  }
+}
+```
+
+Normalized DES job:
+{"clarifying_questions": [], "job": {"checkpoint_path": "/home/qshao/DES-Agent/ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt", "component_a": "CCO", "config_path": "/home/qshao/DES-Agent/ml_des_mp/config.yaml", "discovery_path": null, "ligand_smiles": null, "llm_config": "/home/qshao/DES-Agent/examples/plain_language_gemma4_12b/llm.gemma4_12b.yaml", "metal_ion": null, "n": 5, "stability_constant_model_path": null, "viscosity_model_path": null}, "needs_clarification": false, "workflow": "des"}
+
+DES report:
+smiles_b | is_des | min_tm_k | source | trust | mean_tm_k | spread_k | std_k | uncertainty_flag | rationale
+OCCO | True | 208.69 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=208.69 K | spread=208.69-208.69 K | std=0.00 K | flag=low | min Tm=208.69 K, absolute<= 260.00 K, relative_drop=0.230
+O=CC(=O)NC(=O)O | True | 215.09 | source=llm; id=brainstorm | trust=0.80 | mean=215.09 K | spread=215.09-215.09 K | std=0.00 K | flag=low | min Tm=215.09 K, absolute<= 260.00 K, relative_drop=0.207
+CC(=O)N | True | 222.77 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=222.77 K | spread=222.77-222.77 K | std=0.00 K | flag=low | min Tm=222.77 K, absolute<= 260.00 K, relative_drop=0.179
+OCC(O)CO | True | 223.28 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=223.28 K | spread=223.28-223.28 K | std=0.00 K | flag=low | min Tm=223.28 K, absolute<= 260.00 K, relative_drop=0.177
+O | True | 225.27 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=225.27 K | spread=225.27-225.27 K | std=0.00 K | flag=low | min Tm=225.27 K, absolute<= 260.00 K, relative_drop=0.118
+O=CC(=O)O | True | 227.03 | source=llm; id=brainstorm | trust=0.80 | mean=227.03 K | spread=227.03-227.03 K | std=0.00 K | flag=low | min Tm=227.03 K, absolute<= 260.00 K, relative_drop=0.163
+CC(=O)O | True | 236.03 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=236.03 K | spread=236.03-236.03 K | std=0.00 K | flag=low | min Tm=236.03 K, absolute<= 260.00 K, relative_drop=0.130
+
+LLM candidate reviews:
+OCCO | keep | confidence=1.00 | The candidate OCCO is a direct match for the requested component CCO (ethanol) or its closely related isomer/derivative in this context. | Candidate matches target structure.
+OCC(O)CO | keep | confidence=0.95 | The candidate OCC(O)CO is a valid chemical structure and matches the core scaffold of Component A (CCO). | Candidate is chemically stable.
+CC(=O)N | keep | confidence=0.95 | The candidate CC(=O)N (acetamide) is a valid chemical structure and matches the core functional group requirements for an amide-based scaffold. | Valid organic compound; Stable structure
+CC(=O)O | keep | confidence=0.95 | The candidate CC(=O)O is a valid chemical structure for the component CCO (acetic acid). The transformation from CCO to CC(=O)O represents a standard representation of the acetic acid functional group. | Matches target chemistry; Standard representation
+
+LLM brainstorm:
+CC(=O)O | Carboxylic Acids | Acetic acid is a classic short-chain carboxylic acid often paired with CCO to form low-viscosity DES.
+O=CC(=O)O | Carboxylic Acids | Acetic acid provides strong hydrogen bonding sites to interact with the hydroxyl group of ethanol.
+O=CC(=O)NC(=O)O | Dicarboxylic Acids | Oxalic acid is a common organic acid used in DES systems for its high polarity and hydrogen bonding capacity.
+O=CC(=O)O | Carboxylic Acids | Acetic acid serves as a primary candidate due to its widespread use in industrial solvent systems with alcohols.
+O=CC(=O)O | Carboxylic Acids | Selected based on high compatibility and established experimental data for ethanol-based DES mixtures.
+
+LLM explanations:
+OCCO | Candidate with the lowest melting point among the top results. | min Tm=208.69 K, absolute<= 260.00 K, relative_drop=0.230
+O=CC(=O)NC(=O)O | Candidate with a low melting point and significant relative drop. | min Tm=215.09 K, absolute<= 260.00 K, relative_drop=0.207
+CC(=O)N | Candidate with a moderate melting point. | min Tm=222.77 K, absolute<= 260.00 K, relative_drop=0.179
+OCC(O)CO | Candidate with a melting point slightly above 223K. | min Tm=223.28 K, absolute<= 260.00 K, relative_drop=0.177
+O | Candidate with a melting point of approximately 225K. | min Tm=225.27 K, absolute<= 260.00 K, relative_drop=0.118
+O=CC(=O)O | Candidate with a melting point of approximately 227K. | min Tm=227.03 K, absolute<= 260.00 K, relative_drop=0.163
+CC(=O)O | Candidate with the highest melting point among the top results. | min Tm=236.03 K, absolute<= 260.00 K, relative_drop=0.130
+
+LLM critique:
+OCC(O)CO | High stability with a melting point of 223.28 K. | Low relative drop (0.177) suggests moderate structural integrity.
+CC(=O)O | Strongest candidate with the highest melting point of 236.03 K. | None; highest stability among ranked candidates.
+O=CC(=O)O | Robust candidate with a melting point of 227.03 K. | Slightly lower stability compared to acetic acid derivative.
+O | Stable candidate with a melting point of 225.27 K. | Minimal relative drop (0.118) indicates high structural consistency.
+CC(=O)N | Solid candidate with a melting point of 222.77 K. | Moderate stability profile.
+O=CC(=O)NC(=O)O | Acceptable candidate with a melting point of 215.09 K. | Lower melting point compared to top-ranked candidates.
+OCCO | Lowest ranked candidate with a melting point of 208.69 K. | Highest relative drop (0.230) indicates lower stability compared to others.
+
+Warnings:
+- LLM candidate review returned wrong SMILES for O

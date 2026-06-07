@@ -1,0 +1,20 @@
+{
+  "model_name": "DESignSolvents",
+  "kind": "linear",
+  "units": "mPa*s",
+  "bias": 7.5,
+  "coefficients": {
+    "total_heavy_atoms": 0.12,
+    "total_tpsa": 0.02,
+    "total_hbd": 0.65,
+    "total_hba": 0.28,
+    "total_logp": -0.18,
+    "total_rings": 0.35,
+    "total_rot_bonds": 0.08,
+    "total_mol_wt": 0.003,
+    "total_formal_charge": 0.40,
+    "total_hetero_atoms": 0.15,
+    "abs_logp_diff": 0.05,
+    "abs_tpsa_diff": 0.015
+  }
+}

@@ -1,0 +1,25 @@
+Plain-language request:
+Using Ollama Gemma 4-12B, predict the stability constant for metal ion Cu2+ with ligand smiles NCCN and use the bundled local stability model.
+
+Raw Gemma router output:
+```json
+{
+  "workflow": "metal-binding",
+  "needs_clarification": false,
+  "clarifying_questions": [],
+  "job": {
+    "model": "Gemma 4-12B",
+    "provider": "Ollama",
+    "metal_ion": "Cu2+",
+    "ligand_smiles": "NCCN",
+    "use_bundled_model": true
+  }
+}
+```
+
+Normalized metal-binding job:
+{"clarifying_questions": [], "job": {"checkpoint_path": null, "component_a": null, "config_path": null, "discovery_path": null, "ligand_smiles": "NCCN", "llm_config": "/home/qshao/DES-Agent/examples/plain_language_metal_binding_gemma4_12b/llm.gemma4_12b.yaml", "metal_ion": "Cu2+", "n": null, "stability_constant_model_path": "/home/qshao/DES-Agent/artifacts/stability_constants/model.json", "viscosity_model_path": null}, "needs_clarification": false, "workflow": "metal-binding"}
+
+Metal-binding report:
+metal_ion | ligand_smiles | value | units | model | source
+Cu2+ | NCCN | 9.89 | log K | stabilityconstant-ml-models | artifact
