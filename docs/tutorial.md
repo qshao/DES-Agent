@@ -10,6 +10,10 @@ This project combines a deterministic DES screening pipeline with optional layer
 - Optional: an Ollama service with Gemma, Nemotron, or Qwen available locally
 - Optional: the bundled offline artifact JSON files under `artifacts/` for viscosity and metal-binding runs
 
+## Doctor First
+
+Run `python -m des_multi_agent.cli doctor` before any demo to check the core repo and the checked-in example folders.
+
 ## Mock Demo
 
 Run the fully offline mock demo from the repository root:

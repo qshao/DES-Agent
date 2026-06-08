@@ -4,6 +4,12 @@ This repository contains a deterministic DES screening pipeline plus optional la
 
 ## Quick Start
 
+Run the doctor check first to verify the local repo and example folders:
+
+```bash
+python -m des_multi_agent.cli doctor
+```
+
 Start with the short tutorial in [`docs/tutorial.md`](/home/qshao/DES-Agent/docs/tutorial.md).
 The quickest launch point is [`examples/README.md`](/home/qshao/DES-Agent/examples/README.md).
 

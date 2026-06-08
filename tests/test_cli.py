@@ -25,6 +25,29 @@ def test_cli_parser_accepts_task_router_subcommand():
     assert args.request == "find DES partners for lidocaine"
 
 
+def test_cli_parser_accepts_task_execute_subcommand():
+    parser = build_parser()
+    args = parser.parse_args(["task-execute", "find DES partners for lidocaine"])
+    assert args.command == "task-execute"
+    assert args.request == "find DES partners for lidocaine"
+
+
+def test_cli_parser_accepts_label_run_subcommand():
+    parser = build_parser()
+    args = parser.parse_args([
+        "label-run",
+        "--run",
+        "runs/run_001",
+        "--label",
+        "O=good",
+        "--label",
+        "O=bad",
+    ])
+    assert args.command == "label-run"
+    assert args.run == "runs/run_001"
+    assert args.label == ["O=good", "O=bad"]
+
+
 def test_task_router_subcommand_prints_json(monkeypatch, capsys):
     class _FakeResponse:
         def to_json(self):
@@ -36,3 +59,44 @@ def test_task_router_subcommand_prints_json(monkeypatch, capsys):
     assert out.startswith("{")
     assert "clarifying_questions" in out
     assert "Which workflow?" in out
+
+
+def test_task_execute_subcommand_prints_report(monkeypatch, capsys):
+    monkeypatch.setattr(cli_module, "execute_task_request", lambda request, provider=None: "EXECUTED REPORT")
+    cli_module.main(["task-execute", "find DES partners for lidocaine"])
+    out = capsys.readouterr().out.strip()
+    assert out == "EXECUTED REPORT"
+
+
+def test_doctor_subcommand_prints_report(capsys):
+    try:
+        cli_module.main(["doctor"])
+    except SystemExit as exc:
+        assert exc.code in (0, 1)
+    out = capsys.readouterr().out.strip()
+    assert out.startswith("doctor:")
+    assert "doctor: ok" in out or "errors:" in out or "warnings:" in out
+
+
+def test_cli_parser_supports_run_memory_flags():
+    parser = build_parser()
+    args = parser.parse_args([
+        "--workflow",
+        "des",
+        "--component-a",
+        "CCO",
+        "--checkpoint-path",
+        "ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt",
+        "--save-run-memory",
+        "runs/run_001/run.memory.json",
+        "--reuse-run",
+        "runs/run_000/run.memory.json",
+    ])
+    assert args.save_run_memory == "runs/run_001/run.memory.json"
+    assert args.reuse_run == "runs/run_000/run.memory.json"
+
+
+def test_cli_parser_accepts_doctor_subcommand():
+    parser = build_parser()
+    args = parser.parse_args(["doctor"])
+    assert args.command == "doctor"

@@ -15,6 +15,8 @@ Twelve small runnable examples live here:
 - [`task_router/`](./task_router) for translating a plain-language request into a JSON job
 - [`des_run_memory_feedback/`](./des_run_memory_feedback) for the full DES save-label-reuse feedback loop
 
+Before adapting a folder, run `python -m des_multi_agent.cli doctor` to verify the core repo and checked-in examples are present.
+
 Each folder includes and can be used as a template for your own work:
 
 - a runnable `run.sh`
