@@ -4,14 +4,17 @@ This document tracks the next useful extensions for DES-Agent after the current 
 
 ## Near Term
 
-1. Benchmark suite for the example set
-   - Turn the curated examples into regression benchmarks for routing, DES screening, viscosity, and metal-binding.
+1. Active-learning feedback loop
+   - Capture user feedback on predictions and feed it back into calibration or retraining.
+   - Extend the existing run-memory and label-run flow so reused labels can influence future ranking more directly.
+
+## Recently Completed
+
+1. Example benchmark suite
+   - Curated examples now act as a regression benchmark for routing, DES screening, viscosity, and metal-binding.
 
 2. Machine-readable exports
-   - Emit JSON, CSV, and a run manifest for each workflow execution.
+   - DES runs now emit JSON, CSV, and a run manifest automatically.
 
 3. Stronger natural-language normalization
-   - Improve handling of compound names, salts, free bases, and ambiguous workflow wording.
-
-4. Active-learning feedback loop
-   - Capture user feedback on predictions and feed it back into calibration or retraining.
+   - Plain-language requests now get normalized before routing, including salt and free-base clarification.
