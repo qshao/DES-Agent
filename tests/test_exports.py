@@ -37,14 +37,17 @@ def test_export_des_run_bundle_writes_three_files_with_fixed_csv_header(tmp_path
         "warnings": ["demo warning"],
     }
 
-    exported = export_des_run_bundle(output_dir, run_payload)
+    report_text = "smiles_b | is_des | min_tm_k | source | trust | mean_tm_k | spread_k | std_k | uncertainty_flag | rationale\nO | True | 208.69 | heuristic | trust=0.95 | mean=208.69 K | spread=208.19-209.19 K | std=0.50 K | flag=low | demo"
+    exported = export_des_run_bundle(output_dir, run_payload, report_text)
 
+    report_path = output_dir / "report.txt"
     json_path = output_dir / "run.json"
     csv_path = output_dir / "run.csv"
     manifest_path = output_dir / "run.manifest.json"
 
     assert output_dir.is_dir()
-    assert exported == {"json": json_path, "csv": csv_path, "manifest": manifest_path}
+    assert exported == {"report": report_path, "json": json_path, "csv": csv_path, "manifest": manifest_path}
+    assert report_path.read_text(encoding="utf-8") == report_text
     assert json.loads(json_path.read_text(encoding="utf-8")) == run_payload
 
     with csv_path.open(encoding="utf-8") as handle:
@@ -57,6 +60,7 @@ def test_export_des_run_bundle_writes_three_files_with_fixed_csv_header(tmp_path
     assert manifest["component_a"] == "CCO"
     assert manifest["n"] == 5
     assert manifest["exported_at_utc"].endswith("Z")
+    assert manifest["report_filename"] == "report.txt"
     assert manifest["json_filename"] == "run.json"
     assert manifest["csv_filename"] == "run.csv"
     assert manifest["manifest_filename"] == "run.manifest.json"
@@ -69,7 +73,7 @@ def test_export_des_run_bundle_fails_when_output_path_is_not_writable(monkeypatc
     monkeypatch.setattr(Path, "mkdir", _raise_permission_error)
 
     with pytest.raises(PermissionError, match="cannot write export bundle"):
-        export_des_run_bundle(Path("/tmp/unwritable"), {"workflow": "des", "results": []})
+        export_des_run_bundle(Path("/tmp/unwritable"), {"workflow": "des", "results": []}, "report")
 
 
 
@@ -171,10 +175,11 @@ def test_run_search_report_exports_bundle_next_to_saved_memory(monkeypatch, tmp_
 
     captured = {}
 
-    def fake_export(output_dir, payload):
+    def fake_export(output_dir, payload, report_text):
         captured["output_dir"] = Path(output_dir)
         captured["payload"] = payload
-        return {"json": Path(output_dir) / "run.json", "csv": Path(output_dir) / "run.csv", "manifest": Path(output_dir) / "run.manifest.json"}
+        captured["report_text"] = report_text
+        return {"report": Path(output_dir) / "report.txt", "json": Path(output_dir) / "run.json", "csv": Path(output_dir) / "run.csv", "manifest": Path(output_dir) / "run.manifest.json"}
 
     monkeypatch.setattr(orchestrator, "export_des_run_bundle", fake_export)
 
@@ -208,6 +213,7 @@ embedding:
     assert captured["output_dir"] == save_memory_path.parent
     assert captured["payload"]["workflow"] == "des"
     assert captured["payload"]["results"][0]["smiles_b"] == "O"
+    assert "smiles_b | is_des" in captured["report_text"]
 
 
 def test_export_des_run_bundle_requires_fixed_csv_fields(tmp_path: Path):
@@ -230,5 +236,5 @@ def test_export_des_run_bundle_requires_fixed_csv_fields(tmp_path: Path):
     }
 
     with pytest.raises(KeyError, match="uncertainty_flag"):
-        export_des_run_bundle(output_dir, run_payload)
+        export_des_run_bundle(output_dir, run_payload, "report")
     assert not output_dir.exists()

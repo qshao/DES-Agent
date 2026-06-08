@@ -74,6 +74,7 @@ def _build_manifest(output_dir: Path, run_payload: Mapping[str, object]) -> dict
         "n": run_payload.get("n"),
         "exported_at_utc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "output_dir": str(output_dir),
+        "report_filename": "report.txt",
         "json_filename": "run.json",
         "csv_filename": "run.csv",
         "manifest_filename": "run.manifest.json",
@@ -94,13 +95,14 @@ def _build_csv_rows(run_payload: Mapping[str, object]) -> list[dict[str, str]]:
     return rows
 
 
-def export_des_run_bundle(output_dir: str | Path, run_payload: Mapping[str, object]) -> dict[str, Path]:
+def export_des_run_bundle(output_dir: str | Path, run_payload: Mapping[str, object], report_text: str) -> dict[str, Path]:
     output_path = Path(output_dir)
     payload = _require_mapping(run_payload, "run_payload")
     rows = _build_csv_rows(payload)
     manifest = _build_manifest(output_path, payload)
 
     output_path.mkdir(parents=True, exist_ok=True)
+    report_path = output_path / "report.txt"
     json_path = output_path / "run.json"
     csv_path = output_path / "run.csv"
     manifest_path = output_path / "run.manifest.json"
@@ -112,8 +114,9 @@ def export_des_run_bundle(output_dir: str | Path, run_payload: Mapping[str, obje
     writer.writerows(rows)
     manifest_text = json.dumps(_json_safe(manifest), indent=2, sort_keys=True)
 
+    _write_text_atomic(report_path, report_text)
     _write_text_atomic(json_path, json_text)
     _write_text_atomic(csv_path, csv_buffer.getvalue())
     _write_text_atomic(manifest_path, manifest_text)
 
-    return {"json": json_path, "csv": csv_path, "manifest": manifest_path}
+    return {"report": report_path, "json": json_path, "csv": csv_path, "manifest": manifest_path}

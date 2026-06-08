@@ -9,6 +9,7 @@ from .chemistry_filter import canonicalize_smiles, filter_candidates
 from .config import DEFAULT_ABSOLUTE_TM_MAX_K, DEFAULT_RELATIVE_DROP_MIN
 from .discovery import load_discovery_library, literature_lookup, merge_discovery_candidates, similarity_search
 from .exporting import export_des_run_bundle
+from .reporting import format_report
 from .evaluation import DesResult, classify_des
 from .llm.factory import build_llm_provider
 from .llm.schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, ExplanationNote
@@ -248,6 +249,14 @@ def _build_des_export_payload(
     }
 
 
+def _resolve_des_output_dir(output_dir: str | None, save_run_memory_path: str | None) -> Path:
+    if output_dir:
+        return Path(output_dir)
+    if save_run_memory_path:
+        return Path(save_run_memory_path).parent
+    return Path.cwd()
+
+
 def run_search_report(
     component_a: str,
     n: int,
@@ -261,6 +270,7 @@ def run_search_report(
     viscosity_model_path: str | None = None,
     save_run_memory_path: str | None = None,
     reuse_run_path: str | None = None,
+    output_dir: str | None = None,
 ):
     checkpoint_path = resolve_existing_path(checkpoint_path)
     config_path = resolve_existing_path(config_path)
@@ -384,7 +394,19 @@ def run_search_report(
         memory_notes=memory_notes,
         viscosity_predictions=viscosity_predictions,
     )
-    export_output_dir = Path(save_run_memory_path).parent if save_run_memory_path else Path.cwd()
+    report_text = format_report(
+        final_results,
+        annotated_results=annotated_results,
+        candidate_proposals=candidate_proposals,
+        candidate_reviews=candidate_reviews,
+        explanation_notes=explanation_notes,
+        critique_notes=critique_notes,
+        brainstorm_candidates=llm_candidates,
+        llm_warnings=llm_warnings,
+        memory_notes=memory_notes,
+        viscosity_predictions=viscosity_predictions,
+    )
+    export_output_dir = _resolve_des_output_dir(output_dir, save_run_memory_path)
     try:
         export_des_run_bundle(
             export_output_dir,
@@ -395,6 +417,7 @@ def run_search_report(
                 checkpoint_path=str(checkpoint_path),
                 config_path=str(config_path),
             ),
+            report_text,
         )
     except (OSError, TypeError, ValueError, KeyError) as exc:
         raise ValueError(f"DES export failed for {export_output_dir}: {exc}") from exc

@@ -48,6 +48,11 @@ def build_parser():
         help="Optional local DESignSolvents viscosity model artifact",
     )
     parser.add_argument(
+        "--output-dir",
+        default=None,
+        help="Optional directory where DES run artifacts are written",
+    )
+    parser.add_argument(
         "--mock",
         action="store_true",
         help="Run a fully offline mock demo with canned predictions and LLM notes",
@@ -206,6 +211,7 @@ def main(argv=None):
             llm_cfg=llm_cfg,
             discovery_path=str(discovery_path) if discovery_path is not None else None,
             viscosity_model_path=args.viscosity_model_path,
+            output_dir=args.output_dir,
         )
     print(
         format_report(

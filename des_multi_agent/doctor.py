@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -33,6 +34,17 @@ BENCHMARK_FOLDERS = (
     "qwen3_6",
     "task_router",
     "viscosity_template",
+)
+
+DEFAULT_CHECKPOINT_PATH = "ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt"
+DEFAULT_DISCOVERY_FILES = (
+    "tests/fixtures/discovery/literature.yaml",
+    "tests/fixtures/discovery/library.yaml",
+)
+DEFAULT_ARTIFACT_FILES = (
+    "artifacts/README.md",
+    "artifacts/designsolvents/viscosity/model.json",
+    "artifacts/stability_constants/model.json",
 )
 
 
@@ -78,6 +90,12 @@ def _check_file_exists(root: Path, relative_path: str, errors: list[DoctorIssue]
         _add_issue(errors, "error", f"missing required file: {relative_path}")
 
 
+def _check_optional_file_exists(root: Path, check_name: str, relative_path: str, warnings: list[DoctorIssue]) -> None:
+    path = root / relative_path
+    if not path.exists():
+        _add_issue(warnings, "warning", f"[{check_name}] missing optional file: {relative_path}")
+
+
 def _check_text_contains(root: Path, relative_path: str, needle: str, warnings: list[DoctorIssue]) -> None:
     path = root / relative_path
     if not path.exists():
@@ -109,7 +127,21 @@ def _check_benchmark_baselines(root: Path, errors: list[DoctorIssue]) -> None:
                 _add_issue(errors, "error", f"missing benchmark baseline file: tests/fixtures/example_benchmark_baselines/{folder_name}/{required_name}")
 
 
-def run_doctor(repo_root: str | Path = PROJECT_ROOT) -> DoctorResult:
+def _check_optional_checkpoint(root: Path, warnings: list[DoctorIssue]) -> None:
+    _check_optional_file_exists(root, "checkpoint", DEFAULT_CHECKPOINT_PATH, warnings)
+
+
+def _check_optional_discovery(root: Path, warnings: list[DoctorIssue]) -> None:
+    for relative_path in DEFAULT_DISCOVERY_FILES:
+        _check_optional_file_exists(root, "discovery", relative_path, warnings)
+
+
+def _check_optional_artifacts(root: Path, warnings: list[DoctorIssue]) -> None:
+    for relative_path in DEFAULT_ARTIFACT_FILES:
+        _check_optional_file_exists(root, "artifacts", relative_path, warnings)
+
+
+def run_doctor(repo_root: str | Path = PROJECT_ROOT, optional_checks: Sequence[str] = ()) -> DoctorResult:
     root = Path(repo_root)
     errors: list[DoctorIssue] = []
     warnings: list[DoctorIssue] = []
@@ -125,10 +157,19 @@ def run_doctor(repo_root: str | Path = PROJECT_ROOT) -> DoctorResult:
     for folder_name in EXAMPLE_FOLDERS:
         _check_example_folder(root, folder_name, errors)
 
-    # Lightweight doc consistency checks.
     _check_text_contains(root, "README.md", "example benchmark suite", warnings)
     _check_text_contains(root, "README.md", "doctor", warnings)
     _check_text_contains(root, "docs/tutorial.md", "doctor", warnings)
     _check_text_contains(root, "examples/README.md", "doctor", warnings)
+
+    for check_name in dict.fromkeys(optional_checks):
+        if check_name == "checkpoint":
+            _check_optional_checkpoint(root, warnings)
+        elif check_name == "discovery":
+            _check_optional_discovery(root, warnings)
+        elif check_name == "artifacts":
+            _check_optional_artifacts(root, warnings)
+        else:
+            raise ValueError(f"unsupported optional doctor check: {check_name}")
 
     return DoctorResult(errors=errors, warnings=warnings)

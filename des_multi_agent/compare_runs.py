@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 from pathlib import Path
 
 from .run_memory import load_run_memory
@@ -115,3 +116,38 @@ def format_compare_report(result: CompareResult) -> str:
             f"{row.smiles_b} | {row.status} | {_format_rank(row.left_rank)} | {_format_rank(row.right_rank)}"
         )
     return "\n".join(lines)
+
+
+def format_compare_json(result: CompareResult) -> dict[str, object]:
+    counts = {"new": 0, "removed": 0, "moved": 0, "unchanged": 0}
+    changed_candidates: list[dict[str, object]] = []
+    for row in result.rows:
+        counts[row.status] += 1
+        if row.status != "unchanged":
+            changed_candidates.append(
+                {
+                    "smiles_b": row.smiles_b,
+                    "status": row.status,
+                    "left_rank": row.left_rank,
+                    "right_rank": row.right_rank,
+                }
+            )
+    return {
+        "workflow": result.workflow,
+        "left": {
+            "path": str(result.left_path),
+            "component_a": result.left_component_a,
+            "n": result.left_n,
+        },
+        "right": {
+            "path": str(result.right_path),
+            "component_a": result.right_component_a,
+            "n": result.right_n,
+        },
+        "counts": counts,
+        "changed_candidates": changed_candidates,
+    }
+
+
+def format_compare_json_text(result: CompareResult) -> str:
+    return json.dumps(format_compare_json(result), indent=2, sort_keys=True)

@@ -15,9 +15,11 @@ Twelve small runnable examples live here:
 - [`task_router/`](./task_router) for translating a plain-language request into a JSON job
 - [`des_run_memory_feedback/`](./des_run_memory_feedback) for the full DES save-label-reuse feedback loop
 
-Before adapting a folder, run `python -m des_multi_agent.cli doctor` to verify the core repo and checked-in examples are present.
+Before adapting a folder, run `python -m des_multi_agent.cli doctor` to verify the core repo and checked-in examples are present. If you also want optional local checks, you can run `python -m des_multi_agent.cli doctor --check checkpoint`, `python -m des_multi_agent.cli doctor --check discovery`, or `python -m des_multi_agent.cli doctor --check artifacts`.
 
-If you want to compare two saved runs from the same workflow, use `python -m des_multi_agent.cli compare-runs <run-a> <run-b>`.
+If you want to compare two saved runs from the same workflow, use `python -m des_multi_agent.cli compare-runs <run-a> <run-b>` or add `--json` for a machine-readable summary.
+
+Every command prints a compact `summary:` block after its main output. For parseable modes like `task-router` and `compare-runs --json`, the summary is written to `stderr` so `stdout` stays machine-readable.
 
 Each folder includes and can be used as a template for your own work:
 
@@ -30,7 +32,7 @@ The same folders also power the pytest-based example benchmark suite in [`tests/
 
 The LLM-backed examples also include a model-specific `llm.*.yaml` file.
 
-The DES examples call the shared demo entrypoint. In LLM-enabled runs, candidates are reviewed one by one so large candidate sets stay manageable. DES runs also write machine-readable exports (`run.json`, `run.csv`, `run.manifest.json`) automatically. If you save run memory with `--save-run-memory`, the export bundle lands in that same folder. You can also save, label, and reuse DES run memory with `--save-run-memory`, `label-run`, and `--reuse-run` if you want a later run to bias ranking from an earlier one:
+The DES examples call the shared demo entrypoint. In LLM-enabled runs, candidates are reviewed one by one so large candidate sets stay manageable. DES runs can also write into a standard flat run directory with `--output-dir runs/run_001`. That folder becomes the canonical home for `report.txt`, `run.json`, `run.csv`, and `run.manifest.json`. If you save run memory with `--save-run-memory`, point it at `runs/run_001/run.memory.json` so the memory file lives in the same folder. You can also save, label, and reuse DES run memory with `--save-run-memory`, `label-run`, and `--reuse-run` if you want a later run to bias ranking from an earlier one:
 
 ```bash
 python -m examples.demo_des_search --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --llm-config <folder>/llm.<name>.yaml

@@ -72,8 +72,9 @@ embedding:
         "--std-medium-threshold-k", "4.0",
     ])
 
-    out = capsys.readouterr().out
-    assert out.strip() == "ok"
+    captured_out = capsys.readouterr()
+    assert captured_out.out.startswith("ok\nsummary:")
+    assert captured_out.err == ""
     assert isinstance(captured["uncertainty_policy"], UncertaintyPolicy)
     assert captured["uncertainty_policy"].mode == "report_only"
     assert captured["uncertainty_policy"].min_trust_score == 0.70

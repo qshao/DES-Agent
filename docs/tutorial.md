@@ -12,7 +12,7 @@ This project combines a deterministic DES screening pipeline with optional layer
 
 ## Doctor First
 
-Run `python -m des_multi_agent.cli doctor` before any demo to check the core repo and the checked-in example folders.
+Run `python -m des_multi_agent.cli doctor` before any demo to check the core repo and the checked-in example folders. If you want extra local setup coverage, you can run `python -m des_multi_agent.cli doctor --check checkpoint`, `python -m des_multi_agent.cli doctor --check discovery`, or `python -m des_multi_agent.cli doctor --check artifacts` to check the default checkpoint, the bundled discovery fixture, and the local artifact files.
 
 ## Mock Demo
 
@@ -64,13 +64,16 @@ python -m des_multi_agent.cli label-run --run runs/run_001 --label "O=good" --la
 python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --config-path ml_des_mp/config.yaml --reuse-run runs/run_001/run.memory.json
 ```
 
-Every DES run also writes machine-readable exports (`run.json`, `run.csv`, `run.manifest.json`) next to the run output. If you save run memory into a folder such as `runs/run_001/run.memory.json`, the export bundle is written in that same folder.
+Every DES run can also write into a standard flat run directory with `--output-dir runs/run_001`. That folder becomes the canonical home for `report.txt`, `run.json`, `run.csv`, and `run.manifest.json`. If you want run memory in the same folder, point `--save-run-memory` at `runs/run_001/run.memory.json`.
 
 You can compare two saved runs from the same workflow with `compare-runs`:
 
 ```bash
 python -m des_multi_agent.cli compare-runs runs/run_001/run.memory.json runs/run_002/run.memory.json
+python -m des_multi_agent.cli compare-runs runs/run_001/run.memory.json runs/run_002/run.memory.json --json
 ```
+
+Every command prints a compact `summary:` block after its main output. For parseable modes like `task-router` and `compare-runs --json`, the summary is written to `stderr` so `stdout` stays machine-readable.
 
 The command uses the bundled `ml_des_mp/config.yaml` and a local trained checkpoint.
 

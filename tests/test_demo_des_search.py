@@ -13,6 +13,53 @@ def test_demo_parser_accepts_overrides():
     assert args.discovery_path == "tests/fixtures/discovery"
 
 
+def test_demo_parser_accepts_output_dir():
+    parser = build_parser()
+    args = parser.parse_args(["--component-a", "CCO", "--n", "3", "--output-dir", "runs/run_001"])
+    assert args.output_dir == "runs/run_001"
+
+
+def test_demo_forwards_output_dir_to_run_search_report(monkeypatch, capsys, tmp_path):
+    checkpoint_path = tmp_path / "ckpt.pt"
+    checkpoint_path.write_text("ckpt", encoding="utf-8")
+    config_path = tmp_path / "config.yaml"
+    config_path.write_text("device: cpu\n", encoding="utf-8")
+    captured = {}
+
+    def fake_run_search_report(**kwargs):
+        captured.update(kwargs)
+        return SearchOutcome(
+            results=[],
+            annotated_results=[],
+            candidate_proposals=[],
+            candidate_reviews=[],
+            brainstorm_candidates=[],
+            explanation_notes=[],
+            critique_notes=[],
+            llm_warnings=[],
+        )
+
+    monkeypatch.setattr(demo_des_search, "run_search_report", fake_run_search_report)
+    monkeypatch.setattr(demo_des_search, "format_report", lambda *args, **kwargs: "DEMO REPORT")
+
+    demo_des_search.main([
+        "--component-a",
+        "CCO",
+        "--n",
+        "1",
+        "--checkpoint-path",
+        str(checkpoint_path),
+        "--config-path",
+        str(config_path),
+        "--output-dir",
+        str(tmp_path / "runs" / "run_001"),
+    ])
+
+    out = capsys.readouterr().out.strip()
+    assert out == "DEMO REPORT"
+    assert captured["output_dir"] == str(tmp_path / "runs" / "run_001")
+
+
 def test_demo_resolve_defaults_returns_repo_paths():
     checkpoint_path, config_path, llm_config_path = resolve_defaults()
     assert checkpoint_path.name.endswith(".pt")
@@ -26,6 +73,8 @@ def test_tutorial_and_readme_links_exist():
     assert "docs/tutorial.md" in readme
     assert "doctor" in readme
     assert "compare-runs" in readme
+    assert "--json" in readme
+    assert "summary:" in readme
     assert "run.json" in readme
     assert "run.csv" in readme
     assert "run.manifest.json" in readme
@@ -44,6 +93,8 @@ def test_examples_readme_exists_and_links_tutorial():
     assert "docs/tutorial.md" in text
     assert "doctor" in text
     assert "compare-runs" in text
+    assert "--json" in text
+    assert "summary:" in text
     assert "run.json" in text
     assert "run.csv" in text
     assert "run.manifest.json" in text
@@ -75,6 +126,8 @@ def test_tutorial_shows_explicit_real_checkpoint():
     assert "DES_CHECKPOINT_PATH=ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt" in text
     assert "doctor" in text
     assert "compare-runs" in text
+    assert "--json" in text
+    assert "summary:" in text
     assert "run.json" in text
     assert "run.csv" in text
     assert "run.manifest.json" in text
