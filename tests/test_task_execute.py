@@ -1,6 +1,7 @@
 from types import SimpleNamespace
 
 from des_multi_agent import task_executor
+from des_multi_agent.task_executor import execute_task_request_detailed
 
 
 def test_execute_task_request_returns_clarification_json(monkeypatch):
@@ -17,7 +18,22 @@ def test_execute_task_request_returns_clarification_json(monkeypatch):
     assert "clarifying_questions" in out
 
 
-def test_execute_task_request_runs_des_workflow(monkeypatch):
+def test_execute_task_request_detailed_distinguishes_clarification_and_execution(monkeypatch):
+    class _FakeResponse:
+        needs_clarification = True
+        job = None
+
+        def to_json(self):
+            return '{"workflow":"clarify","needs_clarification":true,"clarifying_questions":["Which workflow?"],"job":null}'
+
+    monkeypatch.setattr("des_multi_agent.task_executor.route_task", lambda request, provider=None: _FakeResponse())
+    clarified = execute_task_request_detailed("find DES partners")
+    assert clarified.needs_clarification is True
+    assert clarified.summary_status == "clarified"
+    assert clarified.output.startswith("{")
+
+
+def test_execute_task_request_detailed_runs_des_workflow(monkeypatch):
     class _FakeJob:
         component_a = "CCO"
         n = 5
@@ -49,6 +65,10 @@ def test_execute_task_request_runs_des_workflow(monkeypatch):
     monkeypatch.setattr(task_executor, "route_task", lambda request, provider=None: _FakeResponse())
     monkeypatch.setattr(task_executor, "run_search_report", lambda **kwargs: fake_outcome)
     monkeypatch.setattr(task_executor, "format_report", lambda *args, **kwargs: "DES REPORT")
+    detailed = execute_task_request_detailed("find DES partners for lidocaine")
+    assert detailed.needs_clarification is False
+    assert detailed.summary_status == "executed"
+    assert detailed.output == "DES REPORT"
     out = task_executor.execute_task_request("find DES partners for lidocaine")
     assert out == "DES REPORT"
 
@@ -77,5 +97,9 @@ def test_execute_task_request_runs_metal_binding_workflow(monkeypatch):
     monkeypatch.setattr(task_executor, "route_task", lambda request, provider=None: _FakeResponse())
     monkeypatch.setattr(task_executor, "run_metal_binding_workflow", lambda **kwargs: fake_outcome)
     monkeypatch.setattr(task_executor, "format_metal_binding_report", lambda outcome: "METAL REPORT")
+    detailed = execute_task_request_detailed("predict stability constant")
+    assert detailed.needs_clarification is False
+    assert detailed.summary_status == "executed"
+    assert detailed.output == "METAL REPORT"
     out = task_executor.execute_task_request("predict stability constant")
     assert out == "METAL REPORT"
