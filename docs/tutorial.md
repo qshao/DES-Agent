@@ -64,6 +64,12 @@ python -m des_multi_agent.cli label-run --run runs/run_001 --label "O=good" --la
 python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --config-path ml_des_mp/config.yaml --reuse-run runs/run_001/run.memory.json
 ```
 
+You can compare two saved runs from the same workflow with `compare-runs`:
+
+```bash
+python -m des_multi_agent.cli compare-runs runs/run_001/run.memory.json runs/run_002/run.memory.json
+```
+
 The command uses the bundled `ml_des_mp/config.yaml` and a local trained checkpoint.
 
 ## Example Benchmark

@@ -25,6 +25,7 @@ def test_tutorial_and_readme_links_exist():
     readme = Path("README.md").read_text(encoding="utf-8")
     assert "docs/tutorial.md" in readme
     assert "doctor" in readme
+    assert "compare-runs" in readme
     assert "task-router" in readme
     assert "workflow=clarify" in readme
     assert "viscosity_template" in readme
@@ -39,6 +40,7 @@ def test_examples_readme_exists_and_links_tutorial():
     text = examples_readme.read_text(encoding="utf-8")
     assert "docs/tutorial.md" in text
     assert "doctor" in text
+    assert "compare-runs" in text
     assert "viscosity_template" in text
     assert "ligand_binding_template" in text
     assert "plain_language_gemma4_12b" in text
@@ -66,6 +68,7 @@ def test_tutorial_shows_explicit_real_checkpoint():
     text = Path("docs/tutorial.md").read_text(encoding="utf-8")
     assert "DES_CHECKPOINT_PATH=ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt" in text
     assert "doctor" in text
+    assert "compare-runs" in text
     assert "task-router" in text
     assert "workflow=clarify" in text
     assert "viscosity_template" in text

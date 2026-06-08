@@ -61,6 +61,12 @@ Reuse the labeled DES memory file or folder to nudge ranking on a later run:
 python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --config-path ml_des_mp/config.yaml --reuse-run runs/run_001/run.memory.json
 ```
 
+Compare two saved runs from the same workflow with `compare-runs`:
+
+```bash
+python -m des_multi_agent.cli compare-runs runs/run_001/run.memory.json runs/run_002/run.memory.json
+```
+
 Optional Ollama LLM run (Gemma, Nemotron, or Qwen via `model_name`). The LLM now reviews candidates one by one, so `--n 20` is safe even when you want a larger candidate set:
 
 ```bash

@@ -32,6 +32,14 @@ def test_cli_parser_accepts_task_execute_subcommand():
     assert args.request == "find DES partners for lidocaine"
 
 
+def test_cli_parser_accepts_compare_runs_subcommand():
+    parser = build_parser()
+    args = parser.parse_args(["compare-runs", "runs/run_001", "runs/run_002"])
+    assert args.command == "compare-runs"
+    assert args.left == "runs/run_001"
+    assert args.right == "runs/run_002"
+
+
 def test_cli_parser_accepts_label_run_subcommand():
     parser = build_parser()
     args = parser.parse_args([
@@ -66,6 +74,14 @@ def test_task_execute_subcommand_prints_report(monkeypatch, capsys):
     cli_module.main(["task-execute", "find DES partners for lidocaine"])
     out = capsys.readouterr().out.strip()
     assert out == "EXECUTED REPORT"
+
+
+def test_compare_runs_subcommand_prints_report(monkeypatch, capsys):
+    monkeypatch.setattr(cli_module, "compare_saved_runs", lambda left, right: type("R", (), {"workflow": "des", "rows": []})())
+    monkeypatch.setattr(cli_module, "format_compare_report", lambda result: "compare-runs report")
+    cli_module.main(["compare-runs", "runs/run_001", "runs/run_002"])
+    out = capsys.readouterr().out.strip()
+    assert out == "compare-runs report"
 
 
 def test_doctor_subcommand_prints_report(capsys):

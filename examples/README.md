@@ -17,6 +17,8 @@ Twelve small runnable examples live here:
 
 Before adapting a folder, run `python -m des_multi_agent.cli doctor` to verify the core repo and checked-in examples are present.
 
+If you want to compare two saved runs from the same workflow, use `python -m des_multi_agent.cli compare-runs <run-a> <run-b>`.
+
 Each folder includes and can be used as a template for your own work:
 
 - a runnable `run.sh`
