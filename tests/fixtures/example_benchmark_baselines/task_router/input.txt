@@ -1,0 +1,1 @@
+I want to run the DES workflow for ethanol (CCO) with 20 candidate partners. Use the shipped checkpoint and the shared Ollama config if available.

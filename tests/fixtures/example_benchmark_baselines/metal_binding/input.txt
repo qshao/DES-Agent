@@ -1,0 +1,4 @@
+workflow=metal-binding
+metal_ion=Cu2+
+ligand_smiles=NCCN
+stability_constant_model_path=artifacts/stability_constants/model.json

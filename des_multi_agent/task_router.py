@@ -1,7 +1,7 @@
+
 from __future__ import annotations
 
 import json
-import os
 
 import yaml
 from dataclasses import fields
@@ -10,6 +10,7 @@ from .config import PROJECT_ROOT
 from .llm.config import LLMConfig
 from .llm.factory import build_llm_provider
 from .llm.parser import extract_json_object
+from .request_normalization import normalize_request_text
 from .task_router_schema import RouterJob, RouterResponse
 
 DEFAULT_ROUTER_LLM_CONFIG = PROJECT_ROOT / "llm.example.yaml"
@@ -66,29 +67,12 @@ def parse_router_response(payload: str) -> RouterResponse:
             raise ValueError(f"router response job fields are invalid: {exc}") from exc
     else:
         job = None
-    if needs_clarification:
-        if not clarifying_questions:
-            raise ValueError("router response requested clarification but provided no questions")
-        if workflow not in {"des", "metal-binding"}:
-            workflow = "clarify"
-        response = RouterResponse(
-            workflow=workflow,
-            needs_clarification=True,
-            clarifying_questions=clarifying_questions,
-            job=job,
-        )
-        response.validate()
-        return response
-    if clarifying_questions:
-        raise ValueError("router response included clarifying questions without requesting clarification")
-    if workflow not in {"des", "metal-binding"}:
-        raise ValueError(f"Unsupported workflow: {workflow}")
-    if job is None:
-        raise ValueError("router response must include a job when clarification is not needed")
+    if needs_clarification and workflow not in {"des", "metal-binding"}:
+        workflow = "clarify"
     response = RouterResponse(
         workflow=workflow,
-        needs_clarification=False,
-        clarifying_questions=[],
+        needs_clarification=needs_clarification,
+        clarifying_questions=clarifying_questions,
         job=job,
     )
     response.validate()
@@ -96,6 +80,7 @@ def parse_router_response(payload: str) -> RouterResponse:
 
 
 def route_task(request: str, provider=None) -> RouterResponse:
+    normalized = normalize_request_text(request)
     provider = provider or build_default_router_provider()
-    response_text = provider.route_request(request)
+    response_text = provider.route_request(request, normalized=normalized)
     return parse_router_response(response_text)

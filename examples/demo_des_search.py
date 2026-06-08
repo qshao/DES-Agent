@@ -217,6 +217,7 @@ def main(argv=None):
             critique_notes=outcome.critique_notes,
             brainstorm_candidates=outcome.brainstorm_candidates,
             llm_warnings=outcome.llm_warnings,
+            memory_notes=getattr(outcome, "memory_notes", None),
             viscosity_predictions=getattr(outcome, "viscosity_predictions", None),
         )
     )

@@ -1,0 +1,2 @@
+metal_ion | ligand_smiles | value | units | model | source
+Cu2+ | NCCN | 9.89 | log K | stabilityconstant-ml-models | artifact

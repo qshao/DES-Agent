@@ -34,4 +34,3 @@ Use this folder as a template for your own plain-language metal-binding workflow
 - Update the metal ion and ligand if you want a different binding pair.
 - If you want a different model, edit [`llm.gemma4_12b.yaml`](./llm.gemma4_12b.yaml) or swap in another local Ollama config.
 - The example stays close to the real user workflow because the router decides the job fields first and the metal-binding workflow runs second.
-- The DES run-memory reuse feature is DES-only; it does not apply to this metal-binding workflow.

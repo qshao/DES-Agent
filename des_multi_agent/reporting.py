@@ -17,6 +17,7 @@ def format_report(
     critique_notes: Sequence[CritiqueNote] | None = None,
     brainstorm_candidates: Sequence[CandidateBrainstorm] | None = None,
     llm_warnings: Sequence[str] | None = None,
+    memory_notes: Sequence[str] | None = None,
     viscosity_predictions: Sequence[ViscosityPrediction] | None = None,
 ) -> str:
     proposal_by_smiles = {item.smiles: item for item in candidate_proposals or []}
@@ -82,6 +83,11 @@ def format_report(
         lines.append("Warnings:")
         for warning in llm_warnings:
             lines.append(f"- {warning}")
+    if memory_notes:
+        lines.append("")
+        lines.append("Run memory:")
+        for note in memory_notes:
+            lines.append(f"- {note}")
     return '\n'.join(lines)
 
 

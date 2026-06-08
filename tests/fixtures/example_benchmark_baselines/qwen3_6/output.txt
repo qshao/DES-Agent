@@ -1,0 +1,46 @@
+smiles_b | is_des | min_tm_k | source | trust | mean_tm_k | spread_k | std_k | uncertainty_flag | rationale
+OCCCO | True | 200.73 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=200.73 K | spread=200.73-200.73 K | std=0.00 K | flag=low | min Tm=200.73 K, absolute<= 260.00 K, relative_drop=0.260
+CN(C)C=O | True | 207.73 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=207.73 K | spread=207.73-207.73 K | std=0.00 K | flag=low | min Tm=207.73 K, absolute<= 260.00 K, relative_drop=0.234
+OCCO | True | 208.69 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=208.69 K | spread=208.69-208.69 K | std=0.00 K | flag=low | min Tm=208.69 K, absolute<= 260.00 K, relative_drop=0.230
+CN | True | 210.86 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=210.86 K | spread=210.86-210.86 K | std=0.00 K | flag=low | min Tm=210.86 K, absolute<= 260.00 K, relative_drop=0.206
+C[N+](C)(C)CCO.[Cl-] | True | 217.36 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=217.36 K | spread=217.36-217.36 K | std=0.00 K | flag=low | min Tm=217.36 K, absolute<= 260.00 K, relative_drop=0.199
+O=C1CCCN1 | True | 220.63 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=220.63 K | spread=220.63-220.63 K | std=0.00 K | flag=low | min Tm=220.63 K, absolute<= 260.00 K, relative_drop=0.186
+O=C1NC(=O)NC1 | True | 221.71 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=221.71 K | spread=221.71-221.71 K | std=0.00 K | flag=low | min Tm=221.71 K, absolute<= 260.00 K, relative_drop=0.182
+CC(=O)N | True | 222.77 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=222.77 K | spread=222.77-222.77 K | std=0.00 K | flag=low | min Tm=222.77 K, absolute<= 260.00 K, relative_drop=0.179
+OCC(O)CO | True | 223.28 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=223.28 K | spread=223.28-223.28 K | std=0.00 K | flag=low | min Tm=223.28 K, absolute<= 260.00 K, relative_drop=0.177
+CCOCC | True | 224.74 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=224.74 K | spread=224.74-224.74 K | std=0.00 K | flag=low | min Tm=224.74 K, absolute<= 260.00 K, relative_drop=0.171
+O | True | 225.27 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=225.27 K | spread=225.27-225.27 K | std=0.00 K | flag=low | min Tm=225.27 K, absolute<= 260.00 K, relative_drop=0.118
+NC(=O)N | True | 226.25 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=226.25 K | spread=226.25-226.25 K | std=0.00 K | flag=low | min Tm=226.25 K, absolute<= 260.00 K, relative_drop=0.166
+OC1=CC=CC=N1 | True | 226.96 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=226.96 K | spread=226.96-226.96 K | std=0.00 K | flag=low | min Tm=226.96 K, absolute<= 260.00 K, relative_drop=0.163
+CC(=O)NCCO | True | 228.33 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=228.33 K | spread=228.33-228.33 K | std=0.00 K | flag=low | min Tm=228.33 K, absolute<= 260.00 K, relative_drop=0.158
+CS(=O)C | True | 229.18 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=229.18 K | spread=229.18-229.18 K | std=0.00 K | flag=low | min Tm=229.18 K, absolute<= 260.00 K, relative_drop=0.155
+C[N+](C)(C)C.[Cl-] | True | 232.36 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=232.36 K | spread=232.36-232.36 K | std=0.00 K | flag=low | min Tm=232.36 K, absolute<= 260.00 K, relative_drop=0.143
+CC(=O)O | True | 236.03 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=236.03 K | spread=236.03-236.03 K | std=0.00 K | flag=low | min Tm=236.03 K, absolute<= 260.00 K, relative_drop=0.130
+COCCO | True | 239.96 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=239.96 K | spread=239.96-239.96 K | std=0.00 K | flag=low | min Tm=239.96 K, absolute<= 260.00 K, relative_drop=0.115
+CS(=O)(=O)C | True | 243.14 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=243.14 K | spread=243.14-243.14 K | std=0.00 K | flag=low | min Tm=243.14 K, absolute<= 260.00 K, relative_drop=0.103
+OC[C@H](O)[C@H](O)CO | False | 244.92 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=244.92 K | spread=244.92-244.92 K | std=0.00 K | flag=low | min Tm=244.92 K, absolute<= 260.00 K, relative_drop=0.097
+
+Warnings:
+- LLM brainstorming failed: HTTP Error 404: Not Found
+- LLM candidate review failed for O: HTTP Error 404: Not Found
+- LLM candidate review failed for OCCO: HTTP Error 404: Not Found
+- LLM candidate review failed for OCC(O)CO: HTTP Error 404: Not Found
+- LLM candidate review failed for CC(=O)N: HTTP Error 404: Not Found
+- LLM candidate review failed for CC(=O)O: HTTP Error 404: Not Found
+- LLM candidate review failed for CN: HTTP Error 404: Not Found
+- LLM candidate review failed for C[N+](C)(C)C.[Cl-]: HTTP Error 404: Not Found
+- LLM candidate review failed for C[N+](C)(C)CCO.[Cl-]: HTTP Error 404: Not Found
+- LLM candidate review failed for NC(=O)N: HTTP Error 404: Not Found
+- LLM candidate review failed for OC[C@H](O)[C@H](O)CO: HTTP Error 404: Not Found
+- LLM candidate review failed for OCCCO: HTTP Error 404: Not Found
+- LLM candidate review failed for COCCO: HTTP Error 404: Not Found
+- LLM candidate review failed for O=C1CCCN1: HTTP Error 404: Not Found
+- LLM candidate review failed for O=C1NC(=O)NC1: HTTP Error 404: Not Found
+- LLM candidate review failed for CS(=O)C: HTTP Error 404: Not Found
+- LLM candidate review failed for CS(=O)(=O)C: HTTP Error 404: Not Found
+- LLM candidate review failed for OC1=CC=CC=N1: HTTP Error 404: Not Found
+- LLM candidate review failed for CN(C)C=O: HTTP Error 404: Not Found
+- LLM candidate review failed for CCOCC: HTTP Error 404: Not Found
+- LLM candidate review failed for CC(=O)NCCO: HTTP Error 404: Not Found
+- LLM explanation generation failed: HTTP Error 404: Not Found
+- LLM critique generation failed: HTTP Error 404: Not Found

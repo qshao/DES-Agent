@@ -1,0 +1,1 @@
+{"clarifying_questions":[],"job":{"checkpoint_path":"ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt","component_a":"CCO","config_path":"ml_des_mp/config.yaml","discovery_path":null,"llm_config":"llm.example.yaml","metal_ion":null,"n":20,"ligand_smiles":null,"stability_constant_model_path":null,"viscosity_model_path":null},"needs_clarification":false,"workflow":"des"}

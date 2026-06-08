@@ -5,10 +5,14 @@ from pathlib import Path
 
 import yaml
 
-from .config import DEFAULT_CONFIG_PATH
+from .config import DEFAULT_CONFIG_PATH, PROJECT_ROOT
+from .compare_runs import compare_saved_runs, format_compare_report
 from .llm.config import LLMConfig
 from .orchestrator import run_search_report
+from .task_executor import execute_task_request
 from .task_router import route_task
+from .doctor import format_doctor_report, run_doctor
+from .label_run import run_label_command
 from .paths import resolve_existing_path
 from .reporting import format_metal_binding_report, format_report
 from .uncertainty import UncertaintyPolicy
@@ -28,6 +32,8 @@ def build_parser():
     parser.add_argument("--metal-ion", default=None, help="Metal ion for the metal-binding workflow")
     parser.add_argument("--ligand-smiles", default=None, help="Ligand SMILES for the metal-binding workflow")
     parser.add_argument("--stability-constant-model-path", default=None, help="Optional local stability-constant model artifact")
+    parser.add_argument("--save-run-memory", default=None, help="Optional path to write a compact JSON DES run memory file")
+    parser.add_argument("--reuse-run", default=None, help="Optional prior DES run folder or run.memory.json file to reuse for ranking")
     parser.add_argument(
         "--uncertainty-mode",
         choices=["filter", "penalize", "report_only"],
@@ -62,6 +68,19 @@ def build_parser():
     task_router_parser = subparsers.add_parser("task-router", help="Translate a plain-language request into a JSON job")
     task_router_parser.add_argument("request", help="Free-form request to translate into a JSON job")
     task_router_parser.set_defaults(command="task-router")
+    task_execute_parser = subparsers.add_parser("task-execute", help="Translate a plain-language request and execute the matching workflow")
+    task_execute_parser.add_argument("request", help="Free-form request to translate and execute")
+    task_execute_parser.set_defaults(command="task-execute")
+    compare_runs_parser = subparsers.add_parser("compare-runs", help="Compare two saved runs from the same workflow")
+    compare_runs_parser.add_argument("left", help="Left run folder or run.memory.json file")
+    compare_runs_parser.add_argument("right", help="Right run folder or run.memory.json file")
+    compare_runs_parser.set_defaults(command="compare-runs")
+    label_run_parser = subparsers.add_parser("label-run", help="Update good/bad labels in a saved DES run memory")
+    label_run_parser.add_argument("--run", required=True, help="Prior DES run folder or run.memory.json file")
+    label_run_parser.add_argument("--label", action="append", default=[], help="Label spec in the form SMILES=good or SMILES=bad")
+    label_run_parser.set_defaults(command="label-run")
+    doctor_parser = subparsers.add_parser("doctor", help="Check local repo and example setup")
+    doctor_parser.set_defaults(command="doctor")
     parser.set_defaults(command=None)
     return parser
 
@@ -101,6 +120,31 @@ def main(argv=None):
             parser.error(str(exc))
         print(response.to_json())
         return
+    if getattr(args, "command", None) == "task-execute":
+        try:
+            output = execute_task_request(args.request)
+        except ValueError as exc:
+            parser.error(str(exc))
+        print(output)
+        return
+    if getattr(args, "command", None) == "compare-runs":
+        try:
+            result = compare_saved_runs(args.left, args.right)
+        except (FileNotFoundError, ValueError) as exc:
+            parser.error(str(exc))
+        print(format_compare_report(result))
+        return
+    if getattr(args, "command", None) == "label-run":
+        try:
+            message = run_label_command(args.run, args.label)
+        except (FileNotFoundError, ValueError) as exc:
+            parser.error(str(exc))
+        print(message)
+        return
+    if getattr(args, "command", None) == "doctor":
+        result = run_doctor(PROJECT_ROOT)
+        print(format_doctor_report(result))
+        raise SystemExit(result.exit_code)
     try:
         llm_cfg = load_llm_config(args.llm_config)
     except ValueError as exc:
@@ -117,16 +161,21 @@ def main(argv=None):
             parser.error("DES workflow requires --checkpoint-path")
         checkpoint_path = resolve_existing_path(args.checkpoint_path)
         config_path = resolve_existing_path(args.config_path)
-        outcome = run_search_report(
-            component_a=args.component_a,
-            n=args.n,
-            checkpoint_path=str(checkpoint_path),
-            config_path=str(config_path),
-            llm_cfg=llm_cfg,
-            discovery_path=args.discovery_path,
-            viscosity_model_path=args.viscosity_model_path,
-            uncertainty_policy=uncertainty_policy,
-        )
+        try:
+            outcome = run_search_report(
+                component_a=args.component_a,
+                n=args.n,
+                checkpoint_path=str(checkpoint_path),
+                config_path=str(config_path),
+                llm_cfg=llm_cfg,
+                discovery_path=args.discovery_path,
+                viscosity_model_path=args.viscosity_model_path,
+                save_run_memory_path=args.save_run_memory,
+                reuse_run_path=args.reuse_run,
+                uncertainty_policy=uncertainty_policy,
+            )
+        except (FileNotFoundError, ValueError) as exc:
+            parser.error(str(exc))
         print(
             format_report(
                 outcome.results,
@@ -137,6 +186,7 @@ def main(argv=None):
                 critique_notes=outcome.critique_notes,
                 brainstorm_candidates=outcome.brainstorm_candidates,
                 llm_warnings=outcome.llm_warnings,
+                memory_notes=getattr(outcome, "memory_notes", None),
                 viscosity_predictions=getattr(outcome, "viscosity_predictions", None),
             )
         )

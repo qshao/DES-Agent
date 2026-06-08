@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -7,11 +8,9 @@ from .schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, Explana
 
 
 class LLMProvider(ABC):
-    
-    def route_request(self, request: str) -> str:
+    def route_request(self, request: str, normalized=None) -> str:
         raise NotImplementedError
 
-    
     def review_candidate(self, component_a: str, candidate_smiles: str, context: str) -> CandidateReview:
         raise NotImplementedError
 

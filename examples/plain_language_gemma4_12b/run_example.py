@@ -11,6 +11,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from des_multi_agent.cli import load_llm_config
+from des_multi_agent.request_normalization import normalize_request_text
 from des_multi_agent.llm.factory import build_llm_provider
 from des_multi_agent.llm.parser import extract_json_object
 from des_multi_agent.orchestrator import run_search_report
@@ -71,7 +72,8 @@ def main() -> int:
     if provider is None:
         raise RuntimeError(f"LLM config {LLM_CONFIG_FILE} did not produce an enabled provider")
 
-    raw_response = provider.route_request(request)
+    normalized = normalize_request_text(request)
+    raw_response = provider.route_request(request, normalized=normalized)
     payload = json.loads(extract_json_object(raw_response))
     if not isinstance(payload, dict):
         raise RuntimeError("Gemma router response must be a JSON object")
@@ -118,6 +120,7 @@ def main() -> int:
             critique_notes=outcome.critique_notes,
             brainstorm_candidates=outcome.brainstorm_candidates,
             llm_warnings=outcome.llm_warnings,
+            memory_notes=getattr(outcome, "memory_notes", None),
             viscosity_predictions=outcome.viscosity_predictions,
         )
     )

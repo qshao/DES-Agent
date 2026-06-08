@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 import os
@@ -48,8 +49,8 @@ class BaseLLMProvider(LLMProvider):
         )
         return self.extract_text(raw)
 
-    def route_request(self, request: str) -> str:
-        return self._request(task_router_prompt(request))
+    def route_request(self, request: str, normalized=None) -> str:
+        return self._request(task_router_prompt(request, normalized=normalized))
 
     def review_candidate(self, component_a: str, candidate_smiles: str, context: str) -> CandidateReview:
         raw = self._request(candidate_review_prompt(component_a, candidate_smiles, context))
