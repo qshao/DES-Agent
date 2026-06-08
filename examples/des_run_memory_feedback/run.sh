@@ -8,6 +8,8 @@ MEMORY_FILE="${SCRIPT_DIR}/run.memory.json"
 CHECKPOINT_PATH="${DES_CHECKPOINT_PATH:-ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt}"
 CONFIG_PATH="${DES_CONFIG_PATH:-ml_des_mp/config.yaml}"
 
+cd "${REPO_ROOT}"
+
 {
   echo "INPUT"
   cat "${SCRIPT_DIR}/input.txt"

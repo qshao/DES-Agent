@@ -14,7 +14,7 @@ This example shows the full offline DES feedback loop in one folder:
 
 ## Run
 
-The wrapper captures the three-step loop into a single transcript in [`output.txt`](./output.txt).
+The wrapper resolves the repository root first, so you can run it from any working directory, and captures the three-step loop into a single transcript in [`output.txt`](./output.txt).
 
 ```bash
 ./run.sh

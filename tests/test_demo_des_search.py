@@ -140,6 +140,12 @@ def test_des_run_memory_feedback_example_mentions_feedback_loop():
     assert "CCO" in readme
 
 
+def test_des_run_memory_feedback_script_is_self_locating():
+    script = Path("examples/des_run_memory_feedback/run.sh").read_text(encoding="utf-8")
+    assert 'cd "${REPO_ROOT}"' in script
+    assert 'SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"' in script
+
+
 def test_demo_renders_candidate_reviews(monkeypatch, capsys):
     fake_outcome = SearchOutcome(
         results=[],
