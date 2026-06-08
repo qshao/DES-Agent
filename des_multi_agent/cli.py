@@ -1,20 +1,22 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 import yaml
 
+from .compare_runs import compare_saved_runs, format_compare_json_text, format_compare_report
 from .config import DEFAULT_CONFIG_PATH, PROJECT_ROOT
-from .compare_runs import compare_saved_runs, format_compare_report
-from .llm.config import LLMConfig
-from .orchestrator import run_search_report
-from .task_executor import execute_task_request
-from .task_router import route_task
 from .doctor import format_doctor_report, run_doctor
 from .label_run import run_label_command
+from .llm.config import LLMConfig
+from .orchestrator import run_search_report
 from .paths import resolve_existing_path
 from .reporting import format_metal_binding_report, format_report
+from .summary import build_command_summary, render_command_summary
+from .task_executor import execute_task_request, execute_task_request_detailed
+from .task_router import route_task
 from .uncertainty import UncertaintyPolicy
 from .workflows.metal_binding import run_metal_binding_workflow
 
@@ -34,6 +36,7 @@ def build_parser():
     parser.add_argument("--stability-constant-model-path", default=None, help="Optional local stability-constant model artifact")
     parser.add_argument("--save-run-memory", default=None, help="Optional path to write a compact JSON DES run memory file")
     parser.add_argument("--reuse-run", default=None, help="Optional prior DES run folder or run.memory.json file to reuse for ranking")
+    parser.add_argument("--output-dir", default=None, help="Optional directory where DES run artifacts are written")
     parser.add_argument(
         "--uncertainty-mode",
         choices=["filter", "penalize", "report_only"],
@@ -74,12 +77,20 @@ def build_parser():
     compare_runs_parser = subparsers.add_parser("compare-runs", help="Compare two saved runs from the same workflow")
     compare_runs_parser.add_argument("left", help="Left run folder or run.memory.json file")
     compare_runs_parser.add_argument("right", help="Right run folder or run.memory.json file")
+    compare_runs_parser.add_argument("--json", action="store_true", help="Also print a JSON summary of the comparison")
     compare_runs_parser.set_defaults(command="compare-runs")
     label_run_parser = subparsers.add_parser("label-run", help="Update good/bad labels in a saved DES run memory")
     label_run_parser.add_argument("--run", required=True, help="Prior DES run folder or run.memory.json file")
     label_run_parser.add_argument("--label", action="append", default=[], help="Label spec in the form SMILES=good or SMILES=bad")
     label_run_parser.set_defaults(command="label-run")
     doctor_parser = subparsers.add_parser("doctor", help="Check local repo and example setup")
+    doctor_parser.add_argument(
+        "--check",
+        action="append",
+        choices=("checkpoint", "discovery", "artifacts"),
+        default=[],
+        help="Run optional local setup checks; may be passed multiple times",
+    )
     doctor_parser.set_defaults(command="doctor")
     parser.set_defaults(command=None)
     return parser
@@ -110,6 +121,12 @@ def _build_uncertainty_policy(args):
     )
 
 
+def _print_summary(command: str, result, *, machine_readable_stdout: bool = False) -> None:
+    summary = build_command_summary(command, result, machine_readable_stdout=machine_readable_stdout)
+    stream = sys.stderr if summary.stream == "stderr" else sys.stdout
+    print(render_command_summary(summary), file=stream)
+
+
 def main(argv=None):
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -119,20 +136,27 @@ def main(argv=None):
         except ValueError as exc:
             parser.error(str(exc))
         print(response.to_json())
+        _print_summary("task-router", response)
         return
     if getattr(args, "command", None) == "task-execute":
         try:
-            output = execute_task_request(args.request)
+            output = execute_task_request_detailed(args.request)
         except ValueError as exc:
             parser.error(str(exc))
-        print(output)
+        print(output.output)
+        _print_summary("task-execute", output)
         return
     if getattr(args, "command", None) == "compare-runs":
         try:
             result = compare_saved_runs(args.left, args.right)
         except (FileNotFoundError, ValueError) as exc:
             parser.error(str(exc))
-        print(format_compare_report(result))
+        if args.json:
+            print(format_compare_report(result), file=sys.stderr)
+            print(format_compare_json_text(result))
+        else:
+            print(format_compare_report(result))
+        _print_summary("compare-runs", result, machine_readable_stdout=args.json)
         return
     if getattr(args, "command", None) == "label-run":
         try:
@@ -140,10 +164,15 @@ def main(argv=None):
         except (FileNotFoundError, ValueError) as exc:
             parser.error(str(exc))
         print(message)
+        _print_summary("label-run", message)
         return
     if getattr(args, "command", None) == "doctor":
-        result = run_doctor(PROJECT_ROOT)
+        try:
+            result = run_doctor(PROJECT_ROOT, optional_checks=args.check)
+        except ValueError as exc:
+            parser.error(str(exc))
         print(format_doctor_report(result))
+        _print_summary("doctor", result)
         raise SystemExit(result.exit_code)
     try:
         llm_cfg = load_llm_config(args.llm_config)
@@ -172,6 +201,7 @@ def main(argv=None):
                 viscosity_model_path=args.viscosity_model_path,
                 save_run_memory_path=args.save_run_memory,
                 reuse_run_path=args.reuse_run,
+                output_dir=args.output_dir,
                 uncertainty_policy=uncertainty_policy,
             )
         except (FileNotFoundError, ValueError) as exc:
@@ -190,6 +220,7 @@ def main(argv=None):
                 viscosity_predictions=getattr(outcome, "viscosity_predictions", None),
             )
         )
+        _print_summary("des", outcome)
         return
 
     if not args.metal_ion:
@@ -203,6 +234,7 @@ def main(argv=None):
         allow_fallback=False,
     )
     print(format_metal_binding_report(outcome))
+    _print_summary("metal-binding", outcome)
 
 
 if __name__ == "__main__":

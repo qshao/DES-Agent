@@ -1,8 +1,10 @@
 from pathlib import Path
+import json
 
 import pytest
 
-from des_multi_agent.compare_runs import compare_saved_runs, format_compare_report
+from des_multi_agent.compare_runs import compare_saved_runs, format_compare_json, format_compare_report
+from des_multi_agent.summary import build_command_summary, render_command_summary
 
 
 def _write_memory(path: Path, payload: str) -> None:
@@ -153,3 +155,118 @@ def test_compare_saved_runs_rejects_malformed_memory(tmp_path: Path):
 
     with pytest.raises(Exception):
         compare_saved_runs(left, right)
+
+
+def test_compare_saved_runs_json_summary_has_top_changed_candidates(tmp_path: Path):
+    left = tmp_path / "left.memory.json"
+    right = tmp_path / "right.memory.json"
+    _write_memory(
+        left,
+        """{
+          "workflow": "des",
+          "component_a": "CCO",
+          "n": 5,
+          "labels": [],
+          "ranked_candidates": [
+            {"smiles_b": "O", "rank": 1, "min_tm_k": 208.69, "trust_score": 0.95, "uncertainty_flag": "low", "source": "heuristic", "source_id": ""},
+            {"smiles_b": "CC(=O)O", "rank": 2, "min_tm_k": 236.03, "trust_score": 0.83, "uncertainty_flag": "low", "source": "heuristic", "source_id": ""},
+            {"smiles_b": "CN", "rank": 3, "min_tm_k": 241.11, "trust_score": 0.80, "uncertainty_flag": "low", "source": "heuristic", "source_id": ""}
+          ]
+        }""",
+    )
+    _write_memory(
+        right,
+        """{
+          "workflow": "des",
+          "component_a": "CCO",
+          "n": 5,
+          "labels": [],
+          "ranked_candidates": [
+            {"smiles_b": "CC(=O)O", "rank": 1, "min_tm_k": 236.03, "trust_score": 0.83, "uncertainty_flag": "low", "source": "heuristic", "source_id": ""},
+            {"smiles_b": "CN", "rank": 2, "min_tm_k": 241.11, "trust_score": 0.80, "uncertainty_flag": "low", "source": "heuristic", "source_id": ""},
+            {"smiles_b": "OC", "rank": 3, "min_tm_k": 230.00, "trust_score": 0.75, "uncertainty_flag": "medium", "source": "heuristic", "source_id": ""}
+          ]
+        }""",
+    )
+
+    comparison = compare_saved_runs(left, right)
+    summary = format_compare_json(comparison)
+
+    assert summary["workflow"] == "des"
+    assert summary["left"]["path"].endswith("left.memory.json")
+    assert summary["right"]["path"].endswith("right.memory.json")
+    assert summary["counts"] == {"new": 1, "removed": 1, "moved": 2, "unchanged": 0}
+    assert len(summary["changed_candidates"]) == 4
+    assert {item["status"] for item in summary["changed_candidates"]} == {"new", "removed", "moved"}
+
+
+def test_compare_saved_runs_json_text_is_machine_readable(tmp_path: Path):
+    left = tmp_path / "left.memory.json"
+    right = tmp_path / "right.memory.json"
+    _write_memory(
+        left,
+        """{
+          "workflow": "des",
+          "component_a": "CCO",
+          "n": 5,
+          "labels": [],
+          "ranked_candidates": [
+            {"smiles_b": "O", "rank": 1, "min_tm_k": 208.69, "trust_score": 0.95, "uncertainty_flag": "low", "source": "heuristic", "source_id": ""}
+          ]
+        }""",
+    )
+    _write_memory(
+        right,
+        """{
+          "workflow": "des",
+          "component_a": "CCO",
+          "n": 5,
+          "labels": [],
+          "ranked_candidates": [
+            {"smiles_b": "O", "rank": 1, "min_tm_k": 208.69, "trust_score": 0.95, "uncertainty_flag": "low", "source": "heuristic", "source_id": ""}
+          ]
+        }""",
+    )
+
+    comparison = compare_saved_runs(left, right)
+    text = json.dumps(format_compare_json(comparison), indent=2, sort_keys=True)
+
+    parsed = json.loads(text)
+    assert parsed["workflow"] == "des"
+    assert parsed["counts"] == {"new": 0, "removed": 0, "moved": 0, "unchanged": 1}
+
+
+def test_compare_runs_summary_mentions_top_changes(tmp_path: Path):
+    left = tmp_path / "left.memory.json"
+    right = tmp_path / "right.memory.json"
+    _write_memory(
+        left,
+        """{
+          "workflow": "des",
+          "component_a": "CCO",
+          "n": 5,
+          "labels": [],
+          "ranked_candidates": [
+            {"smiles_b": "O", "rank": 1, "min_tm_k": 208.69, "trust_score": 0.95, "uncertainty_flag": "low", "source": "heuristic", "source_id": ""}
+          ]
+        }""",
+    )
+    _write_memory(
+        right,
+        """{
+          "workflow": "des",
+          "component_a": "CCO",
+          "n": 5,
+          "labels": [],
+          "ranked_candidates": [
+            {"smiles_b": "CC(=O)O", "rank": 1, "min_tm_k": 236.03, "trust_score": 0.83, "uncertainty_flag": "low", "source": "heuristic", "source_id": ""}
+          ]
+        }""",
+    )
+
+    comparison = compare_saved_runs(left, right)
+    text = render_command_summary(build_command_summary("compare-runs", comparison))
+
+    assert "summary:" in text
+    assert "workflow: des" in text
+    assert "changed candidates: 2" in text
