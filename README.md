@@ -37,6 +37,24 @@ Optional local discovery:
 python -m examples.demo_des_search --component-a "CCO" --n 5 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --discovery-path /path/to/discovery
 ```
 
+Save a DES run memory file for later reuse:
+
+```bash
+python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --config-path ml_des_mp/config.yaml --save-run-memory runs/run_001/run.memory.json
+```
+
+Label the saved run in place with explicit SMILES and `good` / `bad` labels:
+
+```bash
+python -m des_multi_agent.cli label-run --run runs/run_001 --label "O=good" --label "CC(=O)O=bad"
+```
+
+Reuse the labeled DES memory file or folder to nudge ranking on a later run:
+
+```bash
+python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --config-path ml_des_mp/config.yaml --reuse-run runs/run_001/run.memory.json
+```
+
 Optional Ollama LLM run (Gemma, Nemotron, or Qwen via `model_name`). The LLM now reviews candidates one by one, so `--n 20` is safe even when you want a larger candidate set:
 
 ```bash
@@ -53,6 +71,12 @@ Plain-language Gemma example for the metal-binding workflow:
 
 ```bash
 ./examples/plain_language_metal_binding_gemma4_12b/run.sh
+```
+
+DES run-memory feedback example:
+
+```bash
+./examples/des_run_memory_feedback/run.sh
 ```
 
 DES viscosity example:
@@ -76,7 +100,13 @@ Use the task router to turn a plain-language request into a JSON job without run
 python -m des_multi_agent.cli task-router "find DES partners for lidocaine"
 ```
 
-The router loads `llm.example.yaml` by default, supports both `des` and `metal-binding`, and returns either a complete job, or clarification questions with `workflow=clarify`, as JSON only. For a worked example, see [`examples/task_router/`](/home/qshao/DES-Agent/examples/task_router/).
+Use `task-execute` when you want the router to translate the request and then run the workflow immediately:
+
+```bash
+python -m des_multi_agent.cli task-execute "find DES partners for lidocaine"
+```
+
+The router loads `llm.example.yaml` by default, supports both `des` and `metal-binding`, and normalizes common compound names before returning either a complete job or clarification questions with `workflow=clarify`, as JSON only. It will ask follow-up questions when a request is ambiguous, including free base versus salt-form questions. For a worked example, see [`examples/task_router/`](/home/qshao/DES-Agent/examples/task_router/).
 
 ## Project Layout
 
@@ -91,6 +121,8 @@ The router loads `llm.example.yaml` by default, supports both `des` and `metal-b
 - `examples/plain_language_gemma4_12b/` is a plain-language DES example routed through Gemma 4-12B
 - `examples/plain_language_metal_binding_gemma4_12b/` is a plain-language metal-binding example routed through Gemma 4-12B
 - `llm.example.yaml` is a ready-to-edit optional LLM config
+- `docs/future-improvements.md` tracks the next planned extensions
+- `tests/test_benchmarks_examples.py` is the example benchmark suite that compares captured outputs against frozen baselines
 
 ## Uncertainty Controls
 

@@ -1,6 +1,6 @@
 # Model-Specific Examples
 
-Eleven small runnable examples live here:
+Twelve small runnable examples live here:
 
 - [`des_viscosity/`](./des_viscosity) for the offline DES viscosity workflow
 - [`viscosity_template/`](./viscosity_template) for a template-style DES viscosity workflow you can adapt
@@ -13,6 +13,7 @@ Eleven small runnable examples live here:
 - [`plain_language_gemma4_12b/`](./plain_language_gemma4_12b) for a plain-language DES run routed through Gemma 4-12B
 - [`plain_language_metal_binding_gemma4_12b/`](./plain_language_metal_binding_gemma4_12b) for a plain-language metal-binding run routed through Gemma 4-12B
 - [`task_router/`](./task_router) for translating a plain-language request into a JSON job
+- [`des_run_memory_feedback/`](./des_run_memory_feedback) for the full DES save-label-reuse feedback loop
 
 Each folder includes and can be used as a template for your own work:
 
@@ -21,9 +22,11 @@ Each folder includes and can be used as a template for your own work:
 - a captured `input.txt`
 - a captured `output.txt`
 
+The same folders also power the pytest-based example benchmark suite in [`tests/test_benchmarks_examples.py`](/home/qshao/DES-Agent/tests/test_benchmarks_examples.py), which compares captured outputs against frozen baselines under `tests/fixtures/example_benchmark_baselines/`.
+
 The LLM-backed examples also include a model-specific `llm.*.yaml` file.
 
-The DES examples call the shared demo entrypoint. In LLM-enabled runs, candidates are reviewed one by one so large candidate sets stay manageable:
+The DES examples call the shared demo entrypoint. In LLM-enabled runs, candidates are reviewed one by one so large candidate sets stay manageable. You can also save, label, and reuse DES run memory with `--save-run-memory`, `label-run`, and `--reuse-run` if you want a later run to bias ranking from an earlier one:
 
 ```bash
 python -m examples.demo_des_search --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --llm-config <folder>/llm.<name>.yaml
@@ -31,6 +34,7 @@ python -m examples.demo_des_search --component-a "CCO" --n 20 --checkpoint-path 
 
 The DES viscosity examples use the same demo entrypoint with `--viscosity-model-path artifacts/designsolvents/viscosity/model.json`.
 The metal-binding examples use `python -m des_multi_agent.cli --workflow metal-binding ...` and the bundled stability-constant artifact.
-The task-router example uses `python -m des_multi_agent.cli task-router "..."` and prints JSON only.
+The task-router example uses `python -m des_multi_agent.cli task-router "..."` and prints JSON only. It also demonstrates the normalization layer, including follow-up questions for ambiguous requests like a free base versus a salt form.
+The task-execute command uses `python -m des_multi_agent.cli task-execute "..."` to route and run the matching workflow in one step.
 
 See [`docs/tutorial.md`](/home/qshao/DES-Agent/docs/tutorial.md) for the full walkthrough and output guide.

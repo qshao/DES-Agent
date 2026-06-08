@@ -107,6 +107,7 @@ def test_model_specific_examples_exist():
         ("examples/plain_language_gemma4_12b", ["task-router", "plain-language", "Gemma 4-12B"]),
         ("examples/plain_language_metal_binding_gemma4_12b", ["task-router", "plain-language", "metal-binding", "Gemma 4-12B"]),
         ("examples/task_router", ["task-router", "component_a", "checkpoint_path"]),
+        ("examples/des_run_memory_feedback", ["save-run-memory", "label-run", "reuse-run", "run.memory.json"]),
     ]:
         base = Path(folder)
         assert (base / "README.md").exists()
@@ -128,6 +129,15 @@ def test_mock_script_runs_from_other_directory(tmp_path):
     assert "flag=" in result.stdout
     assert "OCCO" in result.stdout
 
+
+
+def test_des_run_memory_feedback_example_mentions_feedback_loop():
+    readme = Path("examples/des_run_memory_feedback/README.md").read_text(encoding="utf-8")
+    assert "save-memory" not in readme  # sanity check for wording drift
+    assert "save run memory" not in readme.lower() or "run.memory.json" in readme
+    assert "label-run" in readme
+    assert "reuse" in readme.lower()
+    assert "CCO" in readme
 
 
 def test_demo_renders_candidate_reviews(monkeypatch, capsys):

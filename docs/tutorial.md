@@ -52,7 +52,19 @@ If you want to add a local discovery directory, pass it explicitly:
 python -m examples.demo_des_search --component-a "CCO" --n 5 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --discovery-path /path/to/discovery
 ```
 
+You can also save a compact run-memory JSON file after a DES run, label it in place, and reuse it later to bias ranking without changing the predictor:
+
+```bash
+python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --config-path ml_des_mp/config.yaml --save-run-memory runs/run_001/run.memory.json
+python -m des_multi_agent.cli label-run --run runs/run_001 --label "O=good" --label "CC(=O)O=bad"
+python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --config-path ml_des_mp/config.yaml --reuse-run runs/run_001/run.memory.json
+```
+
 The command uses the bundled `ml_des_mp/config.yaml` and a local trained checkpoint.
+
+## Example Benchmark
+
+The example folders also double as a pytest-based example benchmark suite. The benchmark lives in [`tests/test_benchmarks_examples.py`](/home/qshao/DES-Agent/tests/test_benchmarks_examples.py) and compares the checked-in example outputs against frozen baselines under `tests/fixtures/example_benchmark_baselines/`.
 
 ## Real Lidocaine Example
 
@@ -65,6 +77,10 @@ If you want to see the natural-language router in action, see [examples/plain_la
 ## Plain-Language Gemma Metal-Binding Example
 
 If you want to see the same idea applied to the metal-binding workflow, see [examples/plain_language_metal_binding_gemma4_12b/](../examples/plain_language_metal_binding_gemma4_12b/). It takes a plain-language request, turns it into a JSON job, and then runs the metal-binding workflow with Gemma 4-12B.
+
+## DES Run Memory Feedback Example
+
+If you want to see the save-label-reuse loop in a single folder, see [examples/des_run_memory_feedback/](../examples/des_run_memory_feedback/). It shows a DES run that saves `run.memory.json`, labels it in place with `label-run`, and then reuses the labeled memory on the next run.
 
 ## DES Viscosity Example
 
@@ -105,7 +121,13 @@ Use the task router when you want plain language translated into a JSON job with
 python -m des_multi_agent.cli task-router "find DES partners for lidocaine"
 ```
 
-The router loads `llm.example.yaml` by default, supports both `des` and `metal-binding`, and returns either a complete job, or clarification questions with `workflow=clarify`, as JSON only. For a worked example, see [`examples/task_router/`](/home/qshao/DES-Agent/examples/task_router/).
+Use `task-execute` when you want the router to translate the request and then run the workflow immediately:
+
+```bash
+python -m des_multi_agent.cli task-execute "find DES partners for lidocaine"
+```
+
+The router loads `llm.example.yaml` by default, supports both `des` and `metal-binding`, and normalizes common names before returning either a complete job or clarification questions with `workflow=clarify`, as JSON only. If a request is ambiguous, it asks for clarification instead of guessing. For a worked example, see [`examples/task_router/`](/home/qshao/DES-Agent/examples/task_router/).
 
 ## What the Output Means
 
@@ -124,6 +146,7 @@ If local discovery is enabled, the report may also show provenance fields such a
 - If the optional LLM config is invalid, the CLI reports a clear validation error.
 - If you use a provider that is not running locally or is missing credentials, the deterministic screening still runs and the LLM section is skipped with a warning.
 - If the discovery directory is missing or malformed, the demo falls back to heuristic candidate generation and reports a warning.
+- If a request mentions a free base versus a salt form, the router may ask a clarification question before it executes anything.
 
 ## Uncertainty Controls
 
