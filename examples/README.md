@@ -30,7 +30,7 @@ The same folders also power the pytest-based example benchmark suite in [`tests/
 
 The LLM-backed examples also include a model-specific `llm.*.yaml` file.
 
-The DES examples call the shared demo entrypoint. In LLM-enabled runs, candidates are reviewed one by one so large candidate sets stay manageable. You can also save, label, and reuse DES run memory with `--save-run-memory`, `label-run`, and `--reuse-run` if you want a later run to bias ranking from an earlier one:
+The DES examples call the shared demo entrypoint. In LLM-enabled runs, candidates are reviewed one by one so large candidate sets stay manageable. DES runs also write machine-readable exports (`run.json`, `run.csv`, `run.manifest.json`) automatically. If you save run memory with `--save-run-memory`, the export bundle lands in that same folder. You can also save, label, and reuse DES run memory with `--save-run-memory`, `label-run`, and `--reuse-run` if you want a later run to bias ranking from an earlier one:
 
 ```bash
 python -m examples.demo_des_search --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --llm-config <folder>/llm.<name>.yaml

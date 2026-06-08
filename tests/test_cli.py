@@ -1,5 +1,6 @@
 from des_multi_agent.cli import build_parser
 import des_multi_agent.cli as cli_module
+import des_multi_agent.exporting as exporting_module
 
 
 def test_cli_parser_accepts_component_a_and_n():
@@ -16,6 +17,25 @@ def test_cli_parser_accepts_metal_binding_args():
     assert args.metal_ion == "Cu2+"
     assert args.ligand_smiles == "NCCN"
 
+
+
+def test_metal_binding_cli_does_not_invoke_des_exports(monkeypatch, capsys):
+    class _FakeOutcome:
+        metal_ion = "Cu2+"
+        ligand_smiles = "NCCN"
+        prediction = type("P", (), {"value": 1.23, "units": "log K", "model_name": "mock", "source": "mock", "warnings": ()})()
+        warnings = ()
+
+    monkeypatch.setattr(cli_module, "run_metal_binding_workflow", lambda *args, **kwargs: _FakeOutcome())
+    monkeypatch.setattr(cli_module, "format_metal_binding_report", lambda outcome: "METAL REPORT")
+    monkeypatch.setattr(
+        exporting_module,
+        "export_des_run_bundle",
+        lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("DES export should not be called")),
+    )
+    cli_module.main(["--workflow", "metal-binding", "--metal-ion", "Cu2+", "--ligand-smiles", "NCCN"])
+    out = capsys.readouterr().out.strip()
+    assert out == "METAL REPORT"
 
 
 def test_cli_parser_accepts_task_router_subcommand():

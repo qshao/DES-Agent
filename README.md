@@ -49,6 +49,8 @@ Save a DES run memory file for later reuse:
 python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --config-path ml_des_mp/config.yaml --save-run-memory runs/run_001/run.memory.json
 ```
 
+Every DES run also writes machine-readable exports (`run.json`, `run.csv`, `run.manifest.json`) next to the run output. If you save run memory into a folder such as `runs/run_001/run.memory.json`, the export bundle is written in that same folder.
+
 Label the saved run in place with explicit SMILES and `good` / `bad` labels:
 
 ```bash

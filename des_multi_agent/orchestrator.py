@@ -1,17 +1,20 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import dataclass, field, replace
+from dataclasses import asdict, dataclass, field, replace
+from pathlib import Path
 
 from .candidate_generation import generate_candidates
 from .chemistry_filter import canonicalize_smiles, filter_candidates
 from .config import DEFAULT_ABSOLUTE_TM_MAX_K, DEFAULT_RELATIVE_DROP_MIN
 from .discovery import load_discovery_library, literature_lookup, merge_discovery_candidates, similarity_search
+from .exporting import export_des_run_bundle
 from .evaluation import DesResult, classify_des
 from .llm.factory import build_llm_provider
 from .llm.schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, ExplanationNote
 from .paths import resolve_existing_path
 from .prediction import predict_curve
+from .run_memory import apply_run_memory_preferences, build_run_memory, load_run_memory, write_run_memory
 from .predictors.designsolvents import ViscosityPrediction, predict_viscosity
 from .property_resolution import resolve_melting_point
 from .ranking import rank_results
@@ -36,6 +39,7 @@ class SearchOutcome:
     explanation_notes: list[ExplanationNote]
     critique_notes: list[CritiqueNote]
     llm_warnings: list[str]
+    memory_notes: list[str] = field(default_factory=list)
     viscosity_predictions: list[ViscosityPrediction] = field(default_factory=list)
 
 
@@ -194,6 +198,56 @@ def _predict_viscosity_predictions(
     return predictions
 
 
+def _build_des_export_payload(
+    outcome: SearchOutcome,
+    component_a: str,
+    n: int,
+    checkpoint_path: str,
+    config_path: str,
+) -> dict[str, object]:
+    proposal_by_smiles = {item.smiles: item for item in outcome.candidate_proposals}
+    ranked_results: list[dict[str, object]] = []
+    for rank, annotated in enumerate(outcome.annotated_results, start=1):
+        result = annotated.result
+        proposal = proposal_by_smiles.get(result.curve.smiles_b)
+        ranked_results.append(
+            {
+                "rank": rank,
+                "smiles_a": result.curve.smiles_a,
+                "smiles_b": result.curve.smiles_b,
+                "is_des": result.is_des,
+                "absolute_pass": result.absolute_pass,
+                "relative_pass": result.relative_pass,
+                "min_tm_k": result.min_tm_k,
+                "rationale": result.rationale,
+                "source": proposal.source if proposal is not None else "heuristic",
+                "source_id": proposal.source_id if proposal is not None else "",
+                "similarity_score": proposal.similarity_score if proposal is not None else None,
+                "reference_note": proposal.reference_note if proposal is not None else "",
+                "trust_score": annotated.trust_score,
+                "uncertainty_flag": annotated.uncertainty.uncertainty_flag,
+                "ranking_score": annotated.ranking_score,
+                "uncertainty": asdict(annotated.uncertainty),
+            }
+        )
+    return {
+        "workflow": "des",
+        "component_a": component_a,
+        "n": n,
+        "checkpoint_path": checkpoint_path,
+        "config_path": config_path,
+        "results": ranked_results,
+        "candidate_proposals": [asdict(item) for item in outcome.candidate_proposals],
+        "candidate_reviews": [asdict(item) for item in outcome.candidate_reviews],
+        "brainstorm_candidates": [asdict(item) for item in outcome.brainstorm_candidates],
+        "explanation_notes": [asdict(item) for item in outcome.explanation_notes],
+        "critique_notes": [asdict(item) for item in outcome.critique_notes],
+        "viscosity_predictions": [asdict(item) for item in outcome.viscosity_predictions],
+        "memory_notes": list(outcome.memory_notes),
+        "warnings": list(outcome.llm_warnings),
+    }
+
+
 def run_search_report(
     component_a: str,
     n: int,
@@ -205,6 +259,8 @@ def run_search_report(
     llm_request_fn=None,
     discovery_path: str | None = None,
     viscosity_model_path: str | None = None,
+    save_run_memory_path: str | None = None,
+    reuse_run_path: str | None = None,
 ):
     checkpoint_path = resolve_existing_path(checkpoint_path)
     config_path = resolve_existing_path(config_path)
@@ -284,6 +340,16 @@ def run_search_report(
             )
     annotated_results = apply_uncertainty_policy(ranked, uncertainty_by_smiles, policy)
     annotated_results = _apply_review_penalties(annotated_results, review_penalties)
+    memory_notes: list[str] = []
+    if reuse_run_path:
+        reuse_memory = load_run_memory(reuse_run_path)
+        annotated_results, reuse_notes = apply_run_memory_preferences(
+            annotated_results=annotated_results,
+            memory=reuse_memory,
+            component_a=component_a,
+        )
+        memory_notes.extend(reuse_notes)
+        memory_notes.insert(0, f"Loaded reuse memory from {reuse_run_path}.")
     viscosity_predictions = _predict_viscosity_predictions(component_a, filtered, viscosity_model_path, llm_warnings)
     final_results = [item.result for item in annotated_results]
     explanation_notes: list[ExplanationNote] = []
@@ -297,7 +363,16 @@ def run_search_report(
             critique_notes = provider.critique_results(final_results, review_context)
         except Exception as exc:
             llm_warnings.append(f"LLM critique generation failed: {exc}")
-    return SearchOutcome(
+    if save_run_memory_path:
+        memory = build_run_memory(
+            component_a=component_a,
+            n=n,
+            annotated_results=annotated_results,
+            candidate_proposals=candidate_proposals,
+        )
+        write_run_memory(save_run_memory_path, memory)
+        memory_notes.append(f"Wrote run memory to {save_run_memory_path}.")
+    export_outcome = SearchOutcome(
         results=final_results,
         annotated_results=annotated_results,
         candidate_proposals=candidate_proposals,
@@ -306,8 +381,24 @@ def run_search_report(
         explanation_notes=explanation_notes,
         critique_notes=critique_notes,
         llm_warnings=llm_warnings,
+        memory_notes=memory_notes,
         viscosity_predictions=viscosity_predictions,
     )
+    export_output_dir = Path(save_run_memory_path).parent if save_run_memory_path else Path.cwd()
+    try:
+        export_des_run_bundle(
+            export_output_dir,
+            _build_des_export_payload(
+                export_outcome,
+                component_a=component_a,
+                n=n,
+                checkpoint_path=str(checkpoint_path),
+                config_path=str(config_path),
+            ),
+        )
+    except (OSError, TypeError, ValueError, KeyError) as exc:
+        raise ValueError(f"DES export failed for {export_output_dir}: {exc}") from exc
+    return export_outcome
 
 
 def run_search(
