@@ -56,7 +56,7 @@ If you want to add a local discovery directory, pass it explicitly:
 python -m examples.demo_des_search --component-a "CCO" --n 5 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --discovery-path /path/to/discovery
 ```
 
-You can also save a compact run-memory JSON file after a DES run, label it in place, and reuse it later to bias ranking without changing the predictor:
+You can also save a compact run-memory JSON file after a DES run, label it in place, and reuse it later to bias ranking without changing the predictor. If you keep multiple labeled runs under one parent `runs/` directory, `--reuse-run` can point at that parent folder to reuse the whole labeled history:
 
 ```bash
 python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --config-path ml_des_mp/config.yaml --save-run-memory runs/run_001/run.memory.json
@@ -64,7 +64,7 @@ python -m des_multi_agent.cli label-run --run runs/run_001 --label "O=good" --la
 python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --config-path ml_des_mp/config.yaml --reuse-run runs/run_001/run.memory.json
 ```
 
-Every DES run can also write into a standard flat run directory with `--output-dir runs/run_001`. That folder becomes the canonical home for `report.txt`, `run.json`, `run.csv`, and `run.manifest.json`. If you want run memory in the same folder, point `--save-run-memory` at `runs/run_001/run.memory.json`.
+Every DES run can also write into a standard flat run directory with `--output-dir runs/run_001`. That folder becomes the canonical home for `report.txt`, `run.json`, `run.csv`, and `run.manifest.json`. If you want run memory in the same folder, point `--save-run-memory` at `runs/run_001/run.memory.json`. If you later want to reuse all labeled runs in a history directory, point `--reuse-run` at the parent `runs/` folder.
 
 You can compare two saved runs from the same workflow with `compare-runs`:
 

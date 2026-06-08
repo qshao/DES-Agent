@@ -28,4 +28,4 @@ The file [`output.txt`](./output.txt) contains the captured report output from t
 - Gemma brainstorm candidates
 - explanation notes
 - critique notes
-- If you want to keep this run for later reuse, add `--save-run-memory runs/run_001/run.memory.json` to the underlying DES command; you can then label the saved memory in place with `python -m des_multi_agent.cli label-run --run runs/run_001 --label "O=good"` and later reuse that file with `--reuse-run`.
+- If you want to keep this run for later reuse, add `--save-run-memory runs/run_001/run.memory.json` to the underlying DES command; you can then label the saved memory in place with `python -m des_multi_agent.cli label-run --run runs/run_001 --label "O=good"` and later reuse that file with `--reuse-run`. If you keep several labeled runs under `runs/`, you can also point `--reuse-run` at the parent `runs/` directory to reuse the whole labeled history.

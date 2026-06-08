@@ -8,6 +8,7 @@ from des_multi_agent.prediction import CurvePrediction
 from des_multi_agent.run_memory import (
     apply_run_memory_preferences,
     load_run_memory,
+    load_run_memory_history,
     parse_run_memory,
     resolve_run_memory_path,
     update_run_memory_labels,
@@ -171,7 +172,9 @@ def test_run_memory_bumps_preferred_candidate():
         component_a="CCO",
     )
     assert adjusted[0].result.curve.smiles_b == "O"
-    assert notes == ["Applied reuse memory to 1 preferred candidate and 0 penalized candidates.", "Loaded 1 prior ranked candidates for ranking bias."]
+    assert notes == [
+        "Applied reuse memory to 1 good label(s) and 0 bad label(s) across 1 run memory file(s).",
+    ]
 
 
 def test_run_memory_skips_different_component_a():
@@ -278,6 +281,89 @@ def test_update_run_memory_labels_changes_reuse_bias():
     )
     assert adjusted[0].result.curve.smiles_b == "CC(=O)O"
     assert notes == [
-        "Applied reuse memory to 1 preferred candidate and 0 penalized candidates.",
-        "Loaded 2 prior ranked candidates for ranking bias.",
+        "Applied reuse memory to 1 good label(s) and 0 bad label(s) across 1 run memory file(s).",
+        "Loaded 1 prior ranked candidate(s) for ranking bias across 1 run memory file(s).",
+    ]
+
+
+
+def test_load_run_memory_history_collects_multiple_run_folders(tmp_path: Path):
+    history = tmp_path / "runs"
+    run_001 = history / "run_001"
+    run_002 = history / "run_002"
+    write_run_memory(
+        run_001 / "run.memory.json",
+        parse_run_memory(
+            {
+                "workflow": "des",
+                "component_a": "CCO",
+                "n": 5,
+                "labels": [{"smiles_b": "O", "label": "good"}],
+                "ranked_candidates": [
+                    {"smiles_b": "O", "rank": 1, "min_tm_k": 208.69, "trust_score": 0.95, "uncertainty_flag": "low", "source": "heuristic", "source_id": ""},
+                ],
+            }
+        ),
+    )
+    write_run_memory(
+        run_002 / "run.memory.json",
+        parse_run_memory(
+            {
+                "workflow": "des",
+                "component_a": "CCO",
+                "n": 5,
+                "labels": [{"smiles_b": "CC(=O)O", "label": "bad"}],
+                "ranked_candidates": [
+                    {"smiles_b": "CC(=O)O", "rank": 1, "min_tm_k": 236.03, "trust_score": 0.83, "uncertainty_flag": "low", "source": "heuristic", "source_id": ""},
+                ],
+            }
+        ),
+    )
+
+    memories = load_run_memory_history(history)
+
+    assert len(memories) == 2
+    assert [memory.labels[0].smiles_b for memory in memories] == ["O", "CC(=O)O"]
+    assert [memory.labels[0].label for memory in memories] == ["good", "bad"]
+
+
+
+def test_run_memory_aggregates_feedback_across_multiple_memories():
+    memory_a = parse_run_memory(
+        {
+            "workflow": "des",
+            "component_a": "CCO",
+            "n": 20,
+            "labels": [{"smiles_b": "O", "label": "good"}],
+            "ranked_candidates": [
+                {"smiles_b": "O", "rank": 1, "min_tm_k": 208.69, "trust_score": 0.95, "uncertainty_flag": "low", "source": "heuristic", "source_id": ""},
+                {"smiles_b": "CC(=O)O", "rank": 2, "min_tm_k": 236.03, "trust_score": 0.83, "uncertainty_flag": "low", "source": "heuristic", "source_id": ""},
+            ],
+        }
+    )
+    memory_b = parse_run_memory(
+        {
+            "workflow": "des",
+            "component_a": "CCO",
+            "n": 20,
+            "labels": [{"smiles_b": "CC(=O)O", "label": "bad"}],
+            "ranked_candidates": [
+                {"smiles_b": "CC(=O)O", "rank": 1, "min_tm_k": 236.03, "trust_score": 0.83, "uncertainty_flag": "low", "source": "heuristic", "source_id": ""},
+                {"smiles_b": "O", "rank": 2, "min_tm_k": 208.69, "trust_score": 0.95, "uncertainty_flag": "low", "source": "heuristic", "source_id": ""},
+            ],
+        }
+    )
+    adjusted, notes = apply_run_memory_preferences(
+        annotated_results=[
+            _make_annotated_result("O", 0.60),
+            _make_annotated_result("CC(=O)O", 0.60),
+        ],
+        memory=[memory_a, memory_b],
+        component_a="CCO",
+    )
+
+    assert adjusted[0].result.curve.smiles_b == "O"
+    assert notes == [
+        "Applied reuse memory to 1 good label(s) and 1 bad label(s) across 2 run memory file(s).",
+        "Loaded 2 prior ranked candidate(s) for ranking bias across 2 run memory file(s).",
     ]

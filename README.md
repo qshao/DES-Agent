@@ -55,7 +55,7 @@ Save a DES run memory file for later reuse:
 python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --config-path ml_des_mp/config.yaml --save-run-memory runs/run_001/run.memory.json
 ```
 
-Every DES run can also write into a standard flat run directory with `--output-dir runs/run_001`. That folder becomes the canonical home for `report.txt`, `run.json`, `run.csv`, and `run.manifest.json`. If you want run memory in the same folder, point `--save-run-memory` at `runs/run_001/run.memory.json`.
+Every DES run can also write into a standard flat run directory with `--output-dir runs/run_001`. That folder becomes the canonical home for `report.txt`, `run.json`, `run.csv`, and `run.manifest.json`. If you want run memory in the same folder, point `--save-run-memory` at `runs/run_001/run.memory.json`. If you later want to reuse all labeled runs in a history directory, point `--reuse-run` at the parent `runs/` folder.
 
 Label the saved run in place with explicit SMILES and `good` / `bad` labels:
 
@@ -63,7 +63,7 @@ Label the saved run in place with explicit SMILES and `good` / `bad` labels:
 python -m des_multi_agent.cli label-run --run runs/run_001 --label "O=good" --label "CC(=O)O=bad"
 ```
 
-Reuse the labeled DES memory file or folder to nudge ranking on a later run:
+Reuse the labeled DES memory file, folder, or a parent history directory of labeled runs to nudge ranking on a later run:
 
 ```bash
 python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --config-path ml_des_mp/config.yaml --reuse-run runs/run_001/run.memory.json

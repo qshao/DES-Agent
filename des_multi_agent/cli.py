@@ -35,7 +35,7 @@ def build_parser():
     parser.add_argument("--ligand-smiles", default=None, help="Ligand SMILES for the metal-binding workflow")
     parser.add_argument("--stability-constant-model-path", default=None, help="Optional local stability-constant model artifact")
     parser.add_argument("--save-run-memory", default=None, help="Optional path to write a compact JSON DES run memory file")
-    parser.add_argument("--reuse-run", default=None, help="Optional prior DES run folder or run.memory.json file to reuse for ranking")
+    parser.add_argument("--reuse-run", default=None, help="Optional prior DES run folder, run.memory.json file, or history directory of prior DES runs to reuse for ranking")
     parser.add_argument("--output-dir", default=None, help="Optional directory where DES run artifacts are written")
     parser.add_argument(
         "--uncertainty-mode",

@@ -2,7 +2,7 @@
 
 This example shows the full offline DES feedback loop in one folder:
 
-1. run DES once and save `run.memory.json`
+1. run DES once and save `run.memory.json` (or keep several labeled runs under `runs/` and reuse the parent history directory later)
 2. label the saved memory in place with `label-run`
 3. reuse the labeled memory on the next DES run
 
@@ -34,7 +34,7 @@ The file [`output.txt`](./output.txt) contains:
 Use this folder as a template for your own feedback loop:
 
 - Replace the request in [`input.txt`](./input.txt) with your own DES target.
-- Edit [`run.memory.json`](./run.memory.json) if you want to inspect or seed the label format.
+- Edit [`run.memory.json`](./run.memory.json) if you want to inspect or seed the label format. If you later build a larger labeled history under `runs/`, you can point `--reuse-run` at the parent history directory to reuse all of it.
 - Update the labels in `run.sh` to match your own `good` and `bad` preferences.
 - If you want a different checkpoint, set `DES_CHECKPOINT_PATH` before running the wrapper.
 - The feedback loop is DES-only; use the separate metal-binding examples for stability-constant work.

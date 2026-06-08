@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections import defaultdict
+from collections.abc import Mapping, Sequence
 from dataclasses import asdict, replace
 from pathlib import Path
 import json
@@ -18,6 +19,20 @@ def resolve_run_memory_path(path: str | Path) -> Path:
     if not candidate.exists():
         raise FileNotFoundError(f"Run memory file not found: {candidate}")
     return candidate
+
+
+def resolve_run_memory_history_paths(path: str | Path) -> list[Path]:
+    candidate = Path(path)
+    if candidate.is_file():
+        return [candidate]
+    if candidate.is_dir():
+        direct = candidate / "run.memory.json"
+        if direct.exists():
+            return [direct]
+        files = sorted(candidate.rglob("run.memory.json"))
+        if files:
+            return files
+    raise FileNotFoundError(f"Run memory file not found: {candidate}")
 
 
 def parse_run_memory(data: Mapping[str, object]) -> RunMemory:
@@ -52,6 +67,10 @@ def load_run_memory(path: str | Path) -> RunMemory:
     memory_path = resolve_run_memory_path(path)
     data = json.loads(memory_path.read_text(encoding="utf-8"))
     return parse_run_memory(data)
+
+
+def load_run_memory_history(path: str | Path) -> list[RunMemory]:
+    return [load_run_memory(memory_path) for memory_path in resolve_run_memory_history_paths(path)]
 
 
 def write_run_memory(path: str | Path, memory: RunMemory) -> Path:
@@ -93,34 +112,66 @@ def build_run_memory(
     )
 
 
+def _iter_run_memories(memory: RunMemory | Sequence[RunMemory] | None) -> list[RunMemory]:
+    if memory is None:
+        return []
+    if isinstance(memory, RunMemory):
+        return [memory]
+    return list(memory)
+
+
 def apply_run_memory_preferences(
     annotated_results: list[AnnotatedResult],
-    memory: RunMemory | None,
+    memory: RunMemory | Sequence[RunMemory] | None,
     component_a: str,
 ) -> tuple[list[AnnotatedResult], list[str]]:
-    if memory is None:
+    memories = _iter_run_memories(memory)
+    if not memories:
         return list(annotated_results), []
-    if memory.component_a is not None and memory.component_a != component_a:
-        return list(annotated_results), [
-            f"Reuse memory ignored because it was recorded for {memory.component_a}, not {component_a}."
-        ]
-    preferred = {item.smiles_b for item in memory.labels if item.label == "good"}
-    penalized = {item.smiles_b for item in memory.labels if item.label == "bad"}
-    ranked_bonus = {
-        item.smiles_b: max(0.0, 0.08 - 0.01 * (item.rank - 1)) for item in memory.ranked_candidates
-    }
+
+    good_counts: dict[str, int] = defaultdict(int)
+    bad_counts: dict[str, int] = defaultdict(int)
+    rank_bias_by_smiles: dict[str, float] = defaultdict(float)
+    note_parts: list[str] = []
+    matched_memories = 0
+
+    for item in memories:
+        if item.component_a is not None and item.component_a != component_a:
+            note_parts.append(f"Reuse memory ignored because it was recorded for {item.component_a}, not {component_a}.")
+            continue
+        matched_memories += 1
+        labels_by_smiles = {label.smiles_b: label.label for label in item.labels}
+        for smiles_b, label in labels_by_smiles.items():
+            if label == "good":
+                good_counts[smiles_b] += 1
+            elif label == "bad":
+                bad_counts[smiles_b] += 1
+        for candidate in item.ranked_candidates:
+            if candidate.smiles_b in labels_by_smiles:
+                continue
+            rank_bias_by_smiles[candidate.smiles_b] += max(0.0, 0.08 - 0.01 * (candidate.rank - 1))
+
+    if matched_memories == 0:
+        return list(annotated_results), note_parts
+
     adjusted: list[AnnotatedResult] = []
     for item in annotated_results:
         smiles_b = item.result.curve.smiles_b
-        bonus = 0.15 if smiles_b in preferred else ranked_bonus.get(smiles_b, 0.0)
-        penalty = 0.15 if smiles_b in penalized else 0.0
-        adjusted.append(replace(item, ranking_score=item.ranking_score + bonus - penalty))
-    note_parts = []
-    if preferred or penalized:
-        note_parts.append(f"Applied reuse memory to {len(preferred)} preferred candidate and {len(penalized)} penalized candidates.")
-    if memory.ranked_candidates:
-        note_parts.append(f"Loaded {len(memory.ranked_candidates)} prior ranked candidates for ranking bias.")
-    return rank_annotated_results(adjusted), note_parts
+        good_bonus = min(0.30, 0.15 * good_counts.get(smiles_b, 0))
+        bad_penalty = min(0.30, 0.15 * bad_counts.get(smiles_b, 0))
+        rank_bonus = min(0.20, rank_bias_by_smiles.get(smiles_b, 0.0))
+        adjusted.append(replace(item, ranking_score=item.ranking_score + good_bonus + rank_bonus - bad_penalty))
+
+    ranked_adjusted = rank_annotated_results(adjusted)
+    if good_counts or bad_counts:
+        note_parts.append(
+            f"Applied reuse memory to {sum(good_counts.values())} good label(s) and {sum(bad_counts.values())} bad label(s) across {matched_memories} run memory file(s)."
+        )
+    if rank_bias_by_smiles:
+        note_parts.append(
+            f"Loaded {len(rank_bias_by_smiles)} prior ranked candidate(s) for ranking bias across {matched_memories} run memory file(s)."
+        )
+    return ranked_adjusted, note_parts
 
 
 def update_run_memory_labels(memory: RunMemory, label_specs: list[tuple[str, str]]) -> RunMemory:

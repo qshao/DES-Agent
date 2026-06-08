@@ -2,12 +2,6 @@
 
 This document tracks the next useful extensions for DES-Agent after the current router and example updates.
 
-## Near Term
-
-1. Active-learning feedback loop
-   - Capture user feedback on predictions and feed it back into calibration or retraining.
-   - Extend the existing run-memory and label-run flow so reused labels can influence future ranking more directly.
-
 ## Recently Completed
 
 1. Example benchmark suite
@@ -18,3 +12,6 @@ This document tracks the next useful extensions for DES-Agent after the current 
 
 3. Stronger natural-language normalization
    - Plain-language requests now get normalized before routing, including salt and free-base clarification.
+
+4. Active-learning feedback loop
+   - Labeled run memory can now be reused from a single run or a whole history directory so later DES runs can learn from prior `good` / `bad` feedback more directly.

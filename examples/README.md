@@ -32,7 +32,7 @@ The same folders also power the pytest-based example benchmark suite in [`tests/
 
 The LLM-backed examples also include a model-specific `llm.*.yaml` file.
 
-The DES examples call the shared demo entrypoint. In LLM-enabled runs, candidates are reviewed one by one so large candidate sets stay manageable. DES runs can also write into a standard flat run directory with `--output-dir runs/run_001`. That folder becomes the canonical home for `report.txt`, `run.json`, `run.csv`, and `run.manifest.json`. If you save run memory with `--save-run-memory`, point it at `runs/run_001/run.memory.json` so the memory file lives in the same folder. You can also save, label, and reuse DES run memory with `--save-run-memory`, `label-run`, and `--reuse-run` if you want a later run to bias ranking from an earlier one:
+The DES examples call the shared demo entrypoint. In LLM-enabled runs, candidates are reviewed one by one so large candidate sets stay manageable. DES runs can also write into a standard flat run directory with `--output-dir runs/run_001`. That folder becomes the canonical home for `report.txt`, `run.json`, `run.csv`, and `run.manifest.json`. If you save run memory with `--save-run-memory`, point it at `runs/run_001/run.memory.json` so the memory file lives in the same folder. You can also save, label, and reuse DES run memory with `--save-run-memory`, `label-run`, and `--reuse-run` if you want a later run to bias ranking from an earlier one. If you keep several labeled runs under `runs/`, `--reuse-run runs/` will use the whole labeled history in that history directory.
 
 ```bash
 python -m examples.demo_des_search --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --llm-config <folder>/llm.<name>.yaml

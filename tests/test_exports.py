@@ -9,6 +9,7 @@ import pytest
 from des_multi_agent import orchestrator
 from des_multi_agent.evaluation import DesResult
 from des_multi_agent.exporting import CSV_COLUMNS, export_des_run_bundle
+from des_multi_agent.run_memory import parse_run_memory, write_run_memory
 from des_multi_agent.prediction import CurvePrediction
 from des_multi_agent.property_resolution import MeltingPointEstimate
 from des_multi_agent.schemas import CandidateProposal, DesThresholds
@@ -238,3 +239,103 @@ def test_export_des_run_bundle_requires_fixed_csv_fields(tmp_path: Path):
     with pytest.raises(KeyError, match="uncertainty_flag"):
         export_des_run_bundle(output_dir, run_payload, "report")
     assert not output_dir.exists()
+
+
+
+def test_run_search_report_reuses_history_directory(monkeypatch, tmp_path: Path):
+    history = tmp_path / "runs"
+    run_001 = history / "run_001"
+    run_002 = history / "run_002"
+    run_001.mkdir(parents=True)
+    run_002.mkdir(parents=True)
+    write_run_memory(
+        run_001 / "run.memory.json",
+        parse_run_memory(
+            {
+                "workflow": "des",
+                "component_a": "CCO",
+                "n": 1,
+                "labels": [{"smiles_b": "O", "label": "good"}],
+                "ranked_candidates": [
+                    {"smiles_b": "O", "rank": 1, "min_tm_k": 208.69, "trust_score": 0.95, "uncertainty_flag": "low", "source": "heuristic", "source_id": ""},
+                ],
+            }
+        ),
+    )
+    write_run_memory(
+        run_002 / "run.memory.json",
+        parse_run_memory(
+            {
+                "workflow": "des",
+                "component_a": "CCO",
+                "n": 1,
+                "labels": [{"smiles_b": "CC(=O)O", "label": "bad"}],
+                "ranked_candidates": [
+                    {"smiles_b": "CC(=O)O", "rank": 1, "min_tm_k": 236.03, "trust_score": 0.83, "uncertainty_flag": "low", "source": "heuristic", "source_id": ""},
+                ],
+            }
+        ),
+    )
+
+    monkeypatch.setattr(
+        orchestrator,
+        "generate_candidates",
+        lambda component_a, n, constraints=None: [
+            CandidateProposal(smiles="O", rationale="demo", family="alcohol", source="heuristic", source_id="rule"),
+            CandidateProposal(smiles="CC(=O)O", rationale="demo", family="acid", source="heuristic", source_id="rule"),
+        ],
+    )
+    monkeypatch.setattr(orchestrator, "filter_candidates", lambda component_a, candidates: candidates)
+    monkeypatch.setattr(
+        orchestrator,
+        "resolve_melting_point",
+        lambda component, override_k=None: MeltingPointEstimate(component=component, tm_k=300.0, source="heuristic", confidence=0.5),
+    )
+    monkeypatch.setattr(
+        orchestrator,
+        "predict_curve",
+        lambda component_a, component_b, t1_k, t2_k, checkpoint_path, config_path="ml_des_mp/config.yaml": _curve(component_a, component_b, 230.0),
+    )
+    monkeypatch.setattr(orchestrator, "classify_des", lambda curve, thresholds: _result(curve.smiles_a, curve.smiles_b, min(curve.tm_pred_k)))
+    monkeypatch.setattr(orchestrator, "estimate_min_tm_uncertainty", lambda component_a, component_b, checkpoint_path, config_path: _uncertainty(component_b))
+
+    captured = {}
+
+    def fake_export(output_dir, payload, report_text):
+        captured["output_dir"] = Path(output_dir)
+        captured["payload"] = payload
+        captured["report_text"] = report_text
+        return {"report": Path(output_dir) / "report.txt", "json": Path(output_dir) / "run.json", "csv": Path(output_dir) / "run.csv", "manifest": Path(output_dir) / "run.manifest.json"}
+
+    monkeypatch.setattr(orchestrator, "export_des_run_bundle", fake_export)
+
+    checkpoint_path = tmp_path / "ckpt.pt"
+    checkpoint_path.write_text("ckpt", encoding="utf-8")
+    config_path = tmp_path / "config.yaml"
+    config_path.write_text(
+        """device: cpu
+embedding:
+  method: morgan
+  morgan:
+    radius: 2
+    n_bits: 16
+    use_chirality: false
+""",
+        encoding="utf-8",
+    )
+
+    outcome = orchestrator.run_search_report(
+        component_a="CCO",
+        n=2,
+        checkpoint_path=str(checkpoint_path),
+        config_path=str(config_path),
+        thresholds=DesThresholds(absolute_tm_max_k=260.0, relative_drop_min=0.1),
+        uncertainty_policy=UncertaintyPolicy(mode="report_only"),
+        reuse_run_path=str(history),
+    )
+
+    assert outcome.results[0].curve.smiles_b == "O"
+    assert any("2 run memory file(s)" in note for note in outcome.memory_notes)
+    assert captured["output_dir"] == Path.cwd()
+    assert captured["payload"]["workflow"] == "des"
+    assert "summary:" not in captured["report_text"]

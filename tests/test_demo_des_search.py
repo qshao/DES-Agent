@@ -80,6 +80,7 @@ def test_tutorial_and_readme_links_exist():
     assert "run.manifest.json" in readme
     assert "task-router" in readme
     assert "workflow=clarify" in readme
+    assert "history directory" in readme
     assert "viscosity_template" in readme
     assert "ligand_binding_template" in readme
     assert "plain_language_gemma4_12b" in readme
@@ -95,6 +96,7 @@ def test_examples_readme_exists_and_links_tutorial():
     assert "compare-runs" in text
     assert "--json" in text
     assert "summary:" in text
+    assert "history directory" in text
     assert "run.json" in text
     assert "run.csv" in text
     assert "run.manifest.json" in text
@@ -128,11 +130,13 @@ def test_tutorial_shows_explicit_real_checkpoint():
     assert "compare-runs" in text
     assert "--json" in text
     assert "summary:" in text
+    assert "history directory" in text
     assert "run.json" in text
     assert "run.csv" in text
     assert "run.manifest.json" in text
     assert "task-router" in text
     assert "workflow=clarify" in text
+    assert "history directory" in text
     assert "viscosity_template" in text
     assert "ligand_binding_template" in text
     assert "plain_language_gemma4_12b" in text

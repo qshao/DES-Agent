@@ -15,7 +15,7 @@ from .llm.factory import build_llm_provider
 from .llm.schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, ExplanationNote
 from .paths import resolve_existing_path
 from .prediction import predict_curve
-from .run_memory import apply_run_memory_preferences, build_run_memory, load_run_memory, write_run_memory
+from .run_memory import apply_run_memory_preferences, build_run_memory, load_run_memory_history, write_run_memory
 from .predictors.designsolvents import ViscosityPrediction, predict_viscosity
 from .property_resolution import resolve_melting_point
 from .ranking import rank_results
@@ -352,14 +352,14 @@ def run_search_report(
     annotated_results = _apply_review_penalties(annotated_results, review_penalties)
     memory_notes: list[str] = []
     if reuse_run_path:
-        reuse_memory = load_run_memory(reuse_run_path)
+        reuse_memories = load_run_memory_history(reuse_run_path)
         annotated_results, reuse_notes = apply_run_memory_preferences(
             annotated_results=annotated_results,
-            memory=reuse_memory,
+            memory=reuse_memories,
             component_a=component_a,
         )
         memory_notes.extend(reuse_notes)
-        memory_notes.insert(0, f"Loaded reuse memory from {reuse_run_path}.")
+        memory_notes.insert(0, f"Loaded reuse memory from {reuse_run_path} ({len(reuse_memories)} run memory file(s)).")
     viscosity_predictions = _predict_viscosity_predictions(component_a, filtered, viscosity_model_path, llm_warnings)
     final_results = [item.result for item in annotated_results]
     explanation_notes: list[ExplanationNote] = []
