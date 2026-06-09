@@ -219,6 +219,141 @@ def test_iterative_context_includes_prior_results(fake_des_result):
     assert fake_des_result.curve.smiles_b in ctx
 
 
+# ── H1 + H5: multi-cycle runner ──────────────────────────────────────────────
+
+def test_multi_cycle_outcome_fields():
+    """MultiCycleOutcome and CycleDelta are importable dataclasses."""
+    from des_multi_agent.multi_cycle import CycleDelta, MultiCycleOutcome
+    delta = CycleDelta(
+        cycle=1, n_screened=5, n_des=2,
+        top_smiles=frozenset(["CCO"]),
+        new_entrants=["CCO"], dropouts=[], converged=False,
+    )
+    assert delta.cycle == 1
+    outcome = MultiCycleOutcome(
+        final_outcome=None,
+        cycle_deltas=[delta],
+        total_cycles=1,
+        converged=False,
+    )
+    assert outcome.total_cycles == 1
+
+
+def test_run_multi_cycle_search_runs_n_cycles(monkeypatch, tmp_path):
+    """run_multi_cycle_search calls run_search_report exactly n_cycles times."""
+    call_count = {"n": 0}
+
+    def _fake_search(*args, **kwargs):
+        call_count["n"] += 1
+        from unittest.mock import MagicMock
+        outcome = MagicMock()
+        outcome.results = []
+        return outcome
+
+    monkeypatch.setattr("des_multi_agent.multi_cycle.run_search_report", _fake_search)
+
+    from des_multi_agent.multi_cycle import run_multi_cycle_search
+    ckpt = tmp_path / "ckpt.pt"
+    ckpt.write_bytes(b"")
+    cfg = tmp_path / "config.yaml"
+    cfg.write_text("")
+
+    result = run_multi_cycle_search("CCO", 2, str(ckpt), str(cfg), n_cycles=3)
+    assert call_count["n"] == 3
+    assert result.total_cycles == 3
+
+
+def test_run_multi_cycle_search_stops_on_convergence(monkeypatch, tmp_path):
+    """Convergence is detected when top-K set is unchanged across two cycles."""
+    from dataclasses import dataclass
+    from des_multi_agent.evaluation import DesResult
+
+    @dataclass(frozen=True)
+    class _Curve:
+        smiles_b: str
+        smiles_a: str = "Cc1ccc(O)cc1"
+        tm_pred_k: list = None
+        ratios: list = None
+        t1_k: float = 330.0
+        t2_k: float = 289.0
+        def __post_init__(self):
+            if self.tm_pred_k is None:
+                object.__setattr__(self, "tm_pred_k", [240.0, 230.0])
+            if self.ratios is None:
+                object.__setattr__(self, "ratios", [0.1, 0.9])
+
+    fixed_result = DesResult(
+        curve=_Curve(smiles_b="CCO"), absolute_pass=True,
+        relative_pass=True, is_des=True, rationale="t", min_tm_k=230.0,
+    )
+
+    def _stable_search(*args, **kwargs):
+        from unittest.mock import MagicMock
+        outcome = MagicMock()
+        outcome.results = [fixed_result]
+        return outcome
+
+    monkeypatch.setattr("des_multi_agent.multi_cycle.run_search_report", _stable_search)
+
+    from des_multi_agent.multi_cycle import run_multi_cycle_search
+    ckpt = tmp_path / "ckpt.pt"; ckpt.write_bytes(b"")
+    cfg = tmp_path / "config.yaml"; cfg.write_text("")
+
+    result = run_multi_cycle_search("CCO", 2, str(ckpt), str(cfg), n_cycles=5, top_k_convergence=1)
+    assert result.converged is True
+    assert result.total_cycles == 2
+
+
+def test_cycle_delta_tracks_new_entrants_and_dropouts(monkeypatch, tmp_path):
+    """CycleDelta records which SMILES entered and left the top-K between cycles."""
+    from dataclasses import dataclass
+    from des_multi_agent.evaluation import DesResult
+
+    @dataclass(frozen=True)
+    class _Curve:
+        smiles_b: str
+        smiles_a: str = "Cc1ccc(O)cc1"
+        tm_pred_k: list = None
+        ratios: list = None
+        t1_k: float = 330.0
+        t2_k: float = 289.0
+        def __post_init__(self):
+            if self.tm_pred_k is None:
+                object.__setattr__(self, "tm_pred_k", [230.0])
+            if self.ratios is None:
+                object.__setattr__(self, "ratios", [0.5])
+
+    def _r(smiles):
+        return DesResult(
+            curve=_Curve(smiles_b=smiles), absolute_pass=True,
+            relative_pass=True, is_des=True, rationale="t", min_tm_k=230.0,
+        )
+
+    cycle_results = [
+        [_r("CCO"), _r("OCCO")],
+        [_r("OCCO"), _r("CC(=O)O")],
+    ]
+    call_idx = {"n": 0}
+
+    def _rotating_search(*args, **kwargs):
+        from unittest.mock import MagicMock
+        outcome = MagicMock()
+        outcome.results = cycle_results[call_idx["n"]]
+        call_idx["n"] += 1
+        return outcome
+
+    monkeypatch.setattr("des_multi_agent.multi_cycle.run_search_report", _rotating_search)
+
+    from des_multi_agent.multi_cycle import run_multi_cycle_search
+    ckpt = tmp_path / "ckpt.pt"; ckpt.write_bytes(b"")
+    cfg = tmp_path / "config.yaml"; cfg.write_text("")
+
+    result = run_multi_cycle_search("CCO", 2, str(ckpt), str(cfg), n_cycles=2, top_k_convergence=2)
+    delta2 = result.cycle_deltas[1]
+    assert "CC(=O)O" in delta2.new_entrants
+    assert "CCO" in delta2.dropouts
+
+
 @pytest.fixture
 def fake_des_result():
     from dataclasses import dataclass
