@@ -7,18 +7,43 @@ from pathlib import Path
 import yaml
 
 from .compare_runs import compare_saved_runs, format_compare_json_text, format_compare_report
-from .config import DEFAULT_CONFIG_PATH, PROJECT_ROOT
+from .config import DEFAULT_ABSOLUTE_TM_MAX_K, DEFAULT_CONFIG_PATH, DEFAULT_RELATIVE_DROP_MIN, PROJECT_ROOT
 from .doctor import format_doctor_report, run_doctor
+from .history import build_history_table, format_history_table
 from .label_run import run_label_command
+from .leaderboard import build_leaderboard, format_leaderboard
 from .llm.config import LLMConfig
+from .multi_cycle import run_multi_cycle_search
 from .orchestrator import run_search_report
 from .paths import resolve_existing_path
-from .reporting import format_metal_binding_report, format_report
+from .prediction import discover_ensemble_checkpoints
+from . import prediction as _prediction
+from .reporting import (
+    format_metal_binding_report, format_report,
+    format_report_csv, format_report_json, format_report_prose,
+)
 from .summary import build_command_summary, render_command_summary
 from .task_executor import execute_task_request, execute_task_request_detailed
 from .task_router import route_task
+from .schemas import DesThresholds
 from .uncertainty import UncertaintyPolicy
+from .user_config import KNOWN_KEYS, load_user_config, save_user_config
 from .workflows.metal_binding import run_metal_binding_workflow
+
+
+THRESHOLD_PRESETS: dict[str, "DesThresholds"] = {}  # populated after DesThresholds import
+
+
+def _init_presets() -> None:
+    THRESHOLD_PRESETS["strict"] = DesThresholds(absolute_tm_max_k=240.0, relative_drop_min=0.15)
+    THRESHOLD_PRESETS["standard"] = DesThresholds(
+        absolute_tm_max_k=DEFAULT_ABSOLUTE_TM_MAX_K,
+        relative_drop_min=DEFAULT_RELATIVE_DROP_MIN,
+    )
+    THRESHOLD_PRESETS["relaxed"] = DesThresholds(absolute_tm_max_k=280.0, relative_drop_min=0.05)
+
+
+_init_presets()
 
 
 def build_parser():
@@ -37,6 +62,57 @@ def build_parser():
     parser.add_argument("--save-run-memory", default=None, help="Optional path to write a compact JSON DES run memory file")
     parser.add_argument("--reuse-run", default=None, help="Optional prior DES run folder, run.memory.json file, or history directory of prior DES runs to reuse for ranking")
     parser.add_argument("--output-dir", default=None, help="Optional directory where DES run artifacts are written")
+    parser.add_argument(
+        "--ensemble",
+        action="store_true",
+        default=False,
+        help="Use all *_best.pt fold checkpoints in ml_des_mp/runs/ for ensemble prediction (mean ± std)",
+    )
+    parser.add_argument(
+        "--candidates-file",
+        default=None,
+        help="Path to a text file with one candidate SMILES per line; bypasses LLM candidate generation",
+    )
+    parser.add_argument(
+        "--preset",
+        choices=["strict", "standard", "relaxed"],
+        default=None,
+        help="Named threshold preset: strict (Tm≤240 K, drop≥15%%), standard (default), relaxed (Tm≤280 K, drop≥5%%)",
+    )
+    parser.add_argument(
+        "--format",
+        choices=["table", "json", "csv", "prose"],
+        default="table",
+        dest="format",
+        help="Output format for the DES report (default: table)",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        default=False,
+        help="Validate paths, config, and checkpoint compatibility then exit without running predictions",
+    )
+    parser.add_argument(
+        "--n-cycles",
+        type=int,
+        default=1,
+        dest="n_cycles",
+        help="Number of screening iterations; the top-K hits from each cycle seed the next (default: 1 = single shot)",
+    )
+    parser.add_argument(
+        "--viscosity-threshold",
+        type=float,
+        default=None,
+        dest="viscosity_threshold",
+        help="Maximum acceptable viscosity (cP); DES-formers above this threshold sort below passing candidates",
+    )
+    parser.add_argument(
+        "--viscosity-weight",
+        type=float,
+        default=0.3,
+        dest="viscosity_weight",
+        help="Weight [0,1] of the viscosity component in composite ranking (default: 0.3)",
+    )
     parser.add_argument(
         "--uncertainty-mode",
         choices=["filter", "penalize", "report_only"],
@@ -87,11 +163,25 @@ def build_parser():
     doctor_parser.add_argument(
         "--check",
         action="append",
-        choices=("checkpoint", "discovery", "artifacts"),
+        choices=("checkpoint", "discovery", "artifacts", "llm"),
         default=[],
         help="Run optional local setup checks; may be passed multiple times",
     )
     doctor_parser.set_defaults(command="doctor")
+    # G1 — leaderboard
+    leaderboard_parser = subparsers.add_parser("leaderboard", help="Show a ranked leaderboard of all compounds across a run history directory")
+    leaderboard_parser.add_argument("history_dir", help="Directory containing run subdirectories with run.json files")
+    leaderboard_parser.set_defaults(command="leaderboard")
+    # E2 — history
+    history_parser = subparsers.add_parser("history", help="Show a summary table of all past runs in a history directory")
+    history_parser.add_argument("history_dir", help="Directory containing run subdirectories with run.manifest.json files")
+    history_parser.set_defaults(command="history")
+    # E4 — config
+    config_parser = subparsers.add_parser("config", help="Read or write persistent user config")
+    config_subparsers = config_parser.add_subparsers(dest="config_subcommand")
+    config_set_parser = config_subparsers.add_parser("set", help="Set a config value: KEY=VALUE")
+    config_set_parser.add_argument("assignment", help="KEY=VALUE pair, e.g. checkpoint_path=/path/to/ckpt.pt")
+    config_parser.set_defaults(command="config")
     parser.set_defaults(command=None)
     return parser
 
@@ -121,6 +211,14 @@ def _build_uncertainty_policy(args):
     )
 
 
+def _discover_checkpoint() -> str | None:
+    runs_dir = PROJECT_ROOT / "ml_des_mp" / "runs"
+    if not runs_dir.is_dir():
+        return None
+    candidates = sorted(runs_dir.glob("*_best.pt"), key=lambda p: p.stat().st_mtime, reverse=True)
+    return str(candidates[0]) if candidates else None
+
+
 def _print_summary(command: str, result, *, machine_readable_stdout: bool = False) -> None:
     summary = build_command_summary(command, result, machine_readable_stdout=machine_readable_stdout)
     stream = sys.stderr if summary.stream == "stderr" else sys.stdout
@@ -130,6 +228,16 @@ def _print_summary(command: str, result, *, machine_readable_stdout: bool = Fals
 def main(argv=None):
     parser = build_parser()
     args = parser.parse_args(argv)
+
+    # Apply user config defaults for flags the user did not provide explicitly
+    _user_cfg = load_user_config()
+    if args.checkpoint_path is None and "checkpoint_path" in _user_cfg:
+        args.checkpoint_path = str(_user_cfg["checkpoint_path"])
+    if args.config_path == str(DEFAULT_CONFIG_PATH) and "config_path" in _user_cfg:
+        args.config_path = str(_user_cfg["config_path"])
+    if args.llm_config is None and "llm_config" in _user_cfg:
+        args.llm_config = str(_user_cfg["llm_config"])
+
     if getattr(args, "command", None) == "task-router":
         try:
             response = route_task(args.request)
@@ -140,7 +248,11 @@ def main(argv=None):
         return
     if getattr(args, "command", None) == "task-execute":
         try:
-            output = execute_task_request_detailed(args.request)
+            llm_cfg_te = load_llm_config(args.llm_config)
+        except ValueError as exc:
+            parser.error(str(exc))
+        try:
+            output = execute_task_request_detailed(args.request, llm_cfg=llm_cfg_te)
         except ValueError as exc:
             parser.error(str(exc))
         print(output.output)
@@ -166,9 +278,43 @@ def main(argv=None):
         print(message)
         _print_summary("label-run", message)
         return
-    if getattr(args, "command", None) == "doctor":
+    if getattr(args, "command", None) == "leaderboard":
         try:
-            result = run_doctor(PROJECT_ROOT, optional_checks=args.check)
+            entries = build_leaderboard(args.history_dir)
+        except FileNotFoundError as exc:
+            parser.error(str(exc))
+        print(format_leaderboard(entries))
+        return
+    if getattr(args, "command", None) == "history":
+        try:
+            rows = build_history_table(args.history_dir)
+        except FileNotFoundError as exc:
+            parser.error(str(exc))
+        print(format_history_table(rows))
+        return
+    if getattr(args, "command", None) == "config":
+        if getattr(args, "config_subcommand", None) == "set":
+            assignment = args.assignment
+            if "=" not in assignment:
+                parser.error(f"config set requires KEY=VALUE format, got: {assignment!r}")
+            key, _, value = assignment.partition("=")
+            key = key.strip()
+            if key not in KNOWN_KEYS:
+                parser.error(f"Unknown config key {key!r}. Valid keys: {', '.join(sorted(KNOWN_KEYS))}")
+            save_user_config({key: value})
+            print(f"Saved {key} = {value}", file=sys.stderr)
+        else:
+            parser.error("Usage: des-agent config set KEY=VALUE")
+        return
+    if getattr(args, "command", None) == "doctor":
+        llm_cfg_doctor = None
+        if "llm" in (args.check or []):
+            try:
+                llm_cfg_doctor = load_llm_config(args.llm_config)
+            except ValueError as exc:
+                parser.error(str(exc))
+        try:
+            result = run_doctor(PROJECT_ROOT, optional_checks=args.check, llm_cfg=llm_cfg_doctor)
         except ValueError as exc:
             parser.error(str(exc))
         print(format_doctor_report(result))
@@ -187,39 +333,114 @@ def main(argv=None):
         if not args.component_a:
             parser.error("DES workflow requires --component-a")
         if args.checkpoint_path is None:
-            parser.error("DES workflow requires --checkpoint-path")
+            discovered = _discover_checkpoint()
+            if discovered:
+                print(f"[auto] No --checkpoint-path given; using discovered checkpoint: {discovered}", file=sys.stderr)
+                args.checkpoint_path = discovered
+            else:
+                parser.error("DES workflow requires --checkpoint-path (none found in ml_des_mp/runs/)")
         checkpoint_path = resolve_existing_path(args.checkpoint_path)
         config_path = resolve_existing_path(args.config_path)
+        ensemble_ckpts: list[str] | None = None
+        if getattr(args, "ensemble", False):
+            found = discover_ensemble_checkpoints()
+            if len(found) < 2:
+                parser.error(
+                    f"--ensemble requires at least 2 checkpoints in ml_des_mp/runs/; found {len(found)}"
+                )
+            ensemble_ckpts = [str(p) for p in found]
+            print(f"[ensemble] Using {len(ensemble_ckpts)} fold checkpoints: "
+                  + ", ".join(Path(p).name for p in ensemble_ckpts), file=sys.stderr)
+        # E1 — apply preset thresholds if given
+        preset_name = getattr(args, "preset", None)
+        thresholds = THRESHOLD_PRESETS[preset_name] if preset_name else None
+
+        # B7 — dry-run: validate everything then exit without predictions
+        if getattr(args, "dry_run", False):
+            import yaml as _yaml
+            with open(config_path, "r", encoding="utf-8") as _fh:
+                _cfg = _yaml.safe_load(_fh)
+            compat_warnings = _prediction.check_checkpoint_config_compat(str(checkpoint_path), _cfg or {})
+            for w in compat_warnings:
+                print(f"[WARNING] {w}", file=sys.stderr)
+            print("[dry-run] Paths resolved, config parsed, checkpoint compatible — OK.", file=sys.stderr)
+            raise SystemExit(0)
+
         try:
-            outcome = run_search_report(
-                component_a=args.component_a,
-                n=args.n,
-                checkpoint_path=str(checkpoint_path),
-                config_path=str(config_path),
-                llm_cfg=llm_cfg,
-                discovery_path=args.discovery_path,
-                viscosity_model_path=args.viscosity_model_path,
-                save_run_memory_path=args.save_run_memory,
-                reuse_run_path=args.reuse_run,
-                output_dir=args.output_dir,
-                uncertainty_policy=uncertainty_policy,
-            )
+            if getattr(args, "n_cycles", 1) > 1:
+                multi_outcome = run_multi_cycle_search(
+                    component_a=args.component_a,
+                    n=args.n,
+                    checkpoint_path=str(checkpoint_path),
+                    config_path=str(config_path),
+                    thresholds=thresholds,
+                    uncertainty_policy=uncertainty_policy,
+                    llm_cfg=llm_cfg,
+                    discovery_path=args.discovery_path,
+                    viscosity_model_path=args.viscosity_model_path,
+                    viscosity_weight=args.viscosity_weight,
+                    viscosity_threshold_cp=args.viscosity_threshold,
+                    output_dir=args.output_dir,
+                    ensemble_checkpoints=ensemble_ckpts,
+                    candidates_file=getattr(args, "candidates_file", None),
+                    n_cycles=args.n_cycles,
+                )
+                outcome = multi_outcome.final_outcome
+                for delta in multi_outcome.cycle_deltas:
+                    new = f"+{len(delta.new_entrants)}" if delta.new_entrants else "0"
+                    out = f"-{len(delta.dropouts)}" if delta.dropouts else "0"
+                    print(
+                        f"[cycle {delta.cycle}/{multi_outcome.total_cycles}] "
+                        f"screened={delta.n_screened} des={delta.n_des} "
+                        f"top-K changes: {new} new, {out} dropped"
+                        + (" — CONVERGED" if delta.converged else ""),
+                        file=sys.stderr,
+                    )
+            else:
+                outcome = run_search_report(
+                    component_a=args.component_a,
+                    n=args.n,
+                    checkpoint_path=str(checkpoint_path),
+                    config_path=str(config_path),
+                    thresholds=thresholds,
+                    uncertainty_policy=uncertainty_policy,
+                    llm_cfg=llm_cfg,
+                    discovery_path=args.discovery_path,
+                    viscosity_model_path=args.viscosity_model_path,
+                    viscosity_weight=getattr(args, "viscosity_weight", 0.3),
+                    viscosity_threshold_cp=getattr(args, "viscosity_threshold", None),
+                    output_dir=args.output_dir,
+                    ensemble_checkpoints=ensemble_ckpts,
+                    candidates_file=getattr(args, "candidates_file", None),
+                    save_run_memory_path=getattr(args, "save_run_memory", None),
+                    reuse_run_path=getattr(args, "reuse_run", None),
+                )
         except (FileNotFoundError, ValueError) as exc:
             parser.error(str(exc))
-        print(
-            format_report(
-                outcome.results,
-                annotated_results=outcome.annotated_results,
-                candidate_proposals=getattr(outcome, "candidate_proposals", None),
-                candidate_reviews=getattr(outcome, "candidate_reviews", None),
-                explanation_notes=outcome.explanation_notes,
-                critique_notes=outcome.critique_notes,
-                brainstorm_candidates=outcome.brainstorm_candidates,
-                llm_warnings=outcome.llm_warnings,
-                memory_notes=getattr(outcome, "memory_notes", None),
-                viscosity_predictions=getattr(outcome, "viscosity_predictions", None),
+
+        # C6 — format selection
+        fmt = getattr(args, "format", "table")
+        if fmt == "json":
+            print(format_report_json(outcome.results, outcome.annotated_results))
+        elif fmt == "csv":
+            print(format_report_csv(outcome.results, outcome.annotated_results))
+        elif fmt == "prose":
+            print(format_report_prose(outcome.results, outcome.annotated_results))
+        else:
+            print(
+                format_report(
+                    outcome.results,
+                    annotated_results=outcome.annotated_results,
+                    candidate_proposals=getattr(outcome, "candidate_proposals", None),
+                    candidate_reviews=getattr(outcome, "candidate_reviews", None),
+                    explanation_notes=outcome.explanation_notes,
+                    critique_notes=outcome.critique_notes,
+                    brainstorm_candidates=outcome.brainstorm_candidates,
+                    llm_warnings=outcome.llm_warnings,
+                    memory_notes=getattr(outcome, "memory_notes", None),
+                    viscosity_predictions=getattr(outcome, "viscosity_predictions", None),
+                )
             )
-        )
         _print_summary("des", outcome)
         return
 

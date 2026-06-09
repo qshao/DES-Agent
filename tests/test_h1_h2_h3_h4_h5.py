@@ -354,6 +354,44 @@ def test_cycle_delta_tracks_new_entrants_and_dropouts(monkeypatch, tmp_path):
     assert "CCO" in delta2.dropouts
 
 
+# ── CLI: H1 + H2 flags ───────────────────────────────────────────────────────
+
+def test_cli_n_cycles_parsed():
+    from des_multi_agent.cli import build_parser
+    args = build_parser().parse_args(["--n-cycles", "4"])
+    assert args.n_cycles == 4
+
+
+def test_cli_n_cycles_default_is_one():
+    from des_multi_agent.cli import build_parser
+    args = build_parser().parse_args([])
+    assert args.n_cycles == 1
+
+
+def test_cli_viscosity_threshold_parsed():
+    from des_multi_agent.cli import build_parser
+    args = build_parser().parse_args(["--viscosity-threshold", "300"])
+    assert args.viscosity_threshold == 300.0
+
+
+def test_cli_viscosity_threshold_default_is_none():
+    from des_multi_agent.cli import build_parser
+    args = build_parser().parse_args([])
+    assert args.viscosity_threshold is None
+
+
+def test_cli_viscosity_weight_parsed():
+    from des_multi_agent.cli import build_parser
+    args = build_parser().parse_args(["--viscosity-weight", "0.5"])
+    assert args.viscosity_weight == pytest.approx(0.5)
+
+
+def test_cli_viscosity_weight_default():
+    from des_multi_agent.cli import build_parser
+    args = build_parser().parse_args([])
+    assert args.viscosity_weight == pytest.approx(0.3)
+
+
 @pytest.fixture
 def fake_des_result():
     from dataclasses import dataclass
