@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
+import sys
 
 from .candidate_generation import generate_candidates
 from .chemistry_filter import canonicalize_smiles, filter_candidates
@@ -12,13 +13,13 @@ from .exporting import export_des_run_bundle
 from .reporting import format_report
 from .evaluation import DesResult, classify_des
 from .llm.factory import build_llm_provider
-from .llm.schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, ExplanationNote
+from .llm.schemas import CandidateBrainstorm, CandidateReview, ContradictionNote, CritiqueNote, ExplanationNote
 from .paths import resolve_existing_path
-from .prediction import predict_curve
+from .prediction import predict_curve, predict_curve_ensemble
 from .run_memory import apply_run_memory_preferences, build_run_memory, load_run_memory_history, write_run_memory
 from .predictors.designsolvents import ViscosityPrediction, predict_viscosity
 from .property_resolution import resolve_melting_point
-from .ranking import rank_results
+from .ranking import rank_results, rank_results_composite
 from .schemas import CandidateProposal, DesThresholds
 from .uncertainty import (
     AnnotatedResult,
@@ -40,13 +41,28 @@ class SearchOutcome:
     explanation_notes: list[ExplanationNote]
     critique_notes: list[CritiqueNote]
     llm_warnings: list[str]
+    contradiction_notes: list[ContradictionNote] = field(default_factory=list)
     memory_notes: list[str] = field(default_factory=list)
     viscosity_predictions: list[ViscosityPrediction] = field(default_factory=list)
+    report_text: str = ""
 
 
-def _merge_candidates(*candidate_groups):
+_PROGRESS_STEPS = 6
+
+
+def _progress(step: int, message: str) -> None:
+    print(f"[{step}/{_PROGRESS_STEPS}] {message}", file=sys.stderr, flush=True)
+
+
+def _merge_candidates(*candidate_groups) -> tuple[list, list[str]]:
+    """Merge and deduplicate candidate groups by canonical SMILES.
+
+    Returns (merged_candidates, dedup_notes) where dedup_notes lists any
+    SMILES that were collapsed because they resolve to the same compound.
+    """
     merged = []
-    seen: set[str] = set()
+    seen: dict[str, str] = {}  # canonical → first accepted SMILES
+    dedup_notes: list[str] = []
     for group in candidate_groups:
         for candidate in group:
             smiles = candidate.smiles.strip()
@@ -57,10 +73,15 @@ def _merge_candidates(*candidate_groups):
             except ValueError:
                 continue
             if canonical in seen:
+                first = seen[canonical]
+                if smiles != first:
+                    dedup_notes.append(
+                        f"Deduplicated candidate: {smiles} collapsed to {first} (same compound from multiple sources)"
+                    )
                 continue
-            seen.add(canonical)
+            seen[canonical] = smiles
             merged.append(candidate)
-    return merged
+    return merged, dedup_notes
 
 
 def _search_context(component_a: str, n: int, checkpoint_path: str, config_path: str) -> str:
@@ -70,6 +91,16 @@ def _search_context(component_a: str, n: int, checkpoint_path: str, config_path:
         f"Checkpoint: {checkpoint_path}\n"
         f"Config: {config_path}"
     )
+
+
+def _build_iterative_context(base_context: str, prior_top: list) -> str:
+    if not prior_top:
+        return base_context
+    lines = "\n".join(
+        f"  - {r.curve.smiles_b}: min_tm_k={r.min_tm_k:.1f} K, is_des={r.is_des}"
+        for r in prior_top[:5]
+    )
+    return base_context + f"\nPrior cycle top results (bias generation toward these chemical families):\n{lines}"
 
 
 def _fallback_uncertainty(
@@ -199,6 +230,20 @@ def _predict_viscosity_predictions(
     return predictions
 
 
+def _ensemble_ci(result) -> dict:
+    """Return CI columns if ensemble std is available, else empty dict."""
+    std_k = getattr(result.curve, "ensemble_std_k", None)
+    if not std_k:
+        return {}
+    tms = result.curve.tm_pred_k
+    min_idx = min(range(len(tms)), key=lambda i: tms[i])
+    std = std_k[min_idx]
+    return {
+        "ensemble_ci_low_k": tms[min_idx] - 2.0 * std,
+        "ensemble_ci_high_k": tms[min_idx] + 2.0 * std,
+    }
+
+
 def _build_des_export_payload(
     outcome: SearchOutcome,
     component_a: str,
@@ -229,6 +274,7 @@ def _build_des_export_payload(
                 "uncertainty_flag": annotated.uncertainty.uncertainty_flag,
                 "ranking_score": annotated.ranking_score,
                 "uncertainty": asdict(annotated.uncertainty),
+                **_ensemble_ci(result),
             }
         )
     return {
@@ -244,17 +290,32 @@ def _build_des_export_payload(
         "explanation_notes": [asdict(item) for item in outcome.explanation_notes],
         "critique_notes": [asdict(item) for item in outcome.critique_notes],
         "viscosity_predictions": [asdict(item) for item in outcome.viscosity_predictions],
+        "contradiction_notes": [asdict(n) for n in outcome.contradiction_notes],
         "memory_notes": list(outcome.memory_notes),
         "warnings": list(outcome.llm_warnings),
     }
 
 
-def _resolve_des_output_dir(output_dir: str | None, save_run_memory_path: str | None) -> Path:
+def _resolve_des_output_dir(output_dir: str | None, save_run_memory_path: str | None) -> Path | None:
     if output_dir:
         return Path(output_dir)
     if save_run_memory_path:
         return Path(save_run_memory_path).parent
-    return Path.cwd()
+    return None
+
+
+def _load_candidates_file(path: str) -> list[CandidateProposal]:
+    """Read one SMILES per line from a file; skip blanks and # comments."""
+    p = Path(path)
+    if not p.exists():
+        raise FileNotFoundError(f"Candidates file not found: {path}")
+    proposals: list[CandidateProposal] = []
+    for line in p.read_text(encoding="utf-8").splitlines():
+        smiles = line.strip()
+        if not smiles or smiles.startswith("#"):
+            continue
+        proposals.append(CandidateProposal(smiles=smiles, rationale="from file", family="unknown", source="file", source_id=""))
+    return proposals
 
 
 def run_search_report(
@@ -271,34 +332,64 @@ def run_search_report(
     save_run_memory_path: str | None = None,
     reuse_run_path: str | None = None,
     output_dir: str | None = None,
+    ensemble_checkpoints: list[str] | None = None,
+    candidates_file: str | None = None,
+    viscosity_weight: float = 0.3,
+    viscosity_threshold_cp: float | None = None,
+    prior_cycle_top_results: list | None = None,
 ):
+    # D1 — validate component_a SMILES before any expensive work
+    try:
+        canonicalize_smiles(component_a)
+    except ValueError:
+        raise ValueError(f"Invalid component_a SMILES: {component_a}")
+
     checkpoint_path = resolve_existing_path(checkpoint_path)
     config_path = resolve_existing_path(config_path)
-    heuristic_candidates = generate_candidates(component_a, n=n, constraints=None)
     llm_warnings: list[str] = []
-    discovery_candidates = _build_discovery_candidates(component_a, n, discovery_path, llm_warnings)
-    candidate_proposals = _merge_candidates(discovery_candidates, heuristic_candidates)
+    all_dedup_notes: list[str] = []
+
+    # D4 — batch file bypasses LLM candidate generation
+    if candidates_file is not None:
+        file_proposals = _load_candidates_file(candidates_file)
+        _progress(1, f"Using {len(file_proposals)} candidate(s) from file: {candidates_file}")
+        heuristic_candidates = file_proposals
+        discovery_candidates: list[CandidateProposal] = []
+    else:
+        _progress(1, f"Generating candidates for {component_a}...")
+        heuristic_candidates = generate_candidates(component_a, n=n, constraints=None)
+        discovery_candidates = _build_discovery_candidates(component_a, n, discovery_path, llm_warnings)
+
+    candidate_proposals, notes = _merge_candidates(discovery_candidates, heuristic_candidates)
+    all_dedup_notes.extend(notes)
+
+    review_context = _search_context(component_a, n, str(checkpoint_path), str(config_path))
     provider = build_llm_provider(llm_cfg, request_fn=llm_request_fn) if llm_cfg else None
     llm_candidates: list[CandidateBrainstorm] = []
     candidate_reviews: list[CandidateReview] = []
     review_penalties: dict[str, float] = {}
-    if provider is not None:
+    if provider is not None and candidates_file is None:
         try:
+            brainstorm_context = review_context
+            if prior_cycle_top_results:
+                brainstorm_context = _build_iterative_context(review_context, prior_cycle_top_results)
             llm_candidates = provider.brainstorm_candidates(
                 component_a,
                 None,
-                _search_context(component_a, n, str(checkpoint_path), str(config_path)),
+                brainstorm_context,
             )
         except Exception as exc:
             llm_warnings.append(f"LLM brainstorming failed: {exc}")
             llm_candidates = []
-    candidate_proposals = _merge_candidates(candidate_proposals, _promote_brainstorm_candidates(llm_candidates))
+    candidate_proposals, notes = _merge_candidates(candidate_proposals, _promote_brainstorm_candidates(llm_candidates))
+    all_dedup_notes.extend(notes)
+
+    _progress(2, f"Filtering {len(candidate_proposals)} candidate(s)...")
     filtered = filter_candidates(component_a, candidate_proposals)
     thresholds = thresholds or DesThresholds(
         absolute_tm_max_k=DEFAULT_ABSOLUTE_TM_MAX_K,
         relative_drop_min=DEFAULT_RELATIVE_DROP_MIN,
     )
-    review_context = _search_context(component_a, n, str(checkpoint_path), str(config_path))
     if provider is not None and filtered:
         try:
             review_candidates, review_by_smiles = _review_top_candidates(
@@ -313,21 +404,49 @@ def run_search_report(
             filtered, review_penalties = _apply_candidate_reviews(filtered, review_by_smiles)
         except Exception as exc:
             llm_warnings.append(f"LLM candidate review pipeline failed: {exc}")
+    _progress(3, f"Running ML predictions on {len(filtered)} candidate(s)"
+              + (f" (ensemble, {len(ensemble_checkpoints)} folds)" if ensemble_checkpoints else "") + "...")
     component_a_tp = resolve_melting_point(component_a)
     results = []
     for proposal in filtered:
         component_b_tp = resolve_melting_point(proposal.smiles)
-        curve = predict_curve(
-            component_a,
-            proposal.smiles,
-            t1_k=component_a_tp.tm_k,
-            t2_k=component_b_tp.tm_k,
-            checkpoint_path=checkpoint_path,
-            config_path=config_path,
-        )
+        try:
+            if ensemble_checkpoints:
+                curve = predict_curve_ensemble(
+                    component_a,
+                    proposal.smiles,
+                    t1_k=component_a_tp.tm_k,
+                    t2_k=component_b_tp.tm_k,
+                    checkpoint_paths=ensemble_checkpoints,
+                    config_path=config_path,
+                )
+            else:
+                curve = predict_curve(
+                    component_a,
+                    proposal.smiles,
+                    t1_k=component_a_tp.tm_k,
+                    t2_k=component_b_tp.tm_k,
+                    checkpoint_path=checkpoint_path,
+                    config_path=config_path,
+                )
+        except Exception as exc:
+            # F1 — skip this candidate rather than aborting the whole run
+            llm_warnings.append(f"Prediction failed for {proposal.smiles}: {exc}")
+            continue
         result = classify_des(curve, thresholds)
         results.append(result)
-    ranked = rank_results(results)
+    # H2 — predict viscosity early so it can influence ranking
+    viscosity_predictions = _predict_viscosity_predictions(component_a, filtered, viscosity_model_path, llm_warnings)
+    visc_by_smiles_b = {p.component_b: p.value for p in viscosity_predictions}
+    if visc_by_smiles_b:
+        ranked = rank_results_composite(
+            results, visc_by_smiles_b,
+            viscosity_weight=viscosity_weight,
+            viscosity_threshold_cp=viscosity_threshold_cp,
+        )
+    else:
+        ranked = rank_results(results)
+    _progress(4, f"Estimating uncertainty for {len(ranked)} result(s)...")
     policy = uncertainty_policy or UncertaintyPolicy()
     uncertainty_by_smiles: dict[str, MinimumTmUncertainty] = {}
     for result in ranked:
@@ -350,7 +469,7 @@ def run_search_report(
             )
     annotated_results = apply_uncertainty_policy(ranked, uncertainty_by_smiles, policy)
     annotated_results = _apply_review_penalties(annotated_results, review_penalties)
-    memory_notes: list[str] = []
+    memory_notes: list[str] = list(all_dedup_notes)
     if reuse_run_path:
         reuse_memories = load_run_memory_history(reuse_run_path)
         annotated_results, reuse_notes = apply_run_memory_preferences(
@@ -360,10 +479,10 @@ def run_search_report(
         )
         memory_notes.extend(reuse_notes)
         memory_notes.insert(0, f"Loaded reuse memory from {reuse_run_path} ({len(reuse_memories)} run memory file(s)).")
-    viscosity_predictions = _predict_viscosity_predictions(component_a, filtered, viscosity_model_path, llm_warnings)
     final_results = [item.result for item in annotated_results]
     explanation_notes: list[ExplanationNote] = []
     critique_notes: list[CritiqueNote] = []
+    _progress(5, "Running LLM annotations..." if provider is not None else "Skipping LLM annotations (no provider configured).")
     if provider is not None:
         try:
             explanation_notes = provider.generate_explanations(final_results, review_context)
@@ -373,6 +492,12 @@ def run_search_report(
             critique_notes = provider.critique_results(final_results, review_context)
         except Exception as exc:
             llm_warnings.append(f"LLM critique generation failed: {exc}")
+    contradiction_notes: list[ContradictionNote] = []
+    if provider is not None:
+        try:
+            contradiction_notes = provider.detect_contradictions(final_results, review_context)
+        except Exception as exc:
+            llm_warnings.append(f"LLM contradiction detection failed: {exc}")
     if save_run_memory_path:
         memory = build_run_memory(
             component_a=component_a,
@@ -391,9 +516,11 @@ def run_search_report(
         explanation_notes=explanation_notes,
         critique_notes=critique_notes,
         llm_warnings=llm_warnings,
+        contradiction_notes=contradiction_notes,
         memory_notes=memory_notes,
         viscosity_predictions=viscosity_predictions,
     )
+    _progress(6, "Building report...")
     report_text = format_report(
         final_results,
         annotated_results=annotated_results,
@@ -405,23 +532,25 @@ def run_search_report(
         llm_warnings=llm_warnings,
         memory_notes=memory_notes,
         viscosity_predictions=viscosity_predictions,
+        contradiction_notes=contradiction_notes,
     )
     export_output_dir = _resolve_des_output_dir(output_dir, save_run_memory_path)
-    try:
-        export_des_run_bundle(
-            export_output_dir,
-            _build_des_export_payload(
-                export_outcome,
-                component_a=component_a,
-                n=n,
-                checkpoint_path=str(checkpoint_path),
-                config_path=str(config_path),
-            ),
-            report_text,
-        )
-    except (OSError, TypeError, ValueError, KeyError) as exc:
-        raise ValueError(f"DES export failed for {export_output_dir}: {exc}") from exc
-    return export_outcome
+    if export_output_dir is not None:
+        try:
+            export_des_run_bundle(
+                export_output_dir,
+                _build_des_export_payload(
+                    export_outcome,
+                    component_a=component_a,
+                    n=n,
+                    checkpoint_path=str(checkpoint_path),
+                    config_path=str(config_path),
+                ),
+                report_text,
+            )
+        except (OSError, TypeError, ValueError, KeyError) as exc:
+            raise ValueError(f"DES export failed for {export_output_dir}: {exc}") from exc
+    return replace(export_outcome, report_text=report_text)
 
 
 def run_search(

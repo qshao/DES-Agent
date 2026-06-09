@@ -165,6 +165,60 @@ def test_composite_ranking_non_des_always_last():
 
 # ── shared fixtures ───────────────────────────────────────────────────────────
 
+# ── H3 + H4: orchestrator wiring ────────────────────────────────────────────
+
+def test_search_outcome_has_contradiction_notes():
+    """SearchOutcome exposes contradiction_notes field."""
+    from des_multi_agent.orchestrator import SearchOutcome
+    outcome = SearchOutcome(
+        results=[], annotated_results=[], candidate_proposals=[],
+        candidate_reviews=[], brainstorm_candidates=[],
+        explanation_notes=[], critique_notes=[], llm_warnings=[],
+        contradiction_notes=[],
+    )
+    assert outcome.contradiction_notes == []
+
+
+def test_run_search_report_accepts_prior_cycle_top_results(monkeypatch, tmp_path):
+    """run_search_report accepts prior_cycle_top_results without error."""
+    from des_multi_agent.orchestrator import run_search_report
+
+    ckpt = tmp_path / "ckpt.pt"
+    ckpt.write_bytes(b"")
+    cfg = tmp_path / "config.yaml"
+    cfg.write_text("device: cpu\nembedding:\n  method: morgan\n  morgan:\n    radius: 2\n    n_bits: 2048\n    use_chirality: false\n")
+
+    monkeypatch.setattr("des_multi_agent.orchestrator.generate_candidates", lambda *a, **kw: [])
+    monkeypatch.setattr("des_multi_agent.orchestrator.filter_candidates", lambda *a, **kw: [])
+    monkeypatch.setattr("des_multi_agent.orchestrator.rank_results", lambda r: r)
+    monkeypatch.setattr("des_multi_agent.orchestrator.rank_results_composite", lambda *a, **kw: [])
+
+    outcome = run_search_report(
+        "CCO", 1, str(ckpt), str(cfg),
+        prior_cycle_top_results=[],
+    )
+    assert outcome.contradiction_notes == []
+
+
+def test_contradiction_notes_appear_in_format_report(fake_des_result):
+    """format_report includes a contradiction notes section when notes are present."""
+    from des_multi_agent.llm.schemas import ContradictionNote
+    from des_multi_agent.reporting import format_report
+
+    notes = [ContradictionNote(smiles="CCO", agreement="conflict", explanation="Polarity mismatch.")]
+    text = format_report([fake_des_result], contradiction_notes=notes)
+    assert "conflict" in text
+    assert "Polarity mismatch" in text
+
+
+def test_iterative_context_includes_prior_results(fake_des_result):
+    """When prior_cycle_top_results is set, the brainstorm context mentions prior top hits."""
+    from des_multi_agent.orchestrator import _build_iterative_context
+    ctx = _build_iterative_context("base context", [fake_des_result])
+    assert "Prior cycle" in ctx
+    assert fake_des_result.curve.smiles_b in ctx
+
+
 @pytest.fixture
 def fake_des_result():
     from dataclasses import dataclass
