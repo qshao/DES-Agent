@@ -63,6 +63,36 @@ def test_contradiction_prompt_instructs_json(fake_des_result):
     assert "agreement" in text
 
 
+# ── H3: provider detect_contradictions ───────────────────────────────────────
+
+def test_detect_contradictions_returns_notes(monkeypatch, fake_des_result):
+    """BaseLLMProvider.detect_contradictions calls the LLM and parses results."""
+    from des_multi_agent.llm.base import BaseLLMProvider
+
+    class _StubProvider(BaseLLMProvider):
+        request_profile = None
+        def extract_text(self, raw):
+            return raw
+
+    provider = _StubProvider.__new__(_StubProvider)
+    monkeypatch.setattr(
+        provider, "_request",
+        lambda prompt: '[{"smiles": "CCO", "agreement": "agree", "explanation": "Good HBD donor."}]'
+    )
+    notes = provider.detect_contradictions([fake_des_result], "ctx")
+    assert len(notes) == 1
+    assert notes[0].agreement == "agree"
+
+
+def test_detect_contradictions_provider_is_abstract():
+    """LLMProvider declares detect_contradictions as abstract."""
+    import inspect
+    from des_multi_agent.llm.provider import LLMProvider
+    assert "detect_contradictions" in {
+        name for name, _ in inspect.getmembers(LLMProvider, predicate=inspect.isfunction)
+    }
+
+
 # ── shared fixtures ───────────────────────────────────────────────────────────
 
 @pytest.fixture

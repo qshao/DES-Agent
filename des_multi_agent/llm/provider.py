@@ -4,13 +4,15 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 from ..evaluation import DesResult
-from .schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, ExplanationNote
+from .schemas import CandidateBrainstorm, CandidateReview, ContradictionNote, CritiqueNote, ExplanationNote
 
 
 class LLMProvider(ABC):
+    @abstractmethod
     def route_request(self, request: str, normalized=None) -> str:
         raise NotImplementedError
 
+    @abstractmethod
     def review_candidate(self, component_a: str, candidate_smiles: str, context: str) -> CandidateReview:
         raise NotImplementedError
 
@@ -29,4 +31,8 @@ class LLMProvider(ABC):
 
     @abstractmethod
     def critique_results(self, results: list[DesResult], context: str) -> list[CritiqueNote]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def detect_contradictions(self, results: list[DesResult], context: str) -> list[ContradictionNote]:
         raise NotImplementedError

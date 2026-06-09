@@ -6,11 +6,11 @@ from urllib.parse import urlencode, urlsplit, urlunsplit, parse_qsl
 
 from ..evaluation import DesResult
 from .client import post_json_chat
-from .parser import parse_candidate_brainstorms, parse_candidate_review, parse_critique_notes, parse_explanation_notes
-from .prompts import candidate_brainstorm_prompt, candidate_review_prompt, critique_prompt, explanation_prompt
+from .parser import parse_candidate_brainstorms, parse_candidate_review, parse_contradiction_notes, parse_critique_notes, parse_explanation_notes
+from .prompts import candidate_brainstorm_prompt, candidate_review_prompt, contradiction_prompt, critique_prompt, explanation_prompt
 from ..task_router_prompts import task_router_prompt
 from .provider import LLMProvider
-from .schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, ExplanationNote
+from .schemas import CandidateBrainstorm, CandidateReview, ContradictionNote, CritiqueNote, ExplanationNote
 from .specs import RequestProfile
 from .transport import RequestTransport
 
@@ -68,6 +68,10 @@ class BaseLLMProvider(LLMProvider):
     def critique_results(self, results: list[DesResult], context: str) -> list[CritiqueNote]:
         raw = self._request(critique_prompt(results, context, len(results) or None))
         return parse_critique_notes(raw)
+
+    def detect_contradictions(self, results: list[DesResult], context: str) -> list[ContradictionNote]:
+        raw = self._request(contradiction_prompt(results, context, len(results) or None))
+        return parse_contradiction_notes(raw)
 
     def request_url(self, api_key: str | None) -> str:
         suffix = self.request_profile.path_template.format(model_name=self.model_name)
