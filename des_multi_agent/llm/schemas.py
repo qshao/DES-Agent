@@ -31,3 +31,10 @@ class CritiqueNote:
     smiles: str
     assessment: str
     concerns: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class ContradictionNote:
+    smiles: str
+    agreement: str   # "agree" | "conflict" | "uncertain"
+    explanation: str

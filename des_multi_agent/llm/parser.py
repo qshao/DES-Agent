@@ -4,7 +4,8 @@ import json
 import re
 from typing import Any
 
-from .schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, ExplanationNote
+from .errors import LLMSchemaError, payload_excerpt
+from .schemas import CandidateBrainstorm, CandidateReview, ContradictionNote, CritiqueNote, ExplanationNote
 
 
 def _strip_code_fences(raw: str) -> str:
@@ -39,7 +40,10 @@ def extract_json_object(raw: str) -> str:
 
 
 def _coerce_json(raw: str) -> Any:
-    data = json.loads(_extract_json_block(raw))
+    try:
+        data = json.loads(_extract_json_block(raw))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"LLM response is not valid JSON. Excerpt: {payload_excerpt(raw)}") from exc
     if isinstance(data, dict):
         for key in ("candidates", "explanations", "critique", "notes", "items"):
             if key in data:
@@ -65,23 +69,26 @@ def _normalize_list(value: Any) -> list[str]:
 
 
 def parse_candidate_review(raw: str) -> CandidateReview:
-    data = json.loads(_extract_json_block(raw))
+    try:
+        data = json.loads(_extract_json_block(raw))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Candidate review response is not valid JSON. Excerpt: {payload_excerpt(raw)}") from exc
     if not isinstance(data, dict):
-        raise ValueError("Candidate review must be a JSON object")
+        raise LLMSchemaError(f"Candidate review must be a JSON object. Excerpt: {payload_excerpt(raw)}")
     smiles = str(data.get("smiles", "")).strip()
     decision = str(data.get("decision", "")).strip().lower()
     rationale = str(data.get("rationale", "")).strip()
     if not smiles:
-        raise ValueError("Candidate review is missing smiles")
+        raise LLMSchemaError("Candidate review is missing smiles")
     if decision not in {"keep", "reject", "deprioritize"}:
-        raise ValueError(f"Unsupported candidate review decision: {decision}")
+        raise LLMSchemaError(f"Unsupported candidate review decision: {decision!r}")
     if not rationale:
-        raise ValueError("Candidate review is missing rationale")
+        raise LLMSchemaError("Candidate review is missing rationale")
     if "confidence" not in data:
-        raise ValueError("Candidate review is missing confidence")
+        raise LLMSchemaError("Candidate review is missing confidence")
     confidence = float(data["confidence"])
     if not 0.0 <= confidence <= 1.0:
-        raise ValueError("Candidate review confidence must be within [0.0, 1.0]")
+        raise LLMSchemaError("Candidate review confidence must be within [0.0, 1.0]")
     notes = _normalize_list(data.get("notes"))
     return CandidateReview(
         smiles=smiles,
@@ -140,4 +147,21 @@ def parse_critique_notes(raw: str) -> list[CritiqueNote]:
         if not smiles or not assessment:
             continue
         out.append(CritiqueNote(smiles=smiles, assessment=assessment, concerns=concerns))
+    return out
+
+
+def parse_contradiction_notes(raw: str) -> list[ContradictionNote]:
+    data = _coerce_json(raw)
+    if not isinstance(data, list):
+        return []
+    out: list[ContradictionNote] = []
+    for item in data:
+        if not isinstance(item, dict):
+            continue
+        smiles = str(item.get("smiles", "")).strip()
+        agreement = str(item.get("agreement", "")).strip().lower()
+        explanation = str(item.get("explanation", "")).strip()
+        if not smiles or not agreement or not explanation:
+            continue
+        out.append(ContradictionNote(smiles=smiles, agreement=agreement, explanation=explanation))
     return out

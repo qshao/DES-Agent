@@ -67,3 +67,19 @@ def critique_prompt(results: Sequence[DesResult], context: str, max_items: int |
         parts.append(f"Return at most {max_items} items.\n")
     parts.append("Each item must contain smiles, assessment, and concerns.")
     return "".join(parts)
+
+
+def contradiction_prompt(results: Sequence[DesResult], context: str, max_items: int | None = None) -> str:
+    parts = [
+        "Return raw JSON only. Do not use markdown fences or commentary.\n",
+        "Return a JSON array examining whether each ML DES prediction is chemically plausible.\n",
+        f"Context: {context}\n",
+        "Results:\n",
+        f"{_results_summary(results)}\n",
+    ]
+    if max_items is not None:
+        parts.append(f"Return at most {max_items} items.\n")
+    parts.append(
+        'Each item must contain smiles, agreement ("agree", "conflict", or "uncertain"), and explanation.'
+    )
+    return "".join(parts)
