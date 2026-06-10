@@ -161,3 +161,49 @@ def test_selectivity_brainstorm_prompt_with_families_includes_family_names():
     prompt = ligand_selectivity_brainstorm_prompt("Cu2+", "Zn2+", None, "context", families=families)
     assert "catecholates" in prompt
     assert "bidentate O,O" in prompt
+
+
+# ---------------------------------------------------------------------------
+# run_metal_selectivity_screen — with mock LLM
+# ---------------------------------------------------------------------------
+
+def test_run_screen_with_llm_brainstorm_called():
+    mock_llm = MagicMock()
+    mock_llm.brainstorm_ligands_selectivity.return_value = [
+        CandidateBrainstorm(smiles="c1ccnc(-c2ccccn2)c1", rationale="bidentate N,N", family="polypyridyl"),
+    ]
+    mock_llm.review_ligand.return_value = MagicMock(
+        smiles="c1ccnc(-c2ccccn2)c1", decision="keep", confidence=0.9,
+        rationale="good chelator", notes=[],
+    )
+
+    outcome = run_metal_selectivity_screen("Cu2+", "Zn2+", n=5, llm_provider=mock_llm, n_cycles=1)
+    assert mock_llm.brainstorm_ligands_selectivity.called
+    call_args = mock_llm.brainstorm_ligands_selectivity.call_args
+    assert "Cu2+" in str(call_args)
+    assert "Zn2+" in str(call_args)
+
+
+def test_run_screen_llm_brainstorm_failure_adds_warning():
+    mock_llm = MagicMock()
+    mock_llm.brainstorm_ligands_selectivity.side_effect = RuntimeError("LLM down")
+
+    outcome = run_metal_selectivity_screen("Cu2+", "Zn2+", n=5, llm_provider=mock_llm, n_cycles=1)
+    assert len(outcome.warnings) > 0
+    assert any("brainstorm" in w.lower() for w in outcome.warnings)
+
+
+def test_run_screen_skips_invalid_llm_smiles():
+    mock_llm = MagicMock()
+    mock_llm.brainstorm_ligands_selectivity.return_value = [
+        CandidateBrainstorm(smiles="NOT_A_SMILES", rationale="bad", family="test"),
+        CandidateBrainstorm(smiles="NCC(=O)O", rationale="glycine", family="aminoacid"),
+    ]
+    mock_llm.review_ligand.return_value = MagicMock(
+        smiles="NCC(=O)O", decision="keep", confidence=0.8, rationale="ok", notes=[],
+    )
+
+    outcome = run_metal_selectivity_screen("Cu2+", "Zn2+", n=5, llm_provider=mock_llm, n_cycles=1)
+    from rdkit import Chem
+    for r in outcome.results:
+        assert Chem.MolFromSmiles(r.ligand_smiles) is not None

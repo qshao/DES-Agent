@@ -8,7 +8,7 @@ from urllib.parse import urlencode, urlsplit, urlunsplit, parse_qsl
 from ..evaluation import DesResult
 from .client import post_json_chat
 from .parser import parse_candidate_brainstorms, parse_candidate_families, parse_candidate_review, parse_contradiction_notes, parse_critique_notes, parse_explanation_notes, parse_ligand_families
-from .prompts import candidate_brainstorm_prompt, candidate_review_prompt, contradiction_prompt, critique_prompt, explanation_prompt, family_selection_prompt, ligand_brainstorm_prompt, ligand_family_selection_prompt, ligand_review_prompt
+from .prompts import candidate_brainstorm_prompt, candidate_review_prompt, contradiction_prompt, critique_prompt, explanation_prompt, family_selection_prompt, ligand_brainstorm_prompt, ligand_family_selection_prompt, ligand_review_prompt, ligand_selectivity_brainstorm_prompt
 from ..task_router_prompts import task_router_prompt
 from .provider import LLMProvider
 from .schemas import CandidateBrainstorm, CandidateFamily, CandidateReview, ContradictionNote, CritiqueNote, ExplanationNote, LigandFamily
@@ -115,6 +115,29 @@ class BaseLLMProvider(LLMProvider):
     def review_ligand(self, metal_ion: str, ligand_smiles: str, context: str) -> CandidateReview:
         raw = self._request(ligand_review_prompt(metal_ion, ligand_smiles, context))
         return parse_candidate_review(raw)
+
+    def brainstorm_ligands_selectivity(
+        self,
+        target_metal: str,
+        competitor_metal: str,
+        constraints: dict | None,
+        context: str,
+    ) -> list[CandidateBrainstorm]:
+        families: list[LigandFamily] = []
+        try:
+            families = self.select_ligand_families(target_metal, constraints, context)
+        except Exception as exc:
+            print(
+                f"ligand family selection failed, falling back to single-stage brainstorm: {exc}",
+                file=sys.stderr,
+            )
+        raw = self._request(
+            ligand_selectivity_brainstorm_prompt(
+                target_metal, competitor_metal, constraints, context,
+                self.max_candidates, families,
+            )
+        )
+        return parse_candidate_brainstorms(raw)[: self.max_candidates]
 
     def request_url(self, api_key: str | None) -> str:
         suffix = self.request_profile.path_template.format(model_name=self.model_name)
