@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import pytest
+from unittest.mock import MagicMock
 
 from des_multi_agent.workflows.metal_binding_selectivity import (
     SelectivityResult,
@@ -111,12 +112,26 @@ def test_run_screen_composite_score_formula():
 
 
 def test_run_screen_no_duplicate_smiles():
-    outcome = run_metal_selectivity_screen("Cu2+", "Zn2+", n=20, n_cycles=1)
+    # Inject a SMILES already in the heuristic library via mock LLM to exercise deduplication
+    mock_llm = MagicMock()
+    mock_llm.brainstorm_ligands_selectivity.return_value = [
+        # "NCC(=O)O" is the first heuristic entry; dedup must filter it out
+        CandidateBrainstorm(smiles="NCC(=O)O", rationale="duplicate", family="aminoacid"),
+        CandidateBrainstorm(smiles="c1ccnc(-c2ccccn2)c1", rationale="bipy", family="polypyridyl"),
+    ]
+    mock_llm.review_ligand.return_value = MagicMock(
+        smiles="c1ccnc(-c2ccccn2)c1", decision="keep", confidence=0.9, rationale="ok", notes=[],
+    )
+    outcome = run_metal_selectivity_screen("Cu2+", "Zn2+", n=5, llm_provider=mock_llm, n_cycles=1)
     smiles_list = [r.ligand_smiles for r in outcome.results]
     assert len(smiles_list) == len(set(smiles_list))
 
 
-def test_run_screen_multi_cycle_no_llm():
-    outcome = run_metal_selectivity_screen("Cu2+", "Zn2+", n=5, n_cycles=3)
-    assert outcome.n_cycles == 3
-    assert len(outcome.results) > 0
+def test_run_screen_multi_cycle_no_llm_completes_gracefully():
+    # Without LLM, cycles 2+ regenerate the same heuristic candidates (all already seen).
+    # The workflow breaks early but preserves results from cycle 1.
+    outcome_1 = run_metal_selectivity_screen("Cu2+", "Zn2+", n=5, n_cycles=1)
+    outcome_3 = run_metal_selectivity_screen("Cu2+", "Zn2+", n=5, n_cycles=3)
+    # Same unique candidates scored regardless of n_cycles (heuristic library exhausted after cycle 1)
+    assert outcome_1.n_screened == outcome_3.n_screened
+    assert len(outcome_3.results) > 0
