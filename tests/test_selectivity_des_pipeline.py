@@ -94,3 +94,125 @@ def test_bridge_filter_empty_results_returns_empty():
     warnings: list[str] = []
     out = _bridge_filter([], min_delta_log_k=0.0, top_n=3, warnings=warnings)
     assert out == []
+
+
+from unittest.mock import patch, call
+from des_multi_agent.workflows.selectivity_des_pipeline import run_selectivity_des_pipeline
+
+
+def _make_multi_cycle_outcome(is_des: bool):
+    """Return a minimal MultiCycleOutcome mock."""
+    dr = MagicMock()
+    dr.is_des = is_des
+    dr.min_tm_k = 280.0
+    dr.eutectic_ratio_b = 0.5
+    dr.rationale = "test"
+    dr.curve = MagicMock()
+    dr.curve.smiles_b = "CCO"
+
+    search_outcome = MagicMock()
+    search_outcome.results = [dr]
+
+    cycle_delta = MagicMock()
+    cycle_delta.n_screened = 5
+
+    mco = MagicMock()
+    mco.final_outcome = search_outcome
+    mco.cycle_deltas = [cycle_delta]
+    return mco
+
+
+@patch("des_multi_agent.workflows.selectivity_des_pipeline.run_multi_cycle_search")
+@patch("des_multi_agent.workflows.selectivity_des_pipeline.run_metal_selectivity_screen")
+def test_pipeline_returns_outcome_with_correct_shape(mock_sel, mock_des):
+    mock_sel.return_value = _sel_outcome(["NCC(=O)O", "NCCN"])
+    mock_des.return_value = _make_multi_cycle_outcome(is_des=True)
+    outcome = run_selectivity_des_pipeline(
+        target_metal="Cu2+",
+        competitor_metal="Zn2+",
+        checkpoint_path="/fake/ckpt.pt",
+        n_outer_cycles=1,
+        top_ligands=2,
+    )
+    assert outcome.target_metal == "Cu2+"
+    assert outcome.competitor_metal == "Zn2+"
+    assert len(outcome.ligand_des_results) == 2
+    assert outcome.n_outer_cycles_run == 1
+    assert not outcome.converged
+
+
+@patch("des_multi_agent.workflows.selectivity_des_pipeline.run_multi_cycle_search")
+@patch("des_multi_agent.workflows.selectivity_des_pipeline.run_metal_selectivity_screen")
+def test_pipeline_converges_when_des_compatible_set_stable(mock_sel, mock_des):
+    mock_sel.return_value = _sel_outcome(["NCC(=O)O"])
+    mock_des.return_value = _make_multi_cycle_outcome(is_des=True)
+    outcome = run_selectivity_des_pipeline(
+        target_metal="Cu2+",
+        competitor_metal="Zn2+",
+        checkpoint_path="/fake/ckpt.pt",
+        n_outer_cycles=3,
+        top_ligands=1,
+    )
+    assert outcome.converged
+    assert outcome.n_outer_cycles_run == 2  # stable after pass 2
+
+
+@patch("des_multi_agent.workflows.selectivity_des_pipeline.run_multi_cycle_search")
+@patch("des_multi_agent.workflows.selectivity_des_pipeline.run_metal_selectivity_screen")
+def test_pipeline_runs_all_outer_cycles_when_set_changes(mock_sel, mock_des):
+    # Alternate DES compatibility so the set never stabilises
+    mock_sel.side_effect = [
+        _sel_outcome(["NCC(=O)O"]),
+        _sel_outcome(["NCCN"]),
+    ]
+    mock_des.return_value = _make_multi_cycle_outcome(is_des=True)
+    outcome = run_selectivity_des_pipeline(
+        target_metal="Cu2+",
+        competitor_metal="Zn2+",
+        checkpoint_path="/fake/ckpt.pt",
+        n_outer_cycles=2,
+        top_ligands=1,
+    )
+    assert not outcome.converged
+    assert outcome.n_outer_cycles_run == 2
+
+
+@patch("des_multi_agent.workflows.selectivity_des_pipeline.run_multi_cycle_search")
+@patch("des_multi_agent.workflows.selectivity_des_pipeline.run_metal_selectivity_screen")
+def test_pipeline_des_failure_adds_warning_and_continues(mock_sel, mock_des):
+    mock_sel.return_value = _sel_outcome(["NCC(=O)O", "NCCN"])
+    mock_des.side_effect = [
+        RuntimeError("model unavailable"),
+        _make_multi_cycle_outcome(is_des=True),
+    ]
+    outcome = run_selectivity_des_pipeline(
+        target_metal="Cu2+",
+        competitor_metal="Zn2+",
+        checkpoint_path="/fake/ckpt.pt",
+        n_outer_cycles=1,
+        top_ligands=2,
+    )
+    assert any("DES search failed" in w for w in outcome.warnings)
+    assert len(outcome.ligand_des_results) == 2
+    assert outcome.ligand_des_results[0].des_compatible is False
+    assert outcome.ligand_des_results[1].des_compatible is True
+
+
+@patch("des_multi_agent.workflows.selectivity_des_pipeline.run_multi_cycle_search")
+@patch("des_multi_agent.workflows.selectivity_des_pipeline.run_metal_selectivity_screen")
+def test_pipeline_passes_des_hints_on_second_outer_cycle(mock_sel, mock_des):
+    mock_sel.return_value = _sel_outcome(["NCC(=O)O"])
+    mock_des.return_value = _make_multi_cycle_outcome(is_des=True)
+    run_selectivity_des_pipeline(
+        target_metal="Cu2+",
+        competitor_metal="Zn2+",
+        checkpoint_path="/fake/ckpt.pt",
+        n_outer_cycles=2,
+        top_ligands=1,
+    )
+    # outer cycle 1: no hints yet
+    first_call_kwargs = mock_sel.call_args_list[0][1]
+    assert first_call_kwargs.get("des_compatible_hints") is None
+    # outer cycle 2: compatible hint present (set was {"NCC(=O)O"})
+    second_call_kwargs = mock_sel.call_args_list[1][1]
+    assert "NCC(=O)O" in second_call_kwargs.get("des_compatible_hints", [])
