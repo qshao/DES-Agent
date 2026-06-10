@@ -24,7 +24,7 @@ The file [`output.txt`](./output.txt) contains:
 
 - the plain-language request
 - the router JSON job
-- the DES screening report
+- the DES screening report (including two-stage brainstorm and contradiction analysis when the LLM call succeeds)
 
 ## How to Adapt
 

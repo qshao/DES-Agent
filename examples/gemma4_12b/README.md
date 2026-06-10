@@ -24,6 +24,7 @@ The file [`output.txt`](./output.txt) contains the captured report output from t
 
 - ranked DES results
 - uncertainty annotations
-- LLM brainstorm candidates
+- LLM brainstorm candidates (two-stage: chemical family selection first, then SMILES distribution)
 - explanation notes
 - critique notes
+- contradiction analysis (`agree` / `conflict` / `uncertain` per candidate, when available)
