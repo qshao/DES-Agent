@@ -80,6 +80,20 @@ def build_parser():
         help="Named threshold preset: strict (Tm≤240 K, drop≥15%%), standard (default), relaxed (Tm≤280 K, drop≥5%%)",
     )
     parser.add_argument(
+        "--abs-tm-threshold",
+        type=float,
+        default=None,
+        dest="abs_tm_threshold",
+        help="Custom absolute Tm ceiling in K (overrides --preset); e.g. 340 to accept DES-formers up to 340 K",
+    )
+    parser.add_argument(
+        "--rel-drop-min",
+        type=float,
+        default=None,
+        dest="rel_drop_min",
+        help="Custom minimum relative Tm drop fraction (overrides --preset); e.g. 0.05 for 5%% drop required",
+    )
+    parser.add_argument(
         "--format",
         choices=["table", "json", "csv", "prose"],
         default="table",
@@ -351,9 +365,17 @@ def main(argv=None):
             ensemble_ckpts = [str(p) for p in found]
             print(f"[ensemble] Using {len(ensemble_ckpts)} fold checkpoints: "
                   + ", ".join(Path(p).name for p in ensemble_ckpts), file=sys.stderr)
-        # E1 — apply preset thresholds if given
+        # E1 — apply preset thresholds, then override with explicit flags if given
         preset_name = getattr(args, "preset", None)
         thresholds = THRESHOLD_PRESETS[preset_name] if preset_name else None
+        abs_tm = getattr(args, "abs_tm_threshold", None)
+        rel_drop = getattr(args, "rel_drop_min", None)
+        if abs_tm is not None or rel_drop is not None:
+            base = thresholds or THRESHOLD_PRESETS["standard"]
+            thresholds = DesThresholds(
+                absolute_tm_max_k=abs_tm if abs_tm is not None else base.absolute_tm_max_k,
+                relative_drop_min=rel_drop if rel_drop is not None else base.relative_drop_min,
+            )
 
         # B7 — dry-run: validate everything then exit without predictions
         if getattr(args, "dry_run", False):

@@ -1,6 +1,6 @@
 # Model-Specific Examples
 
-Eighteen small runnable examples live here:
+Nineteen small runnable examples live here:
 
 - [`des_viscosity/`](./des_viscosity) for the offline DES viscosity workflow
 - [`viscosity_template/`](./viscosity_template) for a template-style DES viscosity workflow you can adapt
@@ -20,6 +20,7 @@ Eighteen small runnable examples live here:
 - [`task_router/`](./task_router) for translating a plain-language request into a JSON job
 - [`task_execute/`](./task_execute) for routing a plain-language request and running the workflow in one step (requires Ollama)
 - [`des_run_memory_feedback/`](./des_run_memory_feedback) for the full DES save-label-reuse feedback loop
+- [`betaine_des/`](./betaine_des) for a real-target DES search: betaine, Tm ≤ 340 K, viscosity-minimised ranking, 5-cycle iteration
 
 Before adapting a folder, run `python -m des_multi_agent.cli doctor` to verify the core repo and checked-in examples are present. If you also want optional local checks, you can run `python -m des_multi_agent.cli doctor --check checkpoint`, `python -m des_multi_agent.cli doctor --check discovery`, or `python -m des_multi_agent.cli doctor --check artifacts`.
 
