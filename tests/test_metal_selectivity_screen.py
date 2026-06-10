@@ -234,3 +234,54 @@ def test_format_metal_selectivity_report_no_results():
     report = format_metal_selectivity_report(outcome)
     assert "Cu2+" in report
     assert "none" in report.lower()
+
+
+# ---------------------------------------------------------------------------
+# CLI integration
+# ---------------------------------------------------------------------------
+
+def test_cli_metal_selectivity_routes_correctly(monkeypatch, capsys):
+    """--workflow metal-selectivity without LLM should call run_metal_selectivity_screen."""
+    import des_multi_agent.cli as cli_module
+    import des_multi_agent.workflows.metal_binding_selectivity as sel_module
+
+    fake_outcome = SelectivityScreenOutcome(
+        target_metal="Cu2+", competitor_metal="Zn2+",
+        results=[], n_screened=5, n_cycles=1,
+    )
+    monkeypatch.setattr(sel_module, "run_metal_selectivity_screen", lambda **kw: fake_outcome)
+    monkeypatch.setattr(cli_module, "run_metal_selectivity_screen", lambda **kw: fake_outcome)
+
+    cli_module.main([
+        "--workflow", "metal-selectivity",
+        "--target-metal-ion", "Cu2+",
+        "--competitor-metal-ion", "Zn2+",
+        "--n", "5",
+    ])
+    out = capsys.readouterr().out
+    assert "Metal Selectivity Screen" in out or "summary:" in out.lower()
+
+
+def test_cli_metal_binding_single_pair_unchanged_by_selectivity(monkeypatch, capsys):
+    """Existing --workflow metal-binding --ligand-smiles path is not broken."""
+    import des_multi_agent.cli as cli_module
+
+    class _FakeOutcome:
+        metal_ion = "Cu2+"
+        ligand_smiles = "NCCN"
+        prediction = type("P", (), {
+            "value": 5.5, "units": "log K",
+            "model_name": "mock", "source": "mock", "warnings": ()
+        })()
+        warnings = ()
+
+    monkeypatch.setattr(cli_module, "run_metal_binding_workflow", lambda *a, **kw: _FakeOutcome())
+    monkeypatch.setattr(cli_module, "format_metal_binding_report", lambda o: "SINGLE PAIR REPORT")
+
+    cli_module.main([
+        "--workflow", "metal-binding",
+        "--metal-ion", "Cu2+",
+        "--ligand-smiles", "NCCN",
+    ])
+    out = capsys.readouterr().out
+    assert "SINGLE PAIR REPORT" in out

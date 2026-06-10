@@ -19,8 +19,8 @@ from .paths import resolve_existing_path
 from .prediction import discover_ensemble_checkpoints
 from . import prediction as _prediction
 from .reporting import (
-    format_metal_binding_report, format_metal_binding_screen_report, format_report,
-    format_report_csv, format_report_json, format_report_prose,
+    format_metal_binding_report, format_metal_binding_screen_report, format_metal_selectivity_report,
+    format_report, format_report_csv, format_report_json, format_report_prose,
 )
 from .summary import build_command_summary, render_command_summary
 from .task_executor import execute_task_request, execute_task_request_detailed
@@ -30,6 +30,7 @@ from .uncertainty import UncertaintyPolicy
 from .user_config import KNOWN_KEYS, load_user_config, save_user_config
 from .workflows.metal_binding import run_metal_binding_workflow
 from .workflows.metal_binding_screen import run_metal_binding_screen
+from .workflows.metal_binding_selectivity import run_metal_selectivity_screen
 
 
 THRESHOLD_PRESETS: dict[str, "DesThresholds"] = {}  # populated after DesThresholds import
@@ -49,7 +50,7 @@ _init_presets()
 
 def build_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--workflow", choices=["des", "metal-binding"], default="des")
+    parser.add_argument("--workflow", choices=["des", "metal-binding", "metal-selectivity"], default="des")
     parser.add_argument("--component-a", default=None)
     parser.add_argument("--n", type=int, default=20)
     parser.add_argument("--checkpoint-path", default=None)
@@ -60,6 +61,12 @@ def build_parser():
     parser.add_argument("--metal-ion", default=None, help="Metal ion for the metal-binding workflow")
     parser.add_argument("--ligand-smiles", default=None, help="Ligand SMILES for the metal-binding workflow")
     parser.add_argument("--stability-constant-model-path", default=None, help="Optional local stability-constant model artifact")
+    parser.add_argument("--target-metal-ion", default=None, help="Target metal ion for the metal-selectivity workflow (e.g., Cu2+)")
+    parser.add_argument("--competitor-metal-ion", default=None, help="Competitor metal ion for the metal-selectivity workflow (e.g., Zn2+)")
+    parser.add_argument("--affinity-weight", type=float, default=0.5, dest="affinity_weight",
+                        help="Weight for log K(target) in composite selectivity score (default 0.5)")
+    parser.add_argument("--selectivity-weight", type=float, default=0.5, dest="selectivity_weight",
+                        help="Weight for delta log K in composite selectivity score (default 0.5)")
     parser.add_argument("--save-run-memory", default=None, help="Optional path to write a compact JSON DES run memory file")
     parser.add_argument("--reuse-run", default=None, help="Optional prior DES run folder, run.memory.json file, or history directory of prior DES runs to reuse for ranking")
     parser.add_argument("--output-dir", default=None, help="Optional directory where DES run artifacts are written")
@@ -465,6 +472,25 @@ def main(argv=None):
                 )
             )
         _print_summary("des", outcome)
+        return
+
+    if args.workflow == "metal-selectivity":
+        if not args.target_metal_ion or not args.competitor_metal_ion:
+            parser.error("metal-selectivity workflow requires --target-metal-ion and --competitor-metal-ion")
+        from .llm.factory import build_llm_provider as _build_llm_provider
+        llm_provider_sel = _build_llm_provider(llm_cfg) if llm_cfg is not None else None
+        sel_outcome = run_metal_selectivity_screen(
+            target_metal=args.target_metal_ion,
+            competitor_metal=args.competitor_metal_ion,
+            n=getattr(args, "n", 20),
+            model_path=args.stability_constant_model_path,
+            llm_provider=llm_provider_sel,
+            n_cycles=getattr(args, "n_cycles", 1),
+            w_affinity=args.affinity_weight,
+            w_selectivity=args.selectivity_weight,
+        )
+        print(format_metal_selectivity_report(sel_outcome))
+        _print_summary("metal-selectivity", sel_outcome)
         return
 
     if not args.metal_ion:
