@@ -5,7 +5,7 @@ import re
 from typing import Any
 
 from .errors import LLMSchemaError, payload_excerpt
-from .schemas import CandidateBrainstorm, CandidateFamily, CandidateReview, ContradictionNote, CritiqueNote, ExplanationNote
+from .schemas import CandidateBrainstorm, CandidateFamily, CandidateReview, ContradictionNote, CritiqueNote, ExplanationNote, LigandFamily
 
 
 def _strip_code_fences(raw: str) -> str:
@@ -181,4 +181,23 @@ def parse_candidate_families(raw: str) -> list[CandidateFamily]:
         if not name or not rationale or not hbd_hba_role:
             continue
         out.append(CandidateFamily(name=name, rationale=rationale, hbd_hba_role=hbd_hba_role))
+    return out
+
+
+def parse_ligand_families(raw: str) -> list[LigandFamily]:
+    data = _coerce_json(raw)
+    if not isinstance(data, list):
+        return []
+    out: list[LigandFamily] = []
+    for item in data:
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("name", "")).strip()
+        rationale = str(item.get("rationale", "")).strip()
+        coordination_mode = str(item.get("coordination_mode", "")).strip()
+        if not name or not rationale:
+            continue
+        if not coordination_mode:
+            coordination_mode = "unspecified"
+        out.append(LigandFamily(name=name, rationale=rationale, coordination_mode=coordination_mode))
     return out

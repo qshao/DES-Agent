@@ -5,6 +5,70 @@ from collections.abc import Sequence
 from ..evaluation import DesResult
 
 
+# ---------------------------------------------------------------------------
+# Metal-binding ligand prompts
+# ---------------------------------------------------------------------------
+
+def ligand_family_selection_prompt(
+    metal_ion: str,
+    constraints: dict | None,
+    context: str,
+    max_families: int = 6,
+) -> str:
+    return "".join([
+        "Return raw JSON only. Do not use markdown fences or commentary.\n",
+        f"Return a JSON array of chemical families to explore as candidate ligands for metal {metal_ion}.\n",
+        f"Constraints: {constraints or {}}\n",
+        f"Context: {context}\n",
+        f"Return at most {max_families} families.\n",
+        "Focus on families with strong coordination chemistry toward the target metal "
+        "(consider HSAB theory, denticity, donor atoms).\n",
+        'Each item must contain name, rationale, and coordination_mode '
+        '(e.g., "bidentate N,O-chelator", "tridentate N,N,N-donor").',
+    ])
+
+
+def ligand_brainstorm_prompt(
+    metal_ion: str,
+    constraints: dict | None,
+    context: str,
+    max_items: int | None = None,
+    families: list | None = None,
+) -> str:
+    parts = [
+        "Return raw JSON only. Do not use markdown fences or commentary.\n",
+        f"Return a JSON array of candidate ligand SMILES that are predicted to bind strongly to {metal_ion}.\n",
+        f"Constraints: {constraints or {}}\n",
+        f"Context: {context}\n",
+    ]
+    if families:
+        parts.append("Distribute candidates across these coordination-chemistry families:\n")
+        for f in families:
+            parts.append(f"  - {f.name}: {f.rationale} (coordination: {f.coordination_mode})\n")
+    if max_items is not None:
+        parts.append(f"Return at most {max_items} items.\n")
+    parts.append(
+        "Each item must contain smiles (valid SMILES), rationale (why it binds well to the metal), "
+        "and family (coordination chemistry class)."
+    )
+    return "".join(parts)
+
+
+def ligand_review_prompt(metal_ion: str, ligand_smiles: str, context: str) -> str:
+    return (
+        "Return raw JSON only. Do not use markdown fences or commentary.\n"
+        "Return one JSON object reviewing whether this ligand is chemically suitable for metal binding.\n"
+        f"Metal ion: {metal_ion}\n"
+        f"Ligand: {ligand_smiles}\n"
+        f"Context: {context}\n"
+        "Assess: donor atoms present, expected denticity, HSAB compatibility, stability risks.\n"
+        "The JSON object must contain smiles, decision, confidence, rationale, and notes.\n"
+        "decision must be one of keep, reject, or deprioritize.\n"
+        'Example: { "smiles": "NCC(=O)O", "decision": "keep", "confidence": 0.90, '
+        '"rationale": "Bidentate N,O-chelator; compatible with most +2 metals.", "notes": [] }'
+    )
+
+
 def _results_summary(results: Sequence[DesResult]) -> str:
     lines = []
     for result in results:

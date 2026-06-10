@@ -19,7 +19,7 @@ from .paths import resolve_existing_path
 from .prediction import discover_ensemble_checkpoints
 from . import prediction as _prediction
 from .reporting import (
-    format_metal_binding_report, format_report,
+    format_metal_binding_report, format_metal_binding_screen_report, format_report,
     format_report_csv, format_report_json, format_report_prose,
 )
 from .summary import build_command_summary, render_command_summary
@@ -29,6 +29,7 @@ from .schemas import DesThresholds
 from .uncertainty import UncertaintyPolicy
 from .user_config import KNOWN_KEYS, load_user_config, save_user_config
 from .workflows.metal_binding import run_metal_binding_workflow
+from .workflows.metal_binding_screen import run_metal_binding_screen
 
 
 THRESHOLD_PRESETS: dict[str, "DesThresholds"] = {}  # populated after DesThresholds import
@@ -468,8 +469,26 @@ def main(argv=None):
 
     if not args.metal_ion:
         parser.error("metal-binding workflow requires --metal-ion")
+
+    # Screening mode: no --ligand-smiles given (search across many candidates)
+    use_screen = args.ligand_smiles is None
+
+    if use_screen:
+        from .llm.factory import build_llm_provider as _build_llm_provider
+        llm_provider_mb = _build_llm_provider(llm_cfg) if llm_cfg is not None else None
+        screen_outcome = run_metal_binding_screen(
+            metal_ion=args.metal_ion,
+            n=getattr(args, "n", 20),
+            model_path=args.stability_constant_model_path,
+            llm_provider=llm_provider_mb,
+            n_cycles=getattr(args, "n_cycles", 1),
+        )
+        print(format_metal_binding_screen_report(screen_outcome))
+        _print_summary("metal-binding", screen_outcome)
+        return
+
     if not args.ligand_smiles:
-        parser.error("metal-binding workflow requires --ligand-smiles")
+        parser.error("metal-binding single-pair mode requires --ligand-smiles")
     outcome = run_metal_binding_workflow(
         metal_ion=args.metal_ion,
         ligand_smiles=args.ligand_smiles,

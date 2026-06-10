@@ -45,3 +45,10 @@ class CandidateFamily:
     name: str           # e.g., "polyols", "amides", "imidazolium salts"
     rationale: str      # why this family suits DES formation with component A
     hbd_hba_role: str   # "HBD", "HBA", or "both"
+
+
+@dataclass(frozen=True)
+class LigandFamily:
+    name: str            # e.g., "aminocarboxylates", "catecholates"
+    rationale: str       # why this family binds well to the target metal
+    coordination_mode: str  # e.g., "bidentate N,O-chelator"
