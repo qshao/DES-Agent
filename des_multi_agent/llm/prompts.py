@@ -69,6 +69,38 @@ def ligand_review_prompt(metal_ion: str, ligand_smiles: str, context: str) -> st
     )
 
 
+def ligand_selectivity_brainstorm_prompt(
+    target_metal: str,
+    competitor_metal: str,
+    constraints: dict | None,
+    context: str,
+    max_items: int | None = None,
+    families: list | None = None,
+) -> str:
+    parts = [
+        "Return raw JSON only. Do not use markdown fences or commentary.\n",
+        f"Return a JSON array of candidate ligand SMILES designed for HIGH SELECTIVITY "
+        f"for {target_metal} over {competitor_metal}.\n",
+        f"Constraints: {constraints or {}}\n",
+        f"Context: {context}\n",
+    ]
+    if families:
+        parts.append("Distribute candidates across these coordination-chemistry families:\n")
+        for f in families:
+            parts.append(f"  - {f.name}: {f.rationale} (coordination: {f.coordination_mode})\n")
+    parts.append(
+        "Use HSAB theory, donor atom preferences (N vs O vs S), denticity, chelate ring size, "
+        "and geometric preference differences between the two metals to achieve selectivity.\n"
+    )
+    if max_items is not None:
+        parts.append(f"Return at most {max_items} items.\n")
+    parts.append(
+        "Each item must contain smiles (valid SMILES), rationale (why selective for target over competitor), "
+        "and family (coordination chemistry class)."
+    )
+    return "".join(parts)
+
+
 def _results_summary(results: Sequence[DesResult]) -> str:
     lines = []
     for result in results:

@@ -135,3 +135,29 @@ def test_run_screen_multi_cycle_no_llm_completes_gracefully():
     # Same unique candidates scored regardless of n_cycles (heuristic library exhausted after cycle 1)
     assert outcome_1.n_screened == outcome_3.n_screened
     assert len(outcome_3.results) > 0
+
+
+# ---------------------------------------------------------------------------
+# LLM prompt
+# ---------------------------------------------------------------------------
+
+from des_multi_agent.llm.prompts import ligand_selectivity_brainstorm_prompt
+from des_multi_agent.llm.schemas import LigandFamily
+
+
+def test_selectivity_brainstorm_prompt_contains_both_metals():
+    prompt = ligand_selectivity_brainstorm_prompt("Cu2+", "Zn2+", None, "context")
+    assert "Cu2+" in prompt
+    assert "Zn2+" in prompt
+
+
+def test_selectivity_brainstorm_prompt_contains_smiles_instruction():
+    prompt = ligand_selectivity_brainstorm_prompt("Fe3+", "Ca2+", None, "context")
+    assert "smiles" in prompt.lower()
+
+
+def test_selectivity_brainstorm_prompt_with_families_includes_family_names():
+    families = [LigandFamily(name="catecholates", rationale="bidentate O-donors", coordination_mode="bidentate O,O")]
+    prompt = ligand_selectivity_brainstorm_prompt("Cu2+", "Zn2+", None, "context", families=families)
+    assert "catecholates" in prompt
+    assert "bidentate O,O" in prompt
