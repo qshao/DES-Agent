@@ -130,6 +130,8 @@ def _build_selectivity_context(
     cycle: int,
     w_affinity: float,
     w_selectivity: float,
+    des_compatible_hints: list[str] | None = None,
+    des_incompatible_hints: list[str] | None = None,
 ) -> str:
     lines = [
         f"Target metal: {target_metal}",
@@ -145,6 +147,14 @@ def _build_selectivity_context(
                 f"log_K({competitor_metal})={r.log_k_competitor:.2f}, "
                 f"ΔlogK={r.delta_log_k:.2f}, score={r.composite_score:.2f}"
             )
+    if des_compatible_hints:
+        lines.append("Ligands that formed DES in previous pass (prefer similar scaffolds):")
+        for smiles in des_compatible_hints:
+            lines.append(f"  - {smiles}")
+    if des_incompatible_hints:
+        lines.append("Ligands that did NOT form DES (avoid similar scaffolds):")
+        for smiles in des_incompatible_hints:
+            lines.append(f"  - {smiles}")
     return "\n".join(lines)
 
 
@@ -158,6 +168,8 @@ def run_metal_selectivity_screen(
     n_cycles: int = 1,
     w_affinity: float = 0.5,
     w_selectivity: float = 0.5,
+    des_compatible_hints: list[str] | None = None,
+    des_incompatible_hints: list[str] | None = None,
 ) -> SelectivityScreenOutcome:
     seen_smiles: set[str] = set()
     all_reviews: list[CandidateReview] = []
@@ -176,7 +188,9 @@ def run_metal_selectivity_screen(
 
         if llm_provider is not None:
             context = _build_selectivity_context(
-                target_metal, competitor_metal, prev_cycle_results, cycle, w_affinity, w_selectivity
+                target_metal, competitor_metal, prev_cycle_results, cycle, w_affinity, w_selectivity,
+                des_compatible_hints=des_compatible_hints,
+                des_incompatible_hints=des_incompatible_hints,
             )
             try:
                 brainstorms = llm_provider.brainstorm_ligands_selectivity(
@@ -203,7 +217,9 @@ def run_metal_selectivity_screen(
 
         if llm_provider is not None:
             context = _build_selectivity_context(
-                target_metal, competitor_metal, prev_cycle_results, cycle, w_affinity, w_selectivity
+                target_metal, competitor_metal, prev_cycle_results, cycle, w_affinity, w_selectivity,
+                des_compatible_hints=des_compatible_hints,
+                des_incompatible_hints=des_incompatible_hints,
             )
             for r in cycle_results:
                 try:

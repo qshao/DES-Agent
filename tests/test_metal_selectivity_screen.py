@@ -285,3 +285,24 @@ def test_cli_metal_binding_single_pair_unchanged_by_selectivity(monkeypatch, cap
     ])
     out = capsys.readouterr().out
     assert "SINGLE PAIR REPORT" in out
+
+
+from des_multi_agent.workflows.metal_binding_selectivity import _build_selectivity_context
+
+
+def test_build_context_includes_des_hints_when_provided():
+    ctx = _build_selectivity_context(
+        "Cu2+", "Zn2+", [], 2, 0.5, 0.5,
+        des_compatible_hints=["NCC(=O)O"],
+        des_incompatible_hints=["c1ccncc1"],
+    )
+    assert "formed DES" in ctx
+    assert "NCC(=O)O" in ctx
+    assert "NOT form DES" in ctx
+    assert "c1ccncc1" in ctx
+
+
+def test_build_context_omits_hint_sections_when_none():
+    ctx = _build_selectivity_context("Cu2+", "Zn2+", [], 1, 0.5, 0.5)
+    assert "formed DES" not in ctx
+    assert "NOT form DES" not in ctx
