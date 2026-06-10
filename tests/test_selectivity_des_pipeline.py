@@ -216,3 +216,75 @@ def test_pipeline_passes_des_hints_on_second_outer_cycle(mock_sel, mock_des):
     # outer cycle 2: compatible hint present (set was {"NCC(=O)O"})
     second_call_kwargs = mock_sel.call_args_list[1][1]
     assert "NCC(=O)O" in second_call_kwargs.get("des_compatible_hints", [])
+
+
+from des_multi_agent.reporting import format_selectivity_des_report
+
+
+def _make_pipeline_outcome(des_compatible: bool = True) -> SelectivityDesPipelineOutcome:
+    dr = MagicMock()
+    dr.is_des = des_compatible
+    dr.min_tm_k = 287.1
+    dr.eutectic_ratio_b = 0.33
+    dr.rationale = "min Tm=287.1 K"
+    dr.curve = MagicMock()
+    dr.curve.smiles_b = "CC(=O)NCCO"
+
+    ligand = _sel_result("NCC(=O)O", delta=1.0, score=7.5)
+    ldr = LigandDesResult(
+        ligand=ligand,
+        des_results=[dr] if des_compatible else [],
+        n_des_screened=10,
+        des_compatible=des_compatible,
+    )
+    sel_out = _sel_outcome(["NCC(=O)O", "NCCN"])
+    return SelectivityDesPipelineOutcome(
+        target_metal="Cu2+",
+        competitor_metal="Zn2+",
+        selectivity_outcome=sel_out,
+        ligand_des_results=[ldr],
+        n_outer_cycles_run=2,
+        converged=True,
+        warnings=[],
+    )
+
+
+def test_report_contains_section_1_header():
+    report = format_selectivity_des_report(_make_pipeline_outcome())
+    assert "Section 1: Selectivity Results" in report
+
+
+def test_report_contains_section_2_header():
+    report = format_selectivity_des_report(_make_pipeline_outcome())
+    assert "Section 2: DES Partners" in report
+
+
+def test_report_section_1_has_des_compatible_column():
+    report = format_selectivity_des_report(_make_pipeline_outcome(des_compatible=True))
+    assert "des_compatible" in report
+    assert "yes" in report
+
+
+def test_report_section_2_shows_des_partner_when_compatible():
+    report = format_selectivity_des_report(_make_pipeline_outcome(des_compatible=True))
+    assert "CC(=O)NCCO" in report
+    assert "DES-compatible: YES" in report
+
+
+def test_report_section_2_shows_no_partners_when_incompatible():
+    report = format_selectivity_des_report(_make_pipeline_outcome(des_compatible=False))
+    assert "No DES partners found" in report
+    assert "DES-compatible: NO" in report
+
+
+def test_report_pipeline_outcome_none_selectivity_does_not_crash():
+    outcome = SelectivityDesPipelineOutcome(
+        target_metal="Cu2+",
+        competitor_metal="Zn2+",
+        selectivity_outcome=None,
+        ligand_des_results=[],
+        n_outer_cycles_run=0,
+        converged=False,
+    )
+    report = format_selectivity_des_report(outcome)
+    assert "Selectivity-DES Pipeline" in report

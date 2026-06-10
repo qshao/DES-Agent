@@ -333,6 +333,62 @@ def format_metal_binding_screen_report(outcome) -> str:
     return '\n'.join(header_lines + rows + review_lines + brainstorm_lines + warning_lines)
 
 
+def format_selectivity_des_report(outcome) -> str:
+    """Render a two-section selectivity-DES pipeline report."""
+    n_compatible = sum(1 for r in outcome.ligand_des_results if r.des_compatible)
+    header = [
+        f"=== Selectivity-DES Pipeline: {outcome.target_metal} over {outcome.competitor_metal} ===",
+        f"Outer cycles run: {outcome.n_outer_cycles_run} | Converged: {'yes' if outcome.converged else 'no'}",
+        f"Shortlisted ligands: {len(outcome.ligand_des_results)} | DES-compatible: {n_compatible}",
+        "=" * 52,
+    ]
+
+    sec1 = [
+        "",
+        "--- Section 1: Selectivity Results ---",
+        "",
+        "ligand | log_k_target | log_k_competitor | delta_log_k | score | des_compatible",
+    ]
+    sel_results = outcome.selectivity_outcome.results if outcome.selectivity_outcome else []
+    compatible_smiles = {
+        r.ligand.ligand_smiles for r in outcome.ligand_des_results if r.des_compatible
+    }
+    for r in sel_results:
+        des_flag = "yes" if r.ligand_smiles in compatible_smiles else "no"
+        sec1.append(
+            f"{r.ligand_smiles} | {r.log_k_target:.2f} | {r.log_k_competitor:.2f} | "
+            f"{r.delta_log_k:.2f} | {r.composite_score:.2f} | {des_flag}"
+        )
+
+    sec2 = ["", "--- Section 2: DES Partners ---"]
+    for ldr in outcome.ligand_des_results:
+        r = ldr.ligand
+        compat_str = "YES" if ldr.des_compatible else "NO"
+        sec2.append(
+            f"\nLigand: {r.ligand_smiles}  "
+            f"(score={r.composite_score:.2f}, ΔlogK={r.delta_log_k:.2f}) "
+            f"— DES-compatible: {compat_str}"
+        )
+        if ldr.des_results:
+            sec2.append("  partner | min_tm_k | eutectic_ratio | rationale")
+            for dr in ldr.des_results:
+                sec2.append(
+                    f"  {dr.curve.smiles_b} | {dr.min_tm_k:.1f} | "
+                    f"{dr.eutectic_ratio_b:.2f} | {dr.rationale}"
+                )
+        else:
+            sec2.append("  No DES partners found.")
+
+    warning_lines: list[str] = []
+    if outcome.warnings:
+        warning_lines.append("")
+        warning_lines.append("Warnings:")
+        for w in outcome.warnings:
+            warning_lines.append(f"- {w}")
+
+    return "\n".join(header + sec1 + sec2 + warning_lines)
+
+
 def format_metal_selectivity_report(outcome) -> str:
     """Render a ranked-candidate report for a SelectivityScreenOutcome."""
     results = outcome.results
