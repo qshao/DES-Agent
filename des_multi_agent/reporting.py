@@ -123,9 +123,9 @@ def format_report(
     lines = [_format_summary_block(results, annotated_results, resolve_names=resolve_names), ""]
 
     if annotation_by_smiles:
-        lines.append("compound | is_des | min_tm_k | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale")
+        lines.append("compound | is_des | min_tm_k | eutectic_x_b | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale")
     else:
-        lines.append("compound | is_des | min_tm_k | source | rationale")
+        lines.append("compound | is_des | min_tm_k | eutectic_x_b | source | rationale")
 
     for r in results:
         compound_label = display_name(r.curve.smiles_b) if resolve_names else r.curve.smiles_b
@@ -143,13 +143,15 @@ def format_report(
             min_idx = min(range(len(r.curve.ratios)), key=lambda i: r.curve.tm_pred_k[i])
             ens_std = r.curve.ensemble_std_k[min_idx]
             ensemble_note = f" | ensemble_folds={r.curve.ensemble_checkpoint_count} ens_std={ens_std:.2f} K"
+        eutectic_x_b = getattr(r, "eutectic_ratio_b", None)
+        eutectic_str = f"{eutectic_x_b:.2f}" if eutectic_x_b is not None else "?"
         annotation = annotation_by_smiles.get(r.curve.smiles_b)
         if annotation is None:
-            lines.append(f"{compound_label} | {r.is_des} | {r.min_tm_k:.2f} | {source_text} | {r.rationale}{ensemble_note}")
+            lines.append(f"{compound_label} | {r.is_des} | {r.min_tm_k:.2f} | {eutectic_str} | {source_text} | {r.rationale}{ensemble_note}")
             continue
         confidence = _confidence_label(annotation.trust_score, annotation.uncertainty.uncertainty_flag)
         lines.append(
-            f"{compound_label} | {r.is_des} | {r.min_tm_k:.2f} | {source_text} | "
+            f"{compound_label} | {r.is_des} | {r.min_tm_k:.2f} | {eutectic_str} | {source_text} | "
             f"trust={annotation.trust_score:.2f} | mean={annotation.uncertainty.mean_tm_k:.2f} K | "
             f"spread={annotation.uncertainty.min_tm_k:.2f}-{annotation.uncertainty.max_tm_k:.2f} K | "
             f"std={annotation.uncertainty.std_tm_k:.2f} K | {confidence} | {r.rationale}{ensemble_note}"
@@ -223,6 +225,7 @@ def format_report_json(results, annotated_results=None, resolve_names: bool = Tr
             "smiles_a": r.curve.smiles_a,
             "is_des": r.is_des,
             "min_tm_k": r.min_tm_k,
+            "eutectic_ratio_b": getattr(r, "eutectic_ratio_b", None),
             "rationale": r.rationale,
         }
         ann = annotation_by_smiles.get(smiles_b)
@@ -237,18 +240,20 @@ def format_report_csv(results, annotated_results=None, resolve_names: bool = Tru
     """Render results as CSV text."""
     annotation_by_smiles = {a.result.curve.smiles_b: a for a in (annotated_results or [])}
     buf = io.StringIO()
-    fieldnames = ["smiles_b", "compound", "is_des", "min_tm_k", "trust_score", "uncertainty_flag", "rationale"]
+    fieldnames = ["smiles_b", "compound", "is_des", "min_tm_k", "eutectic_ratio_b", "trust_score", "uncertainty_flag", "rationale"]
     writer = csv.DictWriter(buf, fieldnames=fieldnames)
     writer.writeheader()
     for r in results:
         smiles_b = r.curve.smiles_b
         label = display_name(smiles_b) if resolve_names else smiles_b
         ann = annotation_by_smiles.get(smiles_b)
+        eutectic_x_b = getattr(r, "eutectic_ratio_b", None)
         writer.writerow({
             "smiles_b": smiles_b,
             "compound": label,
             "is_des": r.is_des,
             "min_tm_k": f"{r.min_tm_k:.2f}",
+            "eutectic_ratio_b": f"{eutectic_x_b:.2f}" if eutectic_x_b is not None else "",
             "trust_score": f"{ann.trust_score:.2f}" if ann else "",
             "uncertainty_flag": ann.uncertainty.uncertainty_flag if ann else "",
             "rationale": r.rationale,

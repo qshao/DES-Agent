@@ -14,10 +14,13 @@ class DesResult:
     is_des: bool
     rationale: str
     min_tm_k: float
+    eutectic_ratio_b: float = 0.5
 
 
 def classify_des(curve: CurvePrediction, thresholds: DesThresholds) -> DesResult:
-    min_tm = min(curve.tm_pred_k)
+    min_idx = min(range(len(curve.tm_pred_k)), key=lambda i: curve.tm_pred_k[i])
+    min_tm = curve.tm_pred_k[min_idx]
+    eutectic_ratio_b = curve.ratios[min_idx]
     absolute_pass = min_tm <= thresholds.absolute_tm_max_k
     baseline = min(curve.t1_k, curve.t2_k)
     relative_drop = (baseline - min_tm) / baseline if baseline else 0.0
@@ -34,4 +37,5 @@ def classify_des(curve: CurvePrediction, thresholds: DesThresholds) -> DesResult
         is_des=is_des,
         rationale=rationale,
         min_tm_k=min_tm,
+        eutectic_ratio_b=eutectic_ratio_b,
     )
