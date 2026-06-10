@@ -218,3 +218,59 @@ def test_build_iterative_context_includes_family_ledger(monkeypatch):
     ctx = _build_iterative_context("base", [result], family_ledger=ledger)
     assert "polyols" in ctx
     assert "3" in ctx
+
+
+def test_multi_cycle_accumulates_family_ledger_across_cycles(monkeypatch, tmp_path):
+    """Accumulated ledger counts DES-positive hits across all cycles, not just the last."""
+    from dataclasses import dataclass
+    from des_multi_agent.evaluation import DesResult
+    from des_multi_agent.llm.schemas import CandidateBrainstorm
+
+    @dataclass(frozen=True)
+    class _Curve:
+        smiles_b: str
+        smiles_a: str = "Cc1ccc(O)cc1"
+        tm_pred_k: list = None
+        ratios: list = None
+        t1_k: float = 330.0
+        t2_k: float = 289.0
+        def __post_init__(self):
+            if self.tm_pred_k is None:
+                object.__setattr__(self, "tm_pred_k", [230.0])
+            if self.ratios is None:
+                object.__setattr__(self, "ratios", [0.5])
+
+    def _make_outcome(smiles, family):
+        from unittest.mock import MagicMock
+        outcome = MagicMock()
+        outcome.results = [DesResult(
+            curve=_Curve(smiles_b=smiles), absolute_pass=True,
+            relative_pass=True, is_des=True, rationale="t", min_tm_k=230.0,
+        )]
+        outcome.brainstorm_candidates = [CandidateBrainstorm(smiles=smiles, rationale="ok", family=family)]
+        return outcome
+
+    calls = {"n": 0}
+    outcomes = [_make_outcome("OCCO", "polyols"), _make_outcome("CC(=O)N", "amides")]
+
+    def _rotating(*, prior_family_ledger=None, **kw):
+        idx = calls["n"]
+        calls["n"] += 1
+        # Cycle 2 should receive the accumulated ledger from cycle 1
+        if idx == 1:
+            assert prior_family_ledger is not None
+            assert prior_family_ledger.get("polyols", 0) >= 1
+        return outcomes[idx]
+
+    monkeypatch.setattr("des_multi_agent.multi_cycle.run_search_report", _rotating)
+
+    from des_multi_agent.multi_cycle import run_multi_cycle_search
+    ckpt = tmp_path / "ckpt.pt"; ckpt.write_bytes(b"")
+    cfg = tmp_path / "config.yaml"; cfg.write_text("")
+
+    result = run_multi_cycle_search("CCO", 2, str(ckpt), str(cfg), n_cycles=2)
+    # Both cycles contributed to the ledger
+    delta1 = result.cycle_deltas[0]
+    delta2 = result.cycle_deltas[1]
+    assert delta1.family_ledger.get("polyols", 0) >= 1
+    assert delta2.family_ledger.get("amides", 0) >= 1

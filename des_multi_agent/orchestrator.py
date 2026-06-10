@@ -107,7 +107,7 @@ def _build_iterative_context(
     ctx = base_context + f"\nPrior cycle top results (bias generation toward these chemical families):\n{lines}"
     if family_ledger:
         top_families = sorted(family_ledger.items(), key=lambda x: -x[1])[:3]
-        fam_lines = "\n".join(f"  - {fam}: {n} DES-positive hits" for fam, n in top_families)
+        fam_lines = "\n".join(f"  - {fam}: {count} DES-positive hits" for fam, count in top_families)
         ctx += f"\nTop productive chemical families:\n{fam_lines}"
     return ctx
 

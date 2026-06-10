@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from urllib.parse import urlencode, urlsplit, urlunsplit, parse_qsl
 
 from ..evaluation import DesResult
@@ -63,8 +64,8 @@ class BaseLLMProvider(LLMProvider):
         families: list[CandidateFamily] = []
         try:
             families = self.select_candidate_families(component_a, constraints, context)
-        except Exception:
-            pass
+        except Exception as exc:
+            print(f"[H6] family selection failed, falling back to single-stage brainstorm: {exc}", file=sys.stderr)
         raw = self._request(
             candidate_brainstorm_prompt(component_a, constraints, context, self.max_candidates, families)
         )

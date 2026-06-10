@@ -18,7 +18,7 @@ class CycleDelta:
     new_entrants: list[str]
     dropouts: list[str]
     converged: bool
-    family_ledger: dict[str, int] = field(default_factory=dict)
+    family_ledger: dict[str, int] = field(default_factory=dict)  # family → DES-positive hit count this cycle
 
 
 @dataclass
