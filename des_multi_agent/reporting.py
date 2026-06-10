@@ -331,3 +331,60 @@ def format_metal_binding_screen_report(outcome) -> str:
             warning_lines.append(f"- {w}")
 
     return '\n'.join(header_lines + rows + review_lines + brainstorm_lines + warning_lines)
+
+
+def format_metal_selectivity_report(outcome) -> str:
+    """Render a ranked-candidate report for a SelectivityScreenOutcome."""
+    results = outcome.results
+    top = results[0] if results else None
+    if top:
+        top_str = (
+            f"{top.ligand_smiles} — score={top.composite_score:.2f} "
+            f"(ΔlogK={top.delta_log_k:.2f}, logK({outcome.target_metal})={top.log_k_target:.2f})"
+        )
+    else:
+        top_str = "none"
+    header_lines = [
+        f"=== Metal Selectivity Screen: {outcome.target_metal} over {outcome.competitor_metal} ===",
+        f"Screened {outcome.n_screened} candidate(s) over {outcome.n_cycles} cycle(s).",
+        f"Top ligand: {top_str}",
+        "=" * 52,
+        "",
+        "ligand | log_k_target | log_k_competitor | delta_log_k | score | source | rationale",
+    ]
+    rows = []
+    for r in results:
+        src = f"source={r.source}"
+        if r.source_id:
+            src += f"; id={r.source_id}"
+        rows.append(
+            f"{r.ligand_smiles} | {r.log_k_target:.2f} | {r.log_k_competitor:.2f} | "
+            f"{r.delta_log_k:.2f} | {r.composite_score:.2f} | {src} | {r.rationale}"
+        )
+
+    review_lines: list[str] = []
+    if outcome.llm_candidate_reviews:
+        review_lines.append("")
+        review_lines.append("LLM ligand reviews:")
+        for rev in outcome.llm_candidate_reviews:
+            notes = "; ".join(rev.notes) if rev.notes else "-"
+            review_lines.append(
+                f"{rev.smiles} | {rev.decision} | confidence={rev.confidence:.2f} | "
+                f"{rev.rationale} | {notes}"
+            )
+
+    brainstorm_lines: list[str] = []
+    if outcome.llm_brainstorm:
+        brainstorm_lines.append("")
+        brainstorm_lines.append("LLM brainstorm:")
+        for b in outcome.llm_brainstorm:
+            brainstorm_lines.append(f"{b.smiles} | {b.family} | {b.rationale}")
+
+    warning_lines: list[str] = []
+    if outcome.warnings:
+        warning_lines.append("")
+        warning_lines.append("Warnings:")
+        for w in outcome.warnings:
+            warning_lines.append(f"- {w}")
+
+    return "\n".join(header_lines + rows + review_lines + brainstorm_lines + warning_lines)

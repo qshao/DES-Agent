@@ -207,3 +207,30 @@ def test_run_screen_skips_invalid_llm_smiles():
     from rdkit import Chem
     for r in outcome.results:
         assert Chem.MolFromSmiles(r.ligand_smiles) is not None
+
+
+# ---------------------------------------------------------------------------
+# Report format
+# ---------------------------------------------------------------------------
+
+def test_format_metal_selectivity_report_contains_headers():
+    from des_multi_agent.reporting import format_metal_selectivity_report
+    outcome = run_metal_selectivity_screen("Cu2+", "Zn2+", n=3, n_cycles=1)
+    report = format_metal_selectivity_report(outcome)
+    assert "Cu2+" in report
+    assert "Zn2+" in report
+    assert "delta_log_k" in report
+    assert "score" in report
+    assert "log_k_target" in report
+    assert "log_k_competitor" in report
+
+
+def test_format_metal_selectivity_report_no_results():
+    from des_multi_agent.reporting import format_metal_selectivity_report
+    outcome = SelectivityScreenOutcome(
+        target_metal="Cu2+", competitor_metal="Zn2+",
+        results=[], n_screened=0, n_cycles=1,
+    )
+    report = format_metal_selectivity_report(outcome)
+    assert "Cu2+" in report
+    assert "none" in report.lower()
