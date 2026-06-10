@@ -32,7 +32,7 @@ def candidate_brainstorm_prompt(
     constraints: dict | None,
     context: str,
     max_items: int | None = None,
-    families=None,
+    families: list | None = None,
 ) -> str:
     parts = [
         "Return raw JSON only. Do not use markdown fences or commentary.\n",

@@ -6,11 +6,11 @@ from urllib.parse import urlencode, urlsplit, urlunsplit, parse_qsl
 
 from ..evaluation import DesResult
 from .client import post_json_chat
-from .parser import parse_candidate_brainstorms, parse_candidate_review, parse_contradiction_notes, parse_critique_notes, parse_explanation_notes
-from .prompts import candidate_brainstorm_prompt, candidate_review_prompt, contradiction_prompt, critique_prompt, explanation_prompt
+from .parser import parse_candidate_brainstorms, parse_candidate_families, parse_candidate_review, parse_contradiction_notes, parse_critique_notes, parse_explanation_notes
+from .prompts import candidate_brainstorm_prompt, candidate_review_prompt, contradiction_prompt, critique_prompt, explanation_prompt, family_selection_prompt
 from ..task_router_prompts import task_router_prompt
 from .provider import LLMProvider
-from .schemas import CandidateBrainstorm, CandidateReview, ContradictionNote, CritiqueNote, ExplanationNote
+from .schemas import CandidateBrainstorm, CandidateFamily, CandidateReview, ContradictionNote, CritiqueNote, ExplanationNote
 from .specs import RequestProfile
 from .transport import RequestTransport
 
@@ -60,6 +60,12 @@ class BaseLLMProvider(LLMProvider):
     def brainstorm_candidates(self, component_a: str, constraints: dict | None, context: str) -> list[CandidateBrainstorm]:
         raw = self._request(candidate_brainstorm_prompt(component_a, constraints, context, self.max_candidates))
         return parse_candidate_brainstorms(raw)[: self.max_candidates]
+
+    def select_candidate_families(
+        self, component_a: str, constraints: dict | None, context: str
+    ) -> list[CandidateFamily]:
+        raw = self._request(family_selection_prompt(component_a, constraints, context))
+        return parse_candidate_families(raw)
 
     def generate_explanations(self, results: list[DesResult], context: str) -> list[ExplanationNote]:
         raw = self._request(explanation_prompt(results, context, len(results) or None))

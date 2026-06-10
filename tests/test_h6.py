@@ -56,8 +56,5 @@ def test_candidate_brainstorm_prompt_includes_families():
 
 
 def test_select_candidate_families_is_abstract():
-    import inspect
     from des_multi_agent.llm.provider import LLMProvider
-    assert "select_candidate_families" in {
-        name for name, _ in inspect.getmembers(LLMProvider, predicate=inspect.isfunction)
-    }
+    assert "select_candidate_families" in LLMProvider.__abstractmethods__
