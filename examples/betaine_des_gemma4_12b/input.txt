@@ -1,0 +1,10 @@
+workflow=des
+component_a=C[N+](C)(C)CC(=O)[O-]  # betaine (trimethylglycine), zwitterionic form
+n=20
+checkpoint_path=ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt
+abs_tm_threshold=340
+rel_drop_min=0.05
+viscosity_model_path=artifacts/designsolvents/viscosity/model.json
+viscosity_weight=0.7
+n_cycles=5
+llm_config=llm.gemma4_12b.yaml  # Ollama Gemma4-12B; requires ollama serve + ollama pull gemma4:12b
