@@ -1,0 +1,4 @@
+Screen a curated list of DES candidates for ethanol (CCO).
+Component A: CCO (ethanol)
+Candidates file: candidates.smiles (6 SMILES, one per line)
+Checkpoint: ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt

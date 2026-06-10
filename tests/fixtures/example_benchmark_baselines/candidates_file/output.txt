@@ -1,0 +1,18 @@
+=== DES Search: ethanol (CCO) ===
+Screened 6 candidate(s). 6 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
+Top candidate: CN(C)C=O — min Tm 207.7 K (Δ23.4%) | high confidence
+=================================
+
+compound | is_des | min_tm_k | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
+CN(C)C=O | True | 207.73 | source=file | trust=0.80 | mean=207.73 K | spread=207.73-207.73 K | std=0.00 K | high confidence | min Tm=207.73 K, absolute<= 260.00 K, relative_drop=0.234
+ethylene glycol (OCCO) | True | 208.69 | source=file | trust=0.80 | mean=208.69 K | spread=208.69-208.69 K | std=0.00 K | high confidence | min Tm=208.69 K, absolute<= 260.00 K, relative_drop=0.230
+O=C1CCCN1 | True | 220.63 | source=file | trust=0.80 | mean=220.63 K | spread=220.63-220.63 K | std=0.00 K | high confidence | min Tm=220.63 K, absolute<= 260.00 K, relative_drop=0.186
+acetamide (CC(=O)N) | True | 222.77 | source=file | trust=0.80 | mean=222.77 K | spread=222.77-222.77 K | std=0.00 K | high confidence | min Tm=222.77 K, absolute<= 260.00 K, relative_drop=0.179
+glycerol (OCC(O)CO) | True | 223.28 | source=file | trust=0.80 | mean=223.28 K | spread=223.28-223.28 K | std=0.00 K | high confidence | min Tm=223.28 K, absolute<= 260.00 K, relative_drop=0.177
+dimethyl sulfoxide (CS(=O)C) | True | 229.18 | source=file | trust=0.80 | mean=229.18 K | spread=229.18-229.18 K | std=0.00 K | high confidence | min Tm=229.18 K, absolute<= 260.00 K, relative_drop=0.155
+summary:
+- command: des
+- workflow: des
+- ranked candidates: 6
+- reuse memory: no
+- exports written: yes

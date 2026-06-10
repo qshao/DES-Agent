@@ -1,0 +1,2 @@
+Find DES partners for ethanol using the task-execute command.
+Plain-language request: "find DES partners for ethanol (CCO) using 20 candidates"

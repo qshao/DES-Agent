@@ -1,0 +1,4 @@
+Demonstrate leaderboard and history commands across two DES runs for ethanol (CCO).
+Run 1: CCO, n=5, checkpoint ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt
+Run 2: CCO, n=5, same checkpoint
+History dir: /tmp/des_history/

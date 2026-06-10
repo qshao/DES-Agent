@@ -1,0 +1,7 @@
+workflow=des
+component_a=CCO
+n=5
+checkpoint_path=ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt
+viscosity_model_path=artifacts/designsolvents/viscosity/model.json
+viscosity_threshold=500
+viscosity_weight=0.4

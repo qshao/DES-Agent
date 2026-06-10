@@ -1,9 +1,14 @@
 # Model-Specific Examples
 
-Twelve small runnable examples live here:
+Eighteen small runnable examples live here:
 
 - [`des_viscosity/`](./des_viscosity) for the offline DES viscosity workflow
 - [`viscosity_template/`](./viscosity_template) for a template-style DES viscosity workflow you can adapt
+- [`viscosity_composite_ranking/`](./viscosity_composite_ranking) for viscosity-threshold gating and composite ranking with `--viscosity-threshold` and `--viscosity-weight`
+- [`multi_cycle_des/`](./multi_cycle_des) for multi-cycle iterative screening with `--n-cycles`
+- [`candidates_file/`](./candidates_file) for screening a curated SMILES list with `--candidates-file`
+- [`compare_runs/`](./compare_runs) for comparing two saved DES runs with `compare-runs`
+- [`leaderboard_history/`](./leaderboard_history) for ranking compounds and reviewing run history with `leaderboard` and `history`
 - [`metal_binding/`](./metal_binding) for the offline metal-binding workflow
 - [`ligand_binding_template/`](./ligand_binding_template) for a template-style ligand-binding workflow you can adapt
 - [`gemma4_12b/`](./gemma4_12b) for Gemma 4-12B
@@ -13,6 +18,7 @@ Twelve small runnable examples live here:
 - [`plain_language_gemma4_12b/`](./plain_language_gemma4_12b) for a plain-language DES run routed through Gemma 4-12B
 - [`plain_language_metal_binding_gemma4_12b/`](./plain_language_metal_binding_gemma4_12b) for a plain-language metal-binding run routed through Gemma 4-12B
 - [`task_router/`](./task_router) for translating a plain-language request into a JSON job
+- [`task_execute/`](./task_execute) for routing a plain-language request and running the workflow in one step (requires Ollama)
 - [`des_run_memory_feedback/`](./des_run_memory_feedback) for the full DES save-label-reuse feedback loop
 
 Before adapting a folder, run `python -m des_multi_agent.cli doctor` to verify the core repo and checked-in examples are present. If you also want optional local checks, you can run `python -m des_multi_agent.cli doctor --check checkpoint`, `python -m des_multi_agent.cli doctor --check discovery`, or `python -m des_multi_agent.cli doctor --check artifacts`.

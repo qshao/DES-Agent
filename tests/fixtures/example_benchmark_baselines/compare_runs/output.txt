@@ -1,0 +1,60 @@
+=== RUN A (n=3) ===
+=== DES Search: ethanol (CCO) ===
+Screened 3 candidate(s). 3 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
+Top candidate: ethylene glycol (OCCO) — min Tm 208.7 K (Δ23.0%) | high confidence
+=================================
+
+compound | is_des | min_tm_k | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
+ethylene glycol (OCCO) | True | 208.69 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=208.69 K | spread=208.69-208.69 K | std=0.00 K | high confidence | min Tm=208.69 K, absolute<= 260.00 K, relative_drop=0.230
+glycerol (OCC(O)CO) | True | 223.28 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=223.28 K | spread=223.28-223.28 K | std=0.00 K | high confidence | min Tm=223.28 K, absolute<= 260.00 K, relative_drop=0.177
+water (O) | True | 225.27 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=225.27 K | spread=225.27-225.27 K | std=0.00 K | high confidence | min Tm=225.27 K, absolute<= 260.00 K, relative_drop=0.118
+
+Run memory:
+- Wrote run memory to /tmp/des_compare_run_a.json.
+summary:
+- command: des
+- workflow: des
+- ranked candidates: 3
+- reuse memory: yes
+- exports written: yes
+
+=== RUN B (n=5) ===
+=== DES Search: ethanol (CCO) ===
+Screened 5 candidate(s). 5 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
+Top candidate: ethylene glycol (OCCO) — min Tm 208.7 K (Δ23.0%) | high confidence
+=================================
+
+compound | is_des | min_tm_k | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
+ethylene glycol (OCCO) | True | 208.69 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=208.69 K | spread=208.69-208.69 K | std=0.00 K | high confidence | min Tm=208.69 K, absolute<= 260.00 K, relative_drop=0.230
+acetamide (CC(=O)N) | True | 222.77 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=222.77 K | spread=222.77-222.77 K | std=0.00 K | high confidence | min Tm=222.77 K, absolute<= 260.00 K, relative_drop=0.179
+glycerol (OCC(O)CO) | True | 223.28 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=223.28 K | spread=223.28-223.28 K | std=0.00 K | high confidence | min Tm=223.28 K, absolute<= 260.00 K, relative_drop=0.177
+water (O) | True | 225.27 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=225.27 K | spread=225.27-225.27 K | std=0.00 K | high confidence | min Tm=225.27 K, absolute<= 260.00 K, relative_drop=0.118
+acetic acid (CC(=O)O) | True | 236.03 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=236.03 K | spread=236.03-236.03 K | std=0.00 K | high confidence | min Tm=236.03 K, absolute<= 260.00 K, relative_drop=0.130
+
+Run memory:
+- Wrote run memory to /tmp/des_compare_run_b.json.
+summary:
+- command: des
+- workflow: des
+- ranked candidates: 5
+- reuse memory: yes
+- exports written: yes
+
+=== COMPARE ===
+compare-runs: des
+left: /tmp/des_compare_run_a.json
+right: /tmp/des_compare_run_b.json
+component_a: CCO -> CCO
+n: 3 -> 5
+
+smiles_b | status | left_rank | right_rank
+OCCO | unchanged | 1 | 1
+CC(=O)N | new | - | 2
+OCC(O)CO | moved | 2 | 3
+O | moved | 3 | 4
+CC(=O)O | new | - | 5
+summary:
+- command: compare-runs
+- workflow: des
+- changed candidates: 4
+- counts: new=2, removed=0, moved=2, unchanged=1

@@ -1,0 +1,4 @@
+# Output captured from a run with Ollama service active (model: gemma4:12b).
+# Requires a running Ollama service — see README for details.
+# The actual output is a standard DES screening table for CCO with 20 candidates.
+# Run ./run.sh with Ollama running to capture live output.
