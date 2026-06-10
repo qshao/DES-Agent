@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import pathlib
+from collections import Counter
 from dataclasses import dataclass, field
 
 from .orchestrator import run_search_report
@@ -27,6 +28,7 @@ class MultiCycleOutcome:
     cycle_deltas: list[CycleDelta]
     total_cycles: int
     converged: bool
+    accumulated_family_ledger: dict[str, int] = field(default_factory=dict)  # cross-cycle totals
 
 
 def run_multi_cycle_search(
@@ -57,7 +59,7 @@ def run_multi_cycle_search(
     cycle_deltas: list[CycleDelta] = []
     prev_top: frozenset = frozenset()
     last_outcome = None
-    accumulated_ledger: dict[str, int] = {}
+    accumulated_ledger: Counter[str] = Counter()
 
     for cycle in range(1, n_cycles + 1):
         prior_results = last_outcome.results[:top_k_convergence] if last_outcome else None
@@ -87,17 +89,12 @@ def run_multi_cycle_search(
         )
 
         # H6 — build family ledger: DES-positive hit count per chemical family
-        smiles_to_family = {
-            bc.smiles: bc.family for bc in getattr(outcome, "brainstorm_candidates", [])
-        }
-        family_ledger: dict[str, int] = {}
-        for r in outcome.results:
-            if r.is_des:
-                fam = smiles_to_family.get(r.curve.smiles_b, "unknown")
-                family_ledger[fam] = family_ledger.get(fam, 0) + 1
-
-        for fam, n_hits in family_ledger.items():
-            accumulated_ledger[fam] = accumulated_ledger.get(fam, 0) + n_hits
+        smiles_to_family = {bc.smiles: bc.family for bc in outcome.brainstorm_candidates}
+        family_ledger: Counter[str] = Counter(
+            smiles_to_family.get(r.curve.smiles_b, "unknown")
+            for r in outcome.results if r.is_des
+        )
+        accumulated_ledger.update(family_ledger)
 
         top_k = frozenset(
             r.curve.smiles_b for r in outcome.results[:top_k_convergence] if r.is_des
@@ -128,4 +125,5 @@ def run_multi_cycle_search(
         cycle_deltas=cycle_deltas,
         total_cycles=len(cycle_deltas),
         converged=cycle_deltas[-1].converged if cycle_deltas else False,
+        accumulated_family_ledger=dict(accumulated_ledger),
     )

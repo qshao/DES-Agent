@@ -1,6 +1,6 @@
 # DES Multi-Agent Tutorial
 
-This project combines a deterministic DES screening pipeline with optional layers for uncertainty, local discovery, LLM-assisted candidate brainstorming, DES viscosity prediction, and a separate metal-binding workflow for stability-constant prediction. When LLM mode is enabled, candidates are reviewed one by one to keep the JSON payloads small. The trained `ml_des_mp` model always makes the final prediction for DES melting temperature.
+This project combines a deterministic DES screening pipeline with optional layers for uncertainty, local discovery, LLM-assisted candidate brainstorming, viscosity-aware composite ranking, multi-cycle iterative screening with convergence detection, and a separate metal-binding workflow for stability-constant prediction. When LLM mode is enabled, candidates are reviewed one by one and the brainstorm uses a two-stage approach: the LLM first selects chemical families (HBD/HBA role), then distributes candidates across those families. The LLM also examines each prediction for chemical plausibility and flags contradictions. The trained `ml_des_mp` model always makes the final prediction for DES melting temperature.
 
 ## What You Need
 
@@ -127,6 +127,43 @@ python -m examples.demo_des_search --component-a "CCO" --n 20 --llm-config llm.e
 
 You can edit `llm.example.yaml` to switch `model_name` between `gemma4:12b`, `nemotron-3-nano:latest`, and `qwen3.6` while keeping `provider: ollama`.
 
+When an LLM is configured, brainstorming is two-stage: the LLM first selects 4–6 chemical families (e.g., polyols, amides, imidazolium salts) with a rationale and HBD/HBA role for each, then distributes candidate SMILES across those families. This improves chemical diversity compared to single-shot brainstorming. After ML predictions, the LLM also examines each result for chemical plausibility and reports `agree`, `conflict`, or `uncertain` per candidate — surfaced as a "LLM contradiction analysis" section in the report.
+
+## Multi-Cycle Iterative Screening
+
+Use `--n-cycles N` to run up to N screening iterations. Top hits from each cycle are passed forward as context to the next cycle's brainstorm, so the LLM focuses on productive chemical families. The loop stops early when the top-K candidate set stabilises (convergence detection):
+
+```bash
+python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml \
+  --n-cycles 3 --llm-config llm.example.yaml
+```
+
+Each cycle prints a progress line to stderr:
+
+```
+[cycle 1/3] screened=20 des=5 top-K changes: +5 new, 0 dropped
+[cycle 2/3] screened=20 des=7 top-K changes: +3 new, -1 dropped
+[cycle 3/3] screened=20 des=7 top-K changes: 0 new, 0 dropped — CONVERGED
+```
+
+The final report is produced from the last cycle. With `--output-dir runs/run_001`, each cycle writes into its own subdirectory (`cycle_01/`, `cycle_02/`, …).
+
+## Viscosity-Aware Composite Ranking
+
+When a viscosity model is available (via `--viscosity-model-path`), use `--viscosity-threshold` and `--viscosity-weight` to blend viscosity into the composite ranking score:
+
+```bash
+python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml \
+  --viscosity-model-path artifacts/designsolvents/viscosity/model.json \
+  --viscosity-threshold 500 --viscosity-weight 0.4
+```
+
+`--viscosity-threshold CP` gates candidates: DES-formers above the threshold (cP) sort after those that pass it, regardless of Tm. `--viscosity-weight W` (0–1, default 0.3) controls how much viscosity contributes to the composite score alongside the Tm-drop score.
+
 
 ## Task Router
 
@@ -152,8 +189,9 @@ The router loads `llm.example.yaml` by default, supports both `des` and `metal-b
 - `trust_score` shows the uncertainty trust value in the range `0.0` to `1.0`
 - `rationale` summarizes why the candidate was ranked where it was
 
-If the optional LLM is enabled, the report may also include brainstorm, explanation, critique, and warning sections.
+If the optional LLM is enabled, the report may also include brainstorm, explanation, critique, contradiction analysis, and warning sections. The contradiction analysis section shows one line per candidate with the LLM's verdict (`agree`, `conflict`, or `uncertain`) and an explanation.
 If local discovery is enabled, the report may also show provenance fields such as `source` and `source_id`.
+If multi-cycle mode is active (`--n-cycles > 1`), cycle-level progress is printed to stderr during the run and the final report reflects the last cycle only.
 
 ## Common Issues
 

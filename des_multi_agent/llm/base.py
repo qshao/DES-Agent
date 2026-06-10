@@ -65,7 +65,7 @@ class BaseLLMProvider(LLMProvider):
         try:
             families = self.select_candidate_families(component_a, constraints, context)
         except Exception as exc:
-            print(f"[H6] family selection failed, falling back to single-stage brainstorm: {exc}", file=sys.stderr)
+            print(f"family selection failed, falling back to single-stage brainstorm: {exc}", file=sys.stderr)
         raw = self._request(
             candidate_brainstorm_prompt(component_a, constraints, context, self.max_candidates, families)
         )

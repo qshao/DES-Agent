@@ -32,13 +32,18 @@ The same folders also power the pytest-based example benchmark suite in [`tests/
 
 The LLM-backed examples also include a model-specific `llm.*.yaml` file.
 
-The DES examples call the shared demo entrypoint. In LLM-enabled runs, candidates are reviewed one by one so large candidate sets stay manageable. DES runs can also write into a standard flat run directory with `--output-dir runs/run_001`. That folder becomes the canonical home for `report.txt`, `run.json`, `run.csv`, and `run.manifest.json`. If you save run memory with `--save-run-memory`, point it at `runs/run_001/run.memory.json` so the memory file lives in the same folder. You can also save, label, and reuse DES run memory with `--save-run-memory`, `label-run`, and `--reuse-run` if you want a later run to bias ranking from an earlier one. If you keep several labeled runs under `runs/`, `--reuse-run runs/` will use the whole labeled history in that history directory.
+The DES examples call the shared demo entrypoint. In LLM-enabled runs, candidates are reviewed one by one and the brainstorm is two-stage: the LLM first selects chemical families (polyols, amides, imidazolium salts, …), then distributes candidates across those families for better chemical diversity. The LLM also examines each ML prediction for chemical plausibility and reports `agree`, `conflict`, or `uncertain` per candidate.
+
+DES runs can also write into a standard flat run directory with `--output-dir runs/run_001`. That folder becomes the canonical home for `report.txt`, `run.json`, `run.csv`, and `run.manifest.json`. With `--n-cycles N`, each cycle gets its own subdirectory (`cycle_01/`, `cycle_02/`, …) inside the output directory. You can also save, label, and reuse DES run memory with `--save-run-memory`, `label-run`, and `--reuse-run` if you want a later run to bias ranking from an earlier one. If you keep several labeled runs under `runs/`, `--reuse-run runs/` will use the whole labeled history in that history directory.
 
 ```bash
 python -m examples.demo_des_search --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --llm-config <folder>/llm.<name>.yaml
 ```
 
-The DES viscosity examples use the same demo entrypoint with `--viscosity-model-path artifacts/designsolvents/viscosity/model.json`.
+**Multi-cycle iterative screening** (`--n-cycles N`): top hits from each cycle seed the next cycle's brainstorm; the loop stops early when the top-K candidate set stabilises across two consecutive cycles. Each cycle prints a progress line to stderr (`[cycle N/M] screened=… des=… top-K changes: …`).
+
+**Viscosity-aware composite ranking**: the DES viscosity examples use `--viscosity-model-path artifacts/designsolvents/viscosity/model.json`. Add `--viscosity-threshold CP` to gate candidates above a viscosity limit (cP) to the bottom of the ranking, and `--viscosity-weight W` (0–1, default 0.3) to control how much viscosity blends into the composite score.
+
 The metal-binding examples use `python -m des_multi_agent.cli --workflow metal-binding ...` and the bundled stability-constant artifact.
 The task-router example uses `python -m des_multi_agent.cli task-router "..."` and prints JSON only. It also demonstrates the normalization layer, including follow-up questions for ambiguous requests like a free base versus a salt form.
 The task-execute command uses `python -m des_multi_agent.cli task-execute "..."` to route and run the matching workflow in one step.

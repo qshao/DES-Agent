@@ -187,6 +187,7 @@ def test_multi_cycle_builds_family_ledger(monkeypatch, tmp_path):
 
     result = run_multi_cycle_search("CCO", 2, str(ckpt), str(cfg), n_cycles=1)
     assert result.cycle_deltas[0].family_ledger.get("polyols", 0) >= 1
+    assert result.accumulated_family_ledger.get("polyols", 0) >= 1
 
 
 # ── H6: enriched iterative context ──────────────────────────────────────────

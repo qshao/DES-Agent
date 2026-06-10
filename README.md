@@ -1,6 +1,6 @@
 # DES-Agent
 
-This repository contains a deterministic DES screening pipeline plus optional layers for uncertainty, local discovery, LLM-assisted candidate brainstorming, DES viscosity prediction, and a separate metal-binding workflow for stability-constant prediction.
+This repository contains a deterministic DES screening pipeline plus optional layers for uncertainty, local discovery, LLM-assisted candidate brainstorming (two-stage, family-first), viscosity-aware composite ranking, multi-cycle iterative screening with convergence detection, LLM chemical contradiction detection, and a separate metal-binding workflow for stability-constant prediction.
 
 ## Quick Start
 
@@ -78,10 +78,28 @@ python -m des_multi_agent.cli compare-runs runs/run_001/run.memory.json runs/run
 
 Every command prints a compact `summary:` block after its main output. For parseable modes like `task-router` and `compare-runs --json`, the summary is written to `stderr` so `stdout` stays machine-readable.
 
-Optional Ollama LLM run (Gemma, Nemotron, or Qwen via `model_name`). The LLM now reviews candidates one by one, so `--n 20` is safe even when you want a larger candidate set:
+Optional Ollama LLM run (Gemma, Nemotron, or Qwen via `model_name`). The LLM reviews candidates one by one and uses a two-stage brainstorm: it first selects chemical families (polyols, amides, etc.) then distributes candidates across them. It also detects chemical contradictions per candidate (`agree`/`conflict`/`uncertain`):
 
 ```bash
 python -m examples.demo_des_search --component-a "CCO" --n 20 --llm-config llm.example.yaml
+```
+
+Multi-cycle iterative screening — top hits from each cycle seed the next; stops when top-K converges:
+
+```bash
+python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml --n-cycles 3 --llm-config llm.example.yaml
+```
+
+Viscosity-aware composite ranking with threshold gate:
+
+```bash
+python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml \
+  --viscosity-model-path artifacts/designsolvents/viscosity/model.json \
+  --viscosity-threshold 500 --viscosity-weight 0.4
 ```
 
 Plain-language Gemma example that routes a request first and then runs the DES workflow:
