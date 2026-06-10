@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import sys
 from dataclasses import dataclass, field
 
 from ..evaluation import DesResult
@@ -8,7 +7,6 @@ from ..multi_cycle import run_multi_cycle_search
 from .metal_binding_selectivity import (
     SelectivityResult,
     SelectivityScreenOutcome,
-    run_metal_selectivity_screen,
 )
 
 
