@@ -88,14 +88,18 @@ def _score_proposal_pair(
     model_path,
     w_affinity: float,
     w_selectivity: float,
-) -> tuple[SelectivityResult, list[str]]:
+) -> tuple[SelectivityResult | None, list[str]]:
     warnings: list[str] = []
-    pred_target = predict_log_k(
-        target_metal, proposal.smiles, model_path=model_path, allow_fallback=True
-    )
-    pred_competitor = predict_log_k(
-        competitor_metal, proposal.smiles, model_path=model_path, allow_fallback=True
-    )
+    try:
+        pred_target = predict_log_k(
+            target_metal, proposal.smiles, model_path=model_path, allow_fallback=True
+        )
+        pred_competitor = predict_log_k(
+            competitor_metal, proposal.smiles, model_path=model_path, allow_fallback=True
+        )
+    except Exception as exc:
+        warnings.append(f"Prediction failed for {proposal.smiles}: {exc}")
+        return None, warnings
     delta_log_k, composite_score = _compute_composite(
         pred_target.value, pred_competitor.value, w_affinity, w_selectivity
     )
@@ -165,7 +169,7 @@ def run_metal_selectivity_screen(
     for cycle in range(1, n_cycles + 1):
         proposals: list[CandidateProposal] = []
 
-        if cycle == 1:
+        if cycle == 1 or llm_provider is None:
             heuristic = generate_ligand_candidates(target_metal, n, constraints)
             proposals.extend(_deduplicate_proposals(heuristic, seen_smiles))
 
@@ -193,7 +197,8 @@ def run_metal_selectivity_screen(
                 target_metal, competitor_metal, proposal, model_path, w_affinity, w_selectivity
             )
             all_warnings.extend(warnings)
-            cycle_results.append(result)
+            if result is not None:
+                cycle_results.append(result)
 
         if llm_provider is not None:
             context = _build_selectivity_context(
