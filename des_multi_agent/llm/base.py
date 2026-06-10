@@ -57,8 +57,17 @@ class BaseLLMProvider(LLMProvider):
         review = parse_candidate_review(raw)
         return review
 
-    def brainstorm_candidates(self, component_a: str, constraints: dict | None, context: str) -> list[CandidateBrainstorm]:
-        raw = self._request(candidate_brainstorm_prompt(component_a, constraints, context, self.max_candidates))
+    def brainstorm_candidates(
+        self, component_a: str, constraints: dict | None, context: str
+    ) -> list[CandidateBrainstorm]:
+        families: list[CandidateFamily] = []
+        try:
+            families = self.select_candidate_families(component_a, constraints, context)
+        except Exception:
+            pass
+        raw = self._request(
+            candidate_brainstorm_prompt(component_a, constraints, context, self.max_candidates, families)
+        )
         return parse_candidate_brainstorms(raw)[: self.max_candidates]
 
     def select_candidate_families(

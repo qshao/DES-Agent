@@ -93,14 +93,23 @@ def _search_context(component_a: str, n: int, checkpoint_path: str, config_path:
     )
 
 
-def _build_iterative_context(base_context: str, prior_top: list) -> str:
+def _build_iterative_context(
+    base_context: str,
+    prior_top: list,
+    family_ledger: dict[str, int] | None = None,
+) -> str:
     if not prior_top:
         return base_context
     lines = "\n".join(
         f"  - {r.curve.smiles_b}: min_tm_k={r.min_tm_k:.1f} K, is_des={r.is_des}"
         for r in prior_top[:5]
     )
-    return base_context + f"\nPrior cycle top results (bias generation toward these chemical families):\n{lines}"
+    ctx = base_context + f"\nPrior cycle top results (bias generation toward these chemical families):\n{lines}"
+    if family_ledger:
+        top_families = sorted(family_ledger.items(), key=lambda x: -x[1])[:3]
+        fam_lines = "\n".join(f"  - {fam}: {n} DES-positive hits" for fam, n in top_families)
+        ctx += f"\nTop productive chemical families:\n{fam_lines}"
+    return ctx
 
 
 def _fallback_uncertainty(
@@ -337,6 +346,7 @@ def run_search_report(
     viscosity_weight: float = 0.3,
     viscosity_threshold_cp: float | None = None,
     prior_cycle_top_results: list | None = None,
+    prior_family_ledger: dict[str, int] | None = None,
 ):
     # D1 — validate component_a SMILES before any expensive work
     try:
@@ -372,7 +382,9 @@ def run_search_report(
         try:
             brainstorm_context = review_context
             if prior_cycle_top_results:
-                brainstorm_context = _build_iterative_context(review_context, prior_cycle_top_results)
+                brainstorm_context = _build_iterative_context(
+                    review_context, prior_cycle_top_results, family_ledger=prior_family_ledger
+                )
             llm_candidates = provider.brainstorm_candidates(
                 component_a,
                 None,
