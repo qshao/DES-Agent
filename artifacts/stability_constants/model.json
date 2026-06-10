@@ -14,6 +14,9 @@
     "metal_token_len": 0.08,
     "ligand_logp": -0.04,
     "ligand_to_metal_size_ratio": 0.06,
-    "ligand_formal_charge": -0.02
+    "ligand_formal_charge": -0.02,
+    "metal_d_electrons": 0.08,
+    "metal_period": 0.04,
+    "metal_hsab_soft_x_aromatic": 0.12
   }
 }

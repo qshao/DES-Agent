@@ -170,7 +170,8 @@ def run_metal_selectivity_screen(
         proposals: list[CandidateProposal] = []
 
         if cycle == 1 or llm_provider is None:
-            heuristic = generate_ligand_candidates(target_metal, n, constraints)
+            heuristic_n = max(n // 2, 5) if (llm_provider is not None and cycle == 1) else n
+            heuristic = generate_ligand_candidates(target_metal, heuristic_n, constraints)
             proposals.extend(_deduplicate_proposals(heuristic, seen_smiles))
 
         if llm_provider is not None:

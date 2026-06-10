@@ -25,6 +25,37 @@ class StabilityConstantPrediction:
     ligand: str
 
 
+# (group, period, d_electrons, hsab_softness 0=hard→1=soft)
+_METAL_IDENTITY: dict[str, tuple[int, int, int, float]] = {
+    "Li+":  (1,  2, 0, 0.0),  "Na+": (1, 3, 0, 0.0),  "K+":  (1, 4, 0, 0.0),
+    "Mg2+": (2,  3, 0, 0.0),  "Ca2+": (2, 4, 0, 0.0),  "Ba2+": (2, 6, 0, 0.0),
+    "Al3+": (13, 3, 0, 0.0),
+    "Mn2+": (7,  4, 5, 0.2),  "Mn3+": (7, 4, 4, 0.2),
+    "Fe2+": (8,  4, 6, 0.2),  "Fe3+": (8, 4, 5, 0.1),
+    "Co2+": (9,  4, 7, 0.3),  "Co3+": (9, 4, 6, 0.2),
+    "Ni2+": (10, 4, 8, 0.3),
+    "Cu+":  (11, 4, 10, 0.8), "Cu2+": (11, 4, 9, 0.5),
+    "Zn2+": (12, 4, 10, 0.2),
+    "Pd2+": (10, 5, 8, 0.8),  "Pt2+": (10, 6, 8, 0.9),
+    "Ag+":  (11, 5, 10, 0.9),
+    "Cd2+": (12, 5, 10, 0.6),
+    "Hg2+": (12, 6, 10, 1.0), "Hg+": (12, 6, 10, 1.0),
+    "Pb2+": (14, 6, 0, 0.4),
+    "La3+": (3,  6, 0, 0.0),  "Gd3+": (3, 6, 7, 0.0),
+}
+
+
+def _metal_identity_features(metal_ion: str) -> dict[str, float]:
+    key = metal_ion.strip()
+    row = _METAL_IDENTITY.get(key, (0, 0, 0, 0.0))
+    return {
+        'metal_group':       float(row[0]),
+        'metal_period':      float(row[1]),
+        'metal_d_electrons': float(row[2]),
+        'metal_hsab_soft':   float(row[3]),
+    }
+
+
 def _parse_metal_charge(metal_ion: str) -> float:
     match = re.search(r'([+-])(\d*)$', metal_ion.strip())
     if match is None:
@@ -72,7 +103,21 @@ def _pair_features(metal_ion: str, ligand: str) -> dict[str, float]:
     return features
 
 
+def _heuristic_pair_features(metal_ion: str, ligand: str) -> dict[str, float]:
+    features = _pair_features(metal_ion, ligand)
+    features.update(_metal_identity_features(metal_ion))
+    # Pre-compute HSAB cross-term for use by both heuristic and linear artifact model
+    features['metal_hsab_soft_x_aromatic'] = (
+        features['metal_hsab_soft'] * features['ligand_aromatic_atoms']
+    )
+    return features
+
+
 def _heuristic_log_k(features: dict[str, float]) -> float:
+    # HSAB cross-term: soft metals (high hsab_soft) benefit from aromatic N-donors (high aromatic_atoms)
+    # and S-donors (approximated via low tpsa/hba ratio with high logp)
+    hsab_aromatic = features.get('metal_hsab_soft_x_aromatic',
+                                  features.get('metal_hsab_soft', 0.0) * features['ligand_aromatic_atoms'])
     raw = (
         4.5
         + 0.18 * features['ligand_hbd']
@@ -86,6 +131,9 @@ def _heuristic_log_k(features: dict[str, float]) -> float:
         - 0.03 * features['ligand_logp']
         + 0.05 * features['ligand_to_metal_size_ratio']
         - 0.02 * abs(features['ligand_formal_charge'])
+        + 0.12 * hsab_aromatic
+        + 0.08 * features.get('metal_d_electrons', 0.0)
+        + 0.04 * features.get('metal_period', 0.0)
     )
     return clamp(raw, -5.0, 20.0)
 
@@ -132,17 +180,24 @@ def predict_log_k(
             raise
         model = None
     if model is None:
-        value = _heuristic_log_k(features)
+        value = _heuristic_log_k(_heuristic_pair_features(metal_ion, ligand))
         source = 'heuristic-fallback'
     else:
         try:
-            value = clamp(_predict_from_model(model, features), -5.0, 20.0)
+            # For linear dict models, pass enriched features so metal-identity coefficients are populated.
+            # For positional (sklearn/callable) models, keep the original base features to preserve
+            # the feature vector order the model was trained on.
+            if isinstance(model, dict) and model.get('kind') == 'linear':
+                model_features = _heuristic_pair_features(metal_ion, ligand)
+            else:
+                model_features = features
+            value = clamp(_predict_from_model(model, model_features), -5.0, 20.0)
             source = 'artifact'
         except Exception as exc:
             warnings.append(f'Stability constant prediction failed: {exc}')
             if not allow_fallback:
                 raise
-            value = _heuristic_log_k(features)
+            value = _heuristic_log_k(_heuristic_pair_features(metal_ion, ligand))
             source = 'heuristic-fallback'
     return StabilityConstantPrediction(
         task='stability_constant',
