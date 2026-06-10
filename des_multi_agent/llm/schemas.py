@@ -38,3 +38,10 @@ class ContradictionNote:
     smiles: str
     agreement: str   # "agree" | "conflict" | "uncertain"
     explanation: str
+
+
+@dataclass(frozen=True)
+class CandidateFamily:
+    name: str           # e.g., "polyols", "amides", "imidazolium salts"
+    rationale: str      # why this family suits DES formation with component A
+    hbd_hba_role: str   # "HBD", "HBA", or "both"

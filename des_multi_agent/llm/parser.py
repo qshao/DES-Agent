@@ -5,7 +5,7 @@ import re
 from typing import Any
 
 from .errors import LLMSchemaError, payload_excerpt
-from .schemas import CandidateBrainstorm, CandidateReview, ContradictionNote, CritiqueNote, ExplanationNote
+from .schemas import CandidateBrainstorm, CandidateFamily, CandidateReview, ContradictionNote, CritiqueNote, ExplanationNote
 
 
 def _strip_code_fences(raw: str) -> str:
@@ -164,4 +164,21 @@ def parse_contradiction_notes(raw: str) -> list[ContradictionNote]:
         if not smiles or not agreement or not explanation:
             continue
         out.append(ContradictionNote(smiles=smiles, agreement=agreement, explanation=explanation))
+    return out
+
+
+def parse_candidate_families(raw: str) -> list[CandidateFamily]:
+    data = _coerce_json(raw)
+    if not isinstance(data, list):
+        return []
+    out: list[CandidateFamily] = []
+    for item in data:
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("name", "")).strip()
+        rationale = str(item.get("rationale", "")).strip()
+        hbd_hba_role = str(item.get("hbd_hba_role", "")).strip()
+        if not name or not rationale or not hbd_hba_role:
+            continue
+        out.append(CandidateFamily(name=name, rationale=rationale, hbd_hba_role=hbd_hba_role))
     return out

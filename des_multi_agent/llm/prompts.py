@@ -27,7 +27,13 @@ def candidate_review_prompt(component_a: str, candidate_smiles: str, context: st
     )
 
 
-def candidate_brainstorm_prompt(component_a: str, constraints: dict | None, context: str, max_items: int | None = None) -> str:
+def candidate_brainstorm_prompt(
+    component_a: str,
+    constraints: dict | None,
+    context: str,
+    max_items: int | None = None,
+    families=None,
+) -> str:
     parts = [
         "Return raw JSON only. Do not use markdown fences or commentary.\n",
         "Return a JSON array of candidate partner molecules for DES screening.\n",
@@ -35,10 +41,31 @@ def candidate_brainstorm_prompt(component_a: str, constraints: dict | None, cont
         f"Constraints: {constraints or {}}\n",
         f"Context: {context}\n",
     ]
+    if families:
+        parts.append("Distribute candidates across these chemical families:\n")
+        for f in families:
+            parts.append(f"  - {f.name}: {f.rationale} (role: {f.hbd_hba_role})\n")
     if max_items is not None:
         parts.append(f"Return at most {max_items} items.\n")
     parts.append("Each item must contain smiles, rationale, and family.")
     return "".join(parts)
+
+
+def family_selection_prompt(
+    component_a: str,
+    constraints: dict | None,
+    context: str,
+    max_families: int = 6,
+) -> str:
+    return "".join([
+        "Return raw JSON only. Do not use markdown fences or commentary.\n",
+        "Return a JSON array of chemical families to explore as DES partner candidates.\n",
+        f"Component A: {component_a}\n",
+        f"Constraints: {constraints or {}}\n",
+        f"Context: {context}\n",
+        f"Return at most {max_families} families.\n",
+        'Each item must contain name, rationale, and hbd_hba_role ("HBD", "HBA", or "both").',
+    ])
 
 
 def explanation_prompt(results: Sequence[DesResult], context: str, max_items: int | None = None) -> str:

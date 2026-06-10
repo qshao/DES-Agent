@@ -4,7 +4,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 from ..evaluation import DesResult
-from .schemas import CandidateBrainstorm, CandidateReview, ContradictionNote, CritiqueNote, ExplanationNote
+from .schemas import CandidateBrainstorm, CandidateFamily, CandidateReview, ContradictionNote, CritiqueNote, ExplanationNote
 
 
 class LLMProvider(ABC):
@@ -23,6 +23,12 @@ class LLMProvider(ABC):
         constraints: dict | None,
         context: str,
     ) -> list[CandidateBrainstorm]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def select_candidate_families(
+        self, component_a: str, constraints: dict | None, context: str
+    ) -> list[CandidateFamily]:
         raise NotImplementedError
 
     @abstractmethod
