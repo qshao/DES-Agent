@@ -1,0 +1,36 @@
+[project]
+name = "des-agent"
+version = "0.1.0"
+description = "Multi-agent DES screening and metal-ion binding prediction pipeline"
+requires-python = ">=3.11"
+dependencies = [
+    "torch>=2.0",
+    "rdkit>=2023.9",
+    "numpy>=1.24",
+    "pandas>=2.0",
+    "pyyaml>=6.0",
+    "pydantic>=2.0",
+    "fastapi>=0.100",
+    "uvicorn>=0.20",
+    "httpx>=0.24",
+    "transformers>=4.30",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+]
+
+[project.scripts]
+des-agent = "des_multi_agent.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["des_multi_agent*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
