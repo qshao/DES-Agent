@@ -34,3 +34,4 @@ include = ["des_multi_agent*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
