@@ -51,7 +51,7 @@ def test_report_shows_uncertainty_fields_and_llm_sections():
 
     assert "trust=0.88" in report
     assert "std=1.00 K" in report
-    assert "flag=low" in report
+    assert "high confidence" in report
     assert "LLM brainstorm" in report
     assert "LLM explanations" in report
     assert "LLM critique" in report

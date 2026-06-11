@@ -127,6 +127,30 @@ def _check_benchmark_baselines(root: Path, errors: list[DoctorIssue]) -> None:
                 _add_issue(errors, "error", f"missing benchmark baseline file: tests/fixtures/example_benchmark_baselines/{folder_name}/{required_name}")
 
 
+def _check_llm_connectivity(llm_cfg, warnings: list[DoctorIssue]) -> None:
+    if llm_cfg is None:
+        _add_issue(warnings, "warning", "[llm] --llm-config not provided; pass --llm-config to check connectivity")
+        return
+    from .llm.factory import build_llm_provider
+    try:
+        provider = build_llm_provider(llm_cfg)
+    except Exception as exc:
+        _add_issue(warnings, "warning", f"[llm] failed to build provider: {exc}")
+        return
+    if provider is None:
+        _add_issue(warnings, "warning", "[llm] LLM provider is disabled in config")
+        return
+    api_base_url = getattr(provider, "api_base_url", None)
+    if not api_base_url:
+        _add_issue(warnings, "warning", "[llm] provider has no api_base_url — cannot check connectivity")
+        return
+    from urllib import request as urllib_request
+    try:
+        urllib_request.urlopen(api_base_url, timeout=5.0).close()
+    except Exception as exc:
+        _add_issue(warnings, "warning", f"[llm] provider at {api_base_url!r} is not reachable: {exc}")
+
+
 def _check_optional_checkpoint(root: Path, warnings: list[DoctorIssue]) -> None:
     _check_optional_file_exists(root, "checkpoint", DEFAULT_CHECKPOINT_PATH, warnings)
 
@@ -141,7 +165,7 @@ def _check_optional_artifacts(root: Path, warnings: list[DoctorIssue]) -> None:
         _check_optional_file_exists(root, "artifacts", relative_path, warnings)
 
 
-def run_doctor(repo_root: str | Path = PROJECT_ROOT, optional_checks: Sequence[str] = ()) -> DoctorResult:
+def run_doctor(repo_root: str | Path = PROJECT_ROOT, optional_checks: Sequence[str] = (), llm_cfg=None) -> DoctorResult:
     root = Path(repo_root)
     errors: list[DoctorIssue] = []
     warnings: list[DoctorIssue] = []
@@ -169,6 +193,8 @@ def run_doctor(repo_root: str | Path = PROJECT_ROOT, optional_checks: Sequence[s
             _check_optional_discovery(root, warnings)
         elif check_name == "artifacts":
             _check_optional_artifacts(root, warnings)
+        elif check_name == "llm":
+            _check_llm_connectivity(llm_cfg, warnings)
         else:
             raise ValueError(f"unsupported optional doctor check: {check_name}")
 

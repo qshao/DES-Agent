@@ -2,11 +2,14 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from csv import DictWriter
+from dataclasses import fields as dataclass_fields
 from datetime import datetime, timezone
 from io import StringIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 import json
+
+from .memory_schema import RunCandidateSummary
 
 
 CSV_COLUMNS = (
@@ -19,6 +22,16 @@ CSV_COLUMNS = (
     "trust_score",
     "uncertainty_flag",
 )
+
+_CANDIDATE_SUMMARY_FIELDS = frozenset(f.name for f in dataclass_fields(RunCandidateSummary))
+_CSV_CANDIDATE_FIELDS = frozenset(CSV_COLUMNS) - {"is_des"}
+if _CANDIDATE_SUMMARY_FIELDS != _CSV_CANDIDATE_FIELDS:
+    _missing = _CANDIDATE_SUMMARY_FIELDS - _CSV_CANDIDATE_FIELDS
+    _extra = _CSV_CANDIDATE_FIELDS - _CANDIDATE_SUMMARY_FIELDS
+    raise RuntimeError(
+        f"CSV_COLUMNS is out of sync with RunCandidateSummary fields — "
+        f"missing={_missing}, extra={_extra}"
+    )
 
 
 def _require_mapping(value: object, label: str) -> Mapping[str, object]:
@@ -59,7 +72,11 @@ def _write_text_atomic(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with NamedTemporaryFile("w", encoding="utf-8", dir=path.parent, delete=False) as handle:
         temp_path = Path(handle.name)
-        handle.write(content)
+        try:
+            handle.write(content)
+        except Exception:
+            temp_path.unlink(missing_ok=True)
+            raise
     try:
         temp_path.replace(path)
     except Exception:

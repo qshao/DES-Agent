@@ -60,11 +60,11 @@ def test_execute_task_request_detailed_runs_des_workflow(monkeypatch):
         brainstorm_candidates=[],
         llm_warnings=[],
         viscosity_predictions=[],
+        report_text="DES REPORT",
     )
 
     monkeypatch.setattr(task_executor, "route_task", lambda request, provider=None: _FakeResponse())
     monkeypatch.setattr(task_executor, "run_search_report", lambda **kwargs: fake_outcome)
-    monkeypatch.setattr(task_executor, "format_report", lambda *args, **kwargs: "DES REPORT")
     detailed = execute_task_request_detailed("find DES partners for lidocaine")
     assert detailed.needs_clarification is False
     assert detailed.summary_status == "executed"

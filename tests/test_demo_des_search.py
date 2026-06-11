@@ -117,7 +117,7 @@ def test_demo_mock_mode_runs_without_real_pipeline(monkeypatch, capsys):
     out = capsys.readouterr().out
     assert "trust=" in out
     assert "std=" in out
-    assert "flag=" in out
+    assert "confidence" in out
     assert "LLM candidate reviews" in out
     assert "Mock mode is using canned outputs" in out
     assert "OCCO" in out
@@ -198,7 +198,7 @@ def test_mock_script_runs_from_other_directory(tmp_path):
     result = subprocess.run(["bash", str(Path("scripts/demo-mock.sh").resolve())], cwd=tmp_path, check=True, capture_output=True, text=True)
     assert "trust=" in result.stdout
     assert "std=" in result.stdout
-    assert "flag=" in result.stdout
+    assert "confidence" in result.stdout
     assert "OCCO" in result.stdout
 
 

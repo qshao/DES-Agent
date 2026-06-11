@@ -3,6 +3,10 @@ from __future__ import annotations
 import json
 
 
+class LLMSchemaError(ValueError):
+    """Raised when an LLM response parses as valid JSON but fails structural validation."""
+
+
 def payload_excerpt(raw: str, limit: int = 160) -> str:
     text = raw.replace("\n", "\\n").replace("\r", "\\r")
     if len(text) <= limit:

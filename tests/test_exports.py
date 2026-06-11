@@ -214,7 +214,7 @@ embedding:
     assert captured["output_dir"] == save_memory_path.parent
     assert captured["payload"]["workflow"] == "des"
     assert captured["payload"]["results"][0]["smiles_b"] == "O"
-    assert "smiles_b | is_des" in captured["report_text"]
+    assert "compound | is_des" in captured["report_text"]
 
 
 def test_export_des_run_bundle_requires_fixed_csv_fields(tmp_path: Path):
@@ -336,6 +336,6 @@ embedding:
 
     assert outcome.results[0].curve.smiles_b == "O"
     assert any("2 run memory file(s)" in note for note in outcome.memory_notes)
-    assert captured["output_dir"] == Path.cwd()
-    assert captured["payload"]["workflow"] == "des"
-    assert "summary:" not in captured["report_text"]
+    # No output_dir passed → export_des_run_bundle should NOT be called
+    assert captured == {}, "export_des_run_bundle must not be called when output_dir is not set"
+    assert "summary:" not in outcome.report_text

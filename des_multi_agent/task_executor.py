@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from .orchestrator import run_search_report
-from .reporting import format_metal_binding_report, format_report
+from .reporting import format_metal_binding_report
 from .task_router import route_task
 from .workflows.metal_binding import run_metal_binding_workflow
 
@@ -15,7 +15,7 @@ class TaskExecutionResult:
     summary_status: str
 
 
-def execute_task_request_detailed(request: str, provider=None) -> TaskExecutionResult:
+def execute_task_request_detailed(request: str, provider=None, llm_cfg=None) -> TaskExecutionResult:
     response = route_task(request, provider=provider)
     if response.needs_clarification or response.job is None:
         output = response.to_json()
@@ -30,20 +30,9 @@ def execute_task_request_detailed(request: str, provider=None) -> TaskExecutionR
             config_path=job.config_path,
             discovery_path=job.discovery_path,
             viscosity_model_path=job.viscosity_model_path,
+            llm_cfg=llm_cfg,
         )
-        report = format_report(
-            outcome.results,
-            annotated_results=outcome.annotated_results,
-            candidate_proposals=outcome.candidate_proposals,
-            candidate_reviews=outcome.candidate_reviews,
-            explanation_notes=outcome.explanation_notes,
-            critique_notes=outcome.critique_notes,
-            brainstorm_candidates=outcome.brainstorm_candidates,
-            llm_warnings=outcome.llm_warnings,
-            memory_notes=getattr(outcome, "memory_notes", None),
-            viscosity_predictions=outcome.viscosity_predictions,
-        )
-        return TaskExecutionResult(needs_clarification=False, output=report, summary_status="executed")
+        return TaskExecutionResult(needs_clarification=False, output=outcome.report_text, summary_status="executed")
 
     if response.workflow == "metal-binding":
         outcome = run_metal_binding_workflow(
@@ -58,5 +47,5 @@ def execute_task_request_detailed(request: str, provider=None) -> TaskExecutionR
     raise ValueError(f"Unsupported workflow: {response.workflow}")
 
 
-def execute_task_request(request: str, provider=None) -> str:
-    return execute_task_request_detailed(request, provider=provider).output
+def execute_task_request(request: str, provider=None, llm_cfg=None) -> str:
+    return execute_task_request_detailed(request, provider=provider, llm_cfg=llm_cfg).output

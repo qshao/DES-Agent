@@ -100,7 +100,7 @@ def test_task_execute_subcommand_prints_report_and_summary(monkeypatch, capsys):
     monkeypatch.setattr(
         cli_module,
         "execute_task_request_detailed",
-        lambda request, provider=None: SimpleNamespace(needs_clarification=False, output="EXECUTED REPORT", summary_status="executed"),
+        lambda request, provider=None, llm_cfg=None: SimpleNamespace(needs_clarification=False, output="EXECUTED REPORT", summary_status="executed"),
     )
     cli_module.main(["task-execute", "find DES partners for lidocaine"])
     out = capsys.readouterr().out.strip().splitlines()
@@ -112,7 +112,7 @@ def test_task_execute_subcommand_prints_clarification_json_and_summary_to_stderr
     monkeypatch.setattr(
         cli_module,
         "execute_task_request_detailed",
-        lambda request, provider=None: SimpleNamespace(
+        lambda request, provider=None, llm_cfg=None: SimpleNamespace(
             needs_clarification=True,
             output='{"workflow":"clarify","needs_clarification":true,"clarifying_questions":["Which workflow?"],"job":null}',
             summary_status="clarified",

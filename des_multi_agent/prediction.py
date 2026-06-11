@@ -30,6 +30,8 @@ class CurvePrediction:
     t1_k: float
     t2_k: float
     checkpoint_path: str
+    ensemble_std_k: list[float] | None = None
+    ensemble_checkpoint_count: int | None = None
 
 
 @dataclass(frozen=True)
@@ -139,6 +141,43 @@ def _predict_Tm_from_params(d1, d2, W, T1, T2, r, R=8.314):
     return torch.max(T1 / denom1, T2 / denom2)
 
 
+def check_checkpoint_config_compat(
+    checkpoint_path: str | Path,
+    config: dict,
+) -> list[str]:
+    """Return a list of warning strings if the checkpoint's training config
+    disagrees with *config* on embedding settings.  Returns [] when compatible
+    or when the checkpoint carries no metadata to compare against.
+    """
+    warnings: list[str] = []
+    try:
+        ckpt = torch.load(str(checkpoint_path), map_location="cpu", weights_only=False)
+    except Exception:
+        return warnings
+    ckpt_cfg = ckpt.get("cfg")
+    if not ckpt_cfg or not isinstance(ckpt_cfg, dict):
+        return warnings
+    ckpt_emb = ckpt_cfg.get("embedding", {})
+    cfg_emb = config.get("embedding", {})
+    ckpt_method = str(ckpt_emb.get("method", "")).lower()
+    cfg_method = str(cfg_emb.get("method", "")).lower()
+    if ckpt_method and cfg_method and ckpt_method != cfg_method:
+        warnings.append(
+            f"Checkpoint–config mismatch: embedding method is '{ckpt_method}' in checkpoint "
+            f"but '{cfg_method}' in config — predictions may be incorrect"
+        )
+        return warnings  # n_bits comparison is irrelevant if methods differ
+    if ckpt_method == "morgan":
+        ckpt_n_bits = ckpt_emb.get("morgan", {}).get("n_bits")
+        cfg_n_bits = cfg_emb.get("morgan", {}).get("n_bits")
+        if ckpt_n_bits is not None and cfg_n_bits is not None and int(ckpt_n_bits) != int(cfg_n_bits):
+            warnings.append(
+                f"Checkpoint–config mismatch: morgan n_bits is {ckpt_n_bits} in checkpoint "
+                f"but {cfg_n_bits} in config — predictions may be incorrect"
+            )
+    return warnings
+
+
 def predict_curve(
     component_a: str,
     component_b: str,
@@ -151,6 +190,8 @@ def predict_curve(
     checkpoint_path = resolve_existing_path(checkpoint_path, base_dir=config_path.parent)
     with open(config_path, "r", encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
+    for warn in check_checkpoint_config_compat(checkpoint_path, cfg):
+        print(f"[WARNING] {warn}", file=sys.stderr, flush=True)
     device = get_device(cfg.get("device", "cuda"))
     model = load_model(checkpoint_path, device)
     emb_bundle = _load_embedder(cfg["embedding"], device=device)
@@ -179,4 +220,74 @@ def predict_curve(
         t1_k=float(t1_k),
         t2_k=float(t2_k),
         checkpoint_path=str(checkpoint_path),
+    )
+
+
+def discover_ensemble_checkpoints(runs_dir: str | Path | None = None) -> list[Path]:
+    """Return all ``*_best.pt`` checkpoints found in *runs_dir*.
+
+    Defaults to ``ml_des_mp/runs/`` relative to this file's package root.
+    """
+    if runs_dir is None:
+        runs_dir = Path(__file__).parent.parent / "ml_des_mp" / "runs"
+    runs_dir = Path(runs_dir)
+    if not runs_dir.is_dir():
+        return []
+    return sorted(runs_dir.glob("*_best.pt"))
+
+
+def predict_curve_ensemble(
+    component_a: str,
+    component_b: str,
+    t1_k: float,
+    t2_k: float,
+    checkpoint_paths: list[str | Path],
+    config_path: str | Path = Path("ml_des_mp") / "config.yaml",
+) -> CurvePrediction:
+    """Run *predict_curve* over every checkpoint and return the mean curve.
+
+    ``CurvePrediction.tm_pred_k`` is the per-ratio mean across all folds.
+    ``CurvePrediction.ensemble_std_k`` is the per-ratio standard deviation.
+    ``CurvePrediction.ensemble_checkpoint_count`` is the number of folds used.
+    ``CurvePrediction.checkpoint_path`` is the first checkpoint path (for
+    provenance).
+
+    Raises ``ValueError`` when fewer than two checkpoints are supplied.
+    """
+    if len(checkpoint_paths) < 2:
+        raise ValueError(
+            f"predict_curve_ensemble requires at least 2 checkpoints; got {len(checkpoint_paths)}"
+        )
+
+    all_tm: list[list[float]] = []
+    first_ratios: list[float] = []
+    first_ckpt = str(checkpoint_paths[0])
+
+    for ckpt in checkpoint_paths:
+        curve = predict_curve(
+            component_a=component_a,
+            component_b=component_b,
+            t1_k=t1_k,
+            t2_k=t2_k,
+            checkpoint_path=ckpt,
+            config_path=config_path,
+        )
+        all_tm.append(curve.tm_pred_k)
+        if not first_ratios:
+            first_ratios = curve.ratios
+
+    arr = np.array(all_tm)  # shape: (n_checkpoints, n_ratios)
+    mean_tm = arr.mean(axis=0).tolist()
+    std_tm = arr.std(axis=0, ddof=1).tolist()
+
+    return CurvePrediction(
+        smiles_a=component_a,
+        smiles_b=component_b,
+        ratios=first_ratios,
+        tm_pred_k=mean_tm,
+        t1_k=float(t1_k),
+        t2_k=float(t2_k),
+        checkpoint_path=first_ckpt,
+        ensemble_std_k=std_tm,
+        ensemble_checkpoint_count=len(checkpoint_paths),
     )

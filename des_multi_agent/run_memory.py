@@ -4,6 +4,7 @@ from collections import defaultdict
 from collections.abc import Mapping, Sequence
 from dataclasses import asdict, replace
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 import json
 
 from .memory_schema import RunCandidateSummary, RunLabel, RunMemory
@@ -40,6 +41,8 @@ def parse_run_memory(data: Mapping[str, object]) -> RunMemory:
         raise ValueError("run memory workflow must be des")
     labels: list[RunLabel] = []
     for item in data.get("labels", []):
+        if not isinstance(item, dict):
+            raise ValueError(f"labels entry must be a mapping, got {type(item).__name__!r}")
         labels.append(RunLabel(smiles_b=item["smiles_b"], label=item["label"]))
     ranked_candidates: list[RunCandidateSummary] = []
     for item in data.get("ranked_candidates", []):
@@ -76,8 +79,19 @@ def load_run_memory_history(path: str | Path) -> list[RunMemory]:
 def write_run_memory(path: str | Path, memory: RunMemory) -> Path:
     output_path = Path(path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    payload = asdict(memory)
-    output_path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+    content = json.dumps(asdict(memory), indent=2, sort_keys=True)
+    with NamedTemporaryFile("w", encoding="utf-8", dir=output_path.parent, delete=False) as handle:
+        temp_path = Path(handle.name)
+        try:
+            handle.write(content)
+        except Exception:
+            temp_path.unlink(missing_ok=True)
+            raise
+    try:
+        temp_path.replace(output_path)
+    except Exception:
+        temp_path.unlink(missing_ok=True)
+        raise
     return output_path
 
 
