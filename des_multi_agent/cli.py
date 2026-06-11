@@ -445,9 +445,22 @@ def main(argv=None):
                 print(f"[auto] No --checkpoint-path given; using discovered checkpoint: {discovered}", file=sys.stderr)
                 args.checkpoint_path = discovered
             else:
-                parser.error("DES workflow requires --checkpoint-path (none found in ml_des_mp/runs/)")
+                parser.error(
+                    "DES workflow requires --checkpoint-path (none found in ml_des_mp/runs/). "
+                    "Train a model with ml_des_mp/train.py or place a .pt checkpoint in ml_des_mp/runs/."
+                )
         checkpoint_path = resolve_existing_path(args.checkpoint_path)
         config_path = resolve_existing_path(args.config_path)
+        # Validate SMILES early
+        try:
+            from rdkit import Chem as _Chem
+            if _Chem.MolFromSmiles(args.component_a) is None:
+                parser.error(
+                    f"--component-a {args.component_a!r} is not a valid SMILES string. "
+                    "Example: 'CCO' for ethanol, 'c1ccccc1' for benzene."
+                )
+        except ImportError:
+            pass  # rdkit not available; skip early validation
         ensemble_ckpts: list[str] | None = None
         if getattr(args, "ensemble", False):
             found = discover_ensemble_checkpoints()
@@ -565,7 +578,10 @@ def main(argv=None):
         if not args.competitor_metal_ion:
             parser.error("selectivity-des workflow requires --competitor-metal-ion")
         if not args.checkpoint_path:
-            parser.error("selectivity-des workflow requires --checkpoint-path")
+            parser.error(
+                "selectivity-des workflow requires --checkpoint-path. "
+                "Place a trained .pt checkpoint in ml_des_mp/runs/ or pass the path explicitly."
+            )
         checkpoint_path = resolve_existing_path(args.checkpoint_path)
         config_path = resolve_existing_path(args.config_path)
         try:
@@ -594,7 +610,10 @@ def main(argv=None):
 
     if args.workflow == "metal-selectivity":
         if not args.target_metal_ion or not args.competitor_metal_ion:
-            parser.error("metal-selectivity workflow requires --target-metal-ion and --competitor-metal-ion")
+            parser.error(
+                "metal-selectivity workflow requires --target-metal-ion and --competitor-metal-ion. "
+                "Example: --target-metal-ion Cu2+ --competitor-metal-ion Zn2+"
+            )
         from .llm.factory import build_llm_provider as _build_llm_provider
         llm_provider_sel = _build_llm_provider(llm_cfg) if llm_cfg is not None else None
         sel_outcome = run_metal_selectivity_screen(

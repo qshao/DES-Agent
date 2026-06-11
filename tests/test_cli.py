@@ -358,3 +358,23 @@ def test_cli_component_a_help_mentions_smiles():
 def test_cli_selectivity_des_flags_marked_workflow_only():
     help_text = build_parser().format_help()
     assert "selectivity-des workflow only" in help_text
+
+
+def test_cli_missing_checkpoint_error_mentions_checkpoint_location(monkeypatch, capsys):
+    """Error for missing checkpoint should mention ml_des_mp/runs/."""
+    monkeypatch.setattr(cli_module, "_discover_checkpoint", lambda: None)
+    monkeypatch.setattr(cli_module, "load_llm_config", lambda p: None)
+    monkeypatch.setattr(cli_module, "_build_uncertainty_policy", lambda args: None)
+    with pytest.raises(SystemExit):
+        cli_module.main(["--workflow", "des", "--component-a", "CCO"])
+    err = capsys.readouterr().err
+    assert "ml_des_mp/runs" in err
+
+
+def test_cli_metal_selectivity_missing_metal_ion_mentions_example(capsys):
+    """Error for missing metal-ion should include an example."""
+    import des_multi_agent.cli as cli_mod
+    with pytest.raises(SystemExit):
+        cli_mod.main(["--workflow", "metal-selectivity"])
+    err = capsys.readouterr().err
+    assert "Cu2+" in err or "Zn2+" in err
