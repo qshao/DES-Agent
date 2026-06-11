@@ -518,23 +518,28 @@ def main(argv=None):
             parser.error("selectivity-des workflow requires --competitor-metal-ion")
         if not args.checkpoint_path:
             parser.error("selectivity-des workflow requires --checkpoint-path")
-        pipeline_outcome = run_selectivity_des_pipeline(
-            target_metal=args.target_metal_ion,
-            competitor_metal=args.competitor_metal_ion,
-            checkpoint_path=args.checkpoint_path,
-            config_path=args.config_path,
-            n_ligands=args.n,
-            n_des_candidates=args.n_des_candidates,
-            n_selectivity_cycles=args.n_cycles,
-            n_des_cycles=args.n_des_cycles,
-            n_outer_cycles=args.n_outer_cycles,
-            min_delta_log_k=args.min_delta_log_k,
-            top_ligands=args.top_ligands,
-            w_affinity=args.affinity_weight,
-            w_selectivity=args.selectivity_weight,
-            stability_model_path=args.stability_constant_model_path,
-            llm_cfg=llm_cfg,
-        )
+        checkpoint_path = resolve_existing_path(args.checkpoint_path)
+        config_path = resolve_existing_path(args.config_path)
+        try:
+            pipeline_outcome = run_selectivity_des_pipeline(
+                target_metal=args.target_metal_ion,
+                competitor_metal=args.competitor_metal_ion,
+                checkpoint_path=str(checkpoint_path),
+                config_path=str(config_path),
+                n_ligands=args.n,
+                n_des_candidates=args.n_des_candidates,
+                n_selectivity_cycles=args.n_cycles,
+                n_des_cycles=args.n_des_cycles,
+                n_outer_cycles=args.n_outer_cycles,
+                min_delta_log_k=args.min_delta_log_k,
+                top_ligands=args.top_ligands,
+                w_affinity=args.affinity_weight,
+                w_selectivity=args.selectivity_weight,
+                stability_model_path=args.stability_constant_model_path,
+                llm_cfg=llm_cfg,
+            )
+        except (FileNotFoundError, ValueError) as exc:
+            parser.error(str(exc))
         print(format_selectivity_des_report(pipeline_outcome))
         _print_summary("selectivity-des", pipeline_outcome)
         return

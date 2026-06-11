@@ -369,3 +369,20 @@ def test_cli_metal_selectivity_workflow_unchanged():
         "--competitor-metal-ion", "Zn2+",
     ])
     assert args.workflow == "metal-selectivity"
+
+
+def test_cli_selectivity_des_file_not_found_exits_cleanly(tmp_path):
+    """A FileNotFoundError from the pipeline should become a clean SystemExit, not a traceback."""
+    fake_ckpt = tmp_path / "ckpt.pt"
+    fake_ckpt.write_text("x")
+    with _patch(
+        "des_multi_agent.cli.run_selectivity_des_pipeline",
+        side_effect=FileNotFoundError("checkpoint not found"),
+    ):
+        with pytest.raises(SystemExit):
+            cli_main([
+                "--workflow", "selectivity-des",
+                "--target-metal-ion", "Cu2+",
+                "--competitor-metal-ion", "Zn2+",
+                "--checkpoint-path", str(fake_ckpt),
+            ])
