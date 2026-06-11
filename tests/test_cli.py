@@ -335,3 +335,26 @@ def test_cli_valid_inputs_accepted():
     assert args.n == 1
     assert args.affinity_weight == 0.0
     assert args.selectivity_weight == 1.0
+
+
+def test_cli_version_flag_exits_zero():
+    parser = build_parser()
+    with pytest.raises(SystemExit) as exc_info:
+        parser.parse_args(["--version"])
+    assert exc_info.value.code == 0
+
+
+def test_cli_workflow_help_mentions_all_workflows():
+    help_text = build_parser().format_help()
+    for wf in ("des", "metal-binding", "metal-selectivity", "selectivity-des"):
+        assert wf in help_text
+
+
+def test_cli_component_a_help_mentions_smiles():
+    help_text = build_parser().format_help()
+    assert "SMILES" in help_text
+
+
+def test_cli_selectivity_des_flags_marked_workflow_only():
+    help_text = build_parser().format_help()
+    assert "selectivity-des workflow only" in help_text

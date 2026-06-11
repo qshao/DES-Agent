@@ -72,10 +72,38 @@ def _unit_float(value: str) -> float:
 
 def build_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--workflow", choices=["des", "metal-binding", "metal-selectivity", "selectivity-des"], default="des")
-    parser.add_argument("--component-a", default=None)
-    parser.add_argument("--n", type=_positive_int, default=20)
-    parser.add_argument("--checkpoint-path", default=None)
+    parser.add_argument("--version", action="version", version="%(prog)s 0.1.0")
+    parser.add_argument(
+        "--workflow",
+        choices=["des", "metal-binding", "metal-selectivity", "selectivity-des"],
+        default="des",
+        help=(
+            "Workflow to run: "
+            "'des' screens DES partners for --component-a (SMILES required); "
+            "'metal-binding' predicts stability constants for --metal-ion + --ligand-smiles; "
+            "'metal-selectivity' screens ligands for selectivity between two metal ions; "
+            "'selectivity-des' runs metal-selectivity then DES partner search for top ligands"
+        ),
+    )
+    parser.add_argument(
+        "--component-a",
+        default=None,
+        help="SMILES string for the primary DES component (required for --workflow des)",
+    )
+    parser.add_argument(
+        "--n",
+        type=_positive_int,
+        default=20,
+        help="Number of candidate partners to screen per cycle (default: 20)",
+    )
+    parser.add_argument(
+        "--checkpoint-path",
+        default=None,
+        help=(
+            "Path to a trained ChemBERTa checkpoint (.pt file); required for des and selectivity-des workflows. "
+            "Auto-discovered from ml_des_mp/runs/ if omitted for the des workflow."
+        ),
+    )
     parser.add_argument("--config-path", default=str(DEFAULT_CONFIG_PATH))
     parser.add_argument("--llm-config", default=None, help="Optional YAML file containing llm settings")
     parser.add_argument("--discovery-path", default=None, help="Optional local discovery directory containing literature.yaml and library.yaml")
@@ -94,35 +122,35 @@ def build_parser():
         type=_positive_int,
         default=20,
         dest="n_des_candidates",
-        help="DES candidate search breadth per ligand per cycle (selectivity-des workflow)",
+        help="DES candidate search breadth per ligand per cycle (selectivity-des workflow only)",
     )
     parser.add_argument(
         "--n-des-cycles",
         type=_positive_int,
         default=3,
         dest="n_des_cycles",
-        help="DES iteration depth per ligand (selectivity-des workflow)",
+        help="DES iteration depth per ligand (selectivity-des workflow only)",
     )
     parser.add_argument(
         "--n-outer-cycles",
         type=_positive_int,
         default=2,
         dest="n_outer_cycles",
-        help="Outer loop iteration cap for selectivity-des workflow",
+        help="Outer loop iteration cap (selectivity-des workflow only)",
     )
     parser.add_argument(
         "--min-delta-log-k",
         type=float,
         default=0.0,
         dest="min_delta_log_k",
-        help="Minimum delta log K threshold for Phase 1 → Phase 2 bridge filter",
+        help="Minimum delta log K threshold for Phase 1 → Phase 2 bridge filter (selectivity-des workflow only)",
     )
     parser.add_argument(
         "--top-ligands",
         type=_positive_int,
         default=3,
         dest="top_ligands",
-        help="Maximum ligands passed from Phase 1 to Phase 2 (selectivity-des workflow)",
+        help="Maximum ligands bridged from Phase 1 to Phase 2 (selectivity-des workflow only)",
     )
     parser.add_argument("--save-run-memory", default=None, help="Optional path to write a compact JSON DES run memory file")
     parser.add_argument("--reuse-run", default=None, help="Optional prior DES run folder, run.memory.json file, or history directory of prior DES runs to reuse for ranking")
