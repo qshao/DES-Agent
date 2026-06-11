@@ -536,6 +536,7 @@ def main(argv=None):
             llm_cfg=llm_cfg,
         )
         print(format_selectivity_des_report(pipeline_outcome))
+        _print_summary("selectivity-des", pipeline_outcome)
         return
 
     if args.workflow == "metal-selectivity":
