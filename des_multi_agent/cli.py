@@ -50,11 +50,31 @@ def _init_presets() -> None:
 _init_presets()
 
 
+def _positive_int(value: str) -> int:
+    try:
+        n = int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"{value!r} is not an integer")
+    if n <= 0:
+        raise argparse.ArgumentTypeError(f"must be a positive integer, got {n}")
+    return n
+
+
+def _unit_float(value: str) -> float:
+    try:
+        f = float(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"{value!r} is not a number")
+    if not 0.0 <= f <= 1.0:
+        raise argparse.ArgumentTypeError(f"must be in [0.0, 1.0], got {f}")
+    return f
+
+
 def build_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("--workflow", choices=["des", "metal-binding", "metal-selectivity", "selectivity-des"], default="des")
     parser.add_argument("--component-a", default=None)
-    parser.add_argument("--n", type=int, default=20)
+    parser.add_argument("--n", type=_positive_int, default=20)
     parser.add_argument("--checkpoint-path", default=None)
     parser.add_argument("--config-path", default=str(DEFAULT_CONFIG_PATH))
     parser.add_argument("--llm-config", default=None, help="Optional YAML file containing llm settings")
@@ -65,27 +85,27 @@ def build_parser():
     parser.add_argument("--stability-constant-model-path", default=None, help="Optional local stability-constant model artifact")
     parser.add_argument("--target-metal-ion", default=None, help="Target metal ion for the metal-selectivity workflow (e.g., Cu2+)")
     parser.add_argument("--competitor-metal-ion", default=None, help="Competitor metal ion for the metal-selectivity workflow (e.g., Zn2+)")
-    parser.add_argument("--affinity-weight", type=float, default=0.5, dest="affinity_weight",
+    parser.add_argument("--affinity-weight", type=_unit_float, default=0.5, dest="affinity_weight",
                         help="Weight for log K(target) in composite selectivity score (default 0.5)")
-    parser.add_argument("--selectivity-weight", type=float, default=0.5, dest="selectivity_weight",
+    parser.add_argument("--selectivity-weight", type=_unit_float, default=0.5, dest="selectivity_weight",
                         help="Weight for delta log K in composite selectivity score (default 0.5)")
     parser.add_argument(
         "--n-des-candidates",
-        type=int,
+        type=_positive_int,
         default=20,
         dest="n_des_candidates",
         help="DES candidate search breadth per ligand per cycle (selectivity-des workflow)",
     )
     parser.add_argument(
         "--n-des-cycles",
-        type=int,
+        type=_positive_int,
         default=3,
         dest="n_des_cycles",
         help="DES iteration depth per ligand (selectivity-des workflow)",
     )
     parser.add_argument(
         "--n-outer-cycles",
-        type=int,
+        type=_positive_int,
         default=2,
         dest="n_outer_cycles",
         help="Outer loop iteration cap for selectivity-des workflow",
@@ -99,7 +119,7 @@ def build_parser():
     )
     parser.add_argument(
         "--top-ligands",
-        type=int,
+        type=_positive_int,
         default=3,
         dest="top_ligands",
         help="Maximum ligands passed from Phase 1 to Phase 2 (selectivity-des workflow)",
@@ -153,7 +173,7 @@ def build_parser():
     )
     parser.add_argument(
         "--n-cycles",
-        type=int,
+        type=_positive_int,
         default=1,
         dest="n_cycles",
         help="Number of screening iterations; the top-K hits from each cycle seed the next (default: 1 = single shot)",
@@ -167,7 +187,7 @@ def build_parser():
     )
     parser.add_argument(
         "--viscosity-weight",
-        type=float,
+        type=_unit_float,
         default=0.3,
         dest="viscosity_weight",
         help="Weight [0,1] of the viscosity component in composite ranking (default: 0.3)",

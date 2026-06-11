@@ -2,6 +2,8 @@ from pathlib import Path
 import json
 from types import SimpleNamespace
 
+import pytest
+
 import des_multi_agent.cli as cli_module
 import des_multi_agent.exporting as exporting_module
 from des_multi_agent.cli import build_parser
@@ -263,3 +265,73 @@ def test_compare_runs_subcommand_accepts_json_flag():
     parser = build_parser()
     args = parser.parse_args(["compare-runs", "runs/run_001", "runs/run_002", "--json"])
     assert args.json is True
+
+
+def test_cli_n_zero_is_rejected():
+    parser = build_parser()
+    with pytest.raises(SystemExit):
+        parser.parse_args(["--component-a", "CCO", "--n", "0", "--checkpoint-path", "ckpt.pt"])
+
+
+def test_cli_n_negative_is_rejected():
+    parser = build_parser()
+    with pytest.raises(SystemExit):
+        parser.parse_args(["--component-a", "CCO", "--n", "-5", "--checkpoint-path", "ckpt.pt"])
+
+
+def test_cli_affinity_weight_above_one_is_rejected():
+    parser = build_parser()
+    with pytest.raises(SystemExit):
+        parser.parse_args(["--component-a", "CCO", "--affinity-weight", "1.5"])
+
+
+def test_cli_affinity_weight_negative_is_rejected():
+    parser = build_parser()
+    with pytest.raises(SystemExit):
+        parser.parse_args(["--component-a", "CCO", "--affinity-weight", "-0.1"])
+
+
+def test_cli_selectivity_weight_above_one_is_rejected():
+    parser = build_parser()
+    with pytest.raises(SystemExit):
+        parser.parse_args(["--component-a", "CCO", "--selectivity-weight", "2.0"])
+
+
+def test_cli_viscosity_weight_above_one_is_rejected():
+    parser = build_parser()
+    with pytest.raises(SystemExit):
+        parser.parse_args(["--component-a", "CCO", "--viscosity-weight", "5.0"])
+
+
+def test_cli_n_cycles_zero_is_rejected():
+    parser = build_parser()
+    with pytest.raises(SystemExit):
+        parser.parse_args(["--component-a", "CCO", "--n-cycles", "0"])
+
+
+def test_cli_n_des_cycles_zero_is_rejected():
+    parser = build_parser()
+    with pytest.raises(SystemExit):
+        parser.parse_args(["--component-a", "CCO", "--n-des-cycles", "0"])
+
+
+def test_cli_top_ligands_zero_is_rejected():
+    parser = build_parser()
+    with pytest.raises(SystemExit):
+        parser.parse_args(["--component-a", "CCO", "--top-ligands", "0"])
+
+
+def test_cli_valid_inputs_accepted():
+    """Boundary values that ARE valid should parse fine."""
+    parser = build_parser()
+    args = parser.parse_args([
+        "--component-a", "CCO",
+        "--n", "1",
+        "--affinity-weight", "0.0",
+        "--selectivity-weight", "1.0",
+        "--viscosity-weight", "0.0",
+        "--n-cycles", "1",
+    ])
+    assert args.n == 1
+    assert args.affinity_weight == 0.0
+    assert args.selectivity_weight == 1.0
