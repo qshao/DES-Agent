@@ -1,0 +1,5 @@
+workflow=metal-selectivity
+target_metal_ion=Cu2+
+competitor_metal_ion=Zn2+
+n=5
+stability_constant_model_path=artifacts/stability_constants/model.json

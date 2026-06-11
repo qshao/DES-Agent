@@ -1,0 +1,14 @@
+=== Metal Selectivity Screen: Cu2+ over Zn2+ ===
+Screened 5 candidate(s) over 1 cycle(s).
+Top ligand: O=C(O)CN(CC(=O)O)CC(=O)O — score=7.43 (ΔlogK=-0.08, logK(Cu2+)=14.94)
+====================================================
+
+ligand | log_k_target | log_k_competitor | delta_log_k | score | source | rationale
+O=C(O)CN(CC(=O)O)CC(=O)O | 14.94 | 15.02 | -0.08 | 7.43 | source=heuristic; id=rule-based-ligand-library | nitrilotriacetate (tetradentate N,O,O,O-chelator)
+O=C(O)CNCC(=O)O | 13.15 | 13.23 | -0.08 | 6.54 | source=heuristic; id=rule-based-ligand-library | iminodiacetate (tridentate N,O,O-chelator)
+Oc1cccc2ncccc12 | 11.19 | 10.91 | 0.28 | 5.73 | source=heuristic; id=rule-based-ligand-library | 8-hydroxyquinoline (bidentate N,O-chelator)
+Oc1ccccc1O | 11.12 | 10.98 | 0.14 | 5.63 | source=heuristic; id=rule-based-ligand-library | catecholate (bidentate O,O-chelator)
+NCC(=O)O | 11.31 | 11.39 | -0.08 | 5.62 | source=heuristic; id=rule-based-ligand-library | aminoacetate (bidentate N,O-chelator)
+summary:
+- command: metal-selectivity
+- status: completed

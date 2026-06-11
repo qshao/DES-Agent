@@ -23,6 +23,12 @@ Twenty small runnable examples live here:
 - [`betaine_des/`](./betaine_des) for a real-target DES search: betaine, Tm ≤ 340 K, viscosity-minimised ranking, 5-cycle iteration
 - [`betaine_des_gemma4_12b/`](./betaine_des_gemma4_12b) for the same betaine search with Ollama Gemma 4-12B: LLM enforces organic H-bonding partners, two-stage brainstorm, and contradiction detection
 - [`ni2_co2_selectivity/`](./ni2_co2_selectivity) for a Ni2+/Co2+ selectivity-DES example: Phase 1 screens for selective ligands, Phase 2 finds DES partners for the top hits, outer loop converges when the DES-compatible set stabilises
+- [`metal_selectivity_standalone/`](./metal_selectivity_standalone) for the metal-selectivity workflow used independently: screens chelating ligands by Cu2+/Zn2+ selectivity score without running the DES phase
+- [`preset_thresholds/`](./preset_thresholds) for named DES threshold presets: runs the same query with `--preset strict` (Tm ≤ 240 K, drop ≥ 15%) and `--preset relaxed` (Tm ≤ 280 K, drop ≥ 5%) side by side
+- [`ensemble_prediction/`](./ensemble_prediction) for fold-ensemble predictions with `--ensemble`: auto-discovers all `*_best.pt` checkpoints and adds `ens_std` uncertainty estimates per candidate
+- [`uncertainty_controls/`](./uncertainty_controls) for the three `--uncertainty-mode` policies: `report_only` annotates trust scores, `penalize` soft-reranks low-trust candidates, `filter` removes them entirely
+- [`output_formats/`](./output_formats) for machine-readable output: shows `--format table`, `json`, `csv`, and `prose` on the same query for scripting and downstream processing
+- [`dry_run/`](./dry_run) for setup validation with `--dry-run`: checks paths, config, and checkpoint compatibility without running any predictions — useful for CI and first-time environment checks
 
 Before adapting a folder, run `python -m des_multi_agent.cli doctor` to verify the core repo and checked-in examples are present. If you also want optional local checks, you can run `python -m des_multi_agent.cli doctor --check checkpoint`, `python -m des_multi_agent.cli doctor --check discovery`, or `python -m des_multi_agent.cli doctor --check artifacts`.
 

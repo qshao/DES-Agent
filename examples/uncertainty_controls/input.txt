@@ -1,0 +1,8 @@
+workflow=des
+component_a=CCO
+n=5
+checkpoint_path=ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt
+# run three times with different --uncertainty-mode values:
+# 1. report_only (default) - annotate only, no ranking change
+# 2. penalize --min-trust-score 0.85 --soft-penalty-weight 0.3
+# 3. filter --min-trust-score 0.9

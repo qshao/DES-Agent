@@ -1,0 +1,6 @@
+workflow=des
+component_a=CCO
+n=5
+ensemble=true
+# --ensemble auto-discovers all *_best.pt fold checkpoints in ml_des_mp/runs/
+# no --checkpoint-path needed
