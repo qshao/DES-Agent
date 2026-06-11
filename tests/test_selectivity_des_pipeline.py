@@ -386,3 +386,36 @@ def test_cli_selectivity_des_file_not_found_exits_cleanly(tmp_path):
                 "--competitor-metal-ion", "Zn2+",
                 "--checkpoint-path", str(fake_ckpt),
             ])
+
+
+def test_pipeline_phase2_prints_per_ligand_progress(capsys):
+    """Each ligand in Phase 2 should print a progress line to stderr."""
+    mock_sel_outcome = MagicMock()
+    mock_sel_outcome.results = [
+        MagicMock(ligand_smiles="CCO", delta_log_k=1.0),
+        MagicMock(ligand_smiles="CCN", delta_log_k=1.5),
+    ]
+    mock_sel_outcome.warnings = []
+
+    mock_des_mco = MagicMock()
+    mock_des_mco.final_outcome.results = []
+    mock_des_mco.cycle_deltas = []
+
+    with patch(
+        "des_multi_agent.workflows.selectivity_des_pipeline.run_metal_selectivity_screen",
+        return_value=mock_sel_outcome,
+    ), patch(
+        "des_multi_agent.workflows.selectivity_des_pipeline.run_multi_cycle_search",
+        return_value=mock_des_mco,
+    ):
+        run_selectivity_des_pipeline(
+            target_metal="Cu2+",
+            competitor_metal="Zn2+",
+            checkpoint_path="ckpt.pt",
+            n_outer_cycles=1,
+            top_ligands=2,
+        )
+
+    err = capsys.readouterr().err
+    assert "ligand 1/2" in err
+    assert "ligand 2/2" in err

@@ -118,7 +118,12 @@ def run_selectivity_des_pipeline(
         new_compatible: set[str] = set()
         new_incompatible: set[str] = set()
 
-        for ligand_result in shortlisted:
+        for ligand_idx, ligand_result in enumerate(shortlisted, 1):
+            print(
+                f"[outer {outer_cycle}/{n_outer_cycles}] phase 2: ligand {ligand_idx}/{len(shortlisted)}"
+                f" — {ligand_result.ligand_smiles}",
+                file=sys.stderr, flush=True,
+            )
             try:
                 des_mco = run_multi_cycle_search(
                     component_a=ligand_result.ligand_smiles,
