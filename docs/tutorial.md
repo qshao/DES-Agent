@@ -117,9 +117,71 @@ Run the metal-binding example from the repository root:
 
 This workflow is separate from DES screening and prints `log K` predictions for a metal ion and ligand pair. For a user-editable starting point, see [`examples/ligand_binding_template/`](../ligand_binding_template).
 
+## Preset Thresholds
+
+Use `--preset` to apply named DES acceptance thresholds without specifying individual values:
+
+```bash
+python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml \
+  --preset strict
+```
+
+| Preset | Tm ceiling | Min relative drop |
+|--------|-----------|-------------------|
+| `strict` | 240 K | 15% |
+| `standard` | 260 K | 10% (default) |
+| `relaxed` | 280 K | 5% |
+
+For a runnable side-by-side comparison, see [`examples/preset_thresholds/`](../examples/preset_thresholds).
+
+## Ensemble Prediction
+
+Use `--ensemble` to run predictions across all fold checkpoints in `ml_des_mp/runs/` and aggregate them with per-candidate uncertainty estimates. No `--checkpoint-path` is needed — all `*_best.pt` files are discovered automatically:
+
+```bash
+python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 \
+  --ensemble \
+  --config-path ml_des_mp/config.yaml
+```
+
+Each candidate's rationale column gains `ensemble_folds=N ens_std=X K`. Higher `ens_std` signals disagreement between folds and warrants caution. For a worked example, see [`examples/ensemble_prediction/`](../examples/ensemble_prediction).
+
+## Output Formats
+
+Use `--format` to control the shape of the DES report output:
+
+```bash
+# Machine-readable JSON
+python -m des_multi_agent.cli --workflow des --component-a "CCO" \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --format json
+
+# Spreadsheet-ready CSV
+python -m des_multi_agent.cli --workflow des --component-a "CCO" \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --format csv > results.csv
+```
+
+The four modes are `table` (default), `json`, `csv`, and `prose`. The `summary:` block is always written to stderr, so stdout stays clean for piping. For all four outputs side by side, see [`examples/output_formats/`](../examples/output_formats).
+
+## Dry Run
+
+Use `--dry-run` to validate paths, config, and checkpoint compatibility without running any predictions:
+
+```bash
+python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml \
+  --dry-run
+```
+
+Exits with code 0 and prints `[dry-run] … OK.` on success; code 1 with an error message if anything is wrong. Useful in CI before committing to a long run. For a runnable example, see [`examples/dry_run/`](../examples/dry_run).
+
 ## Metal Ion Selectivity Screening
 
-Use `--workflow metal-selectivity` to screen ligands for **selectivity** toward a target metal over a competitor. The composite score balances binding affinity (`log K`) and selectivity (`Δlog K = log K_target − log K_competitor`):
+Use `--workflow metal-selectivity` to screen ligands for **selectivity** toward a target metal over a competitor. For a standalone example, see [`examples/metal_selectivity_standalone/`](../examples/metal_selectivity_standalone). The composite score balances binding affinity (`log K`) and selectivity (`Δlog K = log K_target − log K_competitor`):
 
 ```bash
 python -m des_multi_agent.cli \
@@ -276,10 +338,19 @@ python -m des_multi_agent.cli --workflow selectivity-des \
 
 ## Uncertainty Controls
 
-The library CLI [`des_multi_agent.cli`](/home/qshao/DES-Agent/des_multi_agent/cli.py) lets you tune how uncertainty affects filtering and ranking:
+The CLI lets you tune how uncertainty affects filtering and ranking with `--uncertainty-mode`:
+
+| Mode | Effect |
+|------|--------|
+| `penalize` (default) | Down-ranks candidates below `--min-trust-score` using `--soft-penalty-weight` |
+| `report_only` | Adds trust columns; ranking unchanged |
+| `filter` | Removes candidates below `--min-trust-score` entirely |
 
 ```bash
-python -m des_multi_agent.cli --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --uncertainty-mode filter --min-trust-score 0.70 --soft-penalty-weight 0.20
+python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml \
+  --uncertainty-mode filter --min-trust-score 0.70 --soft-penalty-weight 0.20
 ```
 
-The default mode is `penalize`. Use `report_only` if you want to inspect the uncertainty columns without changing ranking.
+For all three modes compared on the same query, see [`examples/uncertainty_controls/`](../examples/uncertainty_controls).

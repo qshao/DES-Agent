@@ -132,6 +132,43 @@ Metal-binding example:
 ./examples/metal_binding/run.sh
 ```
 
+Validate paths and checkpoint before a real run (exits immediately, no predictions):
+
+```bash
+python -m des_multi_agent.cli --workflow des --component-a "CCO" \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml --dry-run
+```
+
+Named threshold presets (`strict` / `standard` / `relaxed`) — no arithmetic required:
+
+```bash
+python -m des_multi_agent.cli --workflow des --component-a "CCO" \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml --preset strict
+```
+
+Fold-ensemble predictions with per-candidate `ens_std` uncertainty:
+
+```bash
+python -m des_multi_agent.cli --workflow des --component-a "CCO" \
+  --ensemble --config-path ml_des_mp/config.yaml
+```
+
+Machine-readable output for scripting:
+
+```bash
+# JSON
+python -m des_multi_agent.cli --workflow des --component-a "CCO" \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --format json
+
+# CSV
+python -m des_multi_agent.cli --workflow des --component-a "CCO" \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --format csv > results.csv
+```
+
 
 ## Metal-Selectivity and Selectivity-DES Workflows
 
@@ -195,16 +232,25 @@ The router loads `llm.example.yaml` by default, supports both `des` and `metal-b
 - `examples/lidocaine_gemma4_12b/` is a real lidocaine DES example with Gemma 4-12B
 - `examples/plain_language_gemma4_12b/` is a plain-language DES example routed through Gemma 4-12B
 - `examples/plain_language_metal_binding_gemma4_12b/` is a plain-language metal-binding example routed through Gemma 4-12B
+- `examples/metal_selectivity_standalone/` is the metal-selectivity workflow used independently (no DES phase)
+- `examples/preset_thresholds/` demonstrates `--preset strict` vs `relaxed` side by side
+- `examples/ensemble_prediction/` demonstrates `--ensemble` fold-ensemble with `ens_std` per candidate
+- `examples/uncertainty_controls/` shows all three `--uncertainty-mode` policies compared
+- `examples/output_formats/` shows `--format table/json/csv/prose` on the same query
+- `examples/dry_run/` shows `--dry-run` for path and checkpoint validation without running predictions
 - `llm.example.yaml` is a ready-to-edit optional LLM config
 - `docs/future-improvements.md` tracks the next planned extensions
 - `tests/test_benchmarks_examples.py` is the example benchmark suite that compares captured outputs against frozen baselines
 
 ## Uncertainty Controls
 
-The library CLI [`des_multi_agent.cli`](/home/qshao/DES-Agent/des_multi_agent/cli.py) lets you tune how uncertainty affects filtering and ranking:
+The CLI lets you tune how uncertainty affects filtering and ranking with `--uncertainty-mode`:
 
 ```bash
-python -m des_multi_agent.cli --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --uncertainty-mode filter --min-trust-score 0.70 --soft-penalty-weight 0.20
+python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml \
+  --uncertainty-mode filter --min-trust-score 0.70 --soft-penalty-weight 0.20
 ```
 
-The default mode is `penalize`. Use `report_only` if you want to inspect the uncertainty columns without changing ranking.
+The default mode is `penalize`. Use `report_only` to inspect trust columns without changing ranking, or `filter` to remove low-trust candidates entirely. For all three modes compared on the same query, see [`examples/uncertainty_controls/`](/home/qshao/DES-Agent/examples/uncertainty_controls).
