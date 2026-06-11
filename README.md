@@ -133,6 +133,40 @@ Metal-binding example:
 ```
 
 
+## Metal-Selectivity and Selectivity-DES Workflows
+
+Screen ligands for selectivity between two competing metal ions:
+
+```bash
+python -m des_multi_agent.cli --workflow metal-selectivity \
+  --target-metal-ion Cu2+ \
+  --competitor-metal-ion Zn2+ \
+  --n 20 --n-cycles 3 \
+  --stability-constant-model-path artifacts/stability_constants/model.json
+```
+
+The combined selectivity-DES workflow runs Phase 1 (metal-selectivity screening) and then Phase 2 (DES partner search for the top selective ligands). The two phases are connected by an outer feedback loop: DES-compatible ligands found in Phase 2 are fed back as hints to Phase 1 on the next outer cycle, steering brainstorming toward ligands that are both selective and DES-compatible.
+
+```bash
+python -m des_multi_agent.cli --workflow selectivity-des \
+  --target-metal-ion Cu2+ \
+  --competitor-metal-ion Zn2+ \
+  --n 20 --n-cycles 3 \
+  --n-des-candidates 20 --n-des-cycles 3 \
+  --n-outer-cycles 2 --top-ligands 3 --min-delta-log-k 0.5 \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml \
+  --stability-constant-model-path artifacts/stability_constants/model.json
+```
+
+Key flags:
+- `--n-outer-cycles`: how many Phase 1 → Phase 2 feedback loops to run (default: 2)
+- `--top-ligands`: how many Phase 1 ligands are passed to Phase 2 each outer cycle (default: 3)
+- `--min-delta-log-k`: minimum selectivity threshold (delta log K) for the Phase 1 → Phase 2 bridge (default: 0.0)
+- `--n-des-candidates` and `--n-des-cycles` control the DES search breadth and depth for each ligand in Phase 2
+
+The report shows a selectivity table with a `des_compatible` column (Section 1) and per-ligand DES partner blocks (Section 2). The outer loop stops early when the DES-compatible ligand set stabilises across two consecutive cycles.
+
 ## Task Router
 
 Use the task router to turn a plain-language request into a JSON job without running the workflow:

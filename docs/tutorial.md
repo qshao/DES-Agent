@@ -230,6 +230,50 @@ If multi-cycle mode is active (`--n-cycles > 1`), cycle-level progress is printe
 - If the discovery directory is missing or malformed, the demo falls back to heuristic candidate generation and reports a warning.
 - If a request mentions a free base versus a salt form, the router may ask a clarification question before it executes anything.
 
+## Selectivity-DES Pipeline
+
+The selectivity-DES workflow combines Phase 1 (metal-ion selectivity screening) and Phase 2 (DES partner search) into a two-phase pipeline with a convergence-driven outer loop.
+
+**When to use:** You need a ligand that (a) binds your target metal ion much more strongly than a competing ion, and (b) can form a deep eutectic solvent with an affordable small-molecule partner.
+
+**Architecture:**
+1. Phase 1 brainstorms and ranks ligands by selectivity score (`w_affinity * log_K_target + w_selectivity * delta_log_K`).
+2. The top `--top-ligands` ligands (filtered by `--min-delta-log-k`) pass to Phase 2.
+3. Phase 2 runs a full DES partner search for each shortlisted ligand.
+4. DES-compatible ligands feed back into Phase 1 on the next outer cycle as hints.
+5. The loop stops when the DES-compatible set is stable across two consecutive outer cycles, or when `--n-outer-cycles` is reached.
+
+**Minimal invocation:**
+
+```bash
+python -m des_multi_agent.cli --workflow selectivity-des \
+  --target-metal-ion Ni2+ \
+  --competitor-metal-ion Co2+ \
+  --n 20 --n-cycles 3 \
+  --n-des-candidates 20 --n-des-cycles 3 \
+  --n-outer-cycles 2 --top-ligands 3 --min-delta-log-k 0.5 \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml \
+  --stability-constant-model-path artifacts/stability_constants/model.json
+```
+
+**Reading the report:**
+- Section 1 is a selectivity table identical to the `metal-selectivity` report, with an added `des_compatible` column (`yes`/`no`).
+- Section 2 shows the DES partner candidates for each Phase 1 ligand, or "No DES partners found." for DES-incompatible ones.
+- A "Warnings" section at the bottom lists any fallback decisions (e.g., bridge filter had zero candidates above `--min-delta-log-k` and fell back to top-N unconditionally).
+
+**Progress output (stderr):**
+```
+[outer 1/2] phase 1: selectivity screening
+[outer 1/2] phase 2: DES search for 3 ligand(s)
+[outer 1/2] phase 2: ligand 1/3 — OC(=O)CNCC(=O)O
+[outer 1/2] phase 2: ligand 2/3 — NCC(=O)O
+[outer 1/2] phase 2: ligand 3/3 — c1ccncc1
+[outer 2/2] phase 1: selectivity screening
+...
+[outer 2/2] DES-compatible set stable — converged early
+```
+
 ## Uncertainty Controls
 
 The library CLI [`des_multi_agent.cli`](/home/qshao/DES-Agent/des_multi_agent/cli.py) lets you tune how uncertainty affects filtering and ranking:

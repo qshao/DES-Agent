@@ -22,6 +22,7 @@ Twenty small runnable examples live here:
 - [`des_run_memory_feedback/`](./des_run_memory_feedback) for the full DES save-label-reuse feedback loop
 - [`betaine_des/`](./betaine_des) for a real-target DES search: betaine, Tm ≤ 340 K, viscosity-minimised ranking, 5-cycle iteration
 - [`betaine_des_gemma4_12b/`](./betaine_des_gemma4_12b) for the same betaine search with Ollama Gemma 4-12B: LLM enforces organic H-bonding partners, two-stage brainstorm, and contradiction detection
+- [`ni2_co2_selectivity/`](./ni2_co2_selectivity) for a Ni2+/Co2+ selectivity-DES example: Phase 1 screens for selective ligands, Phase 2 finds DES partners for the top hits, outer loop converges when the DES-compatible set stabilises
 
 Before adapting a folder, run `python -m des_multi_agent.cli doctor` to verify the core repo and checked-in examples are present. If you also want optional local checks, you can run `python -m des_multi_agent.cli doctor --check checkpoint`, `python -m des_multi_agent.cli doctor --check discovery`, or `python -m des_multi_agent.cli doctor --check artifacts`.
 
