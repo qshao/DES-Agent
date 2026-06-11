@@ -288,3 +288,25 @@ def test_report_pipeline_outcome_none_selectivity_does_not_crash():
     )
     report = format_selectivity_des_report(outcome)
     assert "Selectivity-DES Pipeline" in report
+
+
+@patch("des_multi_agent.workflows.selectivity_des_pipeline.run_multi_cycle_search")
+@patch("des_multi_agent.workflows.selectivity_des_pipeline.run_metal_selectivity_screen")
+def test_pipeline_passes_des_incompatible_hints_on_second_outer_cycle(mock_sel, mock_des):
+    mock_sel.return_value = _sel_outcome(["NCC(=O)O", "NCCN"])
+    # First ligand is DES-compatible, second is not
+    mock_des.side_effect = [
+        _make_multi_cycle_outcome(is_des=True),   # NCC(=O)O — compatible
+        _make_multi_cycle_outcome(is_des=False),  # NCCN — incompatible
+        _make_multi_cycle_outcome(is_des=True),   # NCC(=O)O cycle 2
+        _make_multi_cycle_outcome(is_des=False),  # NCCN cycle 2
+    ]
+    run_selectivity_des_pipeline(
+        target_metal="Cu2+",
+        competitor_metal="Zn2+",
+        checkpoint_path="/fake/ckpt.pt",
+        n_outer_cycles=2,
+        top_ligands=2,
+    )
+    second_call_kwargs = mock_sel.call_args_list[1][1]
+    assert "NCCN" in second_call_kwargs.get("des_incompatible_hints", [])
