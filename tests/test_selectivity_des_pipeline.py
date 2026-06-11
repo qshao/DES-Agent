@@ -262,7 +262,7 @@ def test_report_contains_section_2_header():
 def test_report_section_1_has_des_compatible_column():
     report = format_selectivity_des_report(_make_pipeline_outcome(des_compatible=True))
     assert "des_compatible" in report
-    assert "yes" in report
+    assert "| yes" in report
 
 
 def test_report_section_2_shows_des_partner_when_compatible():
@@ -310,3 +310,4 @@ def test_pipeline_passes_des_incompatible_hints_on_second_outer_cycle(mock_sel, 
     )
     second_call_kwargs = mock_sel.call_args_list[1][1]
     assert "NCCN" in second_call_kwargs.get("des_incompatible_hints", [])
+    assert "NCC(=O)O" in second_call_kwargs.get("des_compatible_hints", [])

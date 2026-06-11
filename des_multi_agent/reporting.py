@@ -333,7 +333,7 @@ def format_metal_binding_screen_report(outcome) -> str:
     return '\n'.join(header_lines + rows + review_lines + brainstorm_lines + warning_lines)
 
 
-def format_selectivity_des_report(outcome) -> str:
+def format_selectivity_des_report(outcome: "SelectivityDesPipelineOutcome") -> str:
     """Render a two-section selectivity-DES pipeline report."""
     n_compatible = sum(1 for r in outcome.ligand_des_results if r.des_compatible)
     header = [
