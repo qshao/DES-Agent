@@ -1,0 +1,26 @@
+=== Metal Selectivity Screen: Ni2+ over Co2+ ===
+Screened 20 candidate(s) over 3 cycle(s).
+Top ligand: CC(O)(P(=O)(O)O)P(=O)(O)O — score=7.99 (ΔlogK=0.08, logK(Ni2+)=15.90)
+====================================================
+
+ligand | log_k_target | log_k_competitor | delta_log_k | score | source | rationale
+CC(O)(P(=O)(O)O)P(=O)(O)O | 15.90 | 15.82 | 0.08 | 7.99 | source=heuristic; id=rule-based-ligand-library | phosphonate (bidentate O,O-chelator)
+O=C(O)CC(O)(CC(=O)O)C(=O)O | 15.90 | 15.82 | 0.08 | 7.99 | source=heuristic; id=rule-based-ligand-library | citrate (tridentate O,O,O-chelator)
+O=C(O)CN(CC(=O)O)CC(=O)O | 14.86 | 14.78 | 0.08 | 7.47 | source=heuristic; id=rule-based-ligand-library | nitrilotriacetate (tetradentate N,O,O,O-chelator)
+NC(Cc1c[nH]cn1)C(=O)O | 13.94 | 13.86 | 0.08 | 7.01 | source=heuristic; id=rule-based-ligand-library | histidine-like (bidentate N,N-imidazole donor)
+NCCNCCNCCN | 13.27 | 13.19 | 0.08 | 6.68 | source=heuristic; id=rule-based-ligand-library | triethylenetetramine (hexadentate polyamine)
+O=C(O)CNCC(=O)O | 13.07 | 12.99 | 0.08 | 6.58 | source=heuristic; id=rule-based-ligand-library | iminodiacetate (tridentate N,O,O-chelator)
+NCCNCCN | 11.98 | 11.90 | 0.08 | 6.03 | source=heuristic; id=rule-based-ligand-library | diethylenetriamine (tridentate N,N,N-chelator)
+NC(CS)C(=O)O | 11.91 | 11.83 | 0.08 | 6.00 | source=heuristic; id=rule-based-ligand-library | cysteine (tridentate N,O,S-chelator)
+O=C(O)C(=O)O | 11.78 | 11.70 | 0.08 | 5.93 | source=heuristic; id=rule-based-ligand-library | oxalate (bidentate O,O-chelator)
+O=C(O)c1ccccc1O | 11.75 | 11.67 | 0.08 | 5.92 | source=heuristic; id=rule-based-ligand-library | salicylate (bidentate O,O-chelator)
+NCC(=O)O | 11.23 | 11.15 | 0.08 | 5.66 | source=heuristic; id=rule-based-ligand-library | aminoacetate (bidentate N,O-chelator)
+O=C(O)c1ccccn1 | 11.11 | 11.03 | 0.08 | 5.59 | source=heuristic; id=rule-based-ligand-library | picolinic acid (bidentate N,O-chelator)
+Oc1ccccc1O | 10.89 | 10.81 | 0.08 | 5.49 | source=heuristic; id=rule-based-ligand-library | catecholate (bidentate O,O-chelator)
+Oc1cccc2ncccc12 | 10.87 | 10.79 | 0.08 | 5.47 | source=heuristic; id=rule-based-ligand-library | 8-hydroxyquinoline (bidentate N,O-chelator)
+c1cnc2ccc3ncccc3c2c1 | 10.84 | 10.76 | 0.08 | 5.46 | source=heuristic; id=rule-based-ligand-library | 1,10-phenanthroline (bidentate N,N-chelator)
+NCCN | 10.69 | 10.61 | 0.08 | 5.38 | source=heuristic; id=rule-based-ligand-library | ethylenediamine (bidentate N,N-chelator)
+CC(=O)NO | 10.58 | 10.50 | 0.08 | 5.33 | source=heuristic; id=rule-based-ligand-library | acetohydroxamate (bidentate N,O-chelator)
+c1ccc(-c2ccccn2)nc1 | 10.45 | 10.37 | 0.08 | 5.26 | source=heuristic; id=rule-based-ligand-library | 2,2-bipyridine (bidentate N,N-chelator)
+CC(=O)CC(C)=O | 9.39 | 9.31 | 0.08 | 4.73 | source=heuristic; id=rule-based-ligand-library | acetylacetonate (bidentate O,O-chelator)
+OCCS | 9.21 | 9.13 | 0.08 | 4.65 | source=heuristic; id=rule-based-ligand-library | 2-mercaptoethanol (bidentate O,S-chelator)

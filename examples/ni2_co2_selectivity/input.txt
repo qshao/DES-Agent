@@ -1,0 +1,9 @@
+workflow=metal-selectivity
+target_metal=Ni2+
+competitor_metal=Co2+
+n=20
+n_cycles=3
+affinity_weight=0.5
+selectivity_weight=0.5
+stability_constant_model_path=artifacts/stability_constants/model.json
+constraints={"min_hbd": 1, "min_hba": 1}

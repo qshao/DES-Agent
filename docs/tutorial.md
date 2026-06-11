@@ -117,6 +117,35 @@ Run the metal-binding example from the repository root:
 
 This workflow is separate from DES screening and prints `log K` predictions for a metal ion and ligand pair. For a user-editable starting point, see [`examples/ligand_binding_template/`](../ligand_binding_template).
 
+## Metal Ion Selectivity Screening
+
+Use `--workflow metal-selectivity` to screen ligands for **selectivity** toward a target metal over a competitor. The composite score balances binding affinity (`log K`) and selectivity (`Δlog K = log K_target − log K_competitor`):
+
+```bash
+python -m des_multi_agent.cli \
+  --workflow metal-selectivity \
+  --target-metal-ion Cu2+ \
+  --competitor-metal-ion Zn2+ \
+  --n 20 --n-cycles 3 \
+  --affinity-weight 0.5 --selectivity-weight 0.5
+```
+
+`--affinity-weight` and `--selectivity-weight` (both default 0.5) control the relative importance of absolute binding strength versus metal discrimination in the ranking score. With `--n-cycles N` and an LLM config, the loop proposes increasingly selective ligands each cycle using HSAB theory guidance.
+
+The predictor gives the most meaningful selectivity signal when both metals are in the supported identity table:
+
+| Category | Ions |
+|----------|------|
+| **Alkali metals** | Li+, Na+, K+ |
+| **Alkaline earth** | Mg2+, Ca2+, Ba2+ |
+| **Post-transition** | Al3+, Pb2+ |
+| **First-row transition** | Mn2+, Mn3+, Fe2+, Fe3+, Co2+, Co3+, Ni2+, Cu+, Cu2+, Zn2+ |
+| **Second-row transition** | Pd2+, Ag+, Cd2+ |
+| **Third-row transition** | Pt2+, Hg+, Hg2+ |
+| **Lanthanides** | La3+, Gd3+ |
+
+Metal ions not in this table still work but fall back to zeroed identity features, so Δlog K between two unlisted metals will be near zero.
+
 ## Optional LLM Mode
 
 If you want candidate brainstorming and explanation generation, pass an LLM config file:
