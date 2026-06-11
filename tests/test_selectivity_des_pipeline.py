@@ -311,3 +311,56 @@ def test_pipeline_passes_des_incompatible_hints_on_second_outer_cycle(mock_sel, 
     second_call_kwargs = mock_sel.call_args_list[1][1]
     assert "NCCN" in second_call_kwargs.get("des_incompatible_hints", [])
     assert "NCC(=O)O" in second_call_kwargs.get("des_compatible_hints", [])
+
+
+from unittest.mock import patch as _patch
+from des_multi_agent.cli import build_parser, main as cli_main
+
+
+def test_cli_selectivity_des_routes_to_pipeline(tmp_path):
+    fake_ckpt = tmp_path / "ckpt.pt"
+    fake_ckpt.write_text("x")
+    fake_outcome = _make_pipeline_outcome()
+    with _patch(
+        "des_multi_agent.cli.run_selectivity_des_pipeline",
+        return_value=fake_outcome,
+    ) as mock_run, _patch("des_multi_agent.cli.format_selectivity_des_report", return_value="REPORT"):
+        cli_main([
+            "--workflow", "selectivity-des",
+            "--target-metal-ion", "Cu2+",
+            "--competitor-metal-ion", "Zn2+",
+            "--checkpoint-path", str(fake_ckpt),
+        ])
+    mock_run.assert_called_once()
+    kwargs = mock_run.call_args[1]
+    assert kwargs["target_metal"] == "Cu2+"
+    assert kwargs["competitor_metal"] == "Zn2+"
+
+
+def test_cli_selectivity_des_requires_target_metal_ion():
+    with pytest.raises(SystemExit):
+        cli_main([
+            "--workflow", "selectivity-des",
+            "--competitor-metal-ion", "Zn2+",
+            "--checkpoint-path", "/fake/ckpt.pt",
+        ])
+
+
+def test_cli_selectivity_des_requires_checkpoint_path():
+    with pytest.raises(SystemExit):
+        cli_main([
+            "--workflow", "selectivity-des",
+            "--target-metal-ion", "Cu2+",
+            "--competitor-metal-ion", "Zn2+",
+        ])
+
+
+def test_cli_metal_selectivity_workflow_unchanged():
+    """Existing metal-selectivity workflow must still parse without error."""
+    parser = build_parser()
+    args = parser.parse_args([
+        "--workflow", "metal-selectivity",
+        "--target-metal-ion", "Cu2+",
+        "--competitor-metal-ion", "Zn2+",
+    ])
+    assert args.workflow == "metal-selectivity"

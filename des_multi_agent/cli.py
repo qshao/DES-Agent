@@ -21,7 +21,9 @@ from . import prediction as _prediction
 from .reporting import (
     format_metal_binding_report, format_metal_binding_screen_report, format_metal_selectivity_report,
     format_report, format_report_csv, format_report_json, format_report_prose,
+    format_selectivity_des_report,
 )
+from .workflows.selectivity_des_pipeline import run_selectivity_des_pipeline
 from .summary import build_command_summary, render_command_summary
 from .task_executor import execute_task_request, execute_task_request_detailed
 from .task_router import route_task
@@ -50,7 +52,7 @@ _init_presets()
 
 def build_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--workflow", choices=["des", "metal-binding", "metal-selectivity"], default="des")
+    parser.add_argument("--workflow", choices=["des", "metal-binding", "metal-selectivity", "selectivity-des"], default="des")
     parser.add_argument("--component-a", default=None)
     parser.add_argument("--n", type=int, default=20)
     parser.add_argument("--checkpoint-path", default=None)
@@ -67,6 +69,41 @@ def build_parser():
                         help="Weight for log K(target) in composite selectivity score (default 0.5)")
     parser.add_argument("--selectivity-weight", type=float, default=0.5, dest="selectivity_weight",
                         help="Weight for delta log K in composite selectivity score (default 0.5)")
+    parser.add_argument(
+        "--n-des-candidates",
+        type=int,
+        default=20,
+        dest="n_des_candidates",
+        help="DES candidate search breadth per ligand per cycle (selectivity-des workflow)",
+    )
+    parser.add_argument(
+        "--n-des-cycles",
+        type=int,
+        default=3,
+        dest="n_des_cycles",
+        help="DES iteration depth per ligand (selectivity-des workflow)",
+    )
+    parser.add_argument(
+        "--n-outer-cycles",
+        type=int,
+        default=2,
+        dest="n_outer_cycles",
+        help="Outer loop iteration cap for selectivity-des workflow",
+    )
+    parser.add_argument(
+        "--min-delta-log-k",
+        type=float,
+        default=0.0,
+        dest="min_delta_log_k",
+        help="Minimum delta log K threshold for Phase 1 → Phase 2 bridge filter",
+    )
+    parser.add_argument(
+        "--top-ligands",
+        type=int,
+        default=3,
+        dest="top_ligands",
+        help="Maximum ligands passed from Phase 1 to Phase 2 (selectivity-des workflow)",
+    )
     parser.add_argument("--save-run-memory", default=None, help="Optional path to write a compact JSON DES run memory file")
     parser.add_argument("--reuse-run", default=None, help="Optional prior DES run folder, run.memory.json file, or history directory of prior DES runs to reuse for ranking")
     parser.add_argument("--output-dir", default=None, help="Optional directory where DES run artifacts are written")
@@ -472,6 +509,33 @@ def main(argv=None):
                 )
             )
         _print_summary("des", outcome)
+        return
+
+    if args.workflow == "selectivity-des":
+        if not args.target_metal_ion:
+            parser.error("selectivity-des workflow requires --target-metal-ion")
+        if not args.competitor_metal_ion:
+            parser.error("selectivity-des workflow requires --competitor-metal-ion")
+        if not args.checkpoint_path:
+            parser.error("selectivity-des workflow requires --checkpoint-path")
+        pipeline_outcome = run_selectivity_des_pipeline(
+            target_metal=args.target_metal_ion,
+            competitor_metal=args.competitor_metal_ion,
+            checkpoint_path=args.checkpoint_path,
+            config_path=args.config_path,
+            n_ligands=args.n,
+            n_des_candidates=args.n_des_candidates,
+            n_selectivity_cycles=args.n_cycles,
+            n_des_cycles=args.n_des_cycles,
+            n_outer_cycles=args.n_outer_cycles,
+            min_delta_log_k=args.min_delta_log_k,
+            top_ligands=args.top_ligands,
+            w_affinity=args.affinity_weight,
+            w_selectivity=args.selectivity_weight,
+            stability_model_path=args.stability_constant_model_path,
+            llm_cfg=llm_cfg,
+        )
+        print(format_selectivity_des_report(pipeline_outcome))
         return
 
     if args.workflow == "metal-selectivity":
