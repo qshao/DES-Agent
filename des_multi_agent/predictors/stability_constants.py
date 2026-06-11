@@ -151,7 +151,7 @@ def _predict_from_model(model: Any, features: dict[str, float]) -> float:
             if isinstance(prediction, (list, tuple)):
                 return float(prediction[0])
             return float(prediction)
-        except Exception:
+        except (ValueError, TypeError, AttributeError):
             pass
     if isinstance(model, dict):
         return linear_predict(model, features)
