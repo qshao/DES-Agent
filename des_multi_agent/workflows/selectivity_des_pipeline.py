@@ -66,6 +66,10 @@ def run_selectivity_des_pipeline(
     stability_model_path=None,
     llm_cfg=None,
     constraints: dict | None = None,
+    des_thresholds=None,
+    viscosity_model_path: str | None = None,
+    viscosity_weight: float = 0.3,
+    viscosity_threshold_cp: float | None = None,
 ) -> SelectivityDesPipelineOutcome:
     all_warnings: list[str] = []
     des_compatible_smiles: set[str] = set()
@@ -132,6 +136,10 @@ def run_selectivity_des_pipeline(
                     config_path=config_path,
                     n_cycles=n_des_cycles,
                     llm_cfg=llm_cfg,
+                    thresholds=des_thresholds,
+                    viscosity_model_path=viscosity_model_path,
+                    viscosity_weight=viscosity_weight,
+                    viscosity_threshold_cp=viscosity_threshold_cp,
                 )
                 des_compat = any(r.is_des for r in des_mco.final_outcome.results)
                 n_screened = sum(d.n_screened for d in des_mco.cycle_deltas)

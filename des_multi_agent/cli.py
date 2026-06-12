@@ -584,6 +584,16 @@ def main(argv=None):
             )
         checkpoint_path = resolve_existing_path(args.checkpoint_path)
         config_path = resolve_existing_path(args.config_path)
+        preset_name_sel = getattr(args, "preset", None)
+        sel_thresholds = THRESHOLD_PRESETS[preset_name_sel] if preset_name_sel else None
+        abs_tm_sel = getattr(args, "abs_tm_threshold", None)
+        rel_drop_sel = getattr(args, "rel_drop_min", None)
+        if abs_tm_sel is not None or rel_drop_sel is not None:
+            base_sel = sel_thresholds or THRESHOLD_PRESETS["standard"]
+            sel_thresholds = DesThresholds(
+                absolute_tm_max_k=abs_tm_sel if abs_tm_sel is not None else base_sel.absolute_tm_max_k,
+                relative_drop_min=rel_drop_sel if rel_drop_sel is not None else base_sel.relative_drop_min,
+            )
         try:
             pipeline_outcome = run_selectivity_des_pipeline(
                 target_metal=args.target_metal_ion,
@@ -601,6 +611,10 @@ def main(argv=None):
                 w_selectivity=args.selectivity_weight,
                 stability_model_path=args.stability_constant_model_path,
                 llm_cfg=llm_cfg,
+                des_thresholds=sel_thresholds,
+                viscosity_model_path=getattr(args, "viscosity_model_path", None),
+                viscosity_weight=getattr(args, "viscosity_weight", 0.3),
+                viscosity_threshold_cp=getattr(args, "viscosity_threshold", None),
             )
         except (FileNotFoundError, ValueError) as exc:
             parser.error(str(exc))
