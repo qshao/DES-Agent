@@ -43,6 +43,12 @@ roughly 3–4× tighter than the heuristic on novel molecules.
 
 ## Controls
 
-- `DES_DISABLE_QSPR=1` skips Layer 3 (experimental lookup + heuristic only).
-- The QSPR model loads lazily on CPU by default, leaving the GPU free for a
-  local LLM; see `--ml-device` for the DES eutectic stage.
+- `DES_DISABLE_QSPR=1` skips the QSPR layer (experimental lookup + heuristic
+  only). Use this to reproduce results from a clean checkout, where only
+  `experimental.json` is committed and `qspr_model.pt` is not.
+- `DES_MP_DEVICE` selects the QSPR device (default `cpu`). The model loads
+  lazily and stays on CPU by default — even when the DES eutectic stage runs on
+  `cuda` via `--ml-device` — so the GPU is left free for a local LLM.
+- `des_multi_agent.property_resolution.clear_resolver_caches()` drops the cached
+  experimental table and QSPR model (for long-lived processes that regenerate an
+  artifact or change the controls above mid-run).

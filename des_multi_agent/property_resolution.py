@@ -50,6 +50,16 @@ def _lookup_experimental(mol) -> float | None:
     return float(entry["tm_k"])
 
 
+def _resolve_mp_device() -> str:
+    """Device for the QSPR melting-point model.
+
+    Defaults to ``cpu`` (the model is tiny) so it stays off the GPU even when the
+    DES eutectic stage runs on ``cuda`` via ``--ml-device`` — keeping the GPU free
+    for a local LLM. Override with ``DES_MP_DEVICE``.
+    """
+    return os.environ.get("DES_MP_DEVICE", "cpu")
+
+
 @lru_cache(maxsize=1)
 def _qspr_model():
     """Lazily load the QSPR melting-point ensemble (cached for the process).
@@ -62,9 +72,20 @@ def _qspr_model():
     try:
         from .predictors.melting_point import load_qspr_model
 
-        return load_qspr_model()
+        return load_qspr_model(device=_resolve_mp_device())
     except Exception:
         return None
+
+
+def clear_resolver_caches() -> None:
+    """Reset the cached experimental table and QSPR model.
+
+    Useful in long-lived processes when an artifact is regenerated or
+    ``DES_DISABLE_QSPR`` / ``DES_MP_DEVICE`` change mid-run. Guarded so it is a
+    no-op if either function has been monkeypatched without an lru cache.
+    """
+    for fn in (_experimental_table, _qspr_model):
+        getattr(fn, "cache_clear", lambda: None)()
 
 
 def _qspr_confidence(std_k: float) -> float:

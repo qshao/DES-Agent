@@ -279,9 +279,18 @@ def format_report_csv(results, annotated_results=None, resolve_names: bool = Tru
     """Render results as CSV text."""
     annotation_by_smiles = {a.result.curve.smiles_b: a for a in (annotated_results or [])}
     buf = io.StringIO()
-    fieldnames = ["smiles_b", "compound", "is_des", "min_tm_k", "eutectic_ratio_b", "trust_score", "uncertainty_flag", "rationale"]
+    fieldnames = [
+        "smiles_b", "compound", "is_des", "min_tm_k", "eutectic_ratio_b",
+        "trust_score", "uncertainty_flag",
+        "t1_source", "t2_source", "t1_confidence", "t2_confidence",
+        "rationale",
+    ]
     writer = csv.DictWriter(buf, fieldnames=fieldnames)
     writer.writeheader()
+
+    def _conf(value) -> str:
+        return f"{value:.2f}" if isinstance(value, (int, float)) else ""
+
     for r in results:
         smiles_b = r.curve.smiles_b
         label = display_name(smiles_b) if resolve_names else smiles_b
@@ -295,6 +304,10 @@ def format_report_csv(results, annotated_results=None, resolve_names: bool = Tru
             "eutectic_ratio_b": f"{eutectic_x_b:.2f}" if eutectic_x_b is not None else "",
             "trust_score": f"{ann.trust_score:.2f}" if ann else "",
             "uncertainty_flag": ann.uncertainty.uncertainty_flag if ann else "",
+            "t1_source": getattr(r, "t1_source", None) or "",
+            "t2_source": getattr(r, "t2_source", None) or "",
+            "t1_confidence": _conf(getattr(r, "t1_confidence", None)),
+            "t2_confidence": _conf(getattr(r, "t2_confidence", None)),
             "rationale": r.rationale,
         })
     return buf.getvalue()

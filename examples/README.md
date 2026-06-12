@@ -48,6 +48,16 @@ Each folder includes and can be used as a template for your own work:
 
 The same folders also power the pytest-based example benchmark suite in [`tests/test_benchmarks_examples.py`](/home/qshao/DES-Agent/tests/test_benchmarks_examples.py), which compares captured outputs against frozen baselines under `tests/fixtures/example_benchmark_baselines/`.
 
+> **Note — melting-point provenance:** the captured `output.txt` files predate the
+> layered melting-point resolver (see [`artifacts/melting_points/README.md`](/home/qshao/DES-Agent/artifacts/melting_points/README.md)).
+> Live DES runs now print a `Melting-point inputs:` section (and a `tm_src` column in the
+> selectivity-DES report) and use experimental/QSPR pure-component melting points, which
+> shifts the predicted `min_tm_k` values. The captures were not regenerated because the
+> QSPR model (`qspr_model.pt`) is not committed and its training is GPU-stochastic, so
+> QSPR-active captures would not reproduce exactly. To reproduce the committed numbers
+> deterministically, run with `DES_DISABLE_QSPR=1` (experimental lookup + heuristic only,
+> both fully deterministic from committed artifacts).
+
 The LLM-backed examples also include a model-specific `llm.*.yaml` file.
 
 The DES examples call the shared demo entrypoint. In LLM-enabled runs, candidates are reviewed one by one and the brainstorm is two-stage: the LLM first selects chemical families (polyols, amides, imidazolium salts, …), then distributes candidates across those families for better chemical diversity. The LLM also examines each ML prediction for chemical plausibility and reports `agree`, `conflict`, or `uncertain` per candidate.

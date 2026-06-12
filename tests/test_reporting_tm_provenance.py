@@ -55,3 +55,18 @@ def test_json_report_includes_tm_provenance_when_present():
 def test_json_report_omits_tm_provenance_when_absent():
     payload = json.loads(reporting.format_report_json([_result(with_provenance=False)], resolve_names=False))
     assert "t1_source" not in payload[0]
+
+
+def test_csv_report_includes_tm_provenance_columns():
+    import csv as _csv
+    import io as _io
+
+    text = reporting.format_report_csv([_result(with_provenance=True)], resolve_names=False)
+    rows = list(_csv.DictReader(_io.StringIO(text)))
+    assert rows[0]["t1_source"] == "experimental"
+    assert rows[0]["t2_source"] == "qspr"
+    assert rows[0]["t1_confidence"] == "0.95"
+    assert rows[0]["t2_confidence"] == "0.70"
+    # parity: the JSON sibling exposes the same provenance keys
+    payload = json.loads(reporting.format_report_json([_result(with_provenance=True)], resolve_names=False))
+    assert {"t1_source", "t2_source", "t1_confidence", "t2_confidence"} <= payload[0].keys()
