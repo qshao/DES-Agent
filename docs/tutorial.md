@@ -1,356 +1,687 @@
-# DES Multi-Agent Tutorial
+# DES-Agent Comprehensive Tutorial
 
-This project combines a deterministic DES screening pipeline with optional layers for uncertainty, local discovery, LLM-assisted candidate brainstorming, viscosity-aware composite ranking, multi-cycle iterative screening with convergence detection, and a separate metal-binding workflow for stability-constant prediction. When LLM mode is enabled, candidates are reviewed one by one and the brainstorm uses a two-stage approach: the LLM first selects chemical families (HBD/HBA role), then distributes candidates across those families. The LLM also examines each prediction for chemical plausibility and flags contradictions. The trained `ml_des_mp` model always makes the final prediction for DES melting temperature.
+DES-Agent is a local, scriptable workflow for screening deep eutectic solvent (DES) candidates and related metal-binding ligands. It combines deterministic prediction, optional LLM assistance, offline property models, run-memory feedback, and example-driven regression tests.
 
-## What You Need
+Use this tutorial as the main user guide. The top-level `README.md` is the quick-start page; this file explains how the pieces fit together and which command to use for each task.
 
-- Python environment with the project dependencies installed
-- A trained checkpoint from `ml_des_mp/runs/`
-- Optional: a local discovery directory with `literature.yaml` and `library.yaml`
-- Optional: an Ollama service with Gemma, Nemotron, or Qwen available locally
-- Optional: the bundled offline artifact JSON files under `artifacts/` for viscosity and metal-binding runs
+## 1. What The System Does
 
-## Doctor First
+The project has four main workflow families:
 
-Run `python -m des_multi_agent.cli doctor` before any demo to check the core repo and the checked-in example folders. If you want extra local setup coverage, you can run `python -m des_multi_agent.cli doctor --check checkpoint`, `python -m des_multi_agent.cli doctor --check discovery`, or `python -m des_multi_agent.cli doctor --check artifacts` to check the default checkpoint, the bundled discovery fixture, and the local artifact files.
+| Workflow | Purpose | Main command |
+|----------|---------|--------------|
+| DES screening | Find candidate DES partners for a component A SMILES | `--workflow des` |
+| DES viscosity | Add viscosity prediction and viscosity-aware ranking to DES screening | `--viscosity-model-path` |
+| Metal binding | Predict or screen ligand-metal stability constants (`log K`) | `--workflow metal-binding` |
+| Metal selectivity | Rank ligands by target-metal affinity and selectivity over a competitor | `--workflow metal-selectivity` |
+| Selectivity-DES | Screen selective ligands, then search DES partners for the best ligands | `--workflow selectivity-des` |
 
-## Mock Demo
+The core DES melting-temperature prediction is deterministic and uses the trained `ml_des_mp` checkpoint. LLM mode is optional. When enabled, the LLM proposes candidates, reviews candidates one by one, explains outputs, and flags chemical contradictions, but the ML model still makes the final DES melting-temperature prediction.
 
-Run the fully offline mock demo from the repository root:
+## 2. Setup And Health Checks
+
+Run all commands from the repository root unless an example README says otherwise.
+
+Start with the default setup check:
+
+```bash
+python -m des_multi_agent.cli doctor
+```
+
+Add optional checks for files and local services:
+
+```bash
+python -m des_multi_agent.cli doctor --check checkpoint
+python -m des_multi_agent.cli doctor --check discovery
+python -m des_multi_agent.cli doctor --check artifacts
+python -m des_multi_agent.cli doctor --check config
+python -m des_multi_agent.cli doctor --check llm --llm-config llm.example.yaml
+```
+
+The `checkpoint`, `discovery`, `artifacts`, and `config` checks are local file/config checks. The `llm` check probes the configured local LLM service, so use it only when you expect Ollama or another configured provider to be running.
+
+You can also list metal ions with explicit identity features:
+
+```bash
+python -m des_multi_agent.cli supported-metals
+```
+
+Unsupported ions can still run in the fallback feature path, but selectivity between two unsupported ions is less meaningful.
+
+## 3. First Runs
+
+### Offline Mock Demo
+
+Use this first if you only want to confirm the repo works:
 
 ```bash
 ./scripts/demo-mock.sh
 ```
 
-Direct command if you prefer:
+Equivalent direct command:
 
 ```bash
 python -m examples.demo_des_search --mock --component-a "CCO" --n 5
 ```
 
-This does not download a checkpoint or call any external LLM service. It prints a realistic report using canned predictions, uncertainty values, and optional LLM notes.
+This path does not require a trained checkpoint or an LLM service.
 
-## Real Deterministic Demo
+### Real Deterministic DES Demo
 
-Run the real demo from the repository root:
+Run a real DES prediction with the shipped checkpoint:
+
+```bash
+python -m examples.demo_des_search \
+  --component-a "CCO" \
+  --n 5 \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt
+```
+
+The wrapper script uses the same idea:
 
 ```bash
 ./scripts/demo-real.sh
 ```
 
-Direct command if you prefer:
-
-```bash
-python -m examples.demo_des_search --component-a "CCO" --n 5 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt
-```
-
-If you prefer the wrapper-style override used by `scripts/demo-real.sh`, set the environment variable explicitly:
+You can also pass the checkpoint through the wrapper environment variable:
 
 ```bash
 DES_CHECKPOINT_PATH=ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt ./scripts/demo-real.sh
 ```
 
-If you want to add a local discovery directory, pass it explicitly:
+### Standard Run Directory
+
+For real work, write outputs into a dedicated run folder:
 
 ```bash
-python -m examples.demo_des_search --component-a "CCO" --n 5 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --discovery-path /path/to/discovery
+python -m des_multi_agent.cli \
+  --workflow des \
+  --component-a "CCO" \
+  --n 20 \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml \
+  --output-dir runs/run_001 \
+  --save-run-memory runs/run_001/run.memory.json
 ```
 
-You can also save a compact run-memory JSON file after a DES run, label it in place, and reuse it later to bias ranking without changing the predictor. If you keep multiple labeled runs under one parent `runs/` directory, `--reuse-run` can point at that parent folder to reuse the whole labeled history:
+The flat run directory contains:
+
+| File | Purpose |
+|------|---------|
+| `report.txt` | Canonical human-readable report |
+| `run.json` | Structured run result |
+| `run.csv` | Flat ranked table for spreadsheets |
+| `run.manifest.json` | Metadata and artifact filenames |
+| `run.memory.json` | Optional compact memory for feedback/reuse |
+
+Inspect a saved run directory:
 
 ```bash
-python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --config-path ml_des_mp/config.yaml --save-run-memory runs/run_001/run.memory.json
-python -m des_multi_agent.cli label-run --run runs/run_001 --label "O=good" --label "CC(=O)O=bad"
-python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --config-path ml_des_mp/config.yaml --reuse-run runs/run_001/run.memory.json
+python -m des_multi_agent.cli view-run runs/run_001
 ```
 
-Every DES run can also write into a standard flat run directory with `--output-dir runs/run_001`. That folder becomes the canonical home for `report.txt`, `run.json`, `run.csv`, and `run.manifest.json`. If you want run memory in the same folder, point `--save-run-memory` at `runs/run_001/run.memory.json`. If you later want to reuse all labeled runs in a history directory, point `--reuse-run` at the parent `runs/` folder.
+## 4. DES Screening Workflow
 
-You can compare two saved runs from the same workflow with `compare-runs`:
+### Required Inputs
+
+A normal DES run needs:
+
+- `--workflow des`
+- `--component-a` as a SMILES string
+- `--checkpoint-path` unless checkpoint auto-discovery finds one
+- `--config-path`, normally `ml_des_mp/config.yaml`
+- `--n`, the number of candidate partners to screen
+
+Minimal command:
 
 ```bash
-python -m des_multi_agent.cli compare-runs runs/run_001/run.memory.json runs/run_002/run.memory.json
-python -m des_multi_agent.cli compare-runs runs/run_001/run.memory.json runs/run_002/run.memory.json --json
+python -m des_multi_agent.cli \
+  --workflow des \
+  --component-a "CCO" \
+  --n 20 \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml
 ```
 
-Every command prints a compact `summary:` block after its main output. For parseable modes like `task-router` and `compare-runs --json`, the summary is written to `stderr` so `stdout` stays machine-readable.
+### Candidate Sources
 
-The command uses the bundled `ml_des_mp/config.yaml` and a local trained checkpoint.
-
-## Example Benchmark
-
-The example folders also double as a pytest-based example benchmark suite. The benchmark lives in [`tests/test_benchmarks_examples.py`](/home/qshao/DES-Agent/tests/test_benchmarks_examples.py) and compares the checked-in example outputs against frozen baselines under `tests/fixtures/example_benchmark_baselines/`.
-
-## Real Lidocaine Example
-
-For a real model-backed example, see [examples/lidocaine_gemma4_12b/](../examples/lidocaine_gemma4_12b/). It records a lidocaine free-base run with Gemma 4-12B and the shipped `ml_des_mp` checkpoint.
-
-## Plain-Language Gemma Example
-
-If you want to see the natural-language router in action, see [examples/plain_language_gemma4_12b/](../examples/plain_language_gemma4_12b/). It takes a plain-language request, turns it into a JSON job, and then runs the DES workflow with Gemma 4-12B.
-
-## Plain-Language Gemma Metal-Binding Example
-
-If you want to see the same idea applied to the metal-binding workflow, see [examples/plain_language_metal_binding_gemma4_12b/](../examples/plain_language_metal_binding_gemma4_12b/). It takes a plain-language request, turns it into a JSON job, and then runs the metal-binding workflow with Gemma 4-12B.
-
-## DES Run Memory Feedback Example
-
-If you want to see the save-label-reuse loop in a single folder, see [examples/des_run_memory_feedback/](../examples/des_run_memory_feedback/). It shows a DES run that saves `run.memory.json`, labels it in place with `label-run`, and then reuses the labeled memory on the next run.
-
-## DES Viscosity Example
-
-Run the offline DES viscosity example from the repository root:
+By default, the system uses built-in candidate generation. You can add local discovery:
 
 ```bash
-./examples/des_viscosity/run.sh
+python -m des_multi_agent.cli \
+  --workflow des \
+  --component-a "CCO" \
+  --n 20 \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml \
+  --discovery-path tests/fixtures/discovery
 ```
 
-The captured output includes a `Viscosity predictions:` section after the DES screening table. For a user-editable starting point, see [`examples/viscosity_template/`](../viscosity_template).
-
-## Metal-Binding Example
-
-Run the metal-binding example from the repository root:
+You can also supply candidates directly:
 
 ```bash
-./examples/metal_binding/run.sh
+python -m des_multi_agent.cli \
+  --workflow des \
+  --component-a "CCO" \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml \
+  --candidates-file examples/candidates_file/candidates.smiles
 ```
 
-This workflow is separate from DES screening and prints `log K` predictions for a metal ion and ligand pair. For a user-editable starting point, see [`examples/ligand_binding_template/`](../ligand_binding_template).
+See [examples/candidates_file/](../examples/candidates_file).
 
-## Preset Thresholds
+### Threshold Presets
 
-Use `--preset` to apply named DES acceptance thresholds without specifying individual values:
+Use presets when you do not want to tune thresholds manually:
 
 ```bash
-python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 \
+python -m des_multi_agent.cli \
+  --workflow des \
+  --component-a "CCO" \
+  --n 20 \
   --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
   --config-path ml_des_mp/config.yaml \
   --preset strict
 ```
 
-| Preset | Tm ceiling | Min relative drop |
-|--------|-----------|-------------------|
+| Preset | Tm ceiling | Minimum relative drop |
+|--------|------------|-----------------------|
 | `strict` | 240 K | 15% |
-| `standard` | 260 K | 10% (default) |
+| `standard` | 260 K | 10% |
 | `relaxed` | 280 K | 5% |
 
-For a runnable side-by-side comparison, see [`examples/preset_thresholds/`](../examples/preset_thresholds).
+Override manually with `--abs-tm-threshold` and `--rel-drop-min`.
 
-## Ensemble Prediction
+See [examples/preset_thresholds/](../examples/preset_thresholds).
 
-Use `--ensemble` to run predictions across all fold checkpoints in `ml_des_mp/runs/` and aggregate them with per-candidate uncertainty estimates. No `--checkpoint-path` is needed — all `*_best.pt` files are discovered automatically:
+### Uncertainty Modes
+
+The uncertainty layer annotates trust and can optionally affect ranking or filtering:
 
 ```bash
-python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 \
+python -m des_multi_agent.cli \
+  --workflow des \
+  --component-a "CCO" \
+  --n 20 \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml \
+  --uncertainty-mode penalize \
+  --min-trust-score 0.55 \
+  --soft-penalty-weight 0.35
+```
+
+Modes:
+
+| Mode | Behavior |
+|------|----------|
+| `report_only` | Show uncertainty but do not alter ranking |
+| `penalize` | Softly lower low-trust candidates |
+| `filter` | Remove candidates below the trust threshold |
+
+See [examples/uncertainty_controls/](../examples/uncertainty_controls).
+
+### Ensemble Prediction
+
+Use all fold checkpoints in `ml_des_mp/runs/`:
+
+```bash
+python -m des_multi_agent.cli \
+  --workflow des \
+  --component-a "CCO" \
+  --n 20 \
   --ensemble \
   --config-path ml_des_mp/config.yaml
 ```
 
-Each candidate's rationale column gains `ensemble_folds=N ens_std=X K`. Higher `ens_std` signals disagreement between folds and warrants caution. For a worked example, see [`examples/ensemble_prediction/`](../examples/ensemble_prediction).
+The report adds `ens_std` to show fold disagreement. Higher `ens_std` means the model ensemble disagrees more.
 
-## Output Formats
+See [examples/ensemble_prediction/](../examples/ensemble_prediction).
 
-Use `--format` to control the shape of the DES report output:
+### Output Formats
+
+The DES report can be printed as a table, JSON, CSV, or prose:
 
 ```bash
-# Machine-readable JSON
 python -m des_multi_agent.cli --workflow des --component-a "CCO" \
   --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
   --format json
 
-# Spreadsheet-ready CSV
 python -m des_multi_agent.cli --workflow des --component-a "CCO" \
   --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
   --format csv > results.csv
 ```
 
-The four modes are `table` (default), `json`, `csv`, and `prose`. The `summary:` block is always written to stderr, so stdout stays clean for piping. For all four outputs side by side, see [`examples/output_formats/`](../examples/output_formats).
+The `summary:` block goes to stderr for parseable modes so stdout stays machine-readable.
 
-## Dry Run
+See [examples/output_formats/](../examples/output_formats).
 
-Use `--dry-run` to validate paths, config, and checkpoint compatibility without running any predictions:
+## 5. Viscosity-Aware DES Ranking
+
+Use the bundled DESignSolvents-style artifact to add viscosity predictions:
 
 ```bash
-python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 \
+python -m des_multi_agent.cli \
+  --workflow des \
+  --component-a "CCO" \
+  --n 20 \
   --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
   --config-path ml_des_mp/config.yaml \
-  --dry-run
+  --viscosity-model-path artifacts/designsolvents/viscosity/model.json
 ```
 
-Exits with code 0 and prints `[dry-run] … OK.` on success; code 1 with an error message if anything is wrong. Useful in CI before committing to a long run. For a runnable example, see [`examples/dry_run/`](../examples/dry_run).
+Add threshold gating and composite ranking:
 
-## Metal Ion Selectivity Screening
+```bash
+python -m des_multi_agent.cli \
+  --workflow des \
+  --component-a "CCO" \
+  --n 20 \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml \
+  --viscosity-model-path artifacts/designsolvents/viscosity/model.json \
+  --viscosity-threshold 500 \
+  --viscosity-weight 0.4
+```
 
-Use `--workflow metal-selectivity` to screen ligands for **selectivity** toward a target metal over a competitor. For a standalone example, see [`examples/metal_selectivity_standalone/`](../examples/metal_selectivity_standalone). The composite score balances binding affinity (`log K`) and selectivity (`Δlog K = log K_target − log K_competitor`):
+`--viscosity-threshold` is in cP. Candidates above the threshold are ranked below passing candidates. `--viscosity-weight` is in `[0, 1]` and controls how much viscosity contributes to composite ranking.
+
+See [examples/des_viscosity/](../examples/des_viscosity), [examples/viscosity_template/](../examples/viscosity_template), and [examples/viscosity_composite_ranking/](../examples/viscosity_composite_ranking).
+
+## 6. Multi-Cycle Screening
+
+Use `--n-cycles` when you want iterative search. Top hits from each cycle seed the next cycle, and the loop stops early if the top candidates stabilize.
+
+```bash
+python -m des_multi_agent.cli \
+  --workflow des \
+  --component-a "CCO" \
+  --n 20 \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml \
+  --n-cycles 3
+```
+
+With `--output-dir runs/run_001`, multi-cycle runs write cycle folders such as `cycle_01/`, `cycle_02/`, and `cycle_03/`.
+
+See [examples/multi_cycle_des/](../examples/multi_cycle_des).
+
+## 7. Run Memory, Labels, And Reuse
+
+Save a compact run-memory file:
+
+```bash
+python -m des_multi_agent.cli \
+  --workflow des \
+  --component-a "CCO" \
+  --n 20 \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml \
+  --output-dir runs/run_001 \
+  --save-run-memory runs/run_001/run.memory.json
+```
+
+Label saved candidates by explicit SMILES:
+
+```bash
+python -m des_multi_agent.cli label-run \
+  --run runs/run_001 \
+  --label "O=good" \
+  --label "CC(=O)O=bad"
+```
+
+Reuse one run:
+
+```bash
+python -m des_multi_agent.cli \
+  --workflow des \
+  --component-a "CCO" \
+  --n 20 \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml \
+  --reuse-run runs/run_001
+```
+
+Reuse a whole labeled history directory:
+
+```bash
+python -m des_multi_agent.cli \
+  --workflow des \
+  --component-a "CCO" \
+  --n 20 \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml \
+  --reuse-run runs/
+```
+
+Reuse only nudges ranking. It does not change the underlying predictor or filter candidates out automatically.
+
+See [examples/des_run_memory_feedback/](../examples/des_run_memory_feedback).
+
+## 8. Comparing And Reviewing Runs
+
+Compare two saved DES runs:
+
+```bash
+python -m des_multi_agent.cli compare-runs runs/run_001 runs/run_002
+```
+
+Add JSON output for automation:
+
+```bash
+python -m des_multi_agent.cli compare-runs runs/run_001 runs/run_002 --json
+```
+
+Summarize a history directory:
+
+```bash
+python -m des_multi_agent.cli history runs/
+```
+
+Build a cross-run compound leaderboard:
+
+```bash
+python -m des_multi_agent.cli leaderboard runs/
+```
+
+Inspect one run directory:
+
+```bash
+python -m des_multi_agent.cli view-run runs/run_001
+```
+
+See [examples/compare_runs/](../examples/compare_runs) and [examples/leaderboard_history/](../examples/leaderboard_history).
+
+## 9. Optional LLM Workflows
+
+LLM mode is optional. Configure it with `llm.example.yaml`:
+
+```yaml
+llm:
+  provider: ollama
+  model_name: gemma4:12b
+```
+
+Run a DES search with LLM support:
+
+```bash
+python -m des_multi_agent.cli \
+  --workflow des \
+  --component-a "CCO" \
+  --n 20 \
+  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
+  --config-path ml_des_mp/config.yaml \
+  --llm-config llm.example.yaml
+```
+
+When enabled, the LLM can:
+
+- choose chemical families before candidate generation
+- propose candidates across those families
+- review candidates one by one
+- generate explanations and critiques
+- flag chemical contradictions as `agree`, `conflict`, or `uncertain`
+
+The supported example model configs include Gemma 4-12B, Nemotron 3 Nano, and Qwen 3.6.
+
+See:
+
+- [examples/gemma4_12b/](../examples/gemma4_12b)
+- [examples/nemotron_3_nano/](../examples/nemotron_3_nano)
+- [examples/qwen3_6/](../examples/qwen3_6)
+- [examples/lidocaine_gemma4_12b/](../examples/lidocaine_gemma4_12b)
+- [examples/betaine_des_gemma4_12b/](../examples/betaine_des_gemma4_12b)
+
+## 10. Plain-Language Routing
+
+Use `task-router` to convert a plain-language request into JSON without running anything:
+
+```bash
+python -m des_multi_agent.cli task-router "find DES partners for lidocaine"
+```
+
+Use `task-execute` to route and run in one step:
+
+```bash
+python -m des_multi_agent.cli task-execute "find DES partners for lidocaine"
+```
+
+The router supports DES and metal-binding workflows. It normalizes common compound names and asks clarification questions when important inputs are ambiguous, including salt-form versus free-base ambiguity. Ambiguous requests return JSON with `workflow=clarify` and clarification questions instead of invented inputs.
+
+See:
+
+- [examples/task_router/](../examples/task_router)
+- [examples/task_execute/](../examples/task_execute)
+- [examples/plain_language_gemma4_12b/](../examples/plain_language_gemma4_12b)
+- [examples/plain_language_metal_binding_gemma4_12b/](../examples/plain_language_metal_binding_gemma4_12b)
+
+## 11. Metal-Binding Workflow
+
+Predict a stability constant for one metal-ligand pair:
+
+```bash
+python -m des_multi_agent.cli \
+  --workflow metal-binding \
+  --metal-ion Cu2+ \
+  --ligand-smiles NCCN \
+  --stability-constant-model-path artifacts/stability_constants/model.json
+```
+
+If `--ligand-smiles` is omitted, the metal-binding workflow screens candidate ligands for the given metal:
+
+```bash
+python -m des_multi_agent.cli \
+  --workflow metal-binding \
+  --metal-ion Cu2+ \
+  --n 20 \
+  --stability-constant-model-path artifacts/stability_constants/model.json
+```
+
+The metal-binding workflow is separate from DES screening. DES run memory does not apply to metal-binding runs.
+
+See [examples/metal_binding/](../examples/metal_binding) and [examples/ligand_binding_template/](../examples/ligand_binding_template).
+
+## 12. Metal Selectivity
+
+Use `metal-selectivity` to rank ligands by target-metal affinity and selectivity over a competitor:
 
 ```bash
 python -m des_multi_agent.cli \
   --workflow metal-selectivity \
   --target-metal-ion Cu2+ \
   --competitor-metal-ion Zn2+ \
-  --n 20 --n-cycles 3 \
-  --affinity-weight 0.5 --selectivity-weight 0.5
+  --n 20 \
+  --n-cycles 3 \
+  --affinity-weight 0.5 \
+  --selectivity-weight 0.5 \
+  --stability-constant-model-path artifacts/stability_constants/model.json
 ```
 
-`--affinity-weight` and `--selectivity-weight` (both default 0.5) control the relative importance of absolute binding strength versus metal discrimination in the ranking score. With `--n-cycles N` and an LLM config, the loop proposes increasingly selective ligands each cycle using HSAB theory guidance.
+The composite score balances:
 
-The predictor gives the most meaningful selectivity signal when both metals are in the supported identity table:
+- `log K(target)`
+- `delta log K = log K(target) - log K(competitor)`
 
-| Category | Ions |
-|----------|------|
-| **Alkali metals** | Li+, Na+, K+ |
-| **Alkaline earth** | Mg2+, Ca2+, Ba2+ |
-| **Post-transition** | Al3+, Pb2+ |
-| **First-row transition** | Mn2+, Mn3+, Fe2+, Fe3+, Co2+, Co3+, Ni2+, Cu+, Cu2+, Zn2+ |
-| **Second-row transition** | Pd2+, Ag+, Cd2+ |
-| **Third-row transition** | Pt2+, Hg+, Hg2+ |
-| **Lanthanides** | La3+, Gd3+ |
-
-Metal ions not in this table still work but fall back to zeroed identity features, so Δlog K between two unlisted metals will be near zero.
-
-## Optional LLM Mode
-
-If you want candidate brainstorming and explanation generation, pass an LLM config file:
+The predictor gives the best selectivity signal when both ions are in the explicit identity table. Run this to list them:
 
 ```bash
-python -m examples.demo_des_search --component-a "CCO" --n 20 --llm-config llm.example.yaml
+python -m des_multi_agent.cli supported-metals
 ```
 
-You can edit `llm.example.yaml` to switch `model_name` between `gemma4:12b`, `nemotron-3-nano:latest`, and `qwen3.6` while keeping `provider: ollama`.
+See [examples/metal_selectivity_standalone/](../examples/metal_selectivity_standalone) and [examples/ni2_co2_selectivity/](../examples/ni2_co2_selectivity).
 
-When an LLM is configured, brainstorming is two-stage: the LLM first selects 4–6 chemical families (e.g., polyols, amides, imidazolium salts) with a rationale and HBD/HBA role for each, then distributes candidate SMILES across those families. This improves chemical diversity compared to single-shot brainstorming. After ML predictions, the LLM also examines each result for chemical plausibility and reports `agree`, `conflict`, or `uncertain` per candidate — surfaced as a "LLM contradiction analysis" section in the report.
+## 13. Selectivity-DES Pipeline
 
-## Multi-Cycle Iterative Screening
+Use `selectivity-des` when you want a two-phase loop:
 
-Use `--n-cycles N` to run up to N screening iterations. Top hits from each cycle are passed forward as context to the next cycle's brainstorm, so the LLM focuses on productive chemical families. The loop stops early when the top-K candidate set stabilises (convergence detection):
+1. Phase 1 screens ligands for metal-ion selectivity.
+2. Phase 2 searches DES partners for the top selective ligands.
+3. DES-compatible ligands feed back into the next outer cycle.
 
 ```bash
-python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 \
-  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
-  --config-path ml_des_mp/config.yaml \
-  --n-cycles 3 --llm-config llm.example.yaml
-```
-
-Each cycle prints a progress line to stderr:
-
-```
-[cycle 1/3] screened=20 des=5 top-K changes: +5 new, 0 dropped
-[cycle 2/3] screened=20 des=7 top-K changes: +3 new, -1 dropped
-[cycle 3/3] screened=20 des=7 top-K changes: 0 new, 0 dropped — CONVERGED
-```
-
-The final report is produced from the last cycle. With `--output-dir runs/run_001`, each cycle writes into its own subdirectory (`cycle_01/`, `cycle_02/`, …).
-
-## Viscosity-Aware Composite Ranking
-
-When a viscosity model is available (via `--viscosity-model-path`), use `--viscosity-threshold` and `--viscosity-weight` to blend viscosity into the composite ranking score:
-
-```bash
-python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 \
-  --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
-  --config-path ml_des_mp/config.yaml \
-  --viscosity-model-path artifacts/designsolvents/viscosity/model.json \
-  --viscosity-threshold 500 --viscosity-weight 0.4
-```
-
-`--viscosity-threshold CP` gates candidates: DES-formers above the threshold (cP) sort after those that pass it, regardless of Tm. `--viscosity-weight W` (0–1, default 0.3) controls how much viscosity contributes to the composite score alongside the Tm-drop score.
-
-
-## Task Router
-
-Use the task router when you want plain language translated into a JSON job without running a workflow:
-
-```bash
-python -m des_multi_agent.cli task-router "find DES partners for lidocaine"
-```
-
-Use `task-execute` when you want the router to translate the request and then run the workflow immediately:
-
-```bash
-python -m des_multi_agent.cli task-execute "find DES partners for lidocaine"
-```
-
-The router loads `llm.example.yaml` by default, supports both `des` and `metal-binding`, and normalizes common names before returning either a complete job or clarification questions with `workflow=clarify`, as JSON only. If a request is ambiguous, it asks for clarification instead of guessing. For a worked example, see [`examples/task_router/`](/home/qshao/DES-Agent/examples/task_router/).
-
-## What the Output Means
-
-- `smiles_b` is the candidate partner selected for screening
-- `is_des` reports whether the predicted curve satisfies both DES criteria
-- `min_tm_k` is the minimum predicted melting temperature across the ratio grid
-- `trust_score` shows the uncertainty trust value in the range `0.0` to `1.0`
-- `rationale` summarizes why the candidate was ranked where it was
-
-If the optional LLM is enabled, the report may also include brainstorm, explanation, critique, contradiction analysis, and warning sections. The contradiction analysis section shows one line per candidate with the LLM's verdict (`agree`, `conflict`, or `uncertain`) and an explanation.
-If local discovery is enabled, the report may also show provenance fields such as `source` and `source_id`.
-If multi-cycle mode is active (`--n-cycles > 1`), cycle-level progress is printed to stderr during the run and the final report reflects the last cycle only.
-
-## Common Issues
-
-- If the checkpoint path is wrong, the demo fails immediately with a file-not-found error.
-- If the optional LLM config is invalid, the CLI reports a clear validation error.
-- If you use a provider that is not running locally or is missing credentials, the deterministic screening still runs and the LLM section is skipped with a warning.
-- If the discovery directory is missing or malformed, the demo falls back to heuristic candidate generation and reports a warning.
-- If a request mentions a free base versus a salt form, the router may ask a clarification question before it executes anything.
-
-## Selectivity-DES Pipeline
-
-The selectivity-DES workflow combines Phase 1 (metal-ion selectivity screening) and Phase 2 (DES partner search) into a two-phase pipeline with a convergence-driven outer loop.
-
-**When to use:** You need a ligand that (a) binds your target metal ion much more strongly than a competing ion, and (b) can form a deep eutectic solvent with an affordable small-molecule partner.
-
-**Architecture:**
-1. Phase 1 brainstorms and ranks ligands by selectivity score (`w_affinity * log_K_target + w_selectivity * delta_log_K`).
-2. The top `--top-ligands` ligands (filtered by `--min-delta-log-k`) pass to Phase 2.
-3. Phase 2 runs a full DES partner search for each shortlisted ligand.
-4. DES-compatible ligands feed back into Phase 1 on the next outer cycle as hints.
-5. The loop stops when the DES-compatible set is stable across two consecutive outer cycles, or when `--n-outer-cycles` is reached.
-
-**Minimal invocation:**
-
-```bash
-python -m des_multi_agent.cli --workflow selectivity-des \
+python -m des_multi_agent.cli \
+  --workflow selectivity-des \
   --target-metal-ion Ni2+ \
   --competitor-metal-ion Co2+ \
-  --n 20 --n-cycles 3 \
-  --n-des-candidates 20 --n-des-cycles 3 \
-  --n-outer-cycles 2 --top-ligands 3 --min-delta-log-k 0.5 \
+  --n 20 \
+  --n-cycles 3 \
+  --n-des-candidates 20 \
+  --n-des-cycles 3 \
+  --n-outer-cycles 2 \
+  --top-ligands 3 \
+  --min-delta-log-k 0.5 \
   --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
   --config-path ml_des_mp/config.yaml \
   --stability-constant-model-path artifacts/stability_constants/model.json
 ```
 
-**Reading the report:**
-- Section 1 is a selectivity table identical to the `metal-selectivity` report, with an added `des_compatible` column (`yes`/`no`).
-- Section 2 shows the DES partner candidates for each Phase 1 ligand, or "No DES partners found." for DES-incompatible ones.
-- A "Warnings" section at the bottom lists any fallback decisions (e.g., bridge filter had zero candidates above `--min-delta-log-k` and fell back to top-N unconditionally).
-
-**Progress output (stderr):**
-```
-[outer 1/2] phase 1: selectivity screening
-[outer 1/2] phase 2: DES search for 3 ligand(s)
-[outer 1/2] phase 2: ligand 1/3 — OC(=O)CNCC(=O)O
-[outer 1/2] phase 2: ligand 2/3 — NCC(=O)O
-[outer 1/2] phase 2: ligand 3/3 — c1ccncc1
-[outer 2/2] phase 1: selectivity screening
-...
-[outer 2/2] DES-compatible set stable — converged early
-```
-
-## Uncertainty Controls
-
-The CLI lets you tune how uncertainty affects filtering and ranking with `--uncertainty-mode`:
-
-| Mode | Effect |
-|------|--------|
-| `penalize` (default) | Down-ranks candidates below `--min-trust-score` using `--soft-penalty-weight` |
-| `report_only` | Adds trust columns; ranking unchanged |
-| `filter` | Removes candidates below `--min-trust-score` entirely |
+Add viscosity constraints to Phase 2:
 
 ```bash
-python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 \
+python -m des_multi_agent.cli \
+  --workflow selectivity-des \
+  --target-metal-ion Ni2+ \
+  --competitor-metal-ion Co2+ \
   --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
   --config-path ml_des_mp/config.yaml \
-  --uncertainty-mode filter --min-trust-score 0.70 --soft-penalty-weight 0.20
+  --stability-constant-model-path artifacts/stability_constants/model.json \
+  --viscosity-model-path artifacts/designsolvents/viscosity/model.json \
+  --viscosity-threshold 200 \
+  --viscosity-weight 0.4
 ```
 
-For all three modes compared on the same query, see [`examples/uncertainty_controls/`](../examples/uncertainty_controls).
+See:
+
+- [examples/ni_co_selectivity_des/](../examples/ni_co_selectivity_des)
+- [examples/ni_co_selectivity_des_nemotron/](../examples/ni_co_selectivity_des_nemotron)
+- [examples/ni_co_selectivity_des_qwen36/](../examples/ni_co_selectivity_des_qwen36)
+
+## 14. Choosing An Example Folder
+
+Use this table when starting new work:
+
+| Goal | Start here |
+|------|------------|
+| Basic offline DES viscosity | [examples/des_viscosity/](../examples/des_viscosity) |
+| Editable viscosity template | [examples/viscosity_template/](../examples/viscosity_template) |
+| Viscosity composite ranking | [examples/viscosity_composite_ranking/](../examples/viscosity_composite_ranking) |
+| Plain-language DES with Gemma | [examples/plain_language_gemma4_12b/](../examples/plain_language_gemma4_12b) |
+| Plain-language metal binding | [examples/plain_language_metal_binding_gemma4_12b/](../examples/plain_language_metal_binding_gemma4_12b) |
+| Save-label-reuse feedback | [examples/des_run_memory_feedback/](../examples/des_run_memory_feedback) |
+| Compare saved runs | [examples/compare_runs/](../examples/compare_runs) |
+| Leaderboard/history | [examples/leaderboard_history/](../examples/leaderboard_history) |
+| Metal binding | [examples/metal_binding/](../examples/metal_binding) |
+| Metal selectivity only | [examples/metal_selectivity_standalone/](../examples/metal_selectivity_standalone) |
+| Selectivity-DES | [examples/ni_co_selectivity_des/](../examples/ni_co_selectivity_des) |
+| Real lidocaine DES run | [examples/lidocaine_gemma4_12b/](../examples/lidocaine_gemma4_12b) |
+| Real betaine DES run | [examples/betaine_des/](../examples/betaine_des) |
+
+The examples also feed the benchmark tests, so treat them as runnable documentation.
+
+## 15. Troubleshooting
+
+### Missing Checkpoint
+
+Symptom: `DES workflow requires --checkpoint-path`.
+
+Fix: pass the checkpoint explicitly or place a `*_best.pt` checkpoint under `ml_des_mp/runs/`.
+
+```bash
+python -m des_multi_agent.cli doctor --check checkpoint
+```
+
+### Bad Config
+
+Symptom: config load errors or unexpected defaults.
+
+Fix:
+
+```bash
+python -m des_multi_agent.cli doctor --check config
+```
+
+Check `DES_AGENT_CONFIG` if you use a custom config path.
+
+### Invalid SMILES
+
+Symptom: `--component-a` or `--ligand-smiles` fails validation.
+
+Fix: use canonical SMILES when possible. For ethanol, use `CCO`; for lidocaine free base, use `CCN(CC)CC(=O)Nc1c(C)cccc1C`.
+
+### Missing Artifacts
+
+Symptom: viscosity or stability-constant model unavailable.
+
+Fix:
+
+```bash
+python -m des_multi_agent.cli doctor --check artifacts
+```
+
+Expected local artifacts include:
+
+- `artifacts/designsolvents/viscosity/model.json`
+- `artifacts/stability_constants/model.json`
+
+### Ollama Or LLM Not Running
+
+Symptom: LLM provider errors, HTTP 404, or connection errors.
+
+Fix:
+
+```bash
+python -m des_multi_agent.cli doctor --check llm --llm-config llm.example.yaml
+```
+
+Also confirm the requested `model_name` exists in your local Ollama installation.
+
+### Output Directory Confusion
+
+Use `--output-dir runs/run_001` for DES runs, then inspect with:
+
+```bash
+python -m des_multi_agent.cli view-run runs/run_001
+```
+
+### Third-Party Warnings
+
+The test suite may show deprecation warnings from `torch_geometric`, `torch.jit`, or FastAPI/Starlette test utilities. These warnings are external library warnings unless a test fails.
+
+## 16. Testing And Benchmarking
+
+Run the full suite:
+
+```bash
+python -m pytest -q
+```
+
+Run the example benchmark suite:
+
+```bash
+python -m pytest tests/test_benchmarks_examples.py -q
+```
+
+The example benchmark compares checked-in example outputs against frozen baselines under `tests/fixtures/example_benchmark_baselines/`.
+
+Useful focused tests:
+
+```bash
+python -m pytest tests/test_cli.py -q
+python -m pytest tests/test_doctor.py -q
+python -m pytest tests/test_exports.py -q
+python -m pytest tests/test_run_memory.py -q
+python -m pytest tests/test_selectivity_des_pipeline.py -q
+```
+
+If you intentionally refresh example output, update the matching frozen baseline and run the benchmark test before committing.
+
+## 17. Recommended Workflow For New Users
+
+1. Run `python -m des_multi_agent.cli doctor`.
+2. Run `./scripts/demo-mock.sh`.
+3. Run one real DES command with `--output-dir runs/run_001`.
+4. Inspect it with `view-run`.
+5. Add viscosity or LLM mode only after the deterministic run works.
+6. Save `run.memory.json`, label candidates with `label-run`, and reuse the history when you have feedback.
+7. Use `compare-runs`, `history`, and `leaderboard` once you have multiple runs.
+
+This keeps the workflow reproducible and makes each run easy to inspect later.

@@ -10,10 +10,16 @@ Run the doctor check first to verify the local repo and example folders:
 python -m des_multi_agent.cli doctor
 ```
 
-If you want extra local setup checks, add `--check` for the paths you care about most:
+List the metal ions with explicit stability-model identity features:
 
 ```bash
-python -m des_multi_agent.cli doctor --check checkpoint --check discovery --check artifacts
+python -m des_multi_agent.cli supported-metals
+```
+
+If you want extra setup checks such as `doctor --check config`, add `--check` for the paths you care about most. `doctor --check llm --llm-config llm.example.yaml` also probes the configured local LLM service:
+
+```bash
+python -m des_multi_agent.cli doctor --check checkpoint --check discovery --check artifacts --check config
 ```
 
 Start with the short tutorial in [`docs/tutorial.md`](/home/qshao/DES-Agent/docs/tutorial.md).
@@ -53,6 +59,7 @@ Save a DES run memory file for later reuse:
 
 ```bash
 python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --config-path ml_des_mp/config.yaml --save-run-memory runs/run_001/run.memory.json
+python -m des_multi_agent.cli view-run runs/run_001
 ```
 
 Every DES run can also write into a standard flat run directory with `--output-dir runs/run_001`. That folder becomes the canonical home for `report.txt`, `run.json`, `run.csv`, and `run.manifest.json`. If you want run memory in the same folder, point `--save-run-memory` at `runs/run_001/run.memory.json`. If you later want to reuse all labeled runs in a history directory, point `--reuse-run` at the parent `runs/` folder.

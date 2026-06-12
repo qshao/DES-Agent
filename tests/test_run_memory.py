@@ -367,3 +367,18 @@ def test_run_memory_aggregates_feedback_across_multiple_memories():
         "Applied reuse memory to 1 good label(s) and 1 bad label(s) across 2 run memory file(s).",
         "Loaded 2 prior ranked candidate(s) for ranking bias across 2 run memory file(s).",
     ]
+
+
+def test_parse_run_memory_rejects_missing_candidate_smiles_with_field_path():
+    with pytest.raises(ValueError, match=r"ranked_candidates\[0\] missing required field: smiles_b"):
+        parse_run_memory({"workflow": "des", "labels": [], "ranked_candidates": [{"rank": 1}]})
+
+
+def test_parse_run_memory_rejects_invalid_label_value_with_field_path():
+    with pytest.raises(ValueError, match=r"labels\[0\]\.label must be good or bad"):
+        parse_run_memory({"workflow": "des", "labels": [{"smiles_b": "O", "label": "maybe"}], "ranked_candidates": []})
+
+
+def test_parse_run_memory_rejects_non_list_ranked_candidates():
+    with pytest.raises(ValueError, match="ranked_candidates must be a list"):
+        parse_run_memory({"workflow": "des", "labels": [], "ranked_candidates": {"smiles_b": "O"}})

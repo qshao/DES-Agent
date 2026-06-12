@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .config import PROJECT_ROOT
+from .user_config import validate_user_config
 
 
 EXAMPLE_FOLDERS = (
@@ -165,6 +166,11 @@ def _check_optional_artifacts(root: Path, warnings: list[DoctorIssue]) -> None:
         _check_optional_file_exists(root, "artifacts", relative_path, warnings)
 
 
+def _check_optional_config(root: Path, warnings: list[DoctorIssue]) -> None:
+    for message in validate_user_config(repo_root=root):
+        _add_issue(warnings, "warning", message)
+
+
 def run_doctor(repo_root: str | Path = PROJECT_ROOT, optional_checks: Sequence[str] = (), llm_cfg=None) -> DoctorResult:
     root = Path(repo_root)
     errors: list[DoctorIssue] = []
@@ -193,6 +199,8 @@ def run_doctor(repo_root: str | Path = PROJECT_ROOT, optional_checks: Sequence[s
             _check_optional_discovery(root, warnings)
         elif check_name == "artifacts":
             _check_optional_artifacts(root, warnings)
+        elif check_name == "config":
+            _check_optional_config(root, warnings)
         elif check_name == "llm":
             _check_llm_connectivity(llm_cfg, warnings)
         else:

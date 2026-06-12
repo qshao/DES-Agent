@@ -6,7 +6,7 @@ from dataclasses import fields as dataclass_fields
 from datetime import datetime, timezone
 from io import StringIO
 from pathlib import Path
-from tempfile import NamedTemporaryFile
+from tempfile import TemporaryDirectory
 import json
 
 from .memory_schema import RunCandidateSummary
@@ -68,22 +68,6 @@ def _json_safe(value: object) -> object:
     return value
 
 
-def _write_text_atomic(path: Path, content: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with NamedTemporaryFile("w", encoding="utf-8", dir=path.parent, delete=False) as handle:
-        temp_path = Path(handle.name)
-        try:
-            handle.write(content)
-        except Exception:
-            temp_path.unlink(missing_ok=True)
-            raise
-    try:
-        temp_path.replace(path)
-    except Exception:
-        temp_path.unlink(missing_ok=True)
-        raise
-
-
 def _build_manifest(output_dir: Path, run_payload: Mapping[str, object]) -> dict[str, object]:
     return {
         "workflow": run_payload.get("workflow"),
@@ -96,6 +80,10 @@ def _build_manifest(output_dir: Path, run_payload: Mapping[str, object]) -> dict
         "csv_filename": "run.csv",
         "manifest_filename": "run.manifest.json",
     }
+
+
+def _replace_export_file(staged_path: Path, final_path: Path) -> None:
+    staged_path.replace(final_path)
 
 
 def _build_csv_rows(run_payload: Mapping[str, object]) -> list[dict[str, str]]:
@@ -131,9 +119,27 @@ def export_des_run_bundle(output_dir: str | Path, run_payload: Mapping[str, obje
     writer.writerows(rows)
     manifest_text = json.dumps(_json_safe(manifest), indent=2, sort_keys=True)
 
-    _write_text_atomic(report_path, report_text)
-    _write_text_atomic(json_path, json_text)
-    _write_text_atomic(csv_path, csv_buffer.getvalue())
-    _write_text_atomic(manifest_path, manifest_text)
+    staged_content = {
+        "report.txt": report_text,
+        "run.json": json_text,
+        "run.csv": csv_buffer.getvalue(),
+        "run.manifest.json": manifest_text,
+    }
+    final_paths = {
+        "report.txt": report_path,
+        "run.json": json_path,
+        "run.csv": csv_path,
+        "run.manifest.json": manifest_path,
+    }
+
+    with TemporaryDirectory(prefix=".export-", dir=output_path) as stage_dir_name:
+        stage_dir = Path(stage_dir_name)
+        staged_paths: dict[str, Path] = {}
+        for filename, content in staged_content.items():
+            staged_path = stage_dir / filename
+            staged_path.write_text(content, encoding="utf-8")
+            staged_paths[filename] = staged_path
+        for filename in ("report.txt", "run.json", "run.csv", "run.manifest.json"):
+            _replace_export_file(staged_paths[filename], final_paths[filename])
 
     return {"report": report_path, "json": json_path, "csv": csv_path, "manifest": manifest_path}

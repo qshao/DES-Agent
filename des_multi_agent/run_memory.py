@@ -36,31 +36,82 @@ def resolve_run_memory_history_paths(path: str | Path) -> list[Path]:
     raise FileNotFoundError(f"Run memory file not found: {candidate}")
 
 
+def _require_mapping(value: object, label: str) -> Mapping[str, object]:
+    if not isinstance(value, Mapping):
+        raise ValueError(f"{label} must be a mapping, got {type(value).__name__}")
+    return value
+
+
+def _require_field(data: Mapping[str, object], field: str, label: str) -> object:
+    if field not in data:
+        raise ValueError(f"{label} missing required field: {field}")
+    return data[field]
+
+
+def _require_list(data: Mapping[str, object], field: str) -> list[object]:
+    value = data.get(field, [])
+    if not isinstance(value, list):
+        raise ValueError(f"{field} must be a list")
+    return value
+
+
+def _optional_float(value: object, label: str) -> float | None:
+    if value is None:
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{label} must be a number or null") from exc
+
+
 def parse_run_memory(data: Mapping[str, object]) -> RunMemory:
+    if not isinstance(data, Mapping):
+        raise ValueError("run memory must be a mapping")
     if data.get("workflow") != "des":
         raise ValueError("run memory workflow must be des")
     labels: list[RunLabel] = []
-    for item in data.get("labels", []):
-        if not isinstance(item, dict):
-            raise ValueError(f"labels entry must be a mapping, got {type(item).__name__!r}")
-        labels.append(RunLabel(smiles_b=item["smiles_b"], label=item["label"]))
+    for index, raw_item in enumerate(_require_list(data, "labels")):
+        item = _require_mapping(raw_item, f"labels[{index}]")
+        smiles_b = _require_field(item, "smiles_b", f"labels[{index}]")
+        label = _require_field(item, "label", f"labels[{index}]")
+        if not isinstance(smiles_b, str) or not smiles_b.strip():
+            raise ValueError(f"labels[{index}].smiles_b must be a non-empty string")
+        if label not in {"good", "bad"}:
+            raise ValueError(f"labels[{index}].label must be good or bad")
+        labels.append(RunLabel(smiles_b=smiles_b, label=str(label)))
     ranked_candidates: list[RunCandidateSummary] = []
-    for item in data.get("ranked_candidates", []):
+    for index, raw_item in enumerate(_require_list(data, "ranked_candidates")):
+        item = _require_mapping(raw_item, f"ranked_candidates[{index}]")
+        smiles_b = _require_field(item, "smiles_b", f"ranked_candidates[{index}]")
+        rank_value = _require_field(item, "rank", f"ranked_candidates[{index}]")
+        if not isinstance(smiles_b, str) or not smiles_b.strip():
+            raise ValueError(f"ranked_candidates[{index}].smiles_b must be a non-empty string")
+        try:
+            rank = int(rank_value)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"ranked_candidates[{index}].rank must be an integer") from exc
         ranked_candidates.append(
             RunCandidateSummary(
-                smiles_b=item["smiles_b"],
-                rank=int(item["rank"]),
-                min_tm_k=item.get("min_tm_k"),
-                trust_score=item.get("trust_score"),
-                uncertainty_flag=item.get("uncertainty_flag", ""),
-                source=item.get("source", ""),
-                source_id=item.get("source_id", ""),
+                smiles_b=smiles_b,
+                rank=rank,
+                min_tm_k=_optional_float(item.get("min_tm_k"), f"ranked_candidates[{index}].min_tm_k"),
+                trust_score=_optional_float(item.get("trust_score"), f"ranked_candidates[{index}].trust_score"),
+                uncertainty_flag=str(item.get("uncertainty_flag", "")),
+                source=str(item.get("source", "")),
+                source_id=str(item.get("source_id", "")),
             )
         )
+    raw_n = data.get("n")
+    try:
+        parsed_n = int(raw_n) if raw_n is not None else None
+    except (TypeError, ValueError) as exc:
+        raise ValueError("n must be an integer or null") from exc
+    raw_component_a = data.get("component_a")
+    component_a = raw_component_a if isinstance(raw_component_a, str) or raw_component_a is None else str(raw_component_a)
     return RunMemory(
         workflow="des",
-        component_a=data.get("component_a"),
-        n=data.get("n"),
+        component_a=component_a,
+        n=parsed_n,
         labels=labels,
         ranked_candidates=ranked_candidates,
     )

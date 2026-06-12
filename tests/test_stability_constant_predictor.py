@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from des_multi_agent.predictors.stability_constants import predict_log_k
+from des_multi_agent.predictors.stability_constants import predict_log_k, supported_metal_groups
 
 
 def test_predict_log_k_uses_local_artifact(tmp_path: Path):
@@ -35,3 +35,12 @@ def test_predict_log_k_uses_bundled_artifact_by_default():
     result = predict_log_k("Cu2+", "NCCN", model_path=None, allow_fallback=True)
     assert result.source == "artifact"
     assert isinstance(result.value, float)
+
+
+def test_supported_metal_groups_include_documented_ions():
+    groups = dict(supported_metal_groups())
+
+    assert "Cu2+" in groups["First-row transition"]
+    assert "Ni2+" in groups["First-row transition"]
+    assert "Fe3+" in groups["First-row transition"]
+    assert "La3+" in groups["Lanthanides"]

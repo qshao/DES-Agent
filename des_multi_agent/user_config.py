@@ -37,3 +37,38 @@ def save_user_config(settings: dict) -> None:
     existing = load_user_config()
     existing.update({k: v for k, v in settings.items() if k in KNOWN_KEYS})
     path.write_text(yaml.dump(existing, default_flow_style=False), encoding="utf-8")
+
+
+def _resolve_config_value_path(value: object, repo_root: Path) -> Path | None:
+    if not isinstance(value, str) or not value.strip():
+        return None
+    candidate = Path(value).expanduser()
+    if not candidate.is_absolute():
+        candidate = repo_root / candidate
+    return candidate
+
+
+def validate_user_config(path: str | Path | None = None, repo_root: str | Path | None = None) -> list[str]:
+    config_path = Path(path) if path is not None else get_user_config_path()
+    root = Path(repo_root) if repo_root is not None else Path.cwd()
+    if not config_path.exists():
+        return []
+    warnings: list[str] = []
+    try:
+        data = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError as exc:
+        return [f"[config] invalid YAML in {config_path}: {exc}"]
+    except OSError as exc:
+        return [f"[config] cannot read {config_path}: {exc}"]
+    if not isinstance(data, dict):
+        return [f"[config] {config_path} must contain a mapping"]
+    unknown_keys = sorted(str(key) for key in data if key not in KNOWN_KEYS)
+    if unknown_keys:
+        warnings.append(f"[config] unknown key(s) ignored in {config_path}: {', '.join(unknown_keys)}")
+    for key in sorted(KNOWN_KEYS & set(data)):
+        value_path = _resolve_config_value_path(data.get(key), root)
+        if value_path is None:
+            warnings.append(f"[config] {key} must be a non-empty path string")
+        elif not value_path.exists():
+            warnings.append(f"[config] {key} path does not exist: {value_path}")
+    return warnings

@@ -16,6 +16,7 @@ from .llm.config import LLMConfig
 from .multi_cycle import run_multi_cycle_search
 from .orchestrator import run_search_report
 from .paths import resolve_existing_path
+from .predictors.stability_constants import supported_metal_groups
 from .prediction import discover_ensemble_checkpoints
 from . import prediction as _prediction
 from .reporting import (
@@ -30,6 +31,7 @@ from .task_router import route_task
 from .schemas import DesThresholds
 from .uncertainty import UncertaintyPolicy
 from .user_config import KNOWN_KEYS, load_user_config, save_user_config
+from .view_run import build_run_view, format_run_view
 from .workflows.metal_binding import run_metal_binding_workflow
 from .workflows.metal_binding_screen import run_metal_binding_screen
 from .workflows.metal_binding_selectivity import run_metal_selectivity_screen
@@ -270,11 +272,17 @@ def build_parser():
     doctor_parser.add_argument(
         "--check",
         action="append",
-        choices=("checkpoint", "discovery", "artifacts", "llm"),
+        choices=("checkpoint", "discovery", "artifacts", "config", "llm"),
         default=[],
-        help="Run optional local setup checks; may be passed multiple times",
+        help="Run optional setup checks; may be passed multiple times. The llm check probes the configured local service.",
     )
     doctor_parser.set_defaults(command="doctor")
+    supported_metals_parser = subparsers.add_parser("supported-metals", help="List metal ions with explicit model identity features")
+    supported_metals_parser.set_defaults(command="supported-metals")
+    view_run_parser = subparsers.add_parser("view-run", help="Show a compact summary of a standardized run directory")
+    view_run_parser.add_argument("run_dir", help="Directory containing run.manifest.json and run.json")
+    view_run_parser.add_argument("--top", type=_positive_int, default=5, help="Number of top candidates to show (default: 5)")
+    view_run_parser.set_defaults(command="view-run")
     # G1 — leaderboard
     leaderboard_parser = subparsers.add_parser("leaderboard", help="Show a ranked leaderboard of all compounds across a run history directory")
     leaderboard_parser.add_argument("history_dir", help="Directory containing run subdirectories with run.json files")
@@ -316,6 +324,14 @@ def _build_uncertainty_policy(args):
         std_high_threshold_k=args.std_high_threshold_k,
         std_medium_threshold_k=args.std_medium_threshold_k,
     )
+
+
+def _format_supported_metals() -> str:
+    lines = ["category | ions"]
+    for category, ions in supported_metal_groups():
+        lines.append(f"{category} | {', '.join(ions)}")
+    lines.append("Note: unsupported ions can run with fallback identity features, but selectivity is less meaningful.")
+    return "\n".join(lines)
 
 
 def _discover_checkpoint() -> str | None:
@@ -412,6 +428,16 @@ def main(argv=None):
             print(f"Saved {key} = {value}", file=sys.stderr)
         else:
             parser.error("Usage: des-agent config set KEY=VALUE")
+        return
+    if getattr(args, "command", None) == "supported-metals":
+        print(_format_supported_metals())
+        return
+    if getattr(args, "command", None) == "view-run":
+        try:
+            view = build_run_view(args.run_dir, top_n=args.top)
+        except (FileNotFoundError, ValueError) as exc:
+            parser.error(str(exc))
+        print(format_run_view(view))
         return
     if getattr(args, "command", None) == "doctor":
         llm_cfg_doctor = None

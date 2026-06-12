@@ -33,7 +33,7 @@ Twenty small runnable examples live here:
 - [`ni_co_selectivity_des_nemotron/`](./ni_co_selectivity_des_nemotron) for the same Ni²⁺/Co²⁺ task with Nemotron-3-Nano: shortlists top-5 HBD/HBA ligands, all 5 DES-compatible, best eutectic Tm 179.5 K (ethylene glycol partner)
 - [`ni_co_selectivity_des_qwen36/`](./ni_co_selectivity_des_qwen36) for the same task with Qwen 3.6: brainstorms classical chelators (NTA, IDA, salicylate, glycine, catechol), best eutectic Tm 135.2 K (salicylic acid + p-toluidine), hydrophobic aromatic DES partners
 
-Before adapting a folder, run `python -m des_multi_agent.cli doctor` to verify the core repo and checked-in examples are present. If you also want optional local checks, you can run `python -m des_multi_agent.cli doctor --check checkpoint`, `python -m des_multi_agent.cli doctor --check discovery`, or `python -m des_multi_agent.cli doctor --check artifacts`.
+Before adapting a folder, run `python -m des_multi_agent.cli doctor` to verify the core repo and checked-in examples are present. If you also want optional local checks, you can run `python -m des_multi_agent.cli doctor --check checkpoint`, `python -m des_multi_agent.cli doctor --check discovery`, `python -m des_multi_agent.cli doctor --check artifacts`, or `python -m des_multi_agent.cli doctor --check config`. Use `doctor --check llm --llm-config llm.example.yaml` only when you want a live local LLM probe.
 
 If you want to compare two saved runs from the same workflow, use `python -m des_multi_agent.cli compare-runs <run-a> <run-b>` or add `--json` for a machine-readable summary.
 
@@ -67,3 +67,11 @@ The task-router example uses `python -m des_multi_agent.cli task-router "..."` a
 The task-execute command uses `python -m des_multi_agent.cli task-execute "..."` to route and run the matching workflow in one step.
 
 See [`docs/tutorial.md`](/home/qshao/DES-Agent/docs/tutorial.md) for the full walkthrough and output guide.
+
+
+Useful inspection commands:
+
+```bash
+python -m des_multi_agent.cli supported-metals
+python -m des_multi_agent.cli view-run runs/run_001
+```

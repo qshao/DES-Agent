@@ -7,6 +7,7 @@ import json
 import pytest
 
 from des_multi_agent import orchestrator
+import des_multi_agent.exporting as exporting_module
 from des_multi_agent.evaluation import DesResult
 from des_multi_agent.exporting import CSV_COLUMNS, export_des_run_bundle
 from des_multi_agent.run_memory import parse_run_memory, write_run_memory
@@ -339,3 +340,39 @@ embedding:
     # No output_dir passed → export_des_run_bundle should NOT be called
     assert captured == {}, "export_des_run_bundle must not be called when output_dir is not set"
     assert "summary:" not in outcome.report_text
+
+
+def test_export_des_run_bundle_preserves_existing_bundle_when_replace_fails(monkeypatch, tmp_path: Path):
+    output_dir = tmp_path / "run_001"
+    output_dir.mkdir()
+    for filename in ("report.txt", "run.json", "run.csv", "run.manifest.json"):
+        (output_dir / filename).write_text("old", encoding="utf-8")
+
+    def _raise_after_stage(staged_path, final_path):
+        raise PermissionError("replace failed")
+
+    monkeypatch.setattr(exporting_module, "_replace_export_file", _raise_after_stage)
+
+    with pytest.raises(PermissionError, match="replace failed"):
+        export_des_run_bundle(
+            output_dir,
+            {
+                "workflow": "des",
+                "component_a": "CCO",
+                "n": 1,
+                "results": [{
+                    "smiles_b": "O",
+                    "is_des": True,
+                    "min_tm_k": 208.69,
+                    "rank": 1,
+                    "source": "heuristic",
+                    "source_id": "rule",
+                    "trust_score": 0.95,
+                    "uncertainty_flag": "low",
+                }],
+            },
+            "new report",
+        )
+
+    for filename in ("report.txt", "run.json", "run.csv", "run.manifest.json"):
+        assert (output_dir / filename).read_text(encoding="utf-8") == "old"

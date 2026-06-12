@@ -378,3 +378,41 @@ def test_cli_metal_selectivity_missing_metal_ion_mentions_example(capsys):
         cli_mod.main(["--workflow", "metal-selectivity"])
     err = capsys.readouterr().err
     assert "Cu2+" in err or "Zn2+" in err
+
+
+def test_supported_metals_subcommand_prints_supported_ions(capsys):
+    cli_module.main(["supported-metals"])
+
+    out = capsys.readouterr().out
+    assert "category | ions" in out
+    assert "Cu2+" in out
+    assert "Ni2+" in out
+    assert "Fe3+" in out
+    assert "La3+" in out
+
+
+def test_view_run_subcommand_prints_run_summary(tmp_path, capsys):
+    run_dir = tmp_path / "run_001"
+    run_dir.mkdir()
+    (run_dir / "run.manifest.json").write_text(
+        '{"workflow":"des","component_a":"CCO","n":1,"report_filename":"report.txt","json_filename":"run.json","csv_filename":"run.csv"}',
+        encoding="utf-8",
+    )
+    (run_dir / "run.json").write_text(
+        '{"workflow":"des","component_a":"CCO","n":1,"results":[{"rank":1,"smiles_b":"O","is_des":true,"min_tm_k":208.69}]}',
+        encoding="utf-8",
+    )
+
+    cli_module.main(["view-run", str(run_dir)])
+
+    out = capsys.readouterr().out
+    assert "workflow: des" in out
+    assert "component_a: CCO" in out
+    assert "rank=1 smiles_b=O" in out
+
+
+def test_cli_parser_accepts_doctor_config_and_llm_checks():
+    parser = build_parser()
+    args = parser.parse_args(["doctor", "--check", "config", "--check", "llm"])
+    assert args.command == "doctor"
+    assert args.check == ["config", "llm"]

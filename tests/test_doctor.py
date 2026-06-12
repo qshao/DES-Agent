@@ -4,6 +4,7 @@ import pytest
 
 from des_multi_agent.doctor import DoctorIssue, DoctorResult, format_doctor_report, run_doctor
 from des_multi_agent.summary import build_command_summary, render_command_summary
+from des_multi_agent import user_config as user_config_module
 
 
 def _write_example_folder(root: Path, folder_name: str) -> None:
@@ -142,6 +143,8 @@ def test_doctor_optional_checks_are_documented():
     assert "doctor --check checkpoint" in readme
     assert "doctor --check discovery" in tutorial
     assert "doctor --check artifacts" in examples
+    assert "doctor --check config" in readme
+    assert "doctor --check llm" in examples
 
 
 def test_standardized_run_directory_is_documented():
@@ -166,3 +169,32 @@ def test_doctor_summary_mentions_error_and_warning_counts():
     assert "status: issues found" in text
     assert "errors: 1" in text
     assert "warnings: 1" in text
+
+
+def test_doctor_config_check_warns_for_malformed_user_config(monkeypatch, tmp_path: Path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    _write_healthy_repo(repo_root)
+    config_path = tmp_path / "bad-config.yaml"
+    config_path.write_text("checkpoint_path: [", encoding="utf-8")
+    monkeypatch.setattr(user_config_module, "get_user_config_path", lambda: config_path)
+
+    result = run_doctor(repo_root, optional_checks=("config",))
+
+    assert result.errors == []
+    assert any("invalid YAML" in issue.message for issue in result.warnings)
+
+
+def test_doctor_config_check_warns_for_unknown_keys_and_missing_paths(monkeypatch, tmp_path: Path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    _write_healthy_repo(repo_root)
+    config_path = tmp_path / "config.yaml"
+    config_path.write_text("checkpoint_path: missing.pt\nunknown_key: true\n", encoding="utf-8")
+    monkeypatch.setattr(user_config_module, "get_user_config_path", lambda: config_path)
+
+    result = run_doctor(repo_root, optional_checks=("config",))
+
+    messages = "\n".join(issue.message for issue in result.warnings)
+    assert "unknown key" in messages
+    assert "checkpoint_path path does not exist" in messages

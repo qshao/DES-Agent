@@ -45,6 +45,21 @@ _METAL_IDENTITY: dict[str, tuple[int, int, int, float]] = {
 }
 
 
+_SUPPORTED_METAL_GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("Alkali metals", ("Li+", "Na+", "K+")),
+    ("Alkaline earth", ("Mg2+", "Ca2+", "Ba2+")),
+    ("Post-transition", ("Al3+", "Pb2+")),
+    ("First-row transition", ("Mn2+", "Mn3+", "Fe2+", "Fe3+", "Co2+", "Co3+", "Ni2+", "Cu+", "Cu2+", "Zn2+")),
+    ("Second-row transition", ("Pd2+", "Ag+", "Cd2+")),
+    ("Third-row transition", ("Pt2+", "Hg+", "Hg2+")),
+    ("Lanthanides", ("La3+", "Gd3+")),
+)
+
+
+def supported_metal_groups() -> tuple[tuple[str, tuple[str, ...]], ...]:
+    return _SUPPORTED_METAL_GROUPS
+
+
 def _metal_identity_features(metal_ion: str) -> dict[str, float]:
     key = metal_ion.strip()
     row = _METAL_IDENTITY.get(key, (0, 0, 0, 0.0))
