@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import os
 from pathlib import Path
 import sys
 from typing import Any, Dict
@@ -44,6 +45,86 @@ class EmbedderBundle:
 
 def build_ratio_grid() -> list[float]:
     return list(DEFAULT_RATIO_GRID)
+
+
+# --- Process-level caches -------------------------------------------------
+# The DES checkpoint and the embedding model never change within a run, yet
+# ``predict_curve`` is called once per candidate (per ratio-cycle, per ligand,
+# per outer loop). Loading them on every call dominates wall time and re-hits
+# the HuggingFace metadata endpoint (triggering 429s). These caches load each
+# heavy object once and reuse it; keys include the resolved device so an
+# override still forces a fresh load on the requested device.
+_MODEL_CACHE: dict[tuple[str, str], Any] = {}
+_EMBEDDER_CACHE: dict[tuple[str, str], "EmbedderBundle"] = {}
+_COMPAT_CACHE: dict[str, list[str]] = {}
+_EMBED_CACHE: dict[tuple[str, str, str], Any] = {}
+
+
+def clear_prediction_caches() -> None:
+    """Drop all cached models, embedders, compat checks, and embeddings.
+
+    Mainly useful in tests and when switching checkpoints/configs mid-process.
+    """
+    _MODEL_CACHE.clear()
+    _EMBEDDER_CACHE.clear()
+    _COMPAT_CACHE.clear()
+    _EMBED_CACHE.clear()
+
+
+def _resolve_des_device(cfg: Dict[str, Any]) -> str:
+    """Device string for the DES ML stage.
+
+    ``DES_ML_DEVICE`` (e.g. ``cpu``) overrides the config. On a single-GPU box
+    this lets the tiny ChemBERTa/physics stack run on CPU so the whole GPU is
+    free for the local LLM, avoiding VRAM thrash between phases.
+    """
+    env = os.environ.get("DES_ML_DEVICE")
+    if env:
+        return env
+    return str(cfg.get("device", "cuda"))
+
+
+def _get_cached_model(checkpoint_path: str | Path, device: torch.device):
+    key = (str(checkpoint_path), str(device))
+    cached = _MODEL_CACHE.get(key)
+    if cached is None:
+        cached = load_model(checkpoint_path, device)
+        _MODEL_CACHE[key] = cached
+    return cached
+
+
+def _get_cached_embedder(
+    embedding_cfg: Dict[str, Any], device: torch.device, config_path: str | Path
+) -> "EmbedderBundle":
+    key = (str(config_path), str(device))
+    cached = _EMBEDDER_CACHE.get(key)
+    if cached is None:
+        cached = _load_embedder(embedding_cfg, device=device)
+        _EMBEDDER_CACHE[key] = cached
+    return cached
+
+
+def _cached_compat(checkpoint_path: str | Path, cfg: Dict[str, Any]) -> list[str]:
+    key = str(checkpoint_path)
+    if key not in _COMPAT_CACHE:
+        _COMPAT_CACHE[key] = check_checkpoint_config_compat(checkpoint_path, cfg)
+    return _COMPAT_CACHE[key]
+
+
+def _embed_cached(
+    bundle: "EmbedderBundle", smiles: str, device: torch.device, scope_key: str
+) -> torch.Tensor:
+    """Embed a single SMILES, memoised per (config/device scope, SMILES).
+
+    ``component_a`` is constant across a run and many ``component_b`` recur
+    across cycles and outer loops, so this collapses repeated embedding work.
+    """
+    key = (scope_key, str(device), smiles)
+    cached = _EMBED_CACHE.get(key)
+    if cached is None:
+        cached = bundle.embedder.embed([smiles])
+        _EMBED_CACHE[key] = cached
+    return torch.tensor(cached, device=device)
 
 
 def load_model(ckpt_path: str | Path, device: torch.device):
@@ -190,27 +271,27 @@ def predict_curve(
     checkpoint_path = resolve_existing_path(checkpoint_path, base_dir=config_path.parent)
     with open(config_path, "r", encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
-    for warn in check_checkpoint_config_compat(checkpoint_path, cfg):
+    for warn in _cached_compat(checkpoint_path, cfg):
         print(f"[WARNING] {warn}", file=sys.stderr, flush=True)
-    device = get_device(cfg.get("device", "cuda"))
-    model = load_model(checkpoint_path, device)
-    emb_bundle = _load_embedder(cfg["embedding"], device=device)
+    device = get_device(_resolve_des_device(cfg))
+    model = _get_cached_model(checkpoint_path, device)
+    emb_bundle = _get_cached_embedder(cfg["embedding"], device, config_path)
 
     if emb_bundle.kind == "gnn":
         raise ValueError("GNN checkpoints require an end-to-end inference path that is not enabled in v1.")
 
-    x1 = torch.tensor(emb_bundle.embedder.embed([component_a]), device=device)
-    x2 = torch.tensor(emb_bundle.embedder.embed([component_b]), device=device)
+    scope_key = str(config_path)
+    x1 = _embed_cached(emb_bundle, component_a, device, scope_key)
+    x2 = _embed_cached(emb_bundle, component_b, device, scope_key)
     t1 = torch.tensor([float(t1_k)], device=device)
     t2 = torch.tensor([float(t2_k)], device=device)
 
     ratios = build_ratio_grid()
-    tm_pred_k: list[float] = []
     with torch.no_grad():
         d1, d2, w = model.forward_params(x1, x2)
-        for ratio in ratios:
-            r = torch.tensor([ratio], device=device)
-            tm_pred_k.append(float(_predict_Tm_from_params(d1, d2, w, t1, t2, r).item()))
+        r = torch.tensor(ratios, device=device, dtype=d1.dtype)
+        tm = _predict_Tm_from_params(d1, d2, w, t1, t2, r)
+    tm_pred_k = [float(v) for v in tm.tolist()]
 
     return CurvePrediction(
         smiles_a=component_a,

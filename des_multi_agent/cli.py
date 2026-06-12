@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -107,6 +108,16 @@ def build_parser():
         ),
     )
     parser.add_argument("--config-path", default=str(DEFAULT_CONFIG_PATH))
+    parser.add_argument(
+        "--ml-device",
+        default=None,
+        choices=["cpu", "cuda"],
+        help=(
+            "Device for the DES ML stage (ChemBERTa + physics model), overriding the config. "
+            "Use 'cpu' on a single-GPU box to leave the whole GPU free for a local LLM "
+            "and avoid VRAM thrash between the LLM and ML phases."
+        ),
+    )
     parser.add_argument("--llm-config", default=None, help="Optional YAML file containing llm settings")
     parser.add_argument("--discovery-path", default=None, help="Optional local discovery directory containing literature.yaml and library.yaml")
     parser.add_argument("--viscosity-model-path", default=None, help="Optional local DESignSolvents viscosity model artifact")
@@ -351,6 +362,11 @@ def _print_summary(command: str, result, *, machine_readable_stdout: bool = Fals
 def main(argv=None):
     parser = build_parser()
     args = parser.parse_args(argv)
+
+    # --ml-device pins the DES ML stage onto the requested device for this run
+    # (read by des_multi_agent.prediction._resolve_des_device).
+    if getattr(args, "ml_device", None):
+        os.environ["DES_ML_DEVICE"] = args.ml_device
 
     # Apply user config defaults for flags the user did not provide explicitly
     _user_cfg = load_user_config()
