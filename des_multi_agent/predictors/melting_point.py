@@ -42,12 +42,14 @@ class MPRegressor(nn.Module):
 class QSPRPrediction:
     tm_k: float
     std_k: float
+    ci_k: float | None = None  # conformal-calibrated half-width (e.g. 90% interval)
 
 
 class MeltingPointQSPR:
     """Loaded deep ensemble + ChemBERTa embedder for melting-point inference."""
 
-    def __init__(self, members, feat_mean, feat_std, tm_mean, tm_std, embedder, device):
+    def __init__(self, members, feat_mean, feat_std, tm_mean, tm_std, embedder, device,
+                 std_scale_k=None, conformal_q=None):
         self._members = members
         self._feat_mean = feat_mean
         self._feat_std = feat_std
@@ -55,6 +57,9 @@ class MeltingPointQSPR:
         self._tm_std = float(tm_std)
         self._embedder = embedder
         self._device = device
+        # data-calibrated confidence scale + conformal interval multiplier
+        self.std_scale_k = float(std_scale_k) if std_scale_k else None
+        self.conformal_q = float(conformal_q) if conformal_q else None
 
     @torch.no_grad()
     def predict(self, smiles: str) -> QSPRPrediction:
@@ -62,10 +67,9 @@ class MeltingPointQSPR:
         x = (emb - self._feat_mean) / self._feat_std
         preds = torch.stack([m(x) for m in self._members])  # (n_members, 1)
         preds_k = preds * self._tm_std + self._tm_mean
-        return QSPRPrediction(
-            tm_k=float(preds_k.mean().item()),
-            std_k=float(preds_k.std(unbiased=False).item()),
-        )
+        std_k = float(preds_k.std(unbiased=False).item())
+        ci_k = self.conformal_q * std_k if self.conformal_q else None
+        return QSPRPrediction(tm_k=float(preds_k.mean().item()), std_k=std_k, ci_k=ci_k)
 
 
 def _build_embedder(model_name: str, max_length: int, device: torch.device, cache_dir: str | None = None):
@@ -93,7 +97,11 @@ def load_qspr_model(path: str | Path = QSPR_MODEL_PATH, device: str = "cpu") -> 
             m.load_state_dict(state)
             m.to(dev).eval()
             members.append(m)
-        embedder = _build_embedder(ckpt["embedding_model"], int(ckpt["max_length"]), dev)
+        embedder = _build_embedder(
+            ckpt["embedding_model"], int(ckpt["max_length"]), dev,
+            cache_dir=ckpt.get("emb_cache_dir", ".cache/chemberta_emb"),
+        )
+        calib = ckpt.get("calibration", {})
         return MeltingPointQSPR(
             members=members,
             feat_mean=torch.tensor(ckpt["feat_mean"], device=dev, dtype=torch.float32),
@@ -102,6 +110,8 @@ def load_qspr_model(path: str | Path = QSPR_MODEL_PATH, device: str = "cpu") -> 
             tm_std=ckpt["tm_std"],
             embedder=embedder,
             device=dev,
+            std_scale_k=calib.get("std_scale_k"),
+            conformal_q=calib.get("conformal_q"),
         )
     except Exception:
         return None

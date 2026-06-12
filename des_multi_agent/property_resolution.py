@@ -135,8 +135,16 @@ def _is_ionic(mol) -> bool:
     return any(atom.GetFormalCharge() != 0 for atom in mol.GetAtoms())
 
 
-def _qspr_confidence(std_k: float, ionic: bool = False) -> float:
-    frac = min(max(std_k, 0.0), _QSPR_STD_SCALE_K) / _QSPR_STD_SCALE_K
+def _qspr_confidence(std_k: float, scale_k: float | None = None, ionic: bool = False) -> float:
+    """Map ensemble spread to a confidence.
+
+    ``scale_k`` is the ensemble std (K) at which confidence hits the floor. When
+    the model provides a data-calibrated scale (90th-pct std on a held-out set)
+    it replaces the rough default, making the confidence calibrated rather than
+    tied to a magic constant.
+    """
+    scale = scale_k if scale_k and scale_k > 0 else _QSPR_STD_SCALE_K
+    frac = min(max(std_k, 0.0), scale) / scale
     conf = _QSPR_CONFIDENCE_MAX - frac * (_QSPR_CONFIDENCE_MAX - _QSPR_CONFIDENCE_MIN)
     if ionic:
         conf *= _QSPR_IONIC_PENALTY
@@ -200,11 +208,12 @@ def resolve_melting_point(component: str, override_k: float | None = None) -> Me
     if model is not None:
         try:
             pred = model.predict(component)
+            scale_k = getattr(model, "std_scale_k", None)
             return MeltingPointEstimate(
                 component=component,
                 tm_k=float(pred.tm_k),
                 source="qspr",
-                confidence=_qspr_confidence(float(pred.std_k), ionic=_is_ionic(mol)),
+                confidence=_qspr_confidence(float(pred.std_k), scale_k=scale_k, ionic=_is_ionic(mol)),
             )
         except Exception as exc:
             _warn_once(f"QSPR prediction failed ({exc}); using heuristic fallback")

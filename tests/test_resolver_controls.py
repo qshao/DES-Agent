@@ -34,6 +34,30 @@ def test_qspr_model_passes_resolved_device(monkeypatch):
     assert seen["device"] == "cuda"
 
 
+def test_qspr_confidence_uses_calibrated_scale():
+    # same ensemble std, but a tighter calibrated scale -> looks more uncertain
+    sharp = pr._qspr_confidence(8.0, scale_k=80.0)
+    fuzzy = pr._qspr_confidence(8.0, scale_k=10.0)
+    assert sharp > fuzzy
+
+
+def test_resolver_uses_model_std_scale(monkeypatch):
+    import des_multi_agent.property_resolution as prm
+
+    class _M:
+        std_scale_k = 10.0
+
+        def predict(self, smiles):
+            from des_multi_agent.predictors.melting_point import QSPRPrediction
+            return QSPRPrediction(tm_k=400.0, std_k=8.0)
+
+    monkeypatch.setattr(prm, "_qspr_model", lambda: _M())
+    est = prm.resolve_melting_point("CCBr")
+    # confidence should match the calibrated-scale computation (scale 10, std 8)
+    assert est.source == "qspr"
+    assert abs(est.confidence - prm._qspr_confidence(8.0, scale_k=10.0)) < 1e-9
+
+
 def test_qspr_disabled_by_env(monkeypatch):
     monkeypatch.setenv("DES_DISABLE_QSPR", "1")
     pr._qspr_model.cache_clear()

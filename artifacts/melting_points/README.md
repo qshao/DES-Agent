@@ -38,8 +38,17 @@ python -m ml_des_mp.build_mp_dataset
 python -m ml_des_mp.train_mp_qspr
 ```
 
-Held-out accuracy of the bundled QSPR (n=312): **RMSE ≈ 41 K, MAE ≈ 29 K** —
-roughly 3–4× tighter than the heuristic on novel molecules.
+Held-out accuracy of the bundled QSPR (n=468 test): **RMSE ≈ 44 K, MAE ≈ 32 K** —
+roughly 3× tighter than the heuristic on novel molecules. The deployed ensemble
+is refit on all data (these metrics come from the held-out split, so they are a
+conservative estimate of the deployed model).
+
+**Calibrated uncertainty (split-conformal).** A held-out calibration split fits a
+normalized-residual quantile so the reported interval `Tm ± conformal_q·σ`
+(σ = ensemble spread) has a coverage guarantee — measured **91.7% empirical
+coverage** for the nominal 90% interval. The confidence the resolver attaches to
+a `qspr` estimate is derived from σ relative to a **data-calibrated scale**
+(90th-percentile σ on the calibration set), not a hand-picked constant.
 
 ## Controls
 
