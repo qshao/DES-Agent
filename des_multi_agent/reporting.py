@@ -12,6 +12,36 @@ from .smiles_names import display_name
 from .uncertainty import AnnotatedResult
 
 
+def _format_tm_provenance(results, *, resolve_names: bool = True) -> list[str]:
+    """Render the provenance of the pure-component melting points used to anchor
+    each prediction. Returns an empty list when no result carries provenance, so
+    programmatic results without it leave the report unchanged.
+    """
+    if not results or not any(getattr(r, "t2_source", None) is not None for r in results):
+        return []
+
+    def _row(smiles, tm_k, source, confidence) -> str:
+        label = display_name(smiles) if resolve_names else smiles
+        conf = f"{confidence:.2f}" if confidence is not None else "?"
+        tm = f"{tm_k:.2f}" if tm_k is not None else "?"
+        return f"{label} | {tm} | {source or '?'} | {conf}"
+
+    lines = ["Melting-point inputs:", "component | Tm_K | source | confidence"]
+    first = results[0]
+    seen: set[str] = set()
+    a_smiles = getattr(first.curve, "smiles_a", None)
+    if a_smiles is not None and getattr(first, "t1_source", None) is not None:
+        lines.append(_row(a_smiles, getattr(first.curve, "t1_k", None), first.t1_source, first.t1_confidence))
+        seen.add(a_smiles)
+    for r in results:
+        b_smiles = r.curve.smiles_b
+        if b_smiles in seen:
+            continue
+        seen.add(b_smiles)
+        lines.append(_row(b_smiles, getattr(r.curve, "t2_k", None), getattr(r, "t2_source", None), getattr(r, "t2_confidence", None)))
+    return lines
+
+
 def _confidence_label(trust_score: float | None, uncertainty_flag: str) -> str:
     if uncertainty_flag == "low":
         return "high confidence"
@@ -156,6 +186,10 @@ def format_report(
             f"spread={annotation.uncertainty.min_tm_k:.2f}-{annotation.uncertainty.max_tm_k:.2f} K | "
             f"std={annotation.uncertainty.std_tm_k:.2f} K | {confidence} | {r.rationale}{ensemble_note}"
         )
+    tm_provenance_lines = _format_tm_provenance(results, resolve_names=resolve_names)
+    if tm_provenance_lines:
+        lines.append("")
+        lines.extend(tm_provenance_lines)
     if candidate_reviews:
         lines.append("")
         lines.append("LLM candidate reviews:")
@@ -232,6 +266,11 @@ def format_report_json(results, annotated_results=None, resolve_names: bool = Tr
         if ann is not None:
             row["trust_score"] = ann.trust_score
             row["uncertainty_flag"] = ann.uncertainty.uncertainty_flag
+        if getattr(r, "t1_source", None) is not None or getattr(r, "t2_source", None) is not None:
+            row["t1_source"] = getattr(r, "t1_source", None)
+            row["t2_source"] = getattr(r, "t2_source", None)
+            row["t1_confidence"] = getattr(r, "t1_confidence", None)
+            row["t2_confidence"] = getattr(r, "t2_confidence", None)
         rows.append(row)
     return json.dumps(rows, indent=2)
 

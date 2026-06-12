@@ -446,6 +446,13 @@ def run_search_report(
             llm_warnings.append(f"Prediction failed for {proposal.smiles}: {exc}")
             continue
         result = classify_des(curve, thresholds)
+        result = replace(
+            result,
+            t1_source=getattr(component_a_tp, "source", None),
+            t1_confidence=getattr(component_a_tp, "confidence", None),
+            t2_source=getattr(component_b_tp, "source", None),
+            t2_confidence=getattr(component_b_tp, "confidence", None),
+        )
         results.append(result)
     # H2 — predict viscosity early so it can influence ranking
     viscosity_predictions = _predict_viscosity_predictions(component_a, filtered, viscosity_model_path, llm_warnings)

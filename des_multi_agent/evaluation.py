@@ -15,6 +15,13 @@ class DesResult:
     rationale: str
     min_tm_k: float
     eutectic_ratio_b: float = 0.5
+    # Provenance of the pure-component melting points the curve was anchored on
+    # (attached by the orchestrator). None when not resolved through the layered
+    # resolver, e.g. in programmatic/test construction.
+    t1_source: str | None = None
+    t2_source: str | None = None
+    t1_confidence: float | None = None
+    t2_confidence: float | None = None
 
 
 def classify_des(curve: CurvePrediction, thresholds: DesThresholds) -> DesResult:

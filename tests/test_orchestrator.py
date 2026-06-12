@@ -43,3 +43,9 @@ embedding:
     )
     assert len(results) > 0
     assert all(hasattr(result, "rationale") for result in results)
+    # the resolved melting-point provenance must be threaded onto each result
+    top = results[0]
+    assert top.t1_source == "heuristic"
+    assert top.t2_source == "heuristic"
+    assert top.t1_confidence == 0.5
+    assert top.t2_confidence == 0.5
