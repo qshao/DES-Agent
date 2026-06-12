@@ -1,0 +1,1058 @@
+{
+  "entries": {
+    "AEMRFAOFKBGASW-UHFFFAOYSA-N": {
+      "n": 29,
+      "smiles": "O=C(O)CO",
+      "spread_k": 0.0,
+      "tm_k": 350.8
+    },
+    "AESCANJJKQXGHE-UHFFFAOYSA-N": {
+      "n": 6,
+      "smiles": "C[S+](C)C.O=S(=O)([N-]S(=O)(=O)C(F)(F)F)C(F)(F)F",
+      "spread_k": 0.0,
+      "tm_k": 318.65
+    },
+    "AQHHHDLHHXJYJD-UHFFFAOYSA-N": {
+      "n": 2,
+      "smiles": "CC(C)NCC(O)COc1cccc2ccccc12",
+      "spread_k": 0.0,
+      "tm_k": 369.15
+    },
+    "AYFVYJQAPQTCCC-GBXIJSLDSA-N": {
+      "n": 3,
+      "smiles": "C[C@@H](O)[C@H](N)C(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 529.15
+    },
+    "BGQMOFGZRJUORO-UHFFFAOYSA-M": {
+      "n": 39,
+      "smiles": "CCC[N+](CCC)(CCC)CCC.[Br-]",
+      "spread_k": 0.0,
+      "tm_k": 583.0
+    },
+    "BJEPYKJPYRNKOW-UHFFFAOYSA-N": {
+      "n": 18,
+      "smiles": "O=C(O)CC(O)C(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 404.3
+    },
+    "BMQZYMYBQZGEEY-UHFFFAOYSA-M": {
+      "n": 15,
+      "smiles": "CCn1cc[n+](C)c1.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 350.42
+    },
+    "BOOXKGZZTBKJFE-UHFFFAOYSA-M": {
+      "n": 17,
+      "smiles": "CCCC[N+]1(C)CCCC1.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 472.98
+    },
+    "BPRYUXCVCCNUFE-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "Cc1cc(C)c(O)c(C)c1",
+      "spread_k": 0.0,
+      "tm_k": 345.05
+    },
+    "BSYNRYMUTXBXSQ-UHFFFAOYSA-N": {
+      "n": 11,
+      "smiles": "CC(=O)Oc1ccccc1C(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 414.0
+    },
+    "BXWNKGSJHAJOGX-UHFFFAOYSA-N": {
+      "n": 50,
+      "smiles": "CCCCCCCCCCCCCCCCO",
+      "spread_k": 0.0,
+      "tm_k": 324.4
+    },
+    "BYEAHWXPCBROCE-UHFFFAOYSA-N": {
+      "n": 6,
+      "smiles": "OC(C(F)(F)F)C(F)(F)F",
+      "spread_k": 0.0,
+      "tm_k": 269.15
+    },
+    "BYHDDXPKOZIZRV-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "O=C(O)CCCCc1ccccc1",
+      "spread_k": 0.0,
+      "tm_k": 331.98
+    },
+    "CKLJMWTZIZZHCS-REOHCLBHSA-N": {
+      "n": 3,
+      "smiles": "N[C@@H](CC(=O)O)C(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 543.15
+    },
+    "CVNOWLNNPYYEOH-UHFFFAOYSA-N": {
+      "n": 2,
+      "smiles": "N#Cc1ccc(O)cc1",
+      "spread_k": 0.0,
+      "tm_k": 384.65
+    },
+    "CZMRCDWAGMRECN-UGDNZRGBSA-N": {
+      "n": 29,
+      "smiles": "OC[C@H]1O[C@@](CO)(O[C@H]2O[C@H](CO)[C@@H](O)[C@H](O)[C@H]2O)[C@@H](O)[C@@H]1O",
+      "spread_k": 0.0,
+      "tm_k": 462.05
+    },
+    "DBQUKJMNGUJRFI-UHFFFAOYSA-N": {
+      "n": 6,
+      "smiles": "CC[NH+](CC)CCO.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 385.15
+    },
+    "DFPAKSUCGFBDDF-UHFFFAOYSA-N": {
+      "n": 5,
+      "smiles": "NC(=O)c1cccnc1",
+      "spread_k": 0.0,
+      "tm_k": 403.15
+    },
+    "DGEZNRSVGBDHLK-UHFFFAOYSA-N": {
+      "n": 15,
+      "smiles": "c1cnc2c(c1)ccc1cccnc12",
+      "spread_k": 0.0,
+      "tm_k": 388.15
+    },
+    "DKYWVDODHFEZIM-UHFFFAOYSA-N": {
+      "n": 9,
+      "smiles": "CC(C(=O)O)c1cccc(C(=O)c2ccccc2)c1",
+      "spread_k": 0.0,
+      "tm_k": 368.0
+    },
+    "DLFVBJFMPXGRIB-UHFFFAOYSA-N": {
+      "n": 10,
+      "smiles": "CC(N)=O",
+      "spread_k": 0.0,
+      "tm_k": 354.06
+    },
+    "DNIAPMSPPWPWGF-UHFFFAOYSA-N": {
+      "n": 8,
+      "smiles": "CC(O)CO",
+      "spread_k": 0.0,
+      "tm_k": 237.15
+    },
+    "DSSYKIVIOFKYAU-UHFFFAOYSA-N": {
+      "n": 30,
+      "smiles": "CC12CCC(CC1=O)C2(C)C",
+      "spread_k": 0.0,
+      "tm_k": 448.15
+    },
+    "DSSYKIVIOFKYAU-XCBNKYQSSA-N": {
+      "n": 18,
+      "smiles": "CC1(C)[C@@H]2CC[C@@]1(C)C(=O)C2",
+      "spread_k": 0.0,
+      "tm_k": 449.65
+    },
+    "FBEVECUEMUUFKM-UHFFFAOYSA-M": {
+      "n": 92,
+      "smiles": "CCC[N+](CCC)(CCC)CCC.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 502.4
+    },
+    "FBPFZTCFMRRESA-JGWLITMVSA-N": {
+      "n": 26,
+      "smiles": "OC[C@@H](O)[C@@H](O)[C@H](O)[C@@H](O)CO",
+      "spread_k": 0.0,
+      "tm_k": 365.15
+    },
+    "FBPFZTCFMRRESA-KVTDHHQDSA-N": {
+      "n": 1,
+      "smiles": "OC[C@@H](O)[C@@H](O)[C@H](O)[C@H](O)CO",
+      "spread_k": 0.0,
+      "tm_k": 440.66
+    },
+    "FBPFZTCFMRRESA-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "OCC(O)C(O)C(O)C(O)CO",
+      "spread_k": 0.0,
+      "tm_k": 366.5
+    },
+    "FBUKVWPVBMHYJY-UHFFFAOYSA-N": {
+      "n": 14,
+      "smiles": "CCCCCCCCC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 285.75
+    },
+    "FERIUCNNQQJTOY-UHFFFAOYSA-N": {
+      "n": 3,
+      "smiles": "CCCC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 265.25
+    },
+    "FEWJPZIEWOKRBE-UHFFFAOYSA-N": {
+      "n": 15,
+      "smiles": "O=C(O)C(O)C(O)C(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 479.15
+    },
+    "FFEARJCKVFRZRR-BYPYZUCNSA-N": {
+      "n": 3,
+      "smiles": "CSCC[C@H](N)C(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 556.15
+    },
+    "FJKROLUGYXJWQN-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "O=C(O)c1ccc(O)cc1",
+      "spread_k": 0.0,
+      "tm_k": 489.4
+    },
+    "FRPZMMHWLSIFAZ-UHFFFAOYSA-N": {
+      "n": 5,
+      "smiles": "C=CCCCCCCCCC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 297.65
+    },
+    "FUZZWVXGSFPDMH-UHFFFAOYSA-N": {
+      "n": 4,
+      "smiles": "CCCCCC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 270.15
+    },
+    "FVIOTLOYYUBKDV-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "CCCC[n+]1nn(CC)c2ccccc21.F[P-](F)(F)(F)(F)F",
+      "spread_k": 0.0,
+      "tm_k": 374.15
+    },
+    "FWYKRJUVEOBFGH-UHFFFAOYSA-M": {
+      "n": 2,
+      "smiles": "C=CC[P+](c1ccccc1)(c1ccccc1)c1ccccc1.[Br-]",
+      "spread_k": 0.0,
+      "tm_k": 482.15
+    },
+    "GHVNFZFCNZKVNT-UHFFFAOYSA-N": {
+      "n": 152,
+      "smiles": "CCCCCCCCCC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 304.8
+    },
+    "GKCBAIGFKIBETG-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "CCCCNc1ccc(C(=O)OCCN(C)C)cc1",
+      "spread_k": 0.0,
+      "tm_k": 421.15
+    },
+    "GLDOVTGHNKAZLK-UHFFFAOYSA-N": {
+      "n": 63,
+      "smiles": "CCCCCCCCCCCCCCCCCCO",
+      "spread_k": 0.0,
+      "tm_k": 332.9
+    },
+    "GSEJCLTVZPLZKY-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "OCCN(CCO)CCO",
+      "spread_k": 0.0,
+      "tm_k": 294.65
+    },
+    "GZOXYNSFPWUMOH-UHFFFAOYSA-M": {
+      "n": 1,
+      "smiles": "C[N+](CCO)(CCO)Cc1ccccc1.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 334.15
+    },
+    "HEBKCHPVOIAQTA-NGQZWQHPSA-N": {
+      "n": 19,
+      "smiles": "OC[C@@H](O)C(O)[C@@H](O)CO",
+      "spread_k": 0.0,
+      "tm_k": 367.15
+    },
+    "HEBKCHPVOIAQTA-SCDXWVJYSA-N": {
+      "n": 6,
+      "smiles": "OC[C@@H](O)[C@H](O)[C@@H](O)CO",
+      "spread_k": 0.0,
+      "tm_k": 365.7
+    },
+    "HEFNNWSXXWATRW-UHFFFAOYSA-N": {
+      "n": 42,
+      "smiles": "CC(C)Cc1ccc(C(C)C(=O)O)cc1",
+      "spread_k": 0.0,
+      "tm_k": 350.4
+    },
+    "HJZLEGIHUQOJBA-UHFFFAOYSA-N": {
+      "n": 9,
+      "smiles": "O=C(O)CCC1CCCCC1",
+      "spread_k": 0.0,
+      "tm_k": 291.3
+    },
+    "HLZKNKRTKFSKGZ-UHFFFAOYSA-N": {
+      "n": 47,
+      "smiles": "CCCCCCCCCCCCCCO",
+      "spread_k": 0.0,
+      "tm_k": 311.7
+    },
+    "HTZCNXWZYVXIMZ-UHFFFAOYSA-M": {
+      "n": 1,
+      "smiles": "CC[N+](CC)(CC)Cc1ccccc1.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 393.15
+    },
+    "HWCKGOZZJDHMNC-UHFFFAOYSA-M": {
+      "n": 37,
+      "smiles": "CC[N+](CC)(CC)CC.[Br-]",
+      "spread_k": 0.0,
+      "tm_k": 633.0
+    },
+    "HZAXFHJVJLSVMW-UHFFFAOYSA-N": {
+      "n": 8,
+      "smiles": "NCCO",
+      "spread_k": 0.0,
+      "tm_k": 283.55
+    },
+    "ICFJFFQQTFMIBG-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "NC(N)=NC(N)=NCCc1ccccc1",
+      "spread_k": 0.0,
+      "tm_k": 449.65
+    },
+    "IKWKJIWDLVYZIY-UHFFFAOYSA-M": {
+      "n": 1,
+      "smiles": "CCCC[P+](c1ccccc1)(c1ccccc1)c1ccccc1.[Br-]",
+      "spread_k": 0.0,
+      "tm_k": 508.15
+    },
+    "IPCSVZSSVZVIGE-UHFFFAOYSA-N": {
+      "n": 148,
+      "smiles": "CCCCCCCCCCCCCCCC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 336.8
+    },
+    "ISWSIDIOOBJBQZ-UHFFFAOYSA-N": {
+      "n": 15,
+      "smiles": "Oc1ccccc1",
+      "spread_k": 0.0,
+      "tm_k": 314.15
+    },
+    "IXACLQSORYJAHN-UHFFFAOYSA-M": {
+      "n": 1,
+      "smiles": "C[N+](C)(C)CCF.[Br-]",
+      "spread_k": 0.0,
+      "tm_k": 517.15
+    },
+    "JFCQEDHGNNZCLN-UHFFFAOYSA-N": {
+      "n": 46,
+      "smiles": "O=C(O)CCCC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 370.9
+    },
+    "JGOAIQNSOGZNBX-UHFFFAOYSA-N": {
+      "n": 2,
+      "smiles": "CCN(CC)CCOC(=O)C(c1ccccc1)c1ccccc1",
+      "spread_k": 0.0,
+      "tm_k": 386.65
+    },
+    "JNMRHUJNCSQMMB-UHFFFAOYSA-N": {
+      "n": 5,
+      "smiles": "Nc1ccc(S(=O)(=O)Nc2nccs2)cc1",
+      "spread_k": 0.0,
+      "tm_k": 475.65
+    },
+    "JOOXCMJARBKPKM-UHFFFAOYSA-N": {
+      "n": 14,
+      "smiles": "CC(=O)CCC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 306.16
+    },
+    "JOXIMZWYDAKGHI-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "Cc1ccc(S(=O)(=O)O)cc1",
+      "spread_k": 0.0,
+      "tm_k": 379.65
+    },
+    "JQBYIZAYQMMVTO-UHFFFAOYSA-N": {
+      "n": 9,
+      "smiles": "Fc1c(F)c(F)c(I)c(I)c1F",
+      "spread_k": 0.0,
+      "tm_k": 324.3
+    },
+    "JRMUNVKIHCOMHV-UHFFFAOYSA-M": {
+      "n": 25,
+      "smiles": "CCCC[N+](CCCC)(CCCC)CCCC.[Br-]",
+      "spread_k": 0.0,
+      "tm_k": 390.8
+    },
+    "JUGOREOARAHOCO-UHFFFAOYSA-M": {
+      "n": 1,
+      "smiles": "CC(=O)OCC[N+](C)(C)C.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 423.65
+    },
+    "JVTAAEKCZFNVCJ-UHFFFAOYSA-N": {
+      "n": 19,
+      "smiles": "CC(O)C(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 289.95
+    },
+    "KDYFGRWQOYBRFD-UHFFFAOYSA-N": {
+      "n": 16,
+      "smiles": "O=C(O)CCC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 455.2
+    },
+    "KFZXVMNBUMVKLN-UHFFFAOYSA-N": {
+      "n": 7,
+      "smiles": "Cc1cc(O)c(C(C)C)cc1Cl",
+      "spread_k": 0.0,
+      "tm_k": 332.15
+    },
+    "KGBXLFKZBHKPEV-UHFFFAOYSA-N": {
+      "n": 8,
+      "smiles": "OB(O)O",
+      "spread_k": 0.0,
+      "tm_k": 443.15
+    },
+    "KQTIIICEAUMSDG-UHFFFAOYSA-N": {
+      "n": 2,
+      "smiles": "O=C(O)CC(CC(=O)O)C(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 433.16
+    },
+    "KRKNYBCHXYNGOX-UHFFFAOYSA-N": {
+      "n": 19,
+      "smiles": "O=C(O)CC(O)(CC(=O)O)C(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 428.56
+    },
+    "KWIUHFFTVRNATP-UHFFFAOYSA-N": {
+      "n": 89,
+      "smiles": "C[N+](C)(C)CC(=O)[O-]",
+      "spread_k": 0.0,
+      "tm_k": 566.0
+    },
+    "KWOWGTXJSDNNJU-IODNYQNNSA-M": {
+      "n": 20,
+      "smiles": "CS(=O)(=O)[O-].Cn1cc[n+](CCC2=CC[C@H]3C[C@@H]2C3(C)C)c1",
+      "spread_k": 0.0,
+      "tm_k": 393.75
+    },
+    "KXDAEFPNCMNJSK-UHFFFAOYSA-N": {
+      "n": 2,
+      "smiles": "NC(=O)c1ccccc1",
+      "spread_k": 0.0,
+      "tm_k": 400.16
+    },
+    "KXHPPCXNWTUNSB-UHFFFAOYSA-M": {
+      "n": 4,
+      "smiles": "C[N+](C)(C)Cc1ccccc1.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 516.15
+    },
+    "LCTONWCANYUPML-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "CC(=O)C(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 286.95
+    },
+    "LJOODBDWMQKMFB-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "O=C(O)CC1CCCCC1",
+      "spread_k": 0.0,
+      "tm_k": 306.15
+    },
+    "LKDRXBCSQODPBY-VRPWFDPXSA-N": {
+      "n": 26,
+      "smiles": "OCC1(O)OC[C@@H](O)[C@@H](O)[C@@H]1O",
+      "spread_k": 0.0,
+      "tm_k": 377.15
+    },
+    "LNTHITQWFMADLM-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "O=C(O)c1cc(O)c(O)c(O)c1",
+      "spread_k": 0.0,
+      "tm_k": 524.19
+    },
+    "LOZWAPSEEHRYPG-UHFFFAOYSA-N": {
+      "n": 4,
+      "smiles": "C1CSCCS1",
+      "spread_k": 0.0,
+      "tm_k": 385.65
+    },
+    "LSEFCHWGJNHZNT-UHFFFAOYSA-M": {
+      "n": 24,
+      "smiles": "C[P+](c1ccccc1)(c1ccccc1)c1ccccc1.[Br-]",
+      "spread_k": 0.0,
+      "tm_k": 504.15
+    },
+    "LVHBHZANLOWSRM-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "C=C(CC(=O)O)C(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 444.46
+    },
+    "LYCAIKOWRPUZTN-UHFFFAOYSA-N": {
+      "n": 39,
+      "smiles": "OCCO",
+      "spread_k": 0.0,
+      "tm_k": 260.6
+    },
+    "MGJKQDOBUOMPEZ-UHFFFAOYSA-N": {
+      "n": 2,
+      "smiles": "CNC(=O)NC",
+      "spread_k": 0.0,
+      "tm_k": 379.4
+    },
+    "MGSRCZKZVOBKFT-UHFFFAOYSA-N": {
+      "n": 137,
+      "smiles": "Cc1ccc(C(C)C)c(O)c1",
+      "spread_k": 0.0,
+      "tm_k": 323.5
+    },
+    "MSIGGUSMCUUDGY-UHFFFAOYSA-M": {
+      "n": 9,
+      "smiles": "COCC[N+](C)(C)C.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 442.0
+    },
+    "MTCFGRXMJLQNBG-REOHCLBHSA-N": {
+      "n": 3,
+      "smiles": "N[C@@H](CO)C(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 501.15
+    },
+    "MTKNGOHFNXIVOS-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "Clc1ccccc1C[NH+]1CCc2sccc2C1.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 478.15
+    },
+    "MUBZPKHOEPUJKR-UHFFFAOYSA-N": {
+      "n": 12,
+      "smiles": "O=C(O)C(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 462.4
+    },
+    "MUMGGOZAMZWBJJ-DYKIIFRCSA-N": {
+      "n": 8,
+      "smiles": "C[C@]12CC[C@H]3[C@@H](CCC4=CC(=O)CC[C@@]43C)[C@@H]1CC[C@@H]2O",
+      "spread_k": 0.0,
+      "tm_k": 424.15
+    },
+    "MVFGUOIZUNYYSO-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "CCCNC(C)C(=O)Nc1ccccc1C",
+      "spread_k": 0.0,
+      "tm_k": 310.55
+    },
+    "MWKFXSUHUHTGQN-UHFFFAOYSA-N": {
+      "n": 2,
+      "smiles": "CCCCCCCCCCO",
+      "spread_k": 0.0,
+      "tm_k": 280.15
+    },
+    "NHGXDBSUJJNIRV-UHFFFAOYSA-M": {
+      "n": 92,
+      "smiles": "CCCC[N+](CCCC)(CCCC)CCCC.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 344.0
+    },
+    "NJZRLXNBGZBREL-UHFFFAOYSA-N": {
+      "n": 24,
+      "smiles": "C[N+](C)(C)CC(=O)[O-].O",
+      "spread_k": 0.0,
+      "tm_k": 514.15
+    },
+    "NLXLAEXVIDQMFP-UHFFFAOYSA-N": {
+      "n": 18,
+      "smiles": "[Cl-].[NH4+]",
+      "spread_k": 0.0,
+      "tm_k": 632.2
+    },
+    "NNJVILVZKWQKPM-UHFFFAOYSA-N": {
+      "n": 32,
+      "smiles": "CCN(CC)CC(=O)Nc1c(C)cccc1C",
+      "spread_k": 0.0,
+      "tm_k": 341.15
+    },
+    "NOOLISFMXDJSKH-KXUCPTDWSA-N": {
+      "n": 184,
+      "smiles": "CC(C)[C@@H]1CC[C@@H](C)C[C@H]1O",
+      "spread_k": 1.1,
+      "tm_k": 315.7
+    },
+    "NOOLISFMXDJSKH-UHFFFAOYSA-N": {
+      "n": 10,
+      "smiles": "CC1CCC(C(C)C)C(O)C1",
+      "spread_k": 4.55,
+      "tm_k": 311.15
+    },
+    "NQPDZGIKBAWPEJ-UHFFFAOYSA-N": {
+      "n": 3,
+      "smiles": "CCCCC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 238.65
+    },
+    "NRKYWOKHZRQRJR-UHFFFAOYSA-N": {
+      "n": 22,
+      "smiles": "NC(=O)C(F)(F)F",
+      "spread_k": 0.0,
+      "tm_k": 348.0
+    },
+    "NTAZOPPTLZSXQH-UHFFFAOYSA-N": {
+      "n": 2,
+      "smiles": "Fc1c(I)c(F)c(I)c(F)c1I",
+      "spread_k": 0.0,
+      "tm_k": 428.65
+    },
+    "NUPDFKWZQURWCC-UHFFFAOYSA-M": {
+      "n": 18,
+      "smiles": "C[N+](C)(CCO)Cc1ccccc1.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 351.42
+    },
+    "NWXMGUDVXFXRIG-WESIUVDSSA-N": {
+      "n": 1,
+      "smiles": "CN(C)[C@@H]1C(=O)C(C(N)=O)=C(O)[C@@]2(O)C(=O)C3=C(O)c4c(O)cccc4[C@@](C)(O)[C@H]3C[C@@H]12",
+      "spread_k": 0.0,
+      "tm_k": 444.15
+    },
+    "NZNMSOFKMUBTKW-UHFFFAOYSA-N": {
+      "n": 9,
+      "smiles": "O=C(O)C1CCCCC1",
+      "spread_k": 0.0,
+      "tm_k": 299.4
+    },
+    "OBKXEAXTFZPCHS-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "O=C(O)CCCc1ccccc1",
+      "spread_k": 0.0,
+      "tm_k": 321.15
+    },
+    "ODKSFYDXXFIFQN-BYPYZUCNSA-N": {
+      "n": 3,
+      "smiles": "NC(N)=NCCC[C@H](N)C(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 517.15
+    },
+    "OFOBLEOULBTSOW-UHFFFAOYSA-N": {
+      "n": 9,
+      "smiles": "O=C(O)CC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 407.46
+    },
+    "OKIZCWYLBDKLSU-UHFFFAOYSA-M": {
+      "n": 124,
+      "smiles": "C[N+](C)(C)C.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 612.87
+    },
+    "OYHQOLUKZRVURQ-HZJYTTRNSA-N": {
+      "n": 1,
+      "smiles": "CCCCC/C=C\\C/C=C\\CCCCCCCC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 266.25
+    },
+    "PEDCQBHIVMGVHV-UHFFFAOYSA-N": {
+      "n": 43,
+      "smiles": "OCC(O)CO",
+      "spread_k": 0.0,
+      "tm_k": 291.22
+    },
+    "PHIQHXFUZVPYII-ZCFIWIBFSA-N": {
+      "n": 3,
+      "smiles": "C[N+](C)(C)C[C@H](O)CC(=O)[O-]",
+      "spread_k": 0.0,
+      "tm_k": 470.15
+    },
+    "POKOASTYJWUQJG-UHFFFAOYSA-M": {
+      "n": 18,
+      "smiles": "CCCC[n+]1ccccc1.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 405.4
+    },
+    "POULHZVOKOAJMA-UHFFFAOYSA-N": {
+      "n": 167,
+      "smiles": "CCCCCCCCCCCC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 317.5
+    },
+    "QAIPRVGONGVQAS-DUXPYHPUSA-N": {
+      "n": 1,
+      "smiles": "O=C(O)/C=C/c1ccc(O)c(O)c1",
+      "spread_k": 0.0,
+      "tm_k": 505.66
+    },
+    "QBVXKDJEZKEASM-UHFFFAOYSA-M": {
+      "n": 1,
+      "smiles": "CCCCCCCC[N+](CCCCCCCC)(CCCCCCCC)CCCCCCCC.[Br-]",
+      "spread_k": 0.0,
+      "tm_k": 369.65
+    },
+    "QIGBRXMKCJKVMJ-UHFFFAOYSA-N": {
+      "n": 3,
+      "smiles": "Oc1ccc(O)cc1",
+      "spread_k": 0.0,
+      "tm_k": 445.45
+    },
+    "QIQXTHQIDYTFRH-UHFFFAOYSA-N": {
+      "n": 112,
+      "smiles": "CCCCCCCCCCCCCCCCCC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 343.67
+    },
+    "QLKGUVGAXDXFFW-UHFFFAOYSA-M": {
+      "n": 21,
+      "smiles": "CC(=O)[O-].C[N+](C)(C)CCO",
+      "spread_k": 0.0,
+      "tm_k": 362.62
+    },
+    "QLPMKRZYJPNIRP-UHFFFAOYSA-M": {
+      "n": 1,
+      "smiles": "CCCCCCCC[N+](C)(CCCCCCCC)CCCCCCCC.[Br-]",
+      "spread_k": 0.0,
+      "tm_k": 311.65
+    },
+    "QTBSBXVTEAMEQO-UHFFFAOYSA-N": {
+      "n": 6,
+      "smiles": "CC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 289.85
+    },
+    "QVRFXIWAQRNWEX-UHFFFAOYSA-M": {
+      "n": 14,
+      "smiles": "C[n+]1ccn(CCO)c1.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 358.88
+    },
+    "QWBBPBRQALCEIZ-UHFFFAOYSA-N": {
+      "n": 6,
+      "smiles": "Cc1cccc(O)c1C",
+      "spread_k": 0.0,
+      "tm_k": 345.69
+    },
+    "QWVGKYWNOKOFNN-UHFFFAOYSA-N": {
+      "n": 8,
+      "smiles": "Cc1ccccc1O",
+      "spread_k": 0.0,
+      "tm_k": 304.18
+    },
+    "RAXXELZNTBOGNW-UHFFFAOYSA-N": {
+      "n": 20,
+      "smiles": "c1c[nH]cn1",
+      "spread_k": 0.0,
+      "tm_k": 359.3
+    },
+    "RBTARNINKXHZNM-UHFFFAOYSA-K": {
+      "n": 1,
+      "smiles": "[Cl][Fe]([Cl])[Cl]",
+      "spread_k": 0.0,
+      "tm_k": 577.15
+    },
+    "RECUKUPTGUEGMW-UHFFFAOYSA-N": {
+      "n": 10,
+      "smiles": "Cc1ccc(C(C)C)cc1O",
+      "spread_k": 0.0,
+      "tm_k": 276.65
+    },
+    "RZVAJINKPMORJF-UHFFFAOYSA-N": {
+      "n": 10,
+      "smiles": "CC(=O)Nc1ccc(O)cc1",
+      "spread_k": 0.0,
+      "tm_k": 443.0
+    },
+    "SGMZJAMFUVOLNK-UHFFFAOYSA-M": {
+      "n": 726,
+      "smiles": "C[N+](C)(C)CCO.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 578.15
+    },
+    "SHFJWMWCIHQNCP-UHFFFAOYSA-M": {
+      "n": 1,
+      "smiles": "CCCC[N+](CCCC)(CCCC)CCCC.O=S(=O)([O-])O",
+      "spread_k": 0.0,
+      "tm_k": 446.15
+    },
+    "SNNIPOQLGBPXPS-UHFFFAOYSA-M": {
+      "n": 1,
+      "smiles": "CCCCCCCC[N+](CCCCCCCC)(CCCCCCCC)CCCCCCCC.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 325.15
+    },
+    "SOIFLUNRINLCBN-UHFFFAOYSA-N": {
+      "n": 8,
+      "smiles": "N#C[S-].[NH4+]",
+      "spread_k": 0.0,
+      "tm_k": 422.75
+    },
+    "SPALIFXDWQTXKS-UHFFFAOYSA-M": {
+      "n": 29,
+      "smiles": "CCCCC[N+](CCCCC)(CCCCC)CCCCC.[Br-]",
+      "spread_k": 0.0,
+      "tm_k": 375.9
+    },
+    "SRBFZHDQGSBBOR-HWQSCIPKSA-N": {
+      "n": 9,
+      "smiles": "OC1OC[C@H](O)[C@H](O)[C@H]1O",
+      "spread_k": 0.0,
+      "tm_k": 429.15
+    },
+    "SRBFZHDQGSBBOR-IOVATXLUSA-N": {
+      "n": 9,
+      "smiles": "OC1OC[C@@H](O)[C@H](O)[C@H]1O",
+      "spread_k": 0.0,
+      "tm_k": 423.0
+    },
+    "SVTBMSDMJJWYQN-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "CC(O)CC(C)(C)O",
+      "spread_k": 0.0,
+      "tm_k": 223.15
+    },
+    "TUNFSRHWOTWDNC-UHFFFAOYSA-N": {
+      "n": 129,
+      "smiles": "CCCCCCCCCCCCCC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 327.0
+    },
+    "TYFQFVWCELRYAO-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "O=C(O)CCCCCCC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 415.3
+    },
+    "UHZZMRAGKVHANO-UHFFFAOYSA-M": {
+      "n": 1,
+      "smiles": "C[N+](C)(C)CCCl.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 515.15
+    },
+    "UKXSKSHDVLQNKG-UHFFFAOYSA-N": {
+      "n": 4,
+      "smiles": "O=C(O)C(O)(c1ccccc1)c1ccccc1",
+      "spread_k": 0.0,
+      "tm_k": 453.15
+    },
+    "UMGDCJDMYOKAJW-UHFFFAOYSA-N": {
+      "n": 2,
+      "smiles": "NC(N)=S",
+      "spread_k": 0.0,
+      "tm_k": 444.7
+    },
+    "UNXHWFMMPAWVPI-ZXZARUISSA-N": {
+      "n": 38,
+      "smiles": "OC[C@@H](O)[C@@H](O)CO",
+      "spread_k": 0.0,
+      "tm_k": 394.7
+    },
+    "VIXRAZODEODOJF-UHFFFAOYSA-N": {
+      "n": 2,
+      "smiles": "Fc1c(F)c(I)c(F)c(F)c1I",
+      "spread_k": 0.0,
+      "tm_k": 382.15
+    },
+    "VMJQVRWCDVLJSI-UHFFFAOYSA-M": {
+      "n": 2,
+      "smiles": "CCCCCCC[N+](CCCCCCC)(CCCCCCC)CCCCCCC.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 312.15
+    },
+    "VMXUWOKSQNHOCA-UKTHLTGXSA-N": {
+      "n": 3,
+      "smiles": "CN/C(=C\\[N+](=O)[O-])NCCSCc1ccc(CN(C)C)o1",
+      "spread_k": 0.0,
+      "tm_k": 342.15
+    },
+    "WEEGYLXZBRQIMU-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "CC12CCC(CC1)C(C)(C)O2",
+      "spread_k": 0.0,
+      "tm_k": 274.65
+    },
+    "WERYXYBDKMZEQL-UHFFFAOYSA-N": {
+      "n": 3,
+      "smiles": "OCCCCO",
+      "spread_k": 0.0,
+      "tm_k": 293.58
+    },
+    "WHUUTDBJXJRKMK-VKHMYHEASA-N": {
+      "n": 3,
+      "smiles": "N[C@@H](CCC(=O)O)C(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 497.15
+    },
+    "WJVGUJSDVKTDIX-UHFFFAOYSA-M": {
+      "n": 10,
+      "smiles": "CCCC[N+](C)(C)C.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 283.65
+    },
+    "WLCFKPHMRNPAFZ-UHFFFAOYSA-M": {
+      "n": 3,
+      "smiles": "CCCCCCCCCCCC[N+](C)(C)CCCCCCCCCCCC.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 370.15
+    },
+    "WLJVNTCWHIRURA-UHFFFAOYSA-N": {
+      "n": 25,
+      "smiles": "O=C(O)CCCCCC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 368.2
+    },
+    "WLJVXDMOQOGPHL-UHFFFAOYSA-N": {
+      "n": 8,
+      "smiles": "O=C(O)Cc1ccccc1",
+      "spread_k": 0.0,
+      "tm_k": 349.6
+    },
+    "WNLRTRBMVRJNCN-UHFFFAOYSA-N": {
+      "n": 3,
+      "smiles": "O=C(O)CCCCC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 426.2
+    },
+    "WPYMKLBDIGXBTP-UHFFFAOYSA-N": {
+      "n": 6,
+      "smiles": "O=C(O)c1ccccc1",
+      "spread_k": 0.0,
+      "tm_k": 395.5
+    },
+    "WQADWIOXOXRPLN-UHFFFAOYSA-N": {
+      "n": 11,
+      "smiles": "C1CSCSC1",
+      "spread_k": 0.0,
+      "tm_k": 327.15
+    },
+    "WQZGKKKJIJFFOK-GASJEMHNSA-N": {
+      "n": 25,
+      "smiles": "OC[C@H]1OC(O)[C@H](O)[C@@H](O)[C@@H]1O",
+      "spread_k": 0.0,
+      "tm_k": 422.15
+    },
+    "WQZGKKKJIJFFOK-QTVWNMPRSA-N": {
+      "n": 7,
+      "smiles": "OC[C@H]1OC(O)[C@@H](O)[C@@H](O)[C@@H]1O",
+      "spread_k": 0.0,
+      "tm_k": 406.15
+    },
+    "WWZKQHOCKIZLMA-UHFFFAOYSA-N": {
+      "n": 38,
+      "smiles": "CCCCCCCC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 288.2
+    },
+    "XBDQKXXYIPTUBI-UHFFFAOYSA-N": {
+      "n": 5,
+      "smiles": "CCC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 252.15
+    },
+    "XGEGHDBEHXKFPX-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "CNC(N)=O",
+      "spread_k": 0.0,
+      "tm_k": 373.8
+    },
+    "XKBGEWXEAPTVCK-UHFFFAOYSA-M": {
+      "n": 5,
+      "smiles": "CCCCCCCC[N+](C)(CCCCCCCC)CCCCCCCC.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 253.15
+    },
+    "XMGQYMWWDOXHJM-UHFFFAOYSA-N": {
+      "n": 6,
+      "smiles": "C=C(C)C1CC=C(C)CC1",
+      "spread_k": 0.0,
+      "tm_k": 199.15
+    },
+    "XMIIGOLPHOKFCH-UHFFFAOYSA-N": {
+      "n": 17,
+      "smiles": "O=C(O)CCc1ccccc1",
+      "spread_k": 0.0,
+      "tm_k": 321.1
+    },
+    "XPFVYQJUAUNWIW-UHFFFAOYSA-N": {
+      "n": 3,
+      "smiles": "OCc1ccco1",
+      "spread_k": 0.0,
+      "tm_k": 258.5
+    },
+    "XSQUKJJJFZCRTK-UHFFFAOYSA-N": {
+      "n": 51,
+      "smiles": "NC(N)=O",
+      "spread_k": 0.0,
+      "tm_k": 405.85
+    },
+    "XWBDWHCCBGMXKG-UHFFFAOYSA-N": {
+      "n": 18,
+      "smiles": "CC[NH3+].[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 380.65
+    },
+    "YBBLOADPFWKNGS-UHFFFAOYSA-N": {
+      "n": 2,
+      "smiles": "CN(C)C(N)=O",
+      "spread_k": 0.0,
+      "tm_k": 454.2
+    },
+    "YCOXTKKNXUZSKD-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "Cc1ccc(O)cc1C",
+      "spread_k": 0.0,
+      "tm_k": 334.0
+    },
+    "YGSDEFSMJLZEOE-UHFFFAOYSA-N": {
+      "n": 20,
+      "smiles": "O=C(O)c1ccccc1O",
+      "spread_k": 0.0,
+      "tm_k": 432.15
+    },
+    "YMBCJWGVCUEGHA-UHFFFAOYSA-M": {
+      "n": 104,
+      "smiles": "CC[N+](CC)(CC)CC.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 633.15
+    },
+    "YTRIOKYQEVFKGU-UHFFFAOYSA-M": {
+      "n": 6,
+      "smiles": "CCC[N+](CCC)(CCC)Cc1ccccc1.[Cl-]",
+      "spread_k": 0.0,
+      "tm_k": 478.16
+    },
+    "YXVFYQXJAXKLAK-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "Oc1ccc(-c2ccccc2)cc1",
+      "spread_k": 0.0,
+      "tm_k": 437.65
+    },
+    "ZBCBWPMODOFKDW-UHFFFAOYSA-N": {
+      "n": 1,
+      "smiles": "OCCNCCO",
+      "spread_k": 0.0,
+      "tm_k": 301.05
+    },
+    "ZHNUHDYFZUAESO-UHFFFAOYSA-N": {
+      "n": 6,
+      "smiles": "NC=O",
+      "spread_k": 0.0,
+      "tm_k": 275.7
+    },
+    "ZIBGPFATKBEMQZ-UHFFFAOYSA-N": {
+      "n": 11,
+      "smiles": "OCCOCCOCCO",
+      "spread_k": 0.0,
+      "tm_k": 263.8
+    },
+    "ZMBHCYHQLYEYDV-UHFFFAOYSA-N": {
+      "n": 19,
+      "smiles": "CCCCCCCCP(=O)(CCCCCCCC)CCCCCCCC",
+      "spread_k": 0.0,
+      "tm_k": 325.15
+    },
+    "ZQBAKBUEJOMQEX-UHFFFAOYSA-N": {
+      "n": 2,
+      "smiles": "O=C(Oc1ccccc1)c1ccccc1O",
+      "spread_k": 0.0,
+      "tm_k": 314.85
+    },
+    "ZQPPMHVWECSIRJ-KTKRTIGZSA-N": {
+      "n": 12,
+      "smiles": "CCCCCCCC/C=C\\CCCCCCCC(=O)O",
+      "spread_k": 0.0,
+      "tm_k": 289.45
+    }
+  },
+  "key": "inchikey",
+  "model_name": "melting-point-experimental-lookup",
+  "source": "Melting_temperature_appended_35il_03082026.csv",
+  "units": "K"
+}

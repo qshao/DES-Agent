@@ -38,8 +38,13 @@ def estimate_min_tm_uncertainty(
     checkpoint_path: str,
     config_path: str,
 ) -> MinimumTmUncertainty:
-    t1 = resolve_melting_point(component_a).tm_k
-    t2 = resolve_melting_point(component_b).tm_k
+    est_a = resolve_melting_point(component_a)
+    est_b = resolve_melting_point(component_b)
+    t1 = est_a.tm_k
+    t2 = est_b.tm_k
+    # The eutectic prediction can be no more trustworthy than the pure-component
+    # melting points it is built on. Use the weakest of the two input estimates.
+    input_confidence = min(est_a.confidence, est_b.confidence)
 
     repeated_values: list[float] = []
     for _ in range(_N_REPEATS):
@@ -59,9 +64,14 @@ def estimate_min_tm_uncertainty(
     std_tm_k = pstdev(repeated_values) if len(repeated_values) > 1 else 0.0
     min_tm_k = min(repeated_values)
     max_tm_k = max(repeated_values)
-    trust_score = _trust_score(std_tm_k)
+    spread_trust = _trust_score(std_tm_k)
+    trust_score = spread_trust * input_confidence
     uncertainty_flag = _uncertainty_flag(std_tm_k)
     explanation = _explanation(repeated_values, std_tm_k, trust_score, uncertainty_flag)
+    explanation += (
+        f" Input Tm confidence={input_confidence:.2f} "
+        f"({est_a.source}/{est_b.source}); spread-trust={spread_trust:.2f}."
+    )
 
     return MinimumTmUncertainty(
         component_a=component_a,

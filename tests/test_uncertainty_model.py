@@ -61,3 +61,31 @@ def test_estimate_min_tm_uncertainty_runs_three_predictions(monkeypatch):
     assert 0.0 <= result.trust_score <= 1.0
     assert result.uncertainty_flag in {"low", "medium", "high"}
     assert result.explanation
+
+
+def _run_with_input_confidence(monkeypatch, confidence: float):
+    monkeypatch.setattr(
+        model,
+        "resolve_melting_point",
+        lambda component, override_k=None: MeltingPointEstimate(
+            component=component, tm_k=300.0, source="heuristic", confidence=confidence,
+        ),
+    )
+
+    def fake_predict_curve(component_a, component_b, t1_k, t2_k, checkpoint_path, config_path="ml_des_mp/config.yaml"):
+        return _FakeCurve(tm_pred_k=[300.0, 250.0, 310.0])
+
+    monkeypatch.setattr(model, "predict_curve", fake_predict_curve)
+    return model.estimate_min_tm_uncertainty(
+        component_a="CCO", component_b="O",
+        checkpoint_path="ckpt.pt", config_path="cfg.yaml",
+    )
+
+
+def test_trust_score_reflects_input_melting_point_confidence(monkeypatch):
+    # identical prediction spread; only the input Tm confidence differs
+    high = _run_with_input_confidence(monkeypatch, 0.95)
+    low = _run_with_input_confidence(monkeypatch, 0.35)
+    assert high.std_tm_k == pytest.approx(low.std_tm_k)
+    assert high.trust_score > low.trust_score
+    assert 0.0 <= low.trust_score <= 1.0
