@@ -76,6 +76,16 @@ def test_falls_back_to_heuristic_when_no_qspr_model():
     assert est.source == "heuristic"
 
 
+def test_qspr_confidence_lower_for_ionic_components(monkeypatch):
+    monkeypatch.setattr(pr, "_qspr_model", lambda: _FakeQSPR(tm_k=400.0, std_k=8.0))
+    neutral = resolve_melting_point("CCBr")
+    # a quaternary-ammonium salt not in the experimental table: net-neutral but
+    # carries charged atoms
+    ionic = resolve_melting_point("CCCCCCCC[N+](C)(C)C.[Br-]")
+    assert neutral.source == "qspr" and ionic.source == "qspr"
+    assert ionic.confidence < neutral.confidence
+
+
 def test_experimental_wins_over_qspr(monkeypatch):
     def _boom():
         raise AssertionError("QSPR should not be consulted on an experimental hit")

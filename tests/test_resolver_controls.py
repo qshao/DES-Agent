@@ -48,3 +48,30 @@ def test_clear_resolver_caches_resets_experimental_table():
     assert pr._experimental_table.cache_info().currsize == 1
     pr.clear_resolver_caches()
     assert pr._experimental_table.cache_info().currsize == 0
+
+
+def test_warn_once_dedups(capsys):
+    pr._WARNED_ONCE.clear()
+    pr._warn_once("qspr boom")
+    pr._warn_once("qspr boom")
+    pr._warn_once("other")
+    err = capsys.readouterr().err
+    assert err.count("qspr boom") == 1
+    assert "other" in err
+
+
+def test_qspr_load_failure_warns_once(monkeypatch, capsys):
+    pr._WARNED_ONCE.clear()
+
+    def boom(*a, **k):
+        raise RuntimeError("corrupt artifact")
+
+    import des_multi_agent.predictors.melting_point as mp
+    monkeypatch.setattr(mp, "load_qspr_model", boom)
+    monkeypatch.delenv("DES_DISABLE_QSPR", raising=False)
+    pr._qspr_model.cache_clear()
+    try:
+        assert pr._qspr_model() is None  # degrades gracefully
+    finally:
+        pr._qspr_model.cache_clear()
+    assert "QSPR" in capsys.readouterr().err  # but not silently

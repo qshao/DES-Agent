@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 from functools import lru_cache
 from pathlib import Path
 
@@ -9,6 +10,17 @@ from rdkit import Chem
 from rdkit.Chem import Crippen, Descriptors, Lipinski, rdMolDescriptors
 
 from .schemas import MeltingPointEstimate
+
+# Messages already emitted, so degradation is surfaced once rather than silently
+# or repeatedly.
+_WARNED_ONCE: set[str] = set()
+
+
+def _warn_once(message: str) -> None:
+    if message in _WARNED_ONCE:
+        return
+    _WARNED_ONCE.add(message)
+    print(f"[WARNING] {message}", file=sys.stderr, flush=True)
 
 # Confidence assigned to each source, highest-trust first.
 _EXPERIMENTAL_CONFIDENCE = 0.95
@@ -73,7 +85,8 @@ def _qspr_model():
         from .predictors.melting_point import load_qspr_model
 
         return load_qspr_model(device=_resolve_mp_device())
-    except Exception:
+    except Exception as exc:  # pragma: no cover - exercised via warn-once test
+        _warn_once(f"QSPR melting-point model unavailable ({exc}); using heuristic fallback")
         return None
 
 
@@ -88,9 +101,22 @@ def clear_resolver_caches() -> None:
         getattr(fn, "cache_clear", lambda: None)()
 
 
-def _qspr_confidence(std_k: float) -> float:
+# The QSPR is trained predominantly on neutral organics; ionic species
+# (quaternary-ammonium HBAs, carboxylate salts) extrapolate poorly, so their
+# confidence is discounted.
+_QSPR_IONIC_PENALTY = 0.75
+
+
+def _is_ionic(mol) -> bool:
+    return any(atom.GetFormalCharge() != 0 for atom in mol.GetAtoms())
+
+
+def _qspr_confidence(std_k: float, ionic: bool = False) -> float:
     frac = min(max(std_k, 0.0), _QSPR_STD_SCALE_K) / _QSPR_STD_SCALE_K
-    return _QSPR_CONFIDENCE_MAX - frac * (_QSPR_CONFIDENCE_MAX - _QSPR_CONFIDENCE_MIN)
+    conf = _QSPR_CONFIDENCE_MAX - frac * (_QSPR_CONFIDENCE_MAX - _QSPR_CONFIDENCE_MIN)
+    if ionic:
+        conf *= _QSPR_IONIC_PENALTY
+    return conf
 
 
 def _heuristic_tm_k(mol) -> float:
@@ -154,10 +180,10 @@ def resolve_melting_point(component: str, override_k: float | None = None) -> Me
                 component=component,
                 tm_k=float(pred.tm_k),
                 source="qspr",
-                confidence=_qspr_confidence(float(pred.std_k)),
+                confidence=_qspr_confidence(float(pred.std_k), ionic=_is_ionic(mol)),
             )
-        except Exception:
-            pass  # fall through to the heuristic layer
+        except Exception as exc:
+            _warn_once(f"QSPR prediction failed ({exc}); using heuristic fallback")
 
     return MeltingPointEstimate(
         component=component,
