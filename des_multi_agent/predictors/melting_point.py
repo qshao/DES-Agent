@@ -13,8 +13,6 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 
-from ..paths import ensure_ml_des_path
-
 # Default artifact location, parallel to the experimental lookup table.
 QSPR_MODEL_PATH = (
     Path(__file__).resolve().parents[2] / "artifacts" / "melting_points" / "qspr_model.pt"
@@ -70,13 +68,14 @@ class MeltingPointQSPR:
         )
 
 
-def _build_embedder(model_name: str, max_length: int, device: torch.device):
-    ensure_ml_des_path()
-    from src.embeddings.chemberta import ChemBERTaEmbedder
+def _build_embedder(model_name: str, max_length: int, device: torch.device, cache_dir: str | None = None):
+    # Shared factory: reuses the DES embedder instance when the configuration
+    # (model, pooling, batch_size, max_length, device, cache_dir) matches.
+    from ..embedding_factory import get_chemberta_embedder
 
-    return ChemBERTaEmbedder(
+    return get_chemberta_embedder(
         model_name=model_name, pooling="mean", batch_size=64,
-        max_length=max_length, device=device,
+        max_length=max_length, device=device, cache_dir=cache_dir,
     )
 
 

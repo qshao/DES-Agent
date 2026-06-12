@@ -58,6 +58,7 @@ _MODEL_CACHE: dict[tuple[str, str], Any] = {}
 _EMBEDDER_CACHE: dict[tuple[str, str], "EmbedderBundle"] = {}
 _COMPAT_CACHE: dict[str, list[str]] = {}
 _EMBED_CACHE: dict[tuple[str, str, str], Any] = {}
+_EMBED_CACHE_MAXSIZE = 8192
 
 
 def clear_prediction_caches() -> None:
@@ -123,6 +124,9 @@ def _embed_cached(
     cached = _EMBED_CACHE.get(key)
     if cached is None:
         cached = bundle.embedder.embed([smiles])
+        if len(_EMBED_CACHE) >= _EMBED_CACHE_MAXSIZE:
+            # dicts preserve insertion order; drop the oldest entry (FIFO)
+            _EMBED_CACHE.pop(next(iter(_EMBED_CACHE)))
         _EMBED_CACHE[key] = cached
     return torch.tensor(cached, device=device)
 
@@ -187,23 +191,23 @@ def _load_embedder(cfg: Dict[str, Any], device: torch.device) -> EmbedderBundle:
         return EmbedderBundle(kind=method, embedder=None, gnn_wrapper=wrapper, dim=wrapper.dim)
 
     if method == "chemberta":
+        from .embedding_factory import get_chemberta_embedder
+
+        c = cfg["chemberta"]
         try:
-            from src.embeddings.chemberta import ChemBERTaEmbedder
+            emb = get_chemberta_embedder(
+                model_name=c["model_name"],
+                pooling=c.get("pooling", "mean"),
+                batch_size=int(c.get("batch_size", 64)),
+                max_length=int(c.get("max_length", 256)),
+                device=device,
+                cache_dir=c.get("cache_dir", None),
+            )
         except ModuleNotFoundError as exc:
             raise RuntimeError(
                 "ChemBERTa embedding requires the optional 'transformers' dependency. "
                 "Install the full ml_des_mp requirements or switch to a non-ChemBERTa profile."
             ) from exc
-
-        c = cfg["chemberta"]
-        emb = ChemBERTaEmbedder(
-            model_name=c["model_name"],
-            pooling=c.get("pooling", "mean"),
-            batch_size=int(c.get("batch_size", 64)),
-            max_length=int(c.get("max_length", 256)),
-            device=device,
-            cache_dir=c.get("cache_dir", None),
-        )
         return EmbedderBundle(kind=method, embedder=emb, gnn_wrapper=None, dim=emb.dim)
 
     raise ValueError(f"Unknown embedding method: {method}")
