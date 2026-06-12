@@ -1,29 +1,53 @@
 === DES Search: betaine (C[N+](C)(C)CC(=O)[O-]) ===
-Screened 20 candidate(s). 18 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
-Top candidate: CS(=O)(=O)C — min Tm 180.0 K (Δ37.0%) | high confidence
+Screened 20 candidate(s). 3 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
+Top candidate: glycerol (OCC(O)CO) — min Tm 267.7 K (Δ8.1%) | high confidence
 ===================================================
 
-compound | is_des | min_tm_k | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
-CS(=O)(=O)C | True | 179.98 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=179.98 K | spread=179.98-179.98 K | std=0.00 K | high confidence | min Tm=179.98 K, absolute<= 340.00 K, relative_drop=0.370
-dimethyl sulfoxide (CS(=O)C) | True | 216.93 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=216.93 K | spread=216.93-216.93 K | std=0.00 K | high confidence | min Tm=216.93 K, absolute<= 340.00 K, relative_drop=0.213
-urea (NC(=O)N) | True | 228.40 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=228.40 K | spread=228.40-228.40 K | std=0.00 K | high confidence | min Tm=228.40 K, absolute<= 340.00 K, relative_drop=0.200
-water (O) | True | 229.70 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=229.70 K | spread=229.70-229.70 K | std=0.00 K | high confidence | min Tm=229.70 K, absolute<= 340.00 K, relative_drop=0.100
-choline chloride (C[N+](C)(C)CCO.[Cl-]) | True | 232.48 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=232.48 K | spread=232.48-232.48 K | std=0.00 K | high confidence | min Tm=232.48 K, absolute<= 340.00 K, relative_drop=0.248
-acetic acid (CC(=O)O) | True | 236.58 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=236.58 K | spread=236.58-236.58 K | std=0.00 K | high confidence | min Tm=236.58 K, absolute<= 340.00 K, relative_drop=0.151
-CC(=O)NCCO | True | 238.79 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=238.79 K | spread=238.79-238.79 K | std=0.00 K | high confidence | min Tm=238.79 K, absolute<= 340.00 K, relative_drop=0.222
-CCOCC | True | 240.56 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=240.56 K | spread=240.56-240.56 K | std=0.00 K | high confidence | min Tm=240.56 K, absolute<= 340.00 K, relative_drop=0.138
-glycerol (OCC(O)CO) | True | 241.26 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=241.26 K | spread=241.26-241.26 K | std=0.00 K | high confidence | min Tm=241.26 K, absolute<= 340.00 K, relative_drop=0.214
-acetamide (CC(=O)N) | True | 242.05 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=242.05 K | spread=242.05-242.05 K | std=0.00 K | high confidence | min Tm=242.05 K, absolute<= 340.00 K, relative_drop=0.136
-C[N+](C)(C)C.[Cl-] | True | 242.32 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=242.32 K | spread=242.32-242.32 K | std=0.00 K | high confidence | min Tm=242.32 K, absolute<= 340.00 K, relative_drop=0.176
-CN(C)C=O | True | 255.90 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=255.90 K | spread=255.90-255.90 K | std=0.00 K | high confidence | min Tm=255.90 K, absolute<= 340.00 K, relative_drop=0.095
-O=C1NC(=O)NC1 | True | 256.22 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=256.22 K | spread=256.22-256.22 K | std=0.00 K | high confidence | min Tm=256.22 K, absolute<= 340.00 K, relative_drop=0.171
-OC[C@H](O)[C@H](O)CO | True | 256.85 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=256.85 K | spread=256.85-256.85 K | std=0.00 K | high confidence | min Tm=256.85 K, absolute<= 340.00 K, relative_drop=0.169
-O=C1CCCN1 | True | 257.03 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=257.03 K | spread=257.03-257.03 K | std=0.00 K | high confidence | min Tm=257.03 K, absolute<= 340.00 K, relative_drop=0.134
-1,3-propanediol (OCCCO) | True | 260.26 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=260.26 K | spread=260.26-260.26 K | std=0.00 K | high confidence | min Tm=260.26 K, absolute<= 340.00 K, relative_drop=0.109
-OC1=CC=CC=N1 | True | 265.38 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=265.38 K | spread=265.38-265.38 K | std=0.00 K | high confidence | min Tm=265.38 K, absolute<= 340.00 K, relative_drop=0.125
-COCCO | True | 268.03 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=268.03 K | spread=268.03-268.03 K | std=0.00 K | high confidence | min Tm=268.03 K, absolute<= 340.00 K, relative_drop=0.069
-CN | False | 256.93 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=256.93 K | spread=256.93-256.93 K | std=0.00 K | high confidence | min Tm=256.93 K, absolute<= 340.00 K, relative_drop=0.032
-ethylene glycol (OCCO) | False | 272.02 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=272.02 K | spread=272.02-272.02 K | std=0.00 K | high confidence | min Tm=272.02 K, absolute<= 340.00 K, relative_drop=0.049
+compound | is_des | min_tm_k | eutectic_x_b | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
+glycerol (OCC(O)CO) | True | 267.65 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.95 | mean=267.65 K | spread=267.65-267.65 K | std=0.00 K | high confidence | min Tm=267.65 K, absolute<= 340.00 K, relative_drop=0.081
+acetamide (CC(=O)N) | True | 335.35 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.95 | mean=335.35 K | spread=335.35-335.35 K | std=0.00 K | high confidence | min Tm=335.35 K, absolute<= 340.00 K, relative_drop=0.053
+CS(=O)(=O)C | True | 249.03 | 0.30 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=249.03 K | spread=249.03-249.03 K | std=0.00 K | high confidence | min Tm=249.03 K, absolute<= 340.00 K, relative_drop=0.128
+ethylene glycol (OCCO) | False | 273.25 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.95 | mean=273.25 K | spread=273.25-273.25 K | std=0.00 K | high confidence | min Tm=273.25 K, absolute<= 340.00 K, relative_drop=-0.049
+urea (NC(=O)N) | False | 354.92 | 0.30 | source=heuristic; id=rule-based-family-library | trust=0.95 | mean=354.92 K | spread=354.92-354.92 K | std=0.00 K | high confidence | min Tm=354.92 K, absolute<= 340.00 K, relative_drop=0.125
+OC[C@H](O)[C@H](O)CO | False | 357.97 | 0.30 | source=heuristic; id=rule-based-family-library | trust=0.95 | mean=357.97 K | spread=357.97-357.97 K | std=0.00 K | high confidence | min Tm=357.97 K, absolute<= 340.00 K, relative_drop=0.093
+acetic acid (CC(=O)O) | False | 358.21 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.95 | mean=358.21 K | spread=358.21-358.21 K | std=0.00 K | high confidence | min Tm=358.21 K, absolute<= 340.00 K, relative_drop=-0.236
+choline chloride (C[N+](C)(C)CCO.[Cl-]) | False | 445.30 | 0.40 | source=heuristic; id=rule-based-family-library | trust=0.95 | mean=445.30 K | spread=445.30-445.30 K | std=0.00 K | high confidence | min Tm=445.30 K, absolute<= 340.00 K, relative_drop=0.213
+C[N+](C)(C)C.[Cl-] | False | 470.42 | 0.40 | source=heuristic; id=rule-based-family-library | trust=0.95 | mean=470.42 K | spread=470.42-470.42 K | std=0.00 K | high confidence | min Tm=470.42 K, absolute<= 340.00 K, relative_drop=0.169
+dimethyl sulfoxide (CS(=O)C) | False | 268.46 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=268.46 K | spread=268.46-268.46 K | std=0.00 K | high confidence | min Tm=268.46 K, absolute<= 340.00 K, relative_drop=0.026
+1,3-propanediol (OCCCO) | False | 284.24 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=284.24 K | spread=284.24-284.24 K | std=0.00 K | high confidence | min Tm=284.24 K, absolute<= 340.00 K, relative_drop=0.027
+COCCO | False | 284.60 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=284.60 K | spread=284.60-284.60 K | std=0.00 K | high confidence | min Tm=284.60 K, absolute<= 340.00 K, relative_drop=0.011
+CC(=O)NCCO | False | 293.29 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=293.29 K | spread=293.29-293.29 K | std=0.00 K | high confidence | min Tm=293.29 K, absolute<= 340.00 K, relative_drop=0.044
+CCOCC | False | 301.82 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=301.82 K | spread=301.82-301.82 K | std=0.00 K | high confidence | min Tm=301.82 K, absolute<= 340.00 K, relative_drop=-0.082
+OC1=CC=CC=N1 | False | 305.44 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=305.44 K | spread=305.44-305.44 K | std=0.00 K | high confidence | min Tm=305.44 K, absolute<= 340.00 K, relative_drop=-0.007
+water (O) | False | 317.03 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=317.03 K | spread=317.03-317.03 K | std=0.00 K | high confidence | min Tm=317.03 K, absolute<= 340.00 K, relative_drop=-0.241
+CN(C)C=O | False | 320.07 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=320.07 K | spread=320.07-320.07 K | std=0.00 K | high confidence | min Tm=320.07 K, absolute<= 340.00 K, relative_drop=-0.132
+CN | False | 363.51 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=363.51 K | spread=363.51-363.51 K | std=0.00 K | high confidence | min Tm=363.51 K, absolute<= 340.00 K, relative_drop=-0.369
+O=C1CCCN1 | False | 365.67 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=365.67 K | spread=365.67-365.67 K | std=0.00 K | high confidence | min Tm=365.67 K, absolute<= 340.00 K, relative_drop=-0.231
+O=C1NC(=O)NC1 | False | 368.32 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=368.32 K | spread=368.32-368.32 K | std=0.00 K | high confidence | min Tm=368.32 K, absolute<= 340.00 K, relative_drop=-0.180
+
+Melting-point inputs:
+component | Tm_K | source | confidence
+betaine (C[N+](C)(C)CC(=O)[O-]) | 566.00 | experimental | 0.95
+glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
+acetamide (CC(=O)N) | 354.06 | experimental | 0.95
+CS(=O)(=O)C | 285.54 | heuristic | 0.35
+ethylene glycol (OCCO) | 260.60 | experimental | 0.95
+urea (NC(=O)N) | 405.85 | experimental | 0.95
+OC[C@H](O)[C@H](O)CO | 394.70 | experimental | 0.95
+acetic acid (CC(=O)O) | 289.85 | experimental | 0.95
+choline chloride (C[N+](C)(C)CCO.[Cl-]) | 578.15 | experimental | 0.95
+C[N+](C)(C)C.[Cl-] | 612.87 | experimental | 0.95
+dimethyl sulfoxide (CS(=O)C) | 275.54 | heuristic | 0.35
+1,3-propanediol (OCCCO) | 292.00 | heuristic | 0.35
+COCCO | 287.90 | heuristic | 0.35
+CC(=O)NCCO | 306.78 | heuristic | 0.35
+CCOCC | 278.99 | heuristic | 0.35
+OC1=CC=CC=N1 | 303.21 | heuristic | 0.35
+water (O) | 255.36 | heuristic | 0.35
+CN(C)C=O | 282.74 | heuristic | 0.35
+CN | 265.54 | heuristic | 0.35
+O=C1CCCN1 | 296.98 | heuristic | 0.35
+O=C1NC(=O)NC1 | 312.27 | heuristic | 0.35
 
 Viscosity predictions:
 smiles_a | smiles_b | viscosity | units | model | source

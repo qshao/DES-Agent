@@ -1,13 +1,20 @@
 === RUN A (n=3) ===
 === DES Search: ethanol (CCO) ===
 Screened 3 candidate(s). 3 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
-Top candidate: ethylene glycol (OCCO) — min Tm 208.7 K (Δ23.0%) | high confidence
+Top candidate: ethylene glycol (OCCO) — min Tm 201.7 K (Δ22.6%) | high confidence
 =================================
 
-compound | is_des | min_tm_k | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
-ethylene glycol (OCCO) | True | 208.69 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=208.69 K | spread=208.69-208.69 K | std=0.00 K | high confidence | min Tm=208.69 K, absolute<= 260.00 K, relative_drop=0.230
-glycerol (OCC(O)CO) | True | 223.28 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=223.28 K | spread=223.28-223.28 K | std=0.00 K | high confidence | min Tm=223.28 K, absolute<= 260.00 K, relative_drop=0.177
-water (O) | True | 225.27 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=225.27 K | spread=225.27-225.27 K | std=0.00 K | high confidence | min Tm=225.27 K, absolute<= 260.00 K, relative_drop=0.118
+compound | is_des | min_tm_k | eutectic_x_b | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
+ethylene glycol (OCCO) | True | 201.75 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=201.75 K | spread=201.75-201.75 K | std=0.00 K | high confidence | min Tm=201.75 K, absolute<= 260.00 K, relative_drop=0.226
+glycerol (OCC(O)CO) | True | 221.20 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=221.20 K | spread=221.20-221.20 K | std=0.00 K | high confidence | min Tm=221.20 K, absolute<= 260.00 K, relative_drop=0.184
+water (O) | True | 225.27 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.35 | mean=225.27 K | spread=225.27-225.27 K | std=0.00 K | high confidence | min Tm=225.27 K, absolute<= 260.00 K, relative_drop=0.118
+
+Melting-point inputs:
+component | Tm_K | source | confidence
+ethanol (CCO) | 271.19 | heuristic | 0.35
+ethylene glycol (OCCO) | 260.60 | experimental | 0.95
+glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
+water (O) | 255.36 | heuristic | 0.35
 
 Run memory:
 - Wrote run memory to /tmp/des_compare_run_a.json.
@@ -21,15 +28,24 @@ summary:
 === RUN B (n=5) ===
 === DES Search: ethanol (CCO) ===
 Screened 5 candidate(s). 5 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
-Top candidate: ethylene glycol (OCCO) — min Tm 208.7 K (Δ23.0%) | high confidence
+Top candidate: ethylene glycol (OCCO) — min Tm 201.7 K (Δ22.6%) | high confidence
 =================================
 
-compound | is_des | min_tm_k | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
-ethylene glycol (OCCO) | True | 208.69 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=208.69 K | spread=208.69-208.69 K | std=0.00 K | high confidence | min Tm=208.69 K, absolute<= 260.00 K, relative_drop=0.230
-acetamide (CC(=O)N) | True | 222.77 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=222.77 K | spread=222.77-222.77 K | std=0.00 K | high confidence | min Tm=222.77 K, absolute<= 260.00 K, relative_drop=0.179
-glycerol (OCC(O)CO) | True | 223.28 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=223.28 K | spread=223.28-223.28 K | std=0.00 K | high confidence | min Tm=223.28 K, absolute<= 260.00 K, relative_drop=0.177
-water (O) | True | 225.27 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=225.27 K | spread=225.27-225.27 K | std=0.00 K | high confidence | min Tm=225.27 K, absolute<= 260.00 K, relative_drop=0.118
-acetic acid (CC(=O)O) | True | 236.03 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=236.03 K | spread=236.03-236.03 K | std=0.00 K | high confidence | min Tm=236.03 K, absolute<= 260.00 K, relative_drop=0.130
+compound | is_des | min_tm_k | eutectic_x_b | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
+ethylene glycol (OCCO) | True | 201.75 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=201.75 K | spread=201.75-201.75 K | std=0.00 K | high confidence | min Tm=201.75 K, absolute<= 260.00 K, relative_drop=0.226
+glycerol (OCC(O)CO) | True | 221.20 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=221.20 K | spread=221.20-221.20 K | std=0.00 K | high confidence | min Tm=221.20 K, absolute<= 260.00 K, relative_drop=0.184
+acetamide (CC(=O)N) | True | 238.92 | 0.50 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=238.92 K | spread=238.92-238.92 K | std=0.00 K | high confidence | min Tm=238.92 K, absolute<= 260.00 K, relative_drop=0.119
+acetic acid (CC(=O)O) | True | 239.56 | 0.40 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=239.56 K | spread=239.56-239.56 K | std=0.00 K | high confidence | min Tm=239.56 K, absolute<= 260.00 K, relative_drop=0.117
+water (O) | True | 225.27 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.35 | mean=225.27 K | spread=225.27-225.27 K | std=0.00 K | high confidence | min Tm=225.27 K, absolute<= 260.00 K, relative_drop=0.118
+
+Melting-point inputs:
+component | Tm_K | source | confidence
+ethanol (CCO) | 271.19 | heuristic | 0.35
+ethylene glycol (OCCO) | 260.60 | experimental | 0.95
+glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
+acetamide (CC(=O)N) | 354.06 | experimental | 0.95
+acetic acid (CC(=O)O) | 289.85 | experimental | 0.95
+water (O) | 255.36 | heuristic | 0.35
 
 Run memory:
 - Wrote run memory to /tmp/des_compare_run_b.json.
@@ -49,12 +65,12 @@ n: 3 -> 5
 
 smiles_b | status | left_rank | right_rank
 OCCO | unchanged | 1 | 1
-CC(=O)N | new | - | 2
-OCC(O)CO | moved | 2 | 3
-O | moved | 3 | 4
-CC(=O)O | new | - | 5
+OCC(O)CO | unchanged | 2 | 2
+CC(=O)N | new | - | 3
+O | moved | 3 | 5
+CC(=O)O | new | - | 4
 summary:
 - command: compare-runs
 - workflow: des
-- changed candidates: 4
-- counts: new=2, removed=0, moved=2, unchanged=1
+- changed candidates: 3
+- counts: new=2, removed=0, moved=1, unchanged=2

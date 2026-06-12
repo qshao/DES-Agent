@@ -48,15 +48,15 @@ Each folder includes and can be used as a template for your own work:
 
 The same folders also power the pytest-based example benchmark suite in [`tests/test_benchmarks_examples.py`](/home/qshao/DES-Agent/tests/test_benchmarks_examples.py), which compares captured outputs against frozen baselines under `tests/fixtures/example_benchmark_baselines/`.
 
-> **Note — melting-point provenance:** the captured `output.txt` files predate the
-> layered melting-point resolver (see [`artifacts/melting_points/README.md`](/home/qshao/DES-Agent/artifacts/melting_points/README.md)).
-> Live DES runs now print a `Melting-point inputs:` section (and a `tm_src` column in the
-> selectivity-DES report) and use experimental/QSPR pure-component melting points, which
-> shifts the predicted `min_tm_k` values. The captures were not regenerated because the
-> QSPR model (`qspr_model.pt`) is not committed and its training is GPU-stochastic, so
-> QSPR-active captures would not reproduce exactly. To reproduce the committed numbers
-> deterministically, run with `DES_DISABLE_QSPR=1` (experimental lookup + heuristic only,
-> both fully deterministic from committed artifacts).
+> **Note — melting-point provenance:** DES runs now print a `Melting-point inputs:`
+> section (and a `tm_src` column in the selectivity-DES report) showing where each
+> pure-component melting point came from — see [`artifacts/melting_points/README.md`](/home/qshao/DES-Agent/artifacts/melting_points/README.md).
+> The **deterministic** DES examples set `export DES_DISABLE_QSPR=1` in their `run.sh`,
+> so their captured outputs use only the committed experimental lookup + heuristic and
+> reproduce byte-for-byte. The QSPR layer is not exercised in these captures because
+> `qspr_model.pt` is not committed and its training is GPU-stochastic; it is documented
+> and demonstrated separately. The **LLM-backed** captures (e.g. `gemma4_12b`,
+> `ni_co_selectivity_des*`) predate this feature and were not regenerated.
 
 The LLM-backed examples also include a model-specific `llm.*.yaml` file.
 
