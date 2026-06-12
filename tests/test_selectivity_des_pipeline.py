@@ -271,6 +271,16 @@ def test_report_section_2_shows_des_partner_when_compatible():
     assert "DES-compatible: YES" in report
 
 
+def test_report_section_2_shows_tm_provenance():
+    outcome = _make_pipeline_outcome(des_compatible=True)
+    dr = outcome.ligand_des_results[0].des_results[0]
+    dr.t2_source = "qspr"
+    dr.t2_confidence = 0.71
+    report = format_selectivity_des_report(outcome)
+    assert "qspr" in report
+    assert "0.71" in report
+
+
 def test_report_section_2_shows_no_partners_when_incompatible():
     report = format_selectivity_des_report(_make_pipeline_outcome(des_compatible=False))
     assert "No DES partners found" in report

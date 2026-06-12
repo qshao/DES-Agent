@@ -409,11 +409,18 @@ def format_selectivity_des_report(outcome: "SelectivityDesPipelineOutcome") -> s
             f"— DES-compatible: {compat_str}"
         )
         if ldr.des_results:
-            sec2.append("  partner | min_tm_k | eutectic_ratio | rationale")
+            sec2.append("  partner | min_tm_k | eutectic_ratio | tm_src | rationale")
             for dr in ldr.des_results:
+                t2_source = getattr(dr, "t2_source", None)
+                t2_confidence = getattr(dr, "t2_confidence", None)
+                if isinstance(t2_source, str):
+                    conf = f"{t2_confidence:.2f}" if isinstance(t2_confidence, (int, float)) else "?"
+                    tm_src = f"{t2_source} ({conf})"
+                else:
+                    tm_src = "?"
                 sec2.append(
                     f"  {dr.curve.smiles_b} | {dr.min_tm_k:.1f} | "
-                    f"{dr.eutectic_ratio_b:.2f} | {dr.rationale}"
+                    f"{dr.eutectic_ratio_b:.2f} | {tm_src} | {dr.rationale}"
                 )
         else:
             sec2.append("  No DES partners found.")
