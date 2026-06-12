@@ -76,6 +76,28 @@ def test_falls_back_to_heuristic_when_no_qspr_model():
     assert est.source == "heuristic"
 
 
+def test_canonical_inchikey_merges_hard_tautomers():
+    from rdkit import Chem
+
+    keto = pr.canonical_inchikey(Chem.MolFromSmiles("CC(=O)CC(C)=O"))
+    enol = pr.canonical_inchikey(Chem.MolFromSmiles("CC(=O)C=C(C)O"))
+    assert keto == enol
+    # ... and these differ by plain standard InChIKey, so the canon adds value
+    assert Chem.MolToInchiKey(Chem.MolFromSmiles("CC(=O)CC(C)=O")) != \
+        Chem.MolToInchiKey(Chem.MolFromSmiles("CC(=O)C=C(C)O"))
+
+
+def test_experimental_lookup_falls_back_to_tautomer_key(monkeypatch):
+    from rdkit import Chem
+
+    canon_key = pr.canonical_inchikey(Chem.MolFromSmiles("CC(=O)CC(C)=O"))
+    monkeypatch.setattr(pr, "_experimental_table", lambda: {canon_key: {"tm_k": 250.0}})
+    # provided as the enol tautomer (a different *standard* InChIKey)
+    est = resolve_melting_point("CC(=O)C=C(C)O")
+    assert est.source == "experimental"
+    assert est.tm_k == 250.0
+
+
 def test_qspr_confidence_lower_for_ionic_components(monkeypatch):
     monkeypatch.setattr(pr, "_qspr_model", lambda: _FakeQSPR(tm_k=400.0, std_k=8.0))
     neutral = resolve_melting_point("CCBr")

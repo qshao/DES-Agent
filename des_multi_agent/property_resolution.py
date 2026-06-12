@@ -51,12 +51,36 @@ def _experimental_table() -> dict[str, dict]:
         return {}
 
 
+@lru_cache(maxsize=1)
+def _tautomer_enumerator():
+    from rdkit.Chem.MolStandardize import rdMolStandardize
+
+    return rdMolStandardize.TautomerEnumerator()
+
+
+def canonical_inchikey(mol) -> str:
+    """InChIKey of the canonical tautomer.
+
+    Standard InChI already merges most mobile-H tautomers; this additionally
+    collapses hard cases (e.g. 1,3-dicarbonyl keto/enol). Falls back to the plain
+    InChIKey if tautomer canonicalization fails.
+    """
+    try:
+        canon = _tautomer_enumerator().Canonicalize(mol)
+    except Exception:
+        canon = mol
+    return Chem.MolToInchiKey(canon)
+
+
 def _lookup_experimental(mol) -> float | None:
     table = _experimental_table()
     if not table:
         return None
-    key = Chem.MolToInchiKey(mol)
-    entry = table.get(key)
+    # Fast path: plain standard InChIKey (covers all non-tautomeric inputs and
+    # the tautomers InChI already normalizes). Only canonicalize on a miss.
+    entry = table.get(Chem.MolToInchiKey(mol))
+    if entry is None:
+        entry = table.get(canonical_inchikey(mol))
     if entry is None:
         return None
     return float(entry["tm_k"])

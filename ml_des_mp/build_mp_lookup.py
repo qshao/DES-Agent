@@ -23,12 +23,16 @@ from pathlib import Path
 
 from rdkit import Chem
 
+from des_multi_agent.property_resolution import canonical_inchikey
+
 
 def _inchikey(smiles: str) -> str | None:
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
         return None
-    return Chem.MolToInchiKey(mol)
+    # Key on the canonical tautomer so the resolver's two-tier lookup can match
+    # alternative tautomer inputs.
+    return canonical_inchikey(mol)
 
 
 def build_table(csv_path: Path) -> dict:
