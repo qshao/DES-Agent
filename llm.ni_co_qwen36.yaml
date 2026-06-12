@@ -1,0 +1,9 @@
+llm:
+  enabled: true
+  provider: ollama
+  model_name: qwen3.6
+  api_base_url: http://localhost:11434
+  max_candidates: 20
+  max_tokens: 2048
+  temperature: 0.2
+  timeout_seconds: 180.0

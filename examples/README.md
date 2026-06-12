@@ -29,6 +29,9 @@ Twenty small runnable examples live here:
 - [`uncertainty_controls/`](./uncertainty_controls) for the three `--uncertainty-mode` policies: `report_only` annotates trust scores, `penalize` soft-reranks low-trust candidates, `filter` removes them entirely
 - [`output_formats/`](./output_formats) for machine-readable output: shows `--format table`, `json`, `csv`, and `prose` on the same query for scripting and downstream processing
 - [`dry_run/`](./dry_run) for setup validation with `--dry-run`: checks paths, config, and checkpoint compatibility without running any predictions — useful for CI and first-time environment checks
+- [`ni_co_selectivity_des/`](./ni_co_selectivity_des) for a Ni²⁺/Co²⁺ selectivity-DES run with Gemma4-12B: Phase 1 screens for Ni²⁺-selective HBD/HBA ligands, Phase 2 finds low-viscosity (≤200 cP) DES partners with Tm ≤ 350 K, outer loop feeds DES-compatible hits back to Phase 1
+- [`ni_co_selectivity_des_nemotron/`](./ni_co_selectivity_des_nemotron) for the same Ni²⁺/Co²⁺ task with Nemotron-3-Nano: shortlists top-5 HBD/HBA ligands, all 5 DES-compatible, best eutectic Tm 179.5 K (ethylene glycol partner)
+- [`ni_co_selectivity_des_qwen36/`](./ni_co_selectivity_des_qwen36) for the same task with Qwen 3.6: brainstorms classical chelators (NTA, IDA, salicylate, glycine, catechol), best eutectic Tm 135.2 K (salicylic acid + p-toluidine), hydrophobic aromatic DES partners
 
 Before adapting a folder, run `python -m des_multi_agent.cli doctor` to verify the core repo and checked-in examples are present. If you also want optional local checks, you can run `python -m des_multi_agent.cli doctor --check checkpoint`, `python -m des_multi_agent.cli doctor --check discovery`, or `python -m des_multi_agent.cli doctor --check artifacts`.
 

@@ -1,0 +1,29 @@
+workflow=selectivity-des
+target_metal_ion=Ni2+
+competitor_metal_ion=Co2+
+
+# Phase 1 — metal-ion selectivity screening (HBD/HBA ligands, top 5)
+n=20
+n_cycles=3
+affinity_weight=0.4
+selectivity_weight=0.6
+min_delta_log_k=0.3
+top_ligands=5
+stability_constant_model_path=artifacts/stability_constants/model.json
+
+# Phase 2 — DES partner search for the top 3 shortlisted ligands
+n_des_candidates=20
+n_des_cycles=3
+abs_tm_threshold=350
+viscosity_model_path=artifacts/designsolvents/viscosity/model.json
+viscosity_threshold=200
+viscosity_weight=0.4
+
+# Outer feedback loop
+n_outer_cycles=2
+
+# ML checkpoint
+checkpoint_path=ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt
+
+# LLM
+llm_config=llm.ni_co_nemotron.yaml

@@ -1,0 +1,84 @@
+=== Selectivity-DES Pipeline: Ni2+ over Co2+ ===
+Outer cycles run: 2 | Converged: no
+Shortlisted ligands: 3 | DES-compatible: 2
+====================================================
+
+--- Section 1: Selectivity Results ---
+
+ligand | log_k_target | log_k_competitor | delta_log_k | score | des_compatible
+NS(=O)(=O)c1ccc(NC(=O)Cc2ccc(NS(=O)(=O)O)cc2)cc1 | 19.01 | 18.93 | 0.08 | 7.65 | no
+O=C(O)Nc1ccc(CC(=O)Nc2ccc(NC(=O)O)cc2)cc1 | 17.26 | 17.18 | 0.08 | 6.95 | yes
+CC1=CC(NC(=O)Cc2ccc(NS(=O)(=O)O)cc2)=C1C(=O)O | 17.11 | 17.03 | 0.08 | 6.89 | yes
+NC(=O)C(N)Cc1ccc(NS(=O)(=O)O)cc1 | 16.85 | 16.77 | 0.08 | 6.79 | no
+NC(Cc1ccc(NS(=O)(=O)O)cc1)C(=O)O | 16.56 | 16.48 | 0.08 | 6.67 | no
+O=C(O)Nc1ccc(NS(=O)(=O)O)cc1 | 15.48 | 15.40 | 0.08 | 6.24 | no
+NC(Cc1ccc(NC(=O)O)cc1)C(=O)O | 15.40 | 15.32 | 0.08 | 6.21 | no
+CCN(CC(=O)O)Cc1ccc(NS(=O)(=O)O)cc1 | 15.31 | 15.23 | 0.08 | 6.17 | no
+NC(=O)Cc1ccc(NS(=O)(=O)O)cc1 | 14.96 | 14.88 | 0.08 | 6.03 | no
+NS(=O)(=O)c1ccc(NC(=O)O)cc1 | 14.90 | 14.82 | 0.08 | 6.01 | no
+O=C(O)CN(CC(=O)O)CC(=O)O | 14.86 | 14.78 | 0.08 | 5.99 | no
+O=C(O)Nc1ccc(NC(=O)O)cc1 | 14.31 | 14.23 | 0.08 | 5.77 | no
+Nc1ccc(NS(=O)(=O)O)cc1 | 14.04 | 13.96 | 0.08 | 5.66 | no
+NC(=O)Cc1ccc(NC(=O)O)cc1 | 13.79 | 13.71 | 0.08 | 5.57 | no
+O=C(O)Cc1ccc(NC(=O)O)cc1 | 13.51 | 13.43 | 0.08 | 5.45 | no
+CC(=O)OC(N)CC(=O)O | 13.27 | 13.19 | 0.08 | 5.36 | no
+CC(=O)Nc1ccc(NC(=O)O)cc1 | 13.13 | 13.05 | 0.08 | 5.30 | no
+Cc1ccc(Nc2ccccc2)cc1NC(=O)O | 13.09 | 13.01 | 0.08 | 5.28 | no
+O=C(O)CNCC(=O)O | 13.07 | 12.99 | 0.08 | 5.28 | no
+Nc1ccc(NC(=O)O)cc1 | 12.87 | 12.79 | 0.08 | 5.19 | no
+O=C(O)c1ccccc1O | 11.75 | 11.67 | 0.08 | 4.75 | no
+NCC(=O)O | 11.23 | 11.15 | 0.08 | 4.54 | no
+Cc1ccc(NC(=O)O)cc1 | 11.07 | 10.99 | 0.08 | 4.47 | no
+Oc1ccccc1O | 10.89 | 10.81 | 0.08 | 4.41 | no
+Oc1cccc2ncccc12 | 10.87 | 10.79 | 0.08 | 4.40 | no
+c1cnc2ccc3ncccc3c2c1 | 10.84 | 10.76 | 0.08 | 4.39 | no
+CC(=O)NO | 10.58 | 10.50 | 0.08 | 4.28 | no
+c1ccc(-c2ccccn2)nc1 | 10.45 | 10.37 | 0.08 | 4.23 | no
+Cc1ccc(Nc2ccccc2)cc1 | 9.81 | 9.73 | 0.08 | 3.97 | no
+c1ccc(Nc2ccccc2)cc1 | 9.78 | 9.70 | 0.08 | 3.96 | no
+CC(=O)CC(C)=O | 9.39 | 9.31 | 0.08 | 3.80 | no
+Cn1ccnc1 | 8.86 | 8.78 | 0.08 | 3.59 | no
+
+--- Section 2: DES Partners ---
+
+Ligand: NS(=O)(=O)c1ccc(NC(=O)Cc2ccc(NS(=O)(=O)O)cc2)cc1  (score=7.65, ΔlogK=0.08) — DES-compatible: NO
+  partner | min_tm_k | eutectic_ratio | rationale
+  O | 243.8 | 0.10 | min Tm=243.83 K, absolute<= 350.00 K, relative_drop=0.045
+
+Ligand: O=C(O)Nc1ccc(CC(=O)Nc2ccc(NC(=O)O)cc2)cc1  (score=6.95, ΔlogK=0.08) — DES-compatible: YES
+  partner | min_tm_k | eutectic_ratio | rationale
+  O=C(O)Cc1ccc(cc1)O | 287.2 | 0.40 | min Tm=287.19 K, absolute<= 350.00 K, relative_drop=0.141
+  O=C(O)Cc1ccc(cc1)C(=O)O | 298.1 | 0.50 | min Tm=298.12 K, absolute<= 350.00 K, relative_drop=0.145
+  NC(=O)Cc1ccc(cc1)C(=O)O | 298.2 | 0.40 | min Tm=298.16 K, absolute<= 350.00 K, relative_drop=0.149
+  O=C(O)Cc1ccc(cc1)CCO | 300.4 | 0.50 | min Tm=300.37 K, absolute<= 350.00 K, relative_drop=0.138
+  NC(=O)Nc1ccc(cc1)C(=O)O | 308.7 | 0.30 | min Tm=308.69 K, absolute<= 350.00 K, relative_drop=0.125
+  O=C(O)Nc1ccc(cc1)C(=O)O | 336.2 | 0.20 | min Tm=336.17 K, absolute<= 350.00 K, relative_drop=0.043
+  O=C(O)Nc1ccc(cc1)NC(=O)C1=CC=C1 | 349.8 | 0.30 | min Tm=349.77 K, absolute<= 350.00 K, relative_drop=0.082
+
+Ligand: CC1=CC(NC(=O)Cc2ccc(NS(=O)(=O)O)cc2)=C1C(=O)O  (score=6.89, ΔlogK=0.08) — DES-compatible: YES
+  partner | min_tm_k | eutectic_ratio | rationale
+  CCN(CC)Cc1ccc(cc1)NC(=O)C | 214.7 | 0.30 | min Tm=214.71 K, absolute<= 350.00 K, relative_drop=0.406
+  Nc1ccc(cc1)NC(=O)C | 231.3 | 0.30 | min Tm=231.29 K, absolute<= 350.00 K, relative_drop=0.307
+  O=CC(=O)Cc1ccc(cc1)C(=O)O | 263.4 | 0.30 | min Tm=263.42 K, absolute<= 350.00 K, relative_drop=0.258
+  O=CC(=O)Nc1ccc(cc1)C(=O)O | 270.7 | 0.30 | min Tm=270.66 K, absolute<= 350.00 K, relative_drop=0.246
+  Oc1ccc(cc1)NC(=O)C | 286.1 | 0.20 | min Tm=286.12 K, absolute<= 350.00 K, relative_drop=0.141
+  NS(=O)(=O)Nc1ccc(cc1)NC(=O)C | 294.1 | 0.30 | min Tm=294.10 K, absolute<= 350.00 K, relative_drop=0.207
+  O[C@@H]Cc1ccc(cc1)NC(=O)N | 299.5 | 0.40 | min Tm=299.48 K, absolute<= 350.00 K, relative_drop=0.147
+  NC(=O)Cc1ccc(cc1)C(=O)O | 319.6 | 0.30 | min Tm=319.56 K, absolute<= 350.00 K, relative_drop=0.088
+  NC(=O)Nc1ccc(cc1)C(=O)O | 320.0 | 0.30 | min Tm=319.98 K, absolute<= 350.00 K, relative_drop=0.093
+
+Warnings:
+- LLM review failed for O=C(O)CNCC(=O)O: Candidate review is missing rationale
+- LLM review failed for Oc1ccccc1O: Candidate review is missing rationale
+- Bridge filter found 0 ligands above min_delta_log_k=0.3; using top-3 unconditionally.
+- LLM review failed for O=C(O)CNCC(=O)O: Candidate review is missing rationale
+- LLM review failed for Oc1cccc2ncccc12: Candidate review is missing rationale
+- LLM review failed for NS(=O)(=O)c1ccc(NC(=O)O)cc1: Candidate review is missing rationale
+- LLM review failed for O=C(O)Nc1ccc(NS(=O)(=O)O)cc1: Candidate review is missing rationale
+- LLM review failed for NC(=O)Cc1ccc(NC(=O)O)cc1: Candidate review is missing rationale
+- LLM review failed for NC(Cc1ccc(NC(=O)O)cc1)C(=O)O: Candidate review is missing rationale
+- LLM review failed for Cc1ccc(NC(=O)O)cc1: Candidate review is missing rationale
+- Bridge filter found 0 ligands above min_delta_log_k=0.3; using top-3 unconditionally.
+summary:
+- command: selectivity-des
+- status: completed
