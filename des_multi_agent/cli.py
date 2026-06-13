@@ -119,6 +119,24 @@ def build_parser():
         ),
     )
     parser.add_argument("--llm-config", default=None, help="Optional YAML file containing llm settings")
+    parser.add_argument(
+        "--proposal-diversity-mode",
+        choices=["explore", "balanced", "exploit"],
+        default=None,
+        help="Optional proposal diversity mode (explore, balanced, or exploit) for DES candidate generation",
+    )
+    parser.add_argument(
+        "--proposal-max-similarity",
+        type=_unit_float,
+        default=None,
+        help="Maximum fingerprint similarity for suppressing near-duplicate proposals",
+    )
+    parser.add_argument(
+        "--proposal-per-family-budget",
+        type=_positive_int,
+        default=None,
+        help="Maximum accepted proposals per chemical family before the rest are suppressed",
+    )
     parser.add_argument("--discovery-path", default=None, help="Optional local discovery directory containing literature.yaml and library.yaml")
     parser.add_argument("--viscosity-model-path", default=None, help="Optional local DESignSolvents viscosity model artifact")
     parser.add_argument("--metal-ion", default=None, help="Metal ion for the metal-binding workflow")
@@ -337,6 +355,17 @@ def _build_uncertainty_policy(args):
     )
 
 
+def _build_proposal_diversity_cfg(args):
+    cfg: dict[str, object] = {}
+    if getattr(args, "proposal_diversity_mode", None) is not None:
+        cfg["diversity_mode"] = args.proposal_diversity_mode
+    if getattr(args, "proposal_max_similarity", None) is not None:
+        cfg["max_similarity"] = args.proposal_max_similarity
+    if getattr(args, "proposal_per_family_budget", None) is not None:
+        cfg["per_family_budget"] = args.proposal_per_family_budget
+    return cfg or None
+
+
 def _format_supported_metals() -> str:
     lines = ["category | ions"]
     for category, ions in supported_metal_groups():
@@ -475,6 +504,7 @@ def main(argv=None):
         parser.error(str(exc))
     try:
         uncertainty_policy = _build_uncertainty_policy(args)
+        proposal_diversity_cfg = _build_proposal_diversity_cfg(args)
     except ValueError as exc:
         parser.error(str(exc))
 
@@ -553,6 +583,7 @@ def main(argv=None):
                     output_dir=args.output_dir,
                     ensemble_checkpoints=ensemble_ckpts,
                     candidates_file=getattr(args, "candidates_file", None),
+                    proposal_diversity_cfg=proposal_diversity_cfg,
                     n_cycles=args.n_cycles,
                 )
                 outcome = multi_outcome.final_outcome
@@ -584,6 +615,7 @@ def main(argv=None):
                     candidates_file=getattr(args, "candidates_file", None),
                     save_run_memory_path=getattr(args, "save_run_memory", None),
                     reuse_run_path=getattr(args, "reuse_run", None),
+                    proposal_diversity_cfg=proposal_diversity_cfg,
                 )
         except (FileNotFoundError, ValueError) as exc:
             parser.error(str(exc))

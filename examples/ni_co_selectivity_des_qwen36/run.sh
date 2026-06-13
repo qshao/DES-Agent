@@ -26,6 +26,8 @@ cd "${REPO_ROOT}"
 OUTPUT_DIR="${1:-runs/ni_co_selectivity_des_qwen36_001}"
 mkdir -p "${OUTPUT_DIR}"
 
+echo "Proposal diversity settings: mode=balanced, max_similarity=0.82, per_family_budget=2"
+
 python -m des_multi_agent.cli \
   --workflow selectivity-des \
   --target-metal-ion  "Ni2+" \
@@ -38,6 +40,9 @@ python -m des_multi_agent.cli \
   --selectivity-weight 0.6 \
   --min-delta-log-k 0.3 \
   --top-ligands 5 \
+  --proposal-diversity-mode balanced \
+  --proposal-max-similarity 0.82 \
+  --proposal-per-family-budget 2 \
   --stability-constant-model-path artifacts/stability_constants/model.json \
   \
   `# --- Phase 2: DES partner search for the top 3 shortlisted ligands ---` \

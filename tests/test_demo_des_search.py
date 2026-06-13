@@ -1,3 +1,4 @@
+import pytest
 from pathlib import Path
 
 from examples import demo_des_search
@@ -17,6 +18,77 @@ def test_demo_parser_accepts_output_dir():
     parser = build_parser()
     args = parser.parse_args(["--component-a", "CCO", "--n", "3", "--output-dir", "runs/run_001"])
     assert args.output_dir == "runs/run_001"
+
+
+def test_demo_parser_accepts_proposal_diversity_flags():
+    parser = build_parser()
+    args = parser.parse_args([
+        "--component-a", "CCO",
+        "--n", "3",
+        "--proposal-diversity-mode", "explore",
+        "--proposal-max-similarity", "0.77",
+        "--proposal-per-family-budget", "2",
+    ])
+    assert args.proposal_diversity_mode == "explore"
+    assert args.proposal_max_similarity == 0.77
+    assert args.proposal_per_family_budget == 2
+
+
+def test_demo_parser_rejects_nonpositive_values():
+    parser = build_parser()
+    with pytest.raises(SystemExit):
+        parser.parse_args(["--component-a", "CCO", "--n", "0"])
+    with pytest.raises(SystemExit):
+        parser.parse_args(["--component-a", "CCO", "--n", "3", "--proposal-per-family-budget", "0"])
+
+
+def test_demo_forwards_proposal_diversity_cfg_to_run_search_report(monkeypatch, capsys, tmp_path):
+    checkpoint_path = tmp_path / "ckpt.pt"
+    checkpoint_path.write_text("ckpt", encoding="utf-8")
+    config_path = tmp_path / "config.yaml"
+    config_path.write_text("device: cpu\n", encoding="utf-8")
+    captured = {}
+
+    def fake_run_search_report(**kwargs):
+        captured.update(kwargs)
+        return SearchOutcome(
+            results=[],
+            annotated_results=[],
+            candidate_proposals=[],
+            candidate_reviews=[],
+            brainstorm_candidates=[],
+            explanation_notes=[],
+            critique_notes=[],
+            llm_warnings=[],
+        )
+
+    monkeypatch.setattr(demo_des_search, "run_search_report", fake_run_search_report)
+    monkeypatch.setattr(demo_des_search, "format_report", lambda *args, **kwargs: "DEMO REPORT")
+
+    demo_des_search.main([
+        "--component-a",
+        "CCO",
+        "--n",
+        "1",
+        "--checkpoint-path",
+        str(checkpoint_path),
+        "--config-path",
+        str(config_path),
+        "--proposal-diversity-mode",
+        "balanced",
+        "--proposal-max-similarity",
+        "0.82",
+        "--proposal-per-family-budget",
+        "2",
+    ])
+
+    out = capsys.readouterr().out.strip()
+    assert out == "DEMO REPORT"
+    assert captured["proposal_diversity_cfg"] == {
+        "diversity_mode": "balanced",
+        "max_similarity": 0.82,
+        "per_family_budget": 2,
+    }
 
 
 def test_demo_forwards_output_dir_to_run_search_report(monkeypatch, capsys, tmp_path):

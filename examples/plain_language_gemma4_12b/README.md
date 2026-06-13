@@ -24,7 +24,7 @@ The file [`output.txt`](./output.txt) contains:
 
 - the plain-language request
 - the router JSON job
-- the DES screening report (including two-stage brainstorm and contradiction analysis when the LLM call succeeds)
+- the DES screening report (including two-stage brainstorm, proposal-diversity settings, and contradiction analysis when the LLM call succeeds)
 
 ## How to Adapt
 
@@ -33,5 +33,6 @@ Use this folder as a template for your own plain-language DES workflow:
 - Replace the request in [`input.txt`](./input.txt) with your own natural-language prompt.
 - Update the molecule name or SMILES in the request if you want a different component A.
 - If you want a different model, edit [`llm.gemma4_12b.yaml`](./llm.gemma4_12b.yaml) or swap in another local Ollama config.
+- If you want to widen or narrow the brainstorm, edit the proposal-diversity settings in `run_example.py` or pass the same controls through your own wrapper.
 - The example stays close to the real user workflow because the router decides the job fields first and the DES pipeline runs second.
 - If you want to save the resulting DES run for later reuse, add `--save-run-memory runs/run_001/run.memory.json` to the underlying DES command; you can then label the saved memory in place with `python -m des_multi_agent.cli label-run --run runs/run_001 --label "O=good"` and later reuse that file with `--reuse-run`.

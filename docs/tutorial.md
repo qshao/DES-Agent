@@ -170,6 +170,26 @@ python -m des_multi_agent.cli \
 
 See [examples/candidates_file/](../examples/candidates_file).
 
+### Proposal Diversity Controls
+
+Use these flags when you want the brainstormed proposal set to stay broader or more focused:
+
+```bash
+python -m des_multi_agent.cli   --workflow des   --component-a "CCO"   --n 20   --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt   --config-path ml_des_mp/config.yaml   --proposal-diversity-mode balanced   --proposal-max-similarity 0.85   --proposal-per-family-budget 1
+```
+
+| Flag | Meaning |
+|------|---------|
+| `--proposal-diversity-mode` | `explore`, `balanced`, or `exploit`; controls how strongly the search spreads across chemical families |
+| `--proposal-max-similarity` | Suppress near-duplicate proposals above this fingerprint similarity cutoff |
+| `--proposal-per-family-budget` | Limit how many accepted proposals can come from the same family |
+
+Recommended starting point:
+
+- `balanced` for most screening runs
+- `explore` when the search is collapsing onto one chemical family too early
+- `exploit` when you already know the family you want and only need close analogs
+
 ### Threshold Presets
 
 Use presets when you do not want to tune thresholds manually:

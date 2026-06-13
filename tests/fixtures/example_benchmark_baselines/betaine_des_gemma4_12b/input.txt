@@ -8,3 +8,6 @@ viscosity_model_path=artifacts/designsolvents/viscosity/model.json
 viscosity_weight=0.7
 n_cycles=5
 llm_config=llm.gemma4_12b.yaml  # Ollama Gemma4-12B; requires ollama serve + ollama pull gemma4:12b
+proposal_diversity_mode=balanced
+proposal_max_similarity=0.84
+proposal_per_family_budget=2

@@ -196,6 +196,27 @@ def test_cli_parser_supports_run_memory_flags():
     assert args.reuse_run == "runs/run_000/run.memory.json"
 
 
+def test_cli_parser_supports_proposal_diversity_flags():
+    parser = build_parser()
+    args = parser.parse_args([
+        "--workflow",
+        "des",
+        "--component-a",
+        "CCO",
+        "--checkpoint-path",
+        "ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt",
+        "--proposal-diversity-mode",
+        "explore",
+        "--proposal-max-similarity",
+        "0.72",
+        "--proposal-per-family-budget",
+        "2",
+    ])
+    assert args.proposal_diversity_mode == "explore"
+    assert args.proposal_max_similarity == 0.72
+    assert args.proposal_per_family_budget == 2
+
+
 def test_cli_parser_accepts_doctor_subcommand():
     parser = build_parser()
     args = parser.parse_args(["doctor"])
@@ -215,6 +236,58 @@ def test_cli_parser_accepts_output_dir():
         "runs/run_001",
     ])
     assert args.output_dir == "runs/run_001"
+
+
+def test_des_cli_forwards_proposal_diversity_cfg_to_run_search_report(monkeypatch, tmp_path, capsys):
+    checkpoint_path = tmp_path / "ckpt.pt"
+    checkpoint_path.write_text("ckpt", encoding="utf-8")
+    config_path = tmp_path / "config.yaml"
+    config_path.write_text("device: cpu\n", encoding="utf-8")
+    captured = {}
+
+    def fake_run_search_report(**kwargs):
+        captured.update(kwargs)
+        return SimpleNamespace(
+            results=[],
+            annotated_results=[],
+            candidate_proposals=[],
+            candidate_reviews=[],
+            explanation_notes=[],
+            critique_notes=[],
+            brainstorm_candidates=[],
+            llm_warnings=[],
+            memory_notes=[],
+            viscosity_predictions=[],
+        )
+
+    monkeypatch.setattr(cli_module, "run_search_report", fake_run_search_report)
+    monkeypatch.setattr(cli_module, "format_report", lambda *args, **kwargs: "DES REPORT")
+
+    cli_module.main([
+        "--workflow",
+        "des",
+        "--component-a",
+        "CCO",
+        "--checkpoint-path",
+        str(checkpoint_path),
+        "--config-path",
+        str(config_path),
+        "--proposal-diversity-mode",
+        "explore",
+        "--proposal-max-similarity",
+        "0.72",
+        "--proposal-per-family-budget",
+        "2",
+    ])
+
+    out = capsys.readouterr().out.strip().splitlines()
+    assert out[0] == "DES REPORT"
+    assert any(line.startswith("summary:") for line in out)
+    assert captured["proposal_diversity_cfg"] == {
+        "diversity_mode": "explore",
+        "max_similarity": 0.72,
+        "per_family_budget": 2,
+    }
 
 
 def test_des_cli_forwards_output_dir_to_run_search_report(monkeypatch, tmp_path, capsys):

@@ -12,5 +12,5 @@ python -m examples.demo_des_search \
   --component-a "CCN(CC)CC(=O)Nc1c(C)cccc1C" \
   --n 5 \
   --checkpoint-path "${CHECKPOINT_PATH}" \
-  --llm-config "${SCRIPT_DIR}/llm.gemma4_12b.yaml" \
+  --llm-config "${SCRIPT_DIR}/llm.gemma4_12b.yaml"   --proposal-diversity-mode explore   --proposal-max-similarity 0.78   --proposal-per-family-budget 1 \
   > "${OUTPUT_FILE}" 2>/dev/null

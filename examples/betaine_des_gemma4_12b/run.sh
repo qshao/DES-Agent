@@ -18,5 +18,5 @@ python -m des_multi_agent.cli \
   --viscosity-model-path artifacts/designsolvents/viscosity/model.json \
   --viscosity-weight 0.7 \
   --n-cycles 5 \
-  --llm-config "${SCRIPT_DIR}/llm.gemma4_12b.yaml" \
+  --llm-config "${SCRIPT_DIR}/llm.gemma4_12b.yaml"   --proposal-diversity-mode balanced   --proposal-max-similarity 0.84   --proposal-per-family-budget 2 \
   > "${SCRIPT_DIR}/output.txt" 2>/dev/null

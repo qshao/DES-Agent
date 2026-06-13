@@ -9,6 +9,8 @@ This example runs the full **selectivity-DES pipeline** using **Qwen 3.6** (Olla
 
 Selective extraction of Ni²⁺ from Co²⁺-containing solutions is industrially important (battery recycling, hydrometallurgy). This run extends the [`ni_co_selectivity_des`](../ni_co_selectivity_des) example by shortlisting **five** ligands in Phase 1 instead of three, giving a wider selectivity pool before the DES search, and uses Qwen 3.6 as a lighter LLM alternative to Gemma4-12B.
 
+It also keeps the proposal brainstorm balanced across ligand families so the selectivity search does not overfit to a single motif too early.
+
 ## Pipeline architecture
 
 ```
@@ -78,6 +80,9 @@ Each ligand block lists DES partners with predicted Tm, viscosity threshold comp
 | Ligands shortlisted | `--top-ligands` | 5 | More selective ligands explored than the default 3 |
 | Selectivity emphasis | `--selectivity-weight` | 0.6 | ΔlogK weighted more than absolute affinity |
 | Selectivity gate | `--min-delta-log-k` | 0.3 | Falls back to top-N if no candidate passes |
+| Proposal diversity | `--proposal-diversity-mode` | `balanced` | Preserve breadth while still favoring productive families |
+| Similarity cap | `--proposal-max-similarity` | 0.82 | Block near-duplicate proposals in the brainstorm |
+| Per-family budget | `--proposal-per-family-budget` | 2 | Limit accepted proposals from any one family |
 | Tm ceiling | `--abs-tm-threshold` | 350 K | Room-temperature DES target |
 | Viscosity gate | `--viscosity-threshold` | 200 cP | Flowable solvent target |
 

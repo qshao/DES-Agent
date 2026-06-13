@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 
-from des_multi_agent.cli import load_llm_config
+from des_multi_agent.cli import _positive_int, _unit_float, load_llm_config
 from des_multi_agent.config import DEFAULT_CONFIG_PATH, PROJECT_ROOT
 from des_multi_agent.evaluation import DesResult
 from des_multi_agent.llm.schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, ExplanationNote
@@ -21,7 +21,7 @@ DEFAULT_LLM_CONFIG = PROJECT_ROOT / "llm.example.yaml"
 def build_parser():
     parser = argparse.ArgumentParser(description="Run a DES screening demo")
     parser.add_argument("--component-a", default="CCO", help="SMILES for component A")
-    parser.add_argument("--n", type=int, default=20, help="Number of candidate partners to propose")
+    parser.add_argument("--n", type=_positive_int, default=20, help="Number of candidate partners to propose")
     parser.add_argument(
         "--checkpoint-path",
         default=str(DEFAULT_CHECKPOINT),
@@ -36,6 +36,24 @@ def build_parser():
         "--llm-config",
         default=None,
         help="Optional YAML file with llm settings; omit for deterministic mode",
+    )
+    parser.add_argument(
+        "--proposal-diversity-mode",
+        choices=["explore", "balanced", "exploit"],
+        default=None,
+        help="Optional proposal diversity mode for DES brainstorming",
+    )
+    parser.add_argument(
+        "--proposal-max-similarity",
+        type=_unit_float,
+        default=None,
+        help="Maximum fingerprint similarity for suppressing near-duplicate proposals",
+    )
+    parser.add_argument(
+        "--proposal-per-family-budget",
+        type=_positive_int,
+        default=None,
+        help="Maximum accepted proposals per family",
     )
     parser.add_argument(
         "--discovery-path",
@@ -203,6 +221,18 @@ def main(argv=None):
         config_path = resolve_existing_path(args.config_path)
         llm_cfg = load_llm_config(args.llm_config) if args.llm_config else None
         discovery_path = resolve_existing_path(args.discovery_path) if args.discovery_path else None
+        proposal_diversity_cfg = None
+        if any(
+            getattr(args, field) is not None
+            for field in ("proposal_diversity_mode", "proposal_max_similarity", "proposal_per_family_budget")
+        ):
+            proposal_diversity_cfg = {}
+            if args.proposal_diversity_mode is not None:
+                proposal_diversity_cfg["diversity_mode"] = args.proposal_diversity_mode
+            if args.proposal_max_similarity is not None:
+                proposal_diversity_cfg["max_similarity"] = args.proposal_max_similarity
+            if args.proposal_per_family_budget is not None:
+                proposal_diversity_cfg["per_family_budget"] = args.proposal_per_family_budget
         outcome = run_search_report(
             component_a=args.component_a,
             n=args.n,
@@ -212,6 +242,7 @@ def main(argv=None):
             discovery_path=str(discovery_path) if discovery_path is not None else None,
             viscosity_model_path=args.viscosity_model_path,
             output_dir=args.output_dir,
+            proposal_diversity_cfg=proposal_diversity_cfg,
         )
     print(
         format_report(

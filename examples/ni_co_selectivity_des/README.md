@@ -6,6 +6,7 @@ This example runs the full **selectivity-DES pipeline** to find ligands that:
 2. Form a deep eutectic solvent with a low-viscosity, low-melting partner (Phase 2 — DES search)
 
 Gemma4-12B (Ollama) is used as the LLM for two-stage brainstorming in both phases.
+The Phase 1 brainstorm now also uses the proposal-diversity controls so the ligand pool stays broad instead of collapsing onto one family too early.
 
 ## Scientific goal
 
@@ -92,6 +93,9 @@ Each ligand gets its own DES screening table with Tm, viscosity, and rationale c
 | Selectivity emphasis | `--selectivity-weight` | 0.6 | Increase to prioritize ΔlogK over absolute affinity |
 | Ligands passed to DES | `--top-ligands` | 3 | Increase to explore more ligands at higher compute cost |
 | Selectivity gate | `--min-delta-log-k` | 0.3 | Raise to require stronger Ni²⁺/Co²⁺ discrimination |
+| Proposal diversity | `--proposal-diversity-mode` | `balanced` | Keep a mix of productive and adjacent ligand families |
+| Similarity cap | `--proposal-max-similarity` | 0.82 | Suppress near-duplicate brainstorm proposals |
+| Per-family budget | `--proposal-per-family-budget` | 2 | Limit how many accepted proposals can come from one family |
 | Tm ceiling | `--abs-tm-threshold` | 350 K | Lower for room-temperature liquids |
 | Viscosity gate | `--viscosity-threshold` | 200 cP | Lower for more flowable solvents |
 | Outer cycles | `--n-outer-cycles` | 2 | Increase if you want more feedback-loop refinement |
@@ -99,6 +103,7 @@ Each ligand gets its own DES screening table with Tm, viscosity, and rationale c
 ## LLM config
 
 [`llm.ni_co_selectivity.yaml`](../../llm.ni_co_selectivity.yaml) points to `gemma4:12b` on Ollama at `localhost:11434`. Edit `model_name` to switch to `nemotron-3-nano:latest` or `qwen3.6` without changing anything else.
+If you want a broader or narrower ligand brainstorm, adjust the proposal-diversity flags in `run.sh` before launching the pipeline.
 
 ## How to adapt for other metal pairs
 

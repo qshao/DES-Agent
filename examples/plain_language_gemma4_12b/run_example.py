@@ -15,6 +15,7 @@ from des_multi_agent.request_normalization import normalize_request_text
 from des_multi_agent.llm.factory import build_llm_provider
 from des_multi_agent.llm.parser import extract_json_object
 from des_multi_agent.orchestrator import run_search_report
+from des_multi_agent.proposal_diversity import ProposalDiversityConfig
 from des_multi_agent.reporting import format_report
 from des_multi_agent.task_router_schema import RouterJob, RouterResponse
 
@@ -41,6 +42,9 @@ def _extract_smiles_text(value) -> str | None:
 
 def _normalize_router_job(raw_job: dict, request_text: str) -> RouterJob:
     component_a = _extract_smiles_text(raw_job.get("component_a") or raw_job.get("chemical_formula") or raw_job.get("target_compound") or raw_job.get("target_substance") or request_text)
+    request_component_a = _extract_smiles_text(request_text)
+    if request_component_a and request_component_a != request_text.strip():
+        component_a = request_component_a
     n_value = raw_job.get("n") or raw_job.get("max_candidates") or 5
     checkpoint_value = raw_job.get("checkpoint_path") or raw_job.get("checkpoint") or str(DEFAULT_CHECKPOINT_PATH)
     config_value = raw_job.get("config_path") or raw_job.get("config") or str(DEFAULT_CONFIG_PATH)
@@ -99,6 +103,17 @@ def main() -> int:
     print(response.to_json())
     print()
 
+    proposal_diversity_cfg = ProposalDiversityConfig(
+        diversity_mode="balanced",
+        max_similarity=0.82,
+        per_family_budget=2,
+    )
+    print(
+        "Proposal diversity settings: "
+        f"mode={proposal_diversity_cfg.diversity_mode}, "
+        f"max_similarity={proposal_diversity_cfg.max_similarity:.2f}, "
+        f"per_family_budget={proposal_diversity_cfg.per_family_budget}"
+    )
     outcome = run_search_report(
         component_a=job.component_a or "",
         n=job.n or 5,
@@ -107,6 +122,11 @@ def main() -> int:
         llm_cfg=llm_cfg,
         discovery_path=job.discovery_path,
         viscosity_model_path=job.viscosity_model_path,
+        proposal_diversity_cfg={
+            "diversity_mode": proposal_diversity_cfg.diversity_mode,
+            "max_similarity": proposal_diversity_cfg.max_similarity,
+            "per_family_budget": proposal_diversity_cfg.per_family_budget,
+        },
     )
 
     print("DES report:")

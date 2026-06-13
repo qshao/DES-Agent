@@ -8,7 +8,7 @@ Use this workflow when you want to:
 - Quickly compare selectivity across different metal pairs
 - Use the shortlisted ligands as `--component-a` inputs for a separate DES run
 
-The full two-phase pipeline (`--workflow selectivity-des`) chains this screen directly into DES partner search; see [`examples/ni2_co2_selectivity/`](../ni2_co2_selectivity) for that workflow.
+The full two-phase pipeline (`--workflow selectivity-des`) chains this screen directly into DES partner search; see [`examples/ni2_co2_selectivity/`](../ni2_co2_selectivity) for that workflow. The standalone screen is also a natural precursor to the chemistry-advisor layer, because it can produce the ranked ligand set that later prompts may explain or critique.
 
 ## Input
 
@@ -41,3 +41,4 @@ The file [`output.txt`](./output.txt) contains the ranked selectivity table. Key
 - Increase `--n` to screen more ligand candidates per cycle.
 - Add `--n-cycles` for iterative refinement where top ligands from each cycle seed the next brainstorm.
 - Pass `--affinity-weight` and `--selectivity-weight` to tune the composite score balance.
+- If you later reuse these ligands inside a broader DES workflow, the proposal-diversity controls and chemistry-advisor notes described in the selectivity-DES examples can help keep the follow-up search broad and interpretable.

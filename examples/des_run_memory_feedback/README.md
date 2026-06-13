@@ -5,6 +5,7 @@ This example shows the full offline DES feedback loop in one folder:
 1. run DES once and save `run.memory.json` (or keep several labeled runs under `runs/` and reuse the parent history directory later)
 2. label the saved memory in place with `label-run`
 3. reuse the labeled memory on the next DES run
+4. keep the candidate pool consistent with proposal-diversity controls
 
 ## Input
 
@@ -28,6 +29,7 @@ The file [`output.txt`](./output.txt) contains:
 - the initial DES run that writes `run.memory.json`
 - the `label-run` step that updates the memory in place
 - the second DES run that reuses the labeled memory
+- the proposal-diversity settings threaded through both DES runs
 
 ## How to Adapt
 
@@ -36,5 +38,6 @@ Use this folder as a template for your own feedback loop:
 - Replace the request in [`input.txt`](./input.txt) with your own DES target.
 - Edit [`run.memory.json`](./run.memory.json) if you want to inspect or seed the label format. If you later build a larger labeled history under `runs/`, you can point `--reuse-run` at the parent history directory to reuse all of it.
 - Update the labels in `run.sh` to match your own `good` and `bad` preferences.
+- If you want broader or narrower candidate families, edit the proposal-diversity flags in `run.sh` too.
 - If you want a different checkpoint, set `DES_CHECKPOINT_PATH` before running the wrapper.
 - The feedback loop is DES-only; use the separate metal-binding examples for stability-constant work.

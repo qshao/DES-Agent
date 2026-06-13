@@ -50,6 +50,7 @@ def run_multi_cycle_search(
     output_dir: str | None = None,
     ensemble_checkpoints: list[str] | None = None,
     candidates_file: str | None = None,
+    proposal_diversity_cfg=None,
 ) -> MultiCycleOutcome:
     """Run up to n_cycles iterations, passing top hits forward as brainstorm context.
 
@@ -86,6 +87,7 @@ def run_multi_cycle_search(
             candidates_file=candidates_file,
             prior_cycle_top_results=prior_results,
             prior_family_ledger=accumulated_ledger if cycle > 1 else None,
+            proposal_diversity_cfg=proposal_diversity_cfg,
         )
 
         # H6 — build family ledger: DES-positive hit count per chemical family

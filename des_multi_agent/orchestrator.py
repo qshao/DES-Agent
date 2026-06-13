@@ -7,11 +7,13 @@ import sys
 
 from .candidate_generation import generate_candidates
 from .chemistry_filter import canonicalize_smiles, filter_candidates
+from .proposal_diversity import ProposalDiversityConfig, apply_proposal_diversity
 from .config import DEFAULT_ABSOLUTE_TM_MAX_K, DEFAULT_RELATIVE_DROP_MIN
 from .discovery import load_discovery_library, literature_lookup, merge_discovery_candidates, similarity_search
 from .exporting import export_des_run_bundle
 from .reporting import format_report
 from .evaluation import DesResult, classify_des
+from .llm.config import LLMConfig
 from .llm.factory import build_llm_provider
 from .llm.schemas import CandidateBrainstorm, CandidateReview, ChemistryAssessment, ChemistryNextStep, ContradictionNote, CritiqueNote, ExplanationNote
 from .paths import resolve_existing_path
@@ -122,6 +124,46 @@ def _build_prior_productive_family_summary(family_ledger: dict[str, int] | None,
     return dict(sorted(family_ledger.items(), key=lambda item: (-item[1], item[0]))[:limit])
 
 
+def _merge_llm_diversity_overrides(
+    llm_cfg: Mapping[str, object] | LLMConfig | None,
+    proposal_diversity_cfg: Mapping[str, object] | None,
+) -> Mapping[str, object] | LLMConfig | None:
+    if llm_cfg is None or not proposal_diversity_cfg:
+        return llm_cfg
+    overrides = {
+        key: proposal_diversity_cfg[key]
+        for key in ("diversity_mode", "max_families", "family_bias_strength")
+        if key in proposal_diversity_cfg
+    }
+    if not overrides:
+        return llm_cfg
+    if isinstance(llm_cfg, LLMConfig):
+        return replace(llm_cfg, **overrides)
+    if isinstance(llm_cfg, Mapping):
+        merged = dict(llm_cfg)
+        merged.update(overrides)
+        return merged
+    return llm_cfg
+
+
+def _build_proposal_diversity_config(
+    llm_cfg: Mapping[str, object] | LLMConfig | None,
+    proposal_diversity_cfg: Mapping[str, object] | None,
+) -> ProposalDiversityConfig:
+    base_cfg = ProposalDiversityConfig.from_mapping(llm_cfg)
+    if not proposal_diversity_cfg:
+        return base_cfg
+    per_family_budget = proposal_diversity_cfg.get("per_family_budget", base_cfg.per_family_budget)
+    return ProposalDiversityConfig(
+        max_similarity=float(proposal_diversity_cfg.get("max_similarity", base_cfg.max_similarity)),
+        deduplicate_exact=bool(proposal_diversity_cfg.get("deduplicate_exact", base_cfg.deduplicate_exact)),
+        deduplicate_near=bool(proposal_diversity_cfg.get("deduplicate_near", base_cfg.deduplicate_near)),
+        family_fallback=bool(proposal_diversity_cfg.get("family_fallback", base_cfg.family_fallback)),
+        per_family_budget=None if per_family_budget is None else int(per_family_budget),
+        diversity_mode=str(proposal_diversity_cfg.get("diversity_mode", base_cfg.diversity_mode)),
+        max_families=int(proposal_diversity_cfg.get("max_families", base_cfg.max_families)),
+        family_bias_strength=float(proposal_diversity_cfg.get("family_bias_strength", base_cfg.family_bias_strength)),
+    )
 
 
 def _build_chemistry_advisor_context(base_context: str, annotated_results: list[AnnotatedResult], memory_notes: list[str]) -> str:
@@ -372,6 +414,7 @@ def run_search_report(
     viscosity_threshold_cp: float | None = None,
     prior_cycle_top_results: list | None = None,
     prior_family_ledger: dict[str, int] | None = None,
+    proposal_diversity_cfg: Mapping[str, object] | None = None,
 ):
     # D1 — validate component_a SMILES before any expensive work
     try:
@@ -399,7 +442,8 @@ def run_search_report(
     all_dedup_notes.extend(notes)
 
     review_context = _search_context(component_a, n, str(checkpoint_path), str(config_path))
-    provider = build_llm_provider(llm_cfg, request_fn=llm_request_fn) if llm_cfg else None
+    effective_llm_cfg = _merge_llm_diversity_overrides(llm_cfg, proposal_diversity_cfg)
+    provider = build_llm_provider(effective_llm_cfg, request_fn=llm_request_fn) if effective_llm_cfg else None
     llm_candidates: list[CandidateBrainstorm] = []
     candidate_reviews: list[CandidateReview] = []
     review_penalties: dict[str, float] = {}
@@ -428,6 +472,16 @@ def run_search_report(
             llm_candidates = []
     candidate_proposals, notes = _merge_candidates(candidate_proposals, _promote_brainstorm_candidates(llm_candidates))
     all_dedup_notes.extend(notes)
+
+    diversity_cfg = _build_proposal_diversity_config(effective_llm_cfg, proposal_diversity_cfg)
+    diversity_result = apply_proposal_diversity(component_a, candidate_proposals, diversity_cfg)
+    candidate_proposals = diversity_result.accepted
+    all_dedup_notes.extend(diversity_result.notes)
+    if diversity_result.suggested_families:
+        all_dedup_notes.append(
+            "Proposal diversity fallback suggested adjacent families: "
+            + ", ".join(diversity_result.suggested_families)
+        )
 
     _progress(2, f"Filtering {len(candidate_proposals)} candidate(s)...")
     filtered = filter_candidates(component_a, candidate_proposals)

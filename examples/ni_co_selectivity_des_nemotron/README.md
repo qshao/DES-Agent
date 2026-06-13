@@ -9,6 +9,8 @@ This example runs the full **selectivity-DES pipeline** using **Nemotron-3-Nano*
 
 Selective extraction of Ni²⁺ from Co²⁺-containing solutions is industrially relevant (battery recycling, hydrometallurgy). This example uses Nemotron-3-Nano as a fast, lightweight LLM alternative and shortlists **five** ligands in Phase 1 for a wider selectivity pool before DES screening.
 
+The Phase 1 brainstorm uses the same proposal-diversity controls as the Gemma and Qwen examples so the ligand set stays chemically varied.
+
 ## Pipeline architecture
 
 ```
@@ -32,6 +34,8 @@ Outer loop (2 cycles)
 - Ollama running locally with `nemotron-3-nano:latest` loaded
 - ChemBERTa checkpoint: `ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt`
 - Artifacts: `artifacts/stability_constants/model.json`, `artifacts/designsolvents/viscosity/model.json`
+
+If you want broader or narrower ligand proposals, edit the proposal-diversity flags in `run.sh`.
 
 ## Run
 

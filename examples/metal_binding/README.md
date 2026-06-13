@@ -1,6 +1,8 @@
 # Metal-Binding Example
 
-This example runs the metal-binding workflow with the bundled local stability-constant artifact.
+This example runs the metal-binding workflow with the bundled local stability-constant artifact. It is a useful deterministic target for the chemistry-advisor layer when you want concise rationale or warning text around a predicted stability constant, but the current example itself stays numeric and local.
+
+If you want to see the advisor output in the repo, this is the smallest place to add it because the input is already a single metal/ligand pair and the result is easy to explain.
 
 ## Input
 

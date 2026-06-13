@@ -1,6 +1,6 @@
 # Betaine DES Screening with Gemma 4-12B
 
-This example searches for deep eutectic solvent (DES) partners for **betaine** (trimethylglycine, `C[N+](C)(C)CC(=O)[O-]`) using Ollama Gemma 4-12B as the LLM advisor. It combines multi-cycle iterative screening with viscosity-aware ranking and LLM-driven chemical validity checking.
+This example searches for deep eutectic solvent (DES) partners for **betaine** (trimethylglycine, `C[N+](C)(C)CC(=O)[O-]`) using Ollama Gemma 4-12B as the LLM advisor. It combines multi-cycle iterative screening with viscosity-aware ranking, LLM-driven chemical validity checking, and chemistry-advisor style reasoning in the report.
 
 ## Chemistry
 
@@ -12,7 +12,8 @@ Betaine is a natural zwitterionic compound (quaternary N⁺, carboxylate O⁻) w
 
 The LLM enforces these constraints in two ways:
 1. **Two-stage brainstorm (H6)**: Gemma first selects 4–6 chemical families (polyols, carboxylic acids, amides, amino alcohols, …) that satisfy the organic + H-bonding requirement for betaine, then distributes 20 candidate SMILES across those families.
-2. **Contradiction detection (H3)**: After ML predictions, Gemma reviews each DES-positive result and reports `agree`, `conflict`, or `uncertain` — flagging cases where the predicted DES-former lacks H-bonding groups or is chemically implausible.
+2. **Proposal diversity controls**: If the run keeps collapsing onto one family, `--proposal-diversity-mode explore` broadens the family spread, while `balanced` keeps a mix of productive and adjacent families.
+3. **Contradiction detection (H3)**: After ML predictions, Gemma reviews each DES-positive result and reports `agree`, `conflict`, or `uncertain` — flagging cases where the predicted DES-former lacks H-bonding groups or is chemically implausible.
 
 ## Requirements
 
@@ -50,6 +51,7 @@ The file [`output.txt`](./output.txt) contains the captured report from a real r
 - **LLM candidate reviews**: Gemma's per-candidate assessment; compounds that are inorganic, ionic, or lack H-bonding groups are rejected with reasoning.
 - **LLM brainstorm**: the family-grouped candidate list showing Gemma's two-stage selection.
 - **LLM contradiction analysis**: `agree` / `conflict` / `uncertain` verdict per DES-positive candidate, with chemical reasoning about H-bond compatibility with betaine's carboxylate.
+- **Chemistry-advisor notes**: concise follow-up guidance and caveats that help explain why the top candidates are plausible.
 - **Viscosity predictions**: predicted mixture viscosity for each DES-positive pair.
 
 ## How to Adapt

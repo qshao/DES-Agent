@@ -55,6 +55,8 @@ cycle and the loop exits early.  With an LLM, cycles 2 and 3 add brainstormed
 candidates guided by the HBD/HBA constraints and the top hits from the
 previous cycle.
 
+If you enable the LLM path, the same proposal-diversity controls used by the selectivity-DES examples can be applied to keep the brainstorm broader or more focused.
+
 ## Output
 
 The file [`output.txt`](./output.txt) contains the selectivity report from a

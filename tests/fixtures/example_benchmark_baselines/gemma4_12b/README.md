@@ -24,6 +24,10 @@ The file [`output.txt`](./output.txt) contains the captured report output from t
 
 - ranked DES results
 - uncertainty annotations
-- LLM brainstorm candidates
+- LLM brainstorm candidates (two-stage: chemical family selection first, then SMILES distribution)
+- proposal-diversity controls, if you want to broaden or narrow the brainstorm
 - explanation notes
 - critique notes
+- contradiction analysis (`agree` / `conflict` / `uncertain` per candidate, when available)
+
+If you want to make the brainstorm more exploratory, add `--proposal-diversity-mode explore`; if you want to keep it tighter around productive families, use `balanced` or `exploit`.

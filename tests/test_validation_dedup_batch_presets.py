@@ -175,6 +175,31 @@ def test_dedup_note_absent_when_no_duplicates(monkeypatch, tmp_path):
     assert not dedup_notes
 
 
+def test_proposal_diversity_suppresses_near_duplicates_before_scoring(monkeypatch, tmp_path):
+    """Proposal diversity removes near-duplicates before the rest of the search pipeline runs."""
+    ckpt = tmp_path / "ckpt.pt"
+    ckpt.write_text("fake")
+    cfg = tmp_path / "config.yaml"
+    cfg.write_text("device: cpu\nembedding:\n  method: morgan\n  morgan:\n    radius: 2\n    n_bits: 16\n    use_chirality: false\n")
+
+    proposals = [
+        CandidateProposal(smiles="OCCO", rationale="polyol", family="polyol", source="heuristic", source_id="rule1"),
+        CandidateProposal(smiles="OCCCO", rationale="near duplicate", family="polyol", source="llm", source_id="brainstorm"),
+    ]
+    _patch_orchestrator_basics(monkeypatch, proposals)
+
+    outcome = orchestrator.run_search_report(
+        component_a="CCN",
+        n=2,
+        checkpoint_path=str(ckpt),
+        config_path=str(cfg),
+        llm_cfg={"max_similarity": 0.80},
+    )
+
+    assert [proposal.smiles for proposal in outcome.candidate_proposals] == ["OCCO"]
+    assert any("proposal diversity" in note.lower() for note in outcome.memory_notes)
+
+
 # ---------------------------------------------------------------------------
 # F1 — Per-candidate graceful failure
 # ---------------------------------------------------------------------------

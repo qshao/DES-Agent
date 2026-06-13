@@ -11,5 +11,5 @@ python -m examples.demo_des_search \
   --component-a "CCO" \
   --n 20 \
   --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
-  --llm-config "${SCRIPT_DIR}/llm.gemma4_12b.yaml" \
+  --llm-config "${SCRIPT_DIR}/llm.gemma4_12b.yaml"   --proposal-diversity-mode balanced   --proposal-max-similarity 0.82   --proposal-per-family-budget 2 \
   > "${OUTPUT_FILE}" 2>/dev/null

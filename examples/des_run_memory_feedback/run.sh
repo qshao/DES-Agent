@@ -19,11 +19,11 @@ cd "${REPO_ROOT}"
   cat "${SCRIPT_DIR}/input.txt"
   echo
   echo "SAVE MEMORY"
-  python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 5 --checkpoint-path "${CHECKPOINT_PATH}" --config-path "${CONFIG_PATH}" --save-run-memory "${MEMORY_FILE}"
+  python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 5 --checkpoint-path "${CHECKPOINT_PATH}" --config-path "${CONFIG_PATH}" --proposal-diversity-mode balanced --proposal-max-similarity 0.82 --proposal-per-family-budget 2 --save-run-memory "${MEMORY_FILE}"
   echo
   echo "LABEL MEMORY"
   python -m des_multi_agent.cli label-run --run "${MEMORY_FILE}" --label "O=good" --label "CC(=O)O=bad"
   echo
   echo "REUSE MEMORY"
-  python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 5 --checkpoint-path "${CHECKPOINT_PATH}" --config-path "${CONFIG_PATH}" --reuse-run "${MEMORY_FILE}"
+  python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 5 --checkpoint-path "${CHECKPOINT_PATH}" --config-path "${CONFIG_PATH}" --proposal-diversity-mode balanced --proposal-max-similarity 0.82 --proposal-per-family-budget 2 --reuse-run "${MEMORY_FILE}"
 } > "${OUTPUT_FILE}"

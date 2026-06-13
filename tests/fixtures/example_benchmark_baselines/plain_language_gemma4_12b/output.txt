@@ -1,5 +1,5 @@
 Plain-language request:
-Using Ollama Gemma 4-12B, find up to 5 candidate partners for ethanol (CCO) and predict DES melting temperature with the shipped ml_des_mp checkpoint and config.
+Using Ollama Gemma 4-12B, find up to 5 candidate partners for ethanol (CCO), keep the brainstorm balanced across families, and predict DES melting temperature with the shipped ml_des_mp checkpoint and config.
 
 Raw Gemma router output:
 ```json
@@ -8,17 +8,20 @@ Raw Gemma router output:
   "needs_clarification": false,
   "clarifying_questions": [],
   "job": {
-    "model": "Gemma 4-12B",
-    "target_substance": "ethanol (CCO)",
+    "target_compound": "ethanol",
+    "cco": "CCO",
     "max_candidates": 5,
-    "prediction_type": "melting_temperature",
-    "checkpoint": "ml_des_mp"
+    "balance_families": true,
+    "model_checkpoint": "ml_des_mp",
+    "use_default_config": true
   }
 }
 ```
 
 Normalized DES job:
 {"clarifying_questions": [], "job": {"checkpoint_path": "/home/qshao/DES-Agent/ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt", "component_a": "CCO", "config_path": "/home/qshao/DES-Agent/ml_des_mp/config.yaml", "discovery_path": null, "ligand_smiles": null, "llm_config": "/home/qshao/DES-Agent/examples/plain_language_gemma4_12b/llm.gemma4_12b.yaml", "metal_ion": null, "n": 5, "stability_constant_model_path": null, "viscosity_model_path": null}, "needs_clarification": false, "workflow": "des"}
+
+Proposal diversity settings: mode=balanced, max_similarity=0.82, per_family_budget=2
 
 DES report:
 smiles_b | is_des | min_tm_k | source | trust | mean_tm_k | spread_k | std_k | uncertainty_flag | rationale
