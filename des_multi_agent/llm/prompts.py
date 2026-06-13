@@ -245,3 +245,38 @@ def contradiction_prompt(results: Sequence[DesResult], context: str, max_items: 
         'Each item must contain smiles, agreement ("agree", "conflict", or "uncertain"), and explanation.'
     )
     return "".join(parts)
+
+
+def chemistry_assessment_prompt(
+    candidate_smiles: str,
+    context: str,
+    memory_notes: Sequence[str] | None = None,
+) -> str:
+    parts = [
+        "Return raw JSON only. Do not use markdown fences or commentary.\n",
+        "Return a JSON array of chemistry assessments for a DES candidate.\n",
+        f"Candidate: {candidate_smiles}\n",
+        f"Context: {context}\n",
+    ]
+    if memory_notes:
+        parts.append("Prior reasoning:\n")
+        parts.extend(f"- {note}\n" for note in memory_notes)
+    parts.append("Each item must contain smiles, decision, confidence, rationale, and warnings.")
+    return "".join(parts)
+
+
+def chemistry_next_step_prompt(
+    context: str,
+    memory_notes: Sequence[str] | None = None,
+) -> str:
+    parts = [
+        "Return raw JSON only. Do not use markdown fences or commentary.\n",
+        "Return a JSON array of chemistry next-step suggestions for the DES workflow.\n",
+        f"Context: {context}\n",
+    ]
+    if memory_notes:
+        parts.append("Prior reasoning:\n")
+        parts.extend(f"- {note}\n" for note in memory_notes)
+    parts.append("Each item must contain mode, summary, and rationale.")
+    return "".join(parts)
+

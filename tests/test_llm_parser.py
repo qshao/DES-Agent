@@ -2,9 +2,12 @@ from des_multi_agent.llm.parser import (
     extract_json_object,
     parse_candidate_brainstorms,
     parse_candidate_review,
+    parse_chemistry_assessments,
+    parse_chemistry_next_steps,
     parse_critique_notes,
     parse_explanation_notes,
 )
+from des_multi_agent.llm.prompts import chemistry_assessment_prompt, chemistry_next_step_prompt
 from des_multi_agent.task_router import parse_router_response
 from des_multi_agent.task_router_prompts import task_router_prompt
 
@@ -43,6 +46,40 @@ def test_parser_discards_invalid_candidate_entries():
     items = parse_candidate_brainstorms(raw)
     assert len(items) == 1
     assert items[0].smiles == "OCCO"
+
+
+def test_chemistry_assessment_prompt_mentions_rationale_and_warnings():
+    text = chemistry_assessment_prompt("CCO", "ctx", ["good memory note"])
+    assert "rationale" in text
+    assert "warnings" in text
+    assert "good memory note" in text
+
+
+def test_parse_chemistry_assessments_round_trips_json():
+    raw = (
+        '[{"smiles":"OCCO","decision":"keep","confidence":0.91,'
+        '"rationale":"Strong H-bonding motif","warnings":["phase separation risk"]}]'
+    )
+    items = parse_chemistry_assessments(raw)
+    assert len(items) == 1
+    assert items[0].smiles == "OCCO"
+    assert items[0].decision == "keep"
+    assert items[0].confidence == 0.91
+    assert items[0].warnings == ["phase separation risk"]
+
+
+def test_parse_chemistry_next_steps_round_trips_json():
+    raw = (
+        '[{"mode":"conservative","summary":"Tighten family set",'
+        '"rationale":"Keep search narrow"},'
+        '{"mode":"exploratory","summary":"Shift donor families",'
+        '"rationale":"Probe nearby chemistry"}]'
+    )
+    items = parse_chemistry_next_steps(raw)
+    assert [item.mode for item in items] == ["conservative", "exploratory"]
+    assert items[0].summary == "Tighten family set"
+    assert items[1].rationale == "Probe nearby chemistry"
+
 
 
 def test_parser_discards_invalid_explanation_entries():

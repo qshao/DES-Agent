@@ -52,3 +52,19 @@ class LigandFamily:
     name: str            # e.g., "aminocarboxylates", "catecholates"
     rationale: str       # why this family binds well to the target metal
     coordination_mode: str  # e.g., "bidentate N,O-chelator"
+
+
+@dataclass(frozen=True)
+class ChemistryAssessment:
+    smiles: str
+    decision: str
+    confidence: float
+    rationale: str
+    warnings: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class ChemistryNextStep:
+    mode: str
+    summary: str
+    rationale: str

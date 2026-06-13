@@ -5,7 +5,7 @@ import re
 from typing import Any
 
 from .errors import LLMSchemaError, payload_excerpt
-from .schemas import CandidateBrainstorm, CandidateFamily, CandidateReview, ContradictionNote, CritiqueNote, ExplanationNote, LigandFamily
+from .schemas import CandidateBrainstorm, CandidateFamily, CandidateReview, ChemistryAssessment, ChemistryNextStep, ContradictionNote, CritiqueNote, ExplanationNote, LigandFamily
 
 
 def _strip_code_fences(raw: str) -> str:
@@ -200,4 +200,48 @@ def parse_ligand_families(raw: str) -> list[LigandFamily]:
         if not coordination_mode:
             coordination_mode = "unspecified"
         out.append(LigandFamily(name=name, rationale=rationale, coordination_mode=coordination_mode))
+    return out
+
+
+def parse_chemistry_assessments(raw: str) -> list[ChemistryAssessment]:
+    data = _coerce_json(raw)
+    if not isinstance(data, list):
+        return []
+    out: list[ChemistryAssessment] = []
+    for item in data:
+        if not isinstance(item, dict):
+            continue
+        smiles = str(item.get("smiles", "")).strip()
+        decision = str(item.get("decision", "")).strip().lower()
+        rationale = str(item.get("rationale", "")).strip()
+        if not smiles or not decision or not rationale:
+            continue
+        warnings = _normalize_list(item.get("warnings"))
+        confidence = float(item.get("confidence", 0.0))
+        out.append(
+            ChemistryAssessment(
+                smiles=smiles,
+                decision=decision,
+                confidence=confidence,
+                rationale=rationale,
+                warnings=warnings,
+            )
+        )
+    return out
+
+
+def parse_chemistry_next_steps(raw: str) -> list[ChemistryNextStep]:
+    data = _coerce_json(raw)
+    if not isinstance(data, list):
+        return []
+    out: list[ChemistryNextStep] = []
+    for item in data:
+        if not isinstance(item, dict):
+            continue
+        mode = str(item.get("mode", "")).strip().lower()
+        summary = str(item.get("summary", "")).strip()
+        rationale = str(item.get("rationale", "")).strip()
+        if not mode or not summary or not rationale:
+            continue
+        out.append(ChemistryNextStep(mode=mode, summary=summary, rationale=rationale))
     return out
