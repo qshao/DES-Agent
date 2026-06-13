@@ -29,7 +29,8 @@ def test_estimate_min_tm_uncertainty_runs_three_predictions(monkeypatch):
         ),
     )
 
-    def fake_predict_curve(component_a, component_b, t1_k, t2_k, checkpoint_path, config_path="ml_des_mp/config.yaml"):
+    def fake_predict_curve(component_a, component_b, t1_k, t2_k, checkpoint_path, config_path="ml_des_mp/config.yaml", mc_dropout=False):
+        assert mc_dropout is True  # uncertainty uses MC-dropout for real spread
         calls.append((component_a, component_b, t1_k, t2_k, str(checkpoint_path), str(config_path)))
         curves = [
             _FakeCurve(tm_pred_k=[300.0, 240.0, 310.0]),
@@ -72,7 +73,7 @@ def _run_with_input_confidence(monkeypatch, confidence: float):
         ),
     )
 
-    def fake_predict_curve(component_a, component_b, t1_k, t2_k, checkpoint_path, config_path="ml_des_mp/config.yaml"):
+    def fake_predict_curve(component_a, component_b, t1_k, t2_k, checkpoint_path, config_path="ml_des_mp/config.yaml", mc_dropout=False):
         return _FakeCurve(tm_pred_k=[300.0, 250.0, 310.0])
 
     monkeypatch.setattr(model, "predict_curve", fake_predict_curve)

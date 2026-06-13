@@ -146,6 +146,16 @@ def test_constant_component_a_embedded_once_across_candidates(monkeypatch, tmp_p
     assert sorted(embedder.embed_calls) == ["CCC", "CCN", "CCO", "O"]
 
 
+def test_enable_dropout_puts_dropout_in_train_mode():
+    import torch.nn as nn
+
+    model = nn.Sequential(nn.Linear(2, 2), nn.Dropout(0.5))
+    model.eval()
+    prediction._enable_dropout(model)
+    assert model[1].training is True   # dropout active
+    assert model[0].training is False  # other layers stay in eval
+
+
 def test_des_device_override_forces_cpu(monkeypatch, tmp_path):
     # config requests cuda, but the override must win regardless of GPU presence
     cfg_path, ckpt_path = _write_cfg(tmp_path, device="cuda")

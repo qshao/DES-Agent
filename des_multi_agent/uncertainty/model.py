@@ -55,6 +55,7 @@ def estimate_min_tm_uncertainty(
             t2_k=t2,
             checkpoint_path=checkpoint_path,
             config_path=config_path,
+            mc_dropout=True,
         )
         if not curve.tm_pred_k:
             raise ValueError("Predicted curve did not contain any melting-temperature values")

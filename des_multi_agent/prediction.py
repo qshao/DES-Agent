@@ -213,6 +213,17 @@ def _load_embedder(cfg: Dict[str, Any], device: torch.device) -> EmbedderBundle:
     raise ValueError(f"Unknown embedding method: {method}")
 
 
+def _enable_dropout(model) -> None:
+    """Put only the Dropout layers into training mode (MC-dropout).
+
+    The rest of the model stays in eval mode, so repeated forward passes draw
+    stochastic samples that quantify epistemic uncertainty.
+    """
+    for module in model.modules():
+        if isinstance(module, torch.nn.Dropout):
+            module.train()
+
+
 def _predict_Tm_from_params(d1, d2, W, T1, T2, r, R=8.314):
     eps = 1e-8
     r_c = torch.clamp(r, min=eps, max=1.0 - eps)
@@ -270,6 +281,7 @@ def predict_curve(
     t2_k: float,
     checkpoint_path: str | Path,
     config_path: str | Path = Path("ml_des_mp") / "config.yaml",
+    mc_dropout: bool = False,
 ) -> CurvePrediction:
     config_path = resolve_existing_path(config_path)
     checkpoint_path = resolve_existing_path(checkpoint_path, base_dir=config_path.parent)
@@ -292,9 +304,18 @@ def predict_curve(
 
     ratios = build_ratio_grid()
     with torch.no_grad():
-        d1, d2, w = model.forward_params(x1, x2)
-        r = torch.tensor(ratios, device=device, dtype=d1.dtype)
-        tm = _predict_Tm_from_params(d1, d2, w, t1, t2, r)
+        # MC-dropout draws one stochastic sample per call; the model is cached
+        # and shared, so restore eval mode afterwards to avoid leaking train mode
+        # into deterministic callers.
+        if mc_dropout:
+            _enable_dropout(model)
+        try:
+            d1, d2, w = model.forward_params(x1, x2)
+            r = torch.tensor(ratios, device=device, dtype=d1.dtype)
+            tm = _predict_Tm_from_params(d1, d2, w, t1, t2, r)
+        finally:
+            if mc_dropout:
+                model.eval()
     tm_pred_k = [float(v) for v in tm.tolist()]
 
     return CurvePrediction(
