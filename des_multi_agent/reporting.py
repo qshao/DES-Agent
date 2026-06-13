@@ -186,6 +186,16 @@ def format_report(
             f"spread={annotation.uncertainty.min_tm_k:.2f}-{annotation.uncertainty.max_tm_k:.2f} K | "
             f"std={annotation.uncertainty.std_tm_k:.2f} K | {confidence} | {r.rationale}{ensemble_note}"
         )
+    nonphysical = [r for r in results if getattr(r, "eutectic_physical", True) is False]
+    if nonphysical:
+        lines.append("")
+        lines.append("Physical sanity — non-physical eutectic (predicted Tm above both pure components):")
+        for r in nonphysical:
+            label = display_name(r.curve.smiles_b) if resolve_names else r.curve.smiles_b
+            t1 = getattr(r.curve, "t1_k", None)
+            t2 = getattr(r.curve, "t2_k", None)
+            pure = f"min(T1,T2)={min(t1, t2):.1f} K" if t1 is not None and t2 is not None else "pure Tm"
+            lines.append(f"- {label}: min Tm {r.min_tm_k:.1f} K > {pure} — treat prediction with caution")
     tm_provenance_lines = _format_tm_provenance(results, resolve_names=resolve_names)
     if tm_provenance_lines:
         lines.append("")

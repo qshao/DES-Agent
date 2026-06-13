@@ -15,6 +15,9 @@ class DesResult:
     rationale: str
     min_tm_k: float
     eutectic_ratio_b: float = 0.5
+    # False when the predicted eutectic Tm exceeds both pure-component melting
+    # points, which is physically impossible (a model/input red flag).
+    eutectic_physical: bool = True
     # Provenance of the pure-component melting points the curve was anchored on
     # (attached by the orchestrator). None when not resolved through the layered
     # resolver, e.g. in programmatic/test construction.
@@ -33,6 +36,7 @@ def classify_des(curve: CurvePrediction, thresholds: DesThresholds) -> DesResult
     relative_drop = (baseline - min_tm) / baseline if baseline else 0.0
     relative_pass = relative_drop >= thresholds.relative_drop_min
     is_des = absolute_pass and relative_pass
+    eutectic_physical = min_tm <= baseline
     rationale = (
         f"min Tm={min_tm:.2f} K, absolute<= {thresholds.absolute_tm_max_k:.2f} K, "
         f"relative_drop={relative_drop:.3f}"
@@ -45,4 +49,5 @@ def classify_des(curve: CurvePrediction, thresholds: DesThresholds) -> DesResult
         rationale=rationale,
         min_tm_k=min_tm,
         eutectic_ratio_b=eutectic_ratio_b,
+        eutectic_physical=eutectic_physical,
     )

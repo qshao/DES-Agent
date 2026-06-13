@@ -3,12 +3,18 @@ from __future__ import annotations
 from statistics import mean, pstdev
 from typing import Final
 
+import torch
+
 from ..prediction import predict_curve
 from ..property_resolution import resolve_melting_point
 from .schemas import MinimumTmUncertainty
 
 
 _N_REPEATS: Final[int] = 3
+# Seed the MC-dropout sampling so the uncertainty estimate is reproducible across
+# runs (the draws are fixed); the global RNG state is saved and restored so this
+# does not perturb other randomness.
+_MC_SEED: Final[int] = 12345
 
 
 def _trust_score(std_tm_k: float) -> float:
@@ -47,19 +53,24 @@ def estimate_min_tm_uncertainty(
     input_confidence = min(est_a.confidence, est_b.confidence)
 
     repeated_values: list[float] = []
-    for _ in range(_N_REPEATS):
-        curve = predict_curve(
-            component_a=component_a,
-            component_b=component_b,
-            t1_k=t1,
-            t2_k=t2,
-            checkpoint_path=checkpoint_path,
-            config_path=config_path,
-            mc_dropout=True,
-        )
-        if not curve.tm_pred_k:
-            raise ValueError("Predicted curve did not contain any melting-temperature values")
-        repeated_values.append(min(curve.tm_pred_k))
+    _rng_state = torch.get_rng_state()
+    torch.manual_seed(_MC_SEED)
+    try:
+        for _ in range(_N_REPEATS):
+            curve = predict_curve(
+                component_a=component_a,
+                component_b=component_b,
+                t1_k=t1,
+                t2_k=t2,
+                checkpoint_path=checkpoint_path,
+                config_path=config_path,
+                mc_dropout=True,
+            )
+            if not curve.tm_pred_k:
+                raise ValueError("Predicted curve did not contain any melting-temperature values")
+            repeated_values.append(min(curve.tm_pred_k))
+    finally:
+        torch.set_rng_state(_rng_state)
 
     mean_tm_k = mean(repeated_values)
     std_tm_k = pstdev(repeated_values) if len(repeated_values) > 1 else 0.0
