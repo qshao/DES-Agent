@@ -185,6 +185,22 @@ def _iter_run_memories(memory: RunMemory | Sequence[RunMemory] | None) -> list[R
     return list(memory)
 
 
+def build_chemistry_advisor_memory_notes(memory: RunMemory | Sequence[RunMemory] | None) -> list[str]:
+    notes: list[str] = []
+    for item in _iter_run_memories(memory):
+        if item.labels:
+            good = [label.smiles_b for label in item.labels if label.label == "good"]
+            bad = [label.smiles_b for label in item.labels if label.label == "bad"]
+            if good:
+                notes.append(f"Prior good labels: {', '.join(good[:5])}")
+            if bad:
+                notes.append(f"Prior bad labels: {', '.join(bad[:5])}")
+        if item.ranked_candidates:
+            top = ", ".join(candidate.smiles_b for candidate in item.ranked_candidates[:3])
+            notes.append(f"Prior top ranked candidates: {top}")
+    return notes
+
+
 def apply_run_memory_preferences(
     annotated_results: list[AnnotatedResult],
     memory: RunMemory | Sequence[RunMemory] | None,

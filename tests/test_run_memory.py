@@ -7,6 +7,7 @@ from des_multi_agent.memory_schema import RunCandidateSummary
 from des_multi_agent.prediction import CurvePrediction
 from des_multi_agent.run_memory import (
     apply_run_memory_preferences,
+    build_chemistry_advisor_memory_notes,
     load_run_memory,
     load_run_memory_history,
     parse_run_memory,
@@ -149,6 +150,25 @@ def test_write_run_memory_round_trips(tmp_path: Path):
 
     loaded = load_run_memory(memory_path)
     assert loaded == memory
+
+
+def test_build_chemistry_advisor_memory_notes_compacts_prior_run_memory():
+    memory = parse_run_memory(
+        {
+            "workflow": "des",
+            "component_a": "CCO",
+            "n": 20,
+            "labels": [{"smiles_b": "O", "label": "good"}, {"smiles_b": "CC(=O)O", "label": "bad"}],
+            "ranked_candidates": [
+                {"smiles_b": "O", "rank": 1, "min_tm_k": 208.69, "trust_score": 0.95, "uncertainty_flag": "low", "source": "heuristic", "source_id": ""},
+                {"smiles_b": "CC(=O)O", "rank": 2, "min_tm_k": 236.03, "trust_score": 0.83, "uncertainty_flag": "low", "source": "heuristic", "source_id": ""},
+            ],
+        }
+    )
+    notes = build_chemistry_advisor_memory_notes(memory)
+    assert any(note.startswith("Prior good labels:") for note in notes)
+    assert any(note.startswith("Prior bad labels:") for note in notes)
+    assert any(note.startswith("Prior top ranked candidates:") for note in notes)
 
 
 def test_run_memory_bumps_preferred_candidate():

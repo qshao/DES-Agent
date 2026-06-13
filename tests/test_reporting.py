@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 
+from des_multi_agent.llm.schemas import ChemistryAssessment, ChemistryNextStep
 from des_multi_agent.reporting import format_metal_binding_report, format_report
 from des_multi_agent.workflows.metal_binding import MetalBindingOutcome
 
@@ -20,3 +21,33 @@ def test_format_metal_binding_report():
     report = format_metal_binding_report(outcome)
     assert "metal_ion | ligand_smiles | value | units | model | source" in report
     assert "Cu2+ | NCCN | 6.78" in report
+
+
+def test_format_report_includes_chemistry_advisor_sections():
+    output = format_report(
+        [],
+        advisor_assessments=[
+            ChemistryAssessment(
+                smiles="OCCO",
+                decision="keep",
+                confidence=0.91,
+                rationale="Strong H-bonding motif",
+                warnings=["phase separation risk"],
+            )
+        ],
+        advisor_next_steps=[
+            ChemistryNextStep(
+                mode="conservative",
+                summary="Tighten family set",
+                rationale="Keep search narrow",
+            ),
+            ChemistryNextStep(
+                mode="exploratory",
+                summary="Shift donor families",
+                rationale="Probe nearby chemistry",
+            ),
+        ],
+    )
+    assert "LLM chemistry advisor:" in output
+    assert "LLM next steps:" in output
+    assert "phase separation risk" in output

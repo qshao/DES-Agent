@@ -5,7 +5,7 @@ import io
 import json
 from collections.abc import Sequence
 
-from .llm.schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, ExplanationNote
+from .llm.schemas import CandidateBrainstorm, CandidateReview, ChemistryAssessment, ChemistryNextStep, CritiqueNote, ExplanationNote
 from .predictors.designsolvents import ViscosityPrediction
 from .schemas import CandidateProposal
 from .smiles_names import display_name
@@ -146,6 +146,8 @@ def format_report(
     resolve_names: bool = True,
     show_curves: bool = False,
     contradiction_notes=None,
+    advisor_assessments: Sequence[ChemistryAssessment] | None = None,
+    advisor_next_steps: Sequence[ChemistryNextStep] | None = None,
 ) -> str:
     proposal_by_smiles = {item.smiles: item for item in candidate_proposals or []}
     annotation_by_smiles = {item.result.curve.smiles_b: item for item in annotated_results or []}
@@ -237,6 +239,17 @@ def format_report(
                 f"{pred.metadata.get('component_a', '?')} | {pred.metadata.get('component_b', '?')} | "
                 f"{pred.value:.2f} | {pred.units} | {pred.model_name} | {pred.source}"
             )
+    if advisor_assessments:
+        lines.append("")
+        lines.append("LLM chemistry advisor:")
+        for note in advisor_assessments:
+            warnings = "; ".join(note.warnings) if note.warnings else "-"
+            lines.append(f"{note.smiles} | {note.decision} | {note.rationale} | {warnings}")
+    if advisor_next_steps:
+        lines.append("")
+        lines.append("LLM next steps:")
+        for step in advisor_next_steps:
+            lines.append(f"{step.mode} | {step.summary} | {step.rationale}")
     if llm_warnings:
         lines.append("")
         lines.append("Warnings:")

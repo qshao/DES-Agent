@@ -13,10 +13,10 @@ from .exporting import export_des_run_bundle
 from .reporting import format_report
 from .evaluation import DesResult, classify_des
 from .llm.factory import build_llm_provider
-from .llm.schemas import CandidateBrainstorm, CandidateReview, ContradictionNote, CritiqueNote, ExplanationNote
+from .llm.schemas import CandidateBrainstorm, CandidateReview, ChemistryAssessment, ChemistryNextStep, ContradictionNote, CritiqueNote, ExplanationNote
 from .paths import resolve_existing_path
 from .prediction import predict_curve, predict_curve_ensemble
-from .run_memory import apply_run_memory_preferences, build_run_memory, load_run_memory_history, write_run_memory
+from .run_memory import apply_run_memory_preferences, build_chemistry_advisor_memory_notes, build_run_memory, load_run_memory_history, write_run_memory
 from .predictors.designsolvents import ViscosityPrediction, predict_viscosity
 from .property_resolution import resolve_melting_point
 from .ranking import rank_results, rank_results_composite
@@ -43,6 +43,8 @@ class SearchOutcome:
     llm_warnings: list[str]
     contradiction_notes: list[ContradictionNote] = field(default_factory=list)
     memory_notes: list[str] = field(default_factory=list)
+    advisor_assessments: list[ChemistryAssessment] = field(default_factory=list)
+    advisor_next_steps: list[ChemistryNextStep] = field(default_factory=list)
     viscosity_predictions: list[ViscosityPrediction] = field(default_factory=list)
     report_text: str = ""
 
@@ -120,6 +122,21 @@ def _build_prior_productive_family_summary(family_ledger: dict[str, int] | None,
     return dict(sorted(family_ledger.items(), key=lambda item: (-item[1], item[0]))[:limit])
 
 
+
+
+def _build_chemistry_advisor_context(base_context: str, annotated_results: list[AnnotatedResult], memory_notes: list[str]) -> str:
+    lines = [base_context]
+    if memory_notes:
+        lines.append("Prior run memory:")
+        lines.extend(f"  - {note}" for note in memory_notes[:6])
+    if annotated_results:
+        lines.append("Top ranked results:")
+        for item in annotated_results[:5]:
+            lines.append(
+                f"  - {item.result.curve.smiles_b}: min_tm_k={item.result.min_tm_k:.1f} K, "
+                f"trust={item.trust_score:.2f}, is_des={item.result.is_des}"
+            )
+    return "\n".join(lines)
 def _fallback_uncertainty(
     component_a: str,
     component_b: str,
@@ -505,6 +522,7 @@ def run_search_report(
     annotated_results = apply_uncertainty_policy(ranked, uncertainty_by_smiles, policy)
     annotated_results = _apply_review_penalties(annotated_results, review_penalties)
     memory_notes: list[str] = list(all_dedup_notes)
+    reuse_memories = []
     if reuse_run_path:
         reuse_memories = load_run_memory_history(reuse_run_path)
         annotated_results, reuse_notes = apply_run_memory_preferences(
@@ -533,6 +551,22 @@ def run_search_report(
             contradiction_notes = provider.detect_contradictions(final_results, review_context)
         except Exception as exc:
             llm_warnings.append(f"LLM contradiction detection failed: {exc}")
+    advisor_memory_notes = build_chemistry_advisor_memory_notes(reuse_memories)
+    advisor_assessments: list[ChemistryAssessment] = []
+    advisor_next_steps: list[ChemistryNextStep] = []
+    if provider is not None and annotated_results:
+        advisor_context = _build_chemistry_advisor_context(review_context, annotated_results, advisor_memory_notes)
+        for item in annotated_results[: min(5, len(annotated_results))]:
+            try:
+                advisor_assessments.extend(
+                    provider.assess_candidate_chemistry(item.result.curve.smiles_b, advisor_context, advisor_memory_notes)
+                )
+            except Exception as exc:
+                llm_warnings.append(f"LLM chemistry assessment failed for {item.result.curve.smiles_b}: {exc}")
+        try:
+            advisor_next_steps = provider.suggest_next_steps(advisor_context, advisor_memory_notes)
+        except Exception as exc:
+            llm_warnings.append(f"LLM chemistry next-step guidance failed: {exc}")
     if save_run_memory_path:
         memory = build_run_memory(
             component_a=component_a,
@@ -553,6 +587,8 @@ def run_search_report(
         llm_warnings=llm_warnings,
         contradiction_notes=contradiction_notes,
         memory_notes=memory_notes,
+        advisor_assessments=advisor_assessments,
+        advisor_next_steps=advisor_next_steps,
         viscosity_predictions=viscosity_predictions,
     )
     _progress(6, "Building report...")
@@ -568,6 +604,8 @@ def run_search_report(
         memory_notes=memory_notes,
         viscosity_predictions=viscosity_predictions,
         contradiction_notes=contradiction_notes,
+        advisor_assessments=advisor_assessments,
+        advisor_next_steps=advisor_next_steps,
     )
     export_output_dir = _resolve_des_output_dir(output_dir, save_run_memory_path)
     if export_output_dir is not None:

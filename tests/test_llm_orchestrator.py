@@ -1,6 +1,6 @@
 from des_multi_agent import orchestrator
 from des_multi_agent.evaluation import DesResult
-from des_multi_agent.llm.schemas import CandidateBrainstorm, CandidateReview, CritiqueNote, ExplanationNote
+from des_multi_agent.llm.schemas import CandidateBrainstorm, CandidateReview, ChemistryAssessment, ChemistryNextStep, CritiqueNote, ExplanationNote
 from des_multi_agent.prediction import CurvePrediction
 from des_multi_agent.schemas import CandidateProposal, MeltingPointEstimate
 from des_multi_agent.uncertainty import AnnotatedResult, MinimumTmUncertainty
@@ -28,6 +28,31 @@ class _FakeLLM:
     def detect_contradictions(self, results, context):
         return []
 
+    def assess_candidate_chemistry(self, candidate_smiles, context, memory_notes=None):
+        return [
+            ChemistryAssessment(
+                smiles=candidate_smiles,
+                decision="keep",
+                confidence=0.8,
+                rationale="chemistry looks plausible",
+                warnings=["demo caveat"],
+            )
+        ]
+
+    def suggest_next_steps(self, context, memory_notes=None):
+        return [
+            ChemistryNextStep(
+                mode="conservative",
+                summary="Tighten family set",
+                rationale="keep search narrow",
+            ),
+            ChemistryNextStep(
+                mode="exploratory",
+                summary="Shift donor families",
+                rationale="probe nearby chemistry",
+            ),
+        ]
+
 
 class _FailingLLM:
     def review_candidate(self, component_a, candidate_smiles, context):
@@ -43,6 +68,12 @@ class _FailingLLM:
         raise RuntimeError("boom")
 
     def detect_contradictions(self, results, context):
+        raise RuntimeError("boom")
+
+    def assess_candidate_chemistry(self, candidate_smiles, context, memory_notes=None):
+        raise RuntimeError("boom")
+
+    def suggest_next_steps(self, context, memory_notes=None):
         raise RuntimeError("boom")
 
 
@@ -341,3 +372,67 @@ def test_build_prior_productive_family_summary_limits_to_top_counts():
 
     summary = _build_prior_productive_family_summary({"polyol": 4, "amide": 2, "acid": 1, "amine": 1})
     assert summary == {"polyol": 4, "amide": 2, "acid": 1}
+
+
+def test_llm_advisor_sections_are_collected(monkeypatch):
+    monkeypatch.setattr(orchestrator, "build_llm_provider", lambda cfg, request_fn=None: _FakeLLM())
+    monkeypatch.setattr(
+        orchestrator,
+        "generate_candidates",
+        lambda component_a, n, constraints=None: [CandidateProposal(smiles="O", rationale="baseline", family="alcohol")],
+    )
+    monkeypatch.setattr(orchestrator, "filter_candidates", lambda component_a, candidates: candidates)
+    monkeypatch.setattr(
+        orchestrator,
+        "resolve_melting_point",
+        lambda component, override_k=None: MeltingPointEstimate(
+            component=component,
+            tm_k=300.0,
+            source="heuristic",
+            confidence=0.5,
+        ),
+    )
+    monkeypatch.setattr(
+        orchestrator,
+        "predict_curve",
+        lambda *args, **kwargs: CurvePrediction(
+            smiles_a="CCO",
+            smiles_b="O",
+            ratios=[0.1],
+            tm_pred_k=[250.0],
+            t1_k=300.0,
+            t2_k=300.0,
+            checkpoint_path="ckpt.pt",
+        ),
+    )
+    monkeypatch.setattr(
+        orchestrator,
+        "classify_des",
+        lambda curve, thresholds: DesResult(
+            curve=curve,
+            absolute_pass=True,
+            relative_pass=True,
+            is_des=True,
+            rationale="ok",
+            min_tm_k=250.0,
+        ),
+    )
+    monkeypatch.setattr(orchestrator, "rank_results", lambda results: results)
+
+    outcome = orchestrator.run_search_report(
+        component_a="CCO",
+        n=1,
+        checkpoint_path="ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt",
+        llm_cfg={
+            "enabled": True,
+            "provider": "ollama",
+            "model_name": "llama3.1",
+            "api_base_url": "http://localhost:11434",
+        },
+    )
+
+    assert outcome.advisor_assessments
+    assert outcome.advisor_next_steps
+    assert any(step.mode == "conservative" for step in outcome.advisor_next_steps)
+    assert any(step.mode == "exploratory" for step in outcome.advisor_next_steps)
+    assert "LLM chemistry advisor:" in outcome.report_text
