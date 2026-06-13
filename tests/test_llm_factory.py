@@ -138,3 +138,17 @@ def test_provider_receives_diversity_controls():
     assert provider.diversity_mode == "exploit"
     assert provider.max_families == 4
     assert provider.family_bias_strength == 0.75
+
+
+def test_provider_exposes_chemistry_advisor_methods():
+    provider = build_llm_provider(
+        {
+            "enabled": True,
+            "provider": "ollama",
+            "model_name": "gemma4:12b",
+            "api_base_url": "http://localhost:11434",
+        },
+        request_fn=lambda *args, **kwargs: '{"message":{"content":"[]"}}',
+    )
+    assert hasattr(provider, "assess_candidate_chemistry")
+    assert hasattr(provider, "suggest_next_steps")

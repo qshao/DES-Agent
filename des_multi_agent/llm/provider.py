@@ -4,7 +4,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 from ..evaluation import DesResult
-from .schemas import CandidateBrainstorm, CandidateFamily, CandidateReview, ContradictionNote, CritiqueNote, ExplanationNote
+from .schemas import CandidateBrainstorm, CandidateFamily, CandidateReview, ChemistryAssessment, ChemistryNextStep, ContradictionNote, CritiqueNote, ExplanationNote
 
 
 class LLMProvider(ABC):
@@ -54,4 +54,21 @@ class LLMProvider(ABC):
 
     @abstractmethod
     def detect_contradictions(self, results: list[DesResult], context: str) -> list[ContradictionNote]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def assess_candidate_chemistry(
+        self,
+        candidate_smiles: str,
+        context: str,
+        memory_notes: list[str] | None = None,
+    ) -> list[ChemistryAssessment]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def suggest_next_steps(
+        self,
+        context: str,
+        memory_notes: list[str] | None = None,
+    ) -> list[ChemistryNextStep]:
         raise NotImplementedError

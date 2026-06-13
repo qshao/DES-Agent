@@ -7,11 +7,11 @@ from urllib.parse import urlencode, urlsplit, urlunsplit, parse_qsl
 
 from ..evaluation import DesResult
 from .client import post_json_chat
-from .parser import parse_candidate_brainstorms, parse_candidate_families, parse_candidate_review, parse_contradiction_notes, parse_critique_notes, parse_explanation_notes, parse_ligand_families
-from .prompts import candidate_brainstorm_prompt, candidate_review_prompt, contradiction_prompt, critique_prompt, explanation_prompt, family_selection_prompt, ligand_brainstorm_prompt, ligand_family_selection_prompt, ligand_review_prompt, ligand_selectivity_brainstorm_prompt
+from .parser import parse_candidate_brainstorms, parse_candidate_families, parse_candidate_review, parse_chemistry_assessments, parse_chemistry_next_steps, parse_contradiction_notes, parse_critique_notes, parse_explanation_notes, parse_ligand_families
+from .prompts import candidate_brainstorm_prompt, candidate_review_prompt, chemistry_assessment_prompt, chemistry_next_step_prompt, contradiction_prompt, critique_prompt, explanation_prompt, family_selection_prompt, ligand_brainstorm_prompt, ligand_family_selection_prompt, ligand_review_prompt, ligand_selectivity_brainstorm_prompt
 from ..task_router_prompts import task_router_prompt
 from .provider import LLMProvider
-from .schemas import CandidateBrainstorm, CandidateFamily, CandidateReview, ContradictionNote, CritiqueNote, ExplanationNote, LigandFamily
+from .schemas import CandidateBrainstorm, CandidateFamily, CandidateReview, ChemistryAssessment, ChemistryNextStep, ContradictionNote, CritiqueNote, ExplanationNote, LigandFamily
 from .specs import RequestProfile
 from .transport import RequestTransport
 
@@ -142,6 +142,23 @@ class BaseLLMProvider(LLMProvider):
     def detect_contradictions(self, results: list[DesResult], context: str) -> list[ContradictionNote]:
         raw = self._request(contradiction_prompt(results, context, len(results) or None))
         return parse_contradiction_notes(raw)
+
+    def assess_candidate_chemistry(
+        self,
+        candidate_smiles: str,
+        context: str,
+        memory_notes: list[str] | None = None,
+    ) -> list[ChemistryAssessment]:
+        raw = self._request(chemistry_assessment_prompt(candidate_smiles, context, memory_notes))
+        return parse_chemistry_assessments(raw)
+
+    def suggest_next_steps(
+        self,
+        context: str,
+        memory_notes: list[str] | None = None,
+    ) -> list[ChemistryNextStep]:
+        raw = self._request(chemistry_next_step_prompt(context, memory_notes))
+        return parse_chemistry_next_steps(raw)
 
     # ------------------------------------------------------------------
     # Metal-binding ligand methods
