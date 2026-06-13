@@ -1,23 +1,23 @@
 === RUN 1 ===
 === DES Search: ethanol (CCO) ===
 Screened 5 candidate(s). 5 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
-Top candidate: ethylene glycol (OCCO) — min Tm 201.7 K (Δ22.6%) | high confidence
+Top candidate: acetamide (CC(=O)N) — min Tm 238.9 K (Δ11.9%) | high confidence
 =================================
 
 compound | is_des | min_tm_k | eutectic_x_b | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
-ethylene glycol (OCCO) | True | 201.75 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=201.75 K | spread=201.75-201.75 K | std=0.00 K | high confidence | min Tm=201.75 K, absolute<= 260.00 K, relative_drop=0.226
-glycerol (OCC(O)CO) | True | 221.20 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=221.20 K | spread=221.20-221.20 K | std=0.00 K | high confidence | min Tm=221.20 K, absolute<= 260.00 K, relative_drop=0.184
-acetamide (CC(=O)N) | True | 238.92 | 0.50 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=238.92 K | spread=238.92-238.92 K | std=0.00 K | high confidence | min Tm=238.92 K, absolute<= 260.00 K, relative_drop=0.119
-acetic acid (CC(=O)O) | True | 239.56 | 0.40 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=239.56 K | spread=239.56-239.56 K | std=0.00 K | high confidence | min Tm=239.56 K, absolute<= 260.00 K, relative_drop=0.117
-water (O) | True | 225.27 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.35 | mean=225.27 K | spread=225.27-225.27 K | std=0.00 K | high confidence | min Tm=225.27 K, absolute<= 260.00 K, relative_drop=0.118
+acetamide (CC(=O)N) | True | 238.92 | 0.50 | source=heuristic; id=rule-based-family-library | trust=0.43 | mean=244.33 K | spread=243.67-244.84 K | std=0.49 K | high confidence | min Tm=238.92 K, absolute<= 260.00 K, relative_drop=0.119
+ethylene glycol (OCCO) | True | 201.75 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.41 | mean=205.11 K | spread=203.51-206.61 K | std=1.26 K | high confidence | min Tm=201.75 K, absolute<= 260.00 K, relative_drop=0.226
+acetic acid (CC(=O)O) | True | 239.56 | 0.40 | source=heuristic; id=rule-based-family-library | trust=0.38 | mean=239.54 K | spread=236.54-243.47 K | std=2.90 K | moderate confidence — consider experimental verification | min Tm=239.56 K, absolute<= 260.00 K, relative_drop=0.117
+glycerol (OCC(O)CO) | True | 221.20 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.38 | mean=218.16 K | spread=215.21-222.28 K | std=3.01 K | moderate confidence — consider experimental verification | min Tm=221.20 K, absolute<= 260.00 K, relative_drop=0.184
+water (O) | True | 225.27 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.31 | mean=225.81 K | spread=223.35-228.33 K | std=2.03 K | moderate confidence — consider experimental verification | min Tm=225.27 K, absolute<= 260.00 K, relative_drop=0.118
 
 Melting-point inputs:
 component | Tm_K | source | confidence
 ethanol (CCO) | 271.19 | heuristic | 0.35
-ethylene glycol (OCCO) | 260.60 | experimental | 0.95
-glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
 acetamide (CC(=O)N) | 354.06 | experimental | 0.95
+ethylene glycol (OCCO) | 260.60 | experimental | 0.95
 acetic acid (CC(=O)O) | 289.85 | experimental | 0.95
+glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
 water (O) | 255.36 | heuristic | 0.35
 summary:
 - command: des
@@ -29,23 +29,23 @@ summary:
 === RUN 2 ===
 === DES Search: ethanol (CCO) ===
 Screened 5 candidate(s). 5 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
-Top candidate: ethylene glycol (OCCO) — min Tm 201.7 K (Δ22.6%) | high confidence
+Top candidate: acetamide (CC(=O)N) — min Tm 238.9 K (Δ11.9%) | high confidence
 =================================
 
 compound | is_des | min_tm_k | eutectic_x_b | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
-ethylene glycol (OCCO) | True | 201.75 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=201.75 K | spread=201.75-201.75 K | std=0.00 K | high confidence | min Tm=201.75 K, absolute<= 260.00 K, relative_drop=0.226
-glycerol (OCC(O)CO) | True | 221.20 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=221.20 K | spread=221.20-221.20 K | std=0.00 K | high confidence | min Tm=221.20 K, absolute<= 260.00 K, relative_drop=0.184
-acetamide (CC(=O)N) | True | 238.92 | 0.50 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=238.92 K | spread=238.92-238.92 K | std=0.00 K | high confidence | min Tm=238.92 K, absolute<= 260.00 K, relative_drop=0.119
-acetic acid (CC(=O)O) | True | 239.56 | 0.40 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=239.56 K | spread=239.56-239.56 K | std=0.00 K | high confidence | min Tm=239.56 K, absolute<= 260.00 K, relative_drop=0.117
-water (O) | True | 225.27 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.35 | mean=225.27 K | spread=225.27-225.27 K | std=0.00 K | high confidence | min Tm=225.27 K, absolute<= 260.00 K, relative_drop=0.118
+acetamide (CC(=O)N) | True | 238.92 | 0.50 | source=heuristic; id=rule-based-family-library | trust=0.43 | mean=244.33 K | spread=243.67-244.84 K | std=0.49 K | high confidence | min Tm=238.92 K, absolute<= 260.00 K, relative_drop=0.119
+ethylene glycol (OCCO) | True | 201.75 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.41 | mean=205.11 K | spread=203.51-206.61 K | std=1.26 K | high confidence | min Tm=201.75 K, absolute<= 260.00 K, relative_drop=0.226
+acetic acid (CC(=O)O) | True | 239.56 | 0.40 | source=heuristic; id=rule-based-family-library | trust=0.38 | mean=239.54 K | spread=236.54-243.47 K | std=2.90 K | moderate confidence — consider experimental verification | min Tm=239.56 K, absolute<= 260.00 K, relative_drop=0.117
+glycerol (OCC(O)CO) | True | 221.20 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.38 | mean=218.16 K | spread=215.21-222.28 K | std=3.01 K | moderate confidence — consider experimental verification | min Tm=221.20 K, absolute<= 260.00 K, relative_drop=0.184
+water (O) | True | 225.27 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.31 | mean=225.81 K | spread=223.35-228.33 K | std=2.03 K | moderate confidence — consider experimental verification | min Tm=225.27 K, absolute<= 260.00 K, relative_drop=0.118
 
 Melting-point inputs:
 component | Tm_K | source | confidence
 ethanol (CCO) | 271.19 | heuristic | 0.35
-ethylene glycol (OCCO) | 260.60 | experimental | 0.95
-glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
 acetamide (CC(=O)N) | 354.06 | experimental | 0.95
+ethylene glycol (OCCO) | 260.60 | experimental | 0.95
 acetic acid (CC(=O)O) | 289.85 | experimental | 0.95
+glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
 water (O) | 255.36 | heuristic | 0.35
 summary:
 - command: des
@@ -56,13 +56,13 @@ summary:
 
 === LEADERBOARD ===
 rank | compound | min_tm_k | is_des | trust | uncertainty | runs
-1 | ethylene glycol (OCCO) | 201.75 K | True | 0.44 | low | 2
-2 | glycerol (OCC(O)CO) | 221.20 K | True | 0.44 | low | 2
-3 | water (O) | 225.27 K | True | 0.35 | low | 2
-4 | acetamide (CC(=O)N) | 238.92 K | True | 0.44 | low | 2
-5 | acetic acid (CC(=O)O) | 239.56 K | True | 0.44 | low | 2
+1 | ethylene glycol (OCCO) | 201.75 K | True | 0.41 | low | 2
+2 | glycerol (OCC(O)CO) | 221.20 K | True | 0.38 | medium | 2
+3 | water (O) | 225.27 K | True | 0.31 | medium | 2
+4 | acetamide (CC(=O)N) | 238.92 K | True | 0.43 | low | 2
+5 | acetic acid (CC(=O)O) | 239.56 K | True | 0.38 | medium | 2
 
 === HISTORY ===
 run_name | exported_at_utc | component_a | n_screened | n_des | top_candidate | top_min_tm_k
-run_01 | 2026-06-12T22:59:11.579451Z | CCO | 5 | 5 | OCCO | 201.75 K
-run_02 | 2026-06-12T22:59:15.226138Z | CCO | 5 | 5 | OCCO | 201.75 K
+run_01 | 2026-06-13T00:27:03.574301Z | CCO | 5 | 5 | OCCO | 201.75 K
+run_02 | 2026-06-13T00:27:07.219103Z | CCO | 5 | 5 | OCCO | 201.75 K

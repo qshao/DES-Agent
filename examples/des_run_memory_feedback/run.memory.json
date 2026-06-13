@@ -13,40 +13,40 @@
   "n": 5,
   "ranked_candidates": [
     {
-      "min_tm_k": 201.74786376953125,
-      "rank": 1,
-      "smiles_b": "OCCO",
-      "source": "heuristic",
-      "source_id": "rule-based-family-library",
-      "trust_score": 0.43999999999999995,
-      "uncertainty_flag": "low"
-    },
-    {
-      "min_tm_k": 221.20411682128906,
-      "rank": 2,
-      "smiles_b": "OCC(O)CO",
-      "source": "heuristic",
-      "source_id": "rule-based-family-library",
-      "trust_score": 0.43999999999999995,
-      "uncertainty_flag": "low"
-    },
-    {
       "min_tm_k": 238.92388916015625,
-      "rank": 3,
+      "rank": 1,
       "smiles_b": "CC(=O)N",
       "source": "heuristic",
       "source_id": "rule-based-family-library",
-      "trust_score": 0.43999999999999995,
+      "trust_score": 0.4286185036393708,
+      "uncertainty_flag": "low"
+    },
+    {
+      "min_tm_k": 201.74786376953125,
+      "rank": 2,
+      "smiles_b": "OCCO",
+      "source": "heuristic",
+      "source_id": "rule-based-family-library",
+      "trust_score": 0.41249396756686385,
       "uncertainty_flag": "low"
     },
     {
       "min_tm_k": 239.5615692138672,
-      "rank": 4,
+      "rank": 3,
       "smiles_b": "CC(=O)O",
       "source": "heuristic",
       "source_id": "rule-based-family-library",
-      "trust_score": 0.43999999999999995,
-      "uncertainty_flag": "low"
+      "trust_score": 0.38488230804712775,
+      "uncertainty_flag": "medium"
+    },
+    {
+      "min_tm_k": 221.20411682128906,
+      "rank": 4,
+      "smiles_b": "OCC(O)CO",
+      "source": "heuristic",
+      "source_id": "rule-based-family-library",
+      "trust_score": 0.38336426855616995,
+      "uncertainty_flag": "medium"
     },
     {
       "min_tm_k": 225.27220153808594,
@@ -54,8 +54,8 @@
       "smiles_b": "O",
       "source": "heuristic",
       "source_id": "rule-based-family-library",
-      "trust_score": 0.35,
-      "uncertainty_flag": "low"
+      "trust_score": 0.30858172984172666,
+      "uncertainty_flag": "medium"
     }
   ],
   "workflow": "des"
