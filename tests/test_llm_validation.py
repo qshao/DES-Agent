@@ -40,6 +40,67 @@ def test_custom_http_config_requires_model_and_base_url():
         cfg.validate()
 
 
+def test_llm_config_rejects_invalid_diversity_mode():
+    cfg = LLMConfig(
+        enabled=True,
+        provider="ollama",
+        model_name="gemma4:12b",
+        api_base_url="http://localhost:11434",
+        diversity_mode="novelty",
+    )
+    with pytest.raises(ValueError, match="Unsupported llm.diversity_mode"):
+        cfg.validate()
+
+
+def test_llm_config_rejects_non_positive_max_families():
+    cfg = LLMConfig(
+        enabled=True,
+        provider="ollama",
+        model_name="gemma4:12b",
+        api_base_url="http://localhost:11434",
+        max_families=0,
+    )
+    with pytest.raises(ValueError, match="llm.max_families must be positive"):
+        cfg.validate()
+
+
+def test_llm_config_rejects_bias_strength_out_of_range():
+    cfg = LLMConfig(
+        enabled=True,
+        provider="ollama",
+        model_name="gemma4:12b",
+        api_base_url="http://localhost:11434",
+        family_bias_strength=1.5,
+    )
+    with pytest.raises(ValueError, match="llm.family_bias_strength must be in"):
+        cfg.validate()
+
+
+def test_llm_config_accepts_diversity_control_boundaries():
+    low = LLMConfig(
+        enabled=True,
+        provider="ollama",
+        model_name="gemma4:12b",
+        api_base_url="http://localhost:11434",
+        diversity_mode="Balanced",
+        max_families=1,
+        family_bias_strength=0.0,
+    )
+    high = LLMConfig(
+        enabled=True,
+        provider="ollama",
+        model_name="gemma4:12b",
+        api_base_url="http://localhost:11434",
+        diversity_mode="exploit",
+        max_families=3,
+        family_bias_strength=1.0,
+    )
+    low.validate()
+    high.validate()
+    assert low.diversity_mode == "balanced"
+    assert high.diversity_mode == "exploit"
+
+
 def test_cli_loads_nested_llm_config(tmp_path):
     cfg_path = tmp_path / "llm.yaml"
     cfg_path.write_text(

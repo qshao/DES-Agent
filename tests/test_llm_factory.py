@@ -120,3 +120,21 @@ def test_disabled_provider_can_ignore_unknown_provider_name():
 def test_provider_rejects_unknown_provider():
     with pytest.raises(ValueError, match="Unsupported"):
         build_llm_provider({"enabled": True, "provider": "unknown"})
+
+
+def test_provider_receives_diversity_controls():
+    provider = build_llm_provider(
+        {
+            "enabled": True,
+            "provider": "ollama",
+            "model_name": "gemma4:12b",
+            "api_base_url": "http://localhost:11434",
+            "diversity_mode": "exploit",
+            "max_families": 4,
+            "family_bias_strength": 0.75,
+        },
+        request_fn=lambda *args, **kwargs: '{"message":{"content":"[]"}}',
+    )
+    assert provider.diversity_mode == "exploit"
+    assert provider.max_families == 4
+    assert provider.family_bias_strength == 0.75

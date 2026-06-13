@@ -16,7 +16,7 @@ class _FakeLLM:
             notes=["demo review"],
         )
 
-    def brainstorm_candidates(self, component_a, constraints, context):
+    def brainstorm_candidates(self, component_a, constraints, context, **kwargs):
         return [CandidateBrainstorm(smiles="OCCO", rationale="polyol", family="polyol")]
 
     def generate_explanations(self, results, context):
@@ -33,7 +33,7 @@ class _FailingLLM:
     def review_candidate(self, component_a, candidate_smiles, context):
         raise RuntimeError("boom")
 
-    def brainstorm_candidates(self, component_a, constraints, context):
+    def brainstorm_candidates(self, component_a, constraints, context, **kwargs):
         raise RuntimeError("boom")
 
     def generate_explanations(self, results, context):
@@ -334,3 +334,10 @@ def test_review_top_candidates_ignores_wrong_smiles():
     assert reviews == []
     assert review_map == {}
     assert warnings and "wrong SMILES" in warnings[0]
+
+
+def test_build_prior_productive_family_summary_limits_to_top_counts():
+    from des_multi_agent.orchestrator import _build_prior_productive_family_summary
+
+    summary = _build_prior_productive_family_summary({"polyol": 4, "amide": 2, "acid": 1, "amine": 1})
+    assert summary == {"polyol": 4, "amide": 2, "acid": 1}

@@ -75,7 +75,7 @@ def test_brainstorm_calls_family_selection_first(monkeypatch):
 
     provider = _StubProvider.__new__(_StubProvider)
 
-    def _fake_families(component_a, constraints, context):
+    def _fake_families(component_a, constraints, context, **kwargs):
         call_order.append("families")
         return [CandidateFamily(name="polyols", rationale="HBD.", hbd_hba_role="HBD")]
 
@@ -275,3 +275,41 @@ def test_multi_cycle_accumulates_family_ledger_across_cycles(monkeypatch, tmp_pa
     delta2 = result.cycle_deltas[1]
     assert delta1.family_ledger.get("polyols", 0) >= 1
     assert delta2.family_ledger.get("amides", 0) >= 1
+
+
+def test_family_selection_prompt_includes_balanced_diversity_guidance():
+    from des_multi_agent.llm.prompts import family_selection_prompt
+
+    text = family_selection_prompt(
+        "CCO",
+        None,
+        "ctx",
+        max_families=4,
+        diversity_mode="balanced",
+        family_bias_strength=0.5,
+        prior_productive_families={"polyol": 3, "amide": 1},
+    )
+    assert "Diversity mode: balanced" in text
+    assert "mix of productive and novel families" in text
+    assert "polyol" in text
+    assert "amide" in text
+    assert "Return at most 4 families." in text
+
+
+def test_candidate_brainstorm_prompt_includes_explore_guidance():
+    from des_multi_agent.llm.prompts import candidate_brainstorm_prompt
+
+    text = candidate_brainstorm_prompt(
+        "CCO",
+        None,
+        "ctx",
+        max_items=8,
+        families=[],
+        diversity_mode="explore",
+        family_bias_strength=0.2,
+        prior_productive_families={"polyol": 2},
+    )
+    assert "Diversity mode: explore" in text
+    assert "chemically distinct families" in text
+    assert "polyol" in text
+    assert "Return at most 8 items." in text

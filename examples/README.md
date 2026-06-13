@@ -62,6 +62,16 @@ The LLM-backed examples also include a model-specific `llm.*.yaml` file.
 
 The DES examples call the shared demo entrypoint. In LLM-enabled runs, candidates are reviewed one by one and the brainstorm is two-stage: the LLM first selects chemical families (polyols, amides, imidazolium salts, …), then distributes candidates across those families for better chemical diversity. The LLM also examines each ML prediction for chemical plausibility and reports `agree`, `conflict`, or `uncertain` per candidate.
 
+LLM-backed DES examples also respect the diversity controls in the YAML config:
+
+- `diversity_mode: balanced` is the default
+- `diversity_mode: explore` broadens chemical variety
+- `diversity_mode: exploit` narrows the search toward prior productive families
+- `max_families` caps the family-selection stage
+- `family_bias_strength` controls how strongly prior productive families influence later cycles
+
+These settings steer brainstorm diversity only. The final DES ranking still comes from the deterministic model and the normal filters.
+
 DES runs can also write into a standard flat run directory with `--output-dir runs/run_001`. That folder becomes the canonical home for `report.txt`, `run.json`, `run.csv`, and `run.manifest.json`. With `--n-cycles N`, each cycle gets its own subdirectory (`cycle_01/`, `cycle_02/`, …) inside the output directory. You can also save, label, and reuse DES run memory with `--save-run-memory`, `label-run`, and `--reuse-run` if you want a later run to bias ranking from an earlier one. If you keep several labeled runs under `runs/`, `--reuse-run runs/` will use the whole labeled history in that history directory.
 
 ```bash

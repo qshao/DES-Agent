@@ -110,6 +110,35 @@ def _results_summary(results: Sequence[DesResult]) -> str:
     return "\n".join(lines) if lines else "- no ranked results yet"
 
 
+
+def _des_diversity_instruction(diversity_mode: str, family_bias_strength: float) -> str:
+    if diversity_mode == "explore":
+        return (
+            "Diversity mode: explore.\n"
+            "Prefer chemically distinct families and limit reuse of prior productive families.\n"
+            f"Prior-family bias strength: {family_bias_strength:.2f} on a 0-1 scale.\n"
+        )
+    if diversity_mode == "exploit":
+        return (
+            "Diversity mode: exploit.\n"
+            "Prefer families close to prior productive families unless chemistry strongly argues otherwise.\n"
+            f"Prior-family bias strength: {family_bias_strength:.2f} on a 0-1 scale.\n"
+        )
+    return (
+        "Diversity mode: balanced.\n"
+        "Preserve a mix of productive and novel families.\n"
+        f"Prior-family bias strength: {family_bias_strength:.2f} on a 0-1 scale.\n"
+    )
+
+
+def _des_prior_family_block(prior_productive_families: dict[str, int] | None) -> str:
+    if not prior_productive_families:
+        return ""
+    lines = ["Prior productive families:\n"]
+    for family, count in sorted(prior_productive_families.items(), key=lambda item: (-item[1], item[0])):
+        lines.append(f"  - {family}: {count} prior DES-positive hit(s)\n")
+    return "".join(lines)
+
 def candidate_review_prompt(component_a: str, candidate_smiles: str, context: str) -> str:
     return (
         "Return raw JSON only. Do not use markdown fences or commentary.\n"
@@ -129,6 +158,9 @@ def candidate_brainstorm_prompt(
     context: str,
     max_items: int | None = None,
     families: list | None = None,
+    diversity_mode: str = "balanced",
+    family_bias_strength: float = 0.5,
+    prior_productive_families: dict[str, int] | None = None,
 ) -> str:
     parts = [
         "Return raw JSON only. Do not use markdown fences or commentary.\n",
@@ -136,6 +168,8 @@ def candidate_brainstorm_prompt(
         f"Component A: {component_a}\n",
         f"Constraints: {constraints or {}}\n",
         f"Context: {context}\n",
+        _des_diversity_instruction(diversity_mode, family_bias_strength),
+        _des_prior_family_block(prior_productive_families),
     ]
     if families:
         parts.append("Distribute candidates across these chemical families:\n")
@@ -152,6 +186,9 @@ def family_selection_prompt(
     constraints: dict | None,
     context: str,
     max_families: int = 6,
+    diversity_mode: str = "balanced",
+    family_bias_strength: float = 0.5,
+    prior_productive_families: dict[str, int] | None = None,
 ) -> str:
     return "".join([
         "Return raw JSON only. Do not use markdown fences or commentary.\n",
@@ -159,6 +196,8 @@ def family_selection_prompt(
         f"Component A: {component_a}\n",
         f"Constraints: {constraints or {}}\n",
         f"Context: {context}\n",
+        _des_diversity_instruction(diversity_mode, family_bias_strength),
+        _des_prior_family_block(prior_productive_families),
         f"Return at most {max_families} families.\n",
         'Each item must contain name, rationale, and hbd_hba_role ("HBD", "HBA", or "both").',
     ])

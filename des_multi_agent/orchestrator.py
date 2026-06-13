@@ -97,6 +97,7 @@ def _build_iterative_context(
     base_context: str,
     prior_top: list,
     family_ledger: dict[str, int] | None = None,
+    diversity_mode: str = "balanced",
 ) -> str:
     if not prior_top:
         return base_context
@@ -105,11 +106,18 @@ def _build_iterative_context(
         for r in prior_top[:5]
     )
     ctx = base_context + f"\nPrior cycle top results (bias generation toward these chemical families):\n{lines}"
+    ctx += f"\nBrainstorm diversity mode: {diversity_mode}"
     if family_ledger:
-        top_families = sorted(family_ledger.items(), key=lambda x: -x[1])[:3]
-        fam_lines = "\n".join(f"  - {fam}: {count} DES-positive hits" for fam, count in top_families)
+        top_families = _build_prior_productive_family_summary(family_ledger, limit=3)
+        fam_lines = "\n".join(f"  - {fam}: {count} DES-positive hits" for fam, count in top_families.items())
         ctx += f"\nTop productive chemical families:\n{fam_lines}"
     return ctx
+
+
+def _build_prior_productive_family_summary(family_ledger: dict[str, int] | None, limit: int = 3) -> dict[str, int]:
+    if not family_ledger:
+        return {}
+    return dict(sorted(family_ledger.items(), key=lambda item: (-item[1], item[0]))[:limit])
 
 
 def _fallback_uncertainty(
@@ -381,14 +389,22 @@ def run_search_report(
     if provider is not None and candidates_file is None:
         try:
             brainstorm_context = review_context
+            prior_productive_families = _build_prior_productive_family_summary(prior_family_ledger)
             if prior_cycle_top_results:
                 brainstorm_context = _build_iterative_context(
-                    review_context, prior_cycle_top_results, family_ledger=prior_family_ledger
+                    review_context,
+                    prior_cycle_top_results,
+                    family_ledger=prior_family_ledger,
+                    diversity_mode=getattr(provider, "diversity_mode", "balanced"),
                 )
             llm_candidates = provider.brainstorm_candidates(
                 component_a,
                 None,
                 brainstorm_context,
+                max_families=getattr(provider, "max_families", 6),
+                diversity_mode=getattr(provider, "diversity_mode", "balanced"),
+                family_bias_strength=getattr(provider, "family_bias_strength", 0.5),
+                prior_productive_families=prior_productive_families,
             )
         except Exception as exc:
             llm_warnings.append(f"LLM brainstorming failed: {exc}")

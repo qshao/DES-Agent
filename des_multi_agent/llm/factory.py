@@ -44,6 +44,9 @@ def build_llm_provider(cfg: Mapping[str, object] | LLMConfig | None, request_fn=
             max_tokens=llm_cfg.max_tokens,
             temperature=llm_cfg.temperature,
             timeout_seconds=llm_cfg.timeout_seconds,
+            diversity_mode=llm_cfg.diversity_mode,
+            max_families=llm_cfg.max_families,
+            family_bias_strength=llm_cfg.family_bias_strength,
             request_fn=request_impl,
         )
     if provider == "openai":
@@ -55,6 +58,9 @@ def build_llm_provider(cfg: Mapping[str, object] | LLMConfig | None, request_fn=
             max_tokens=llm_cfg.max_tokens,
             temperature=llm_cfg.temperature,
             timeout_seconds=llm_cfg.timeout_seconds,
+            diversity_mode=llm_cfg.diversity_mode,
+            max_families=llm_cfg.max_families,
+            family_bias_strength=llm_cfg.family_bias_strength,
             request_fn=request_impl,
         )
     if provider == "gemini":
@@ -66,6 +72,9 @@ def build_llm_provider(cfg: Mapping[str, object] | LLMConfig | None, request_fn=
             max_tokens=llm_cfg.max_tokens,
             temperature=llm_cfg.temperature,
             timeout_seconds=llm_cfg.timeout_seconds,
+            diversity_mode=llm_cfg.diversity_mode,
+            max_families=llm_cfg.max_families,
+            family_bias_strength=llm_cfg.family_bias_strength,
             request_fn=request_impl,
         )
     if provider == "custom_http":
@@ -77,6 +86,9 @@ def build_llm_provider(cfg: Mapping[str, object] | LLMConfig | None, request_fn=
             max_tokens=llm_cfg.max_tokens,
             temperature=llm_cfg.temperature,
             timeout_seconds=llm_cfg.timeout_seconds,
+            diversity_mode=llm_cfg.diversity_mode,
+            max_families=llm_cfg.max_families,
+            family_bias_strength=llm_cfg.family_bias_strength,
             request_fn=request_impl,
         )
     raise ValueError(f"Unknown llm.provider: {llm_cfg.provider}")

@@ -22,12 +22,25 @@ class LLMProvider(ABC):
         component_a: str,
         constraints: dict | None,
         context: str,
+        *,
+        max_families: int = 6,
+        diversity_mode: str = "balanced",
+        family_bias_strength: float = 0.5,
+        prior_productive_families: dict[str, int] | None = None,
     ) -> list[CandidateBrainstorm]:
         raise NotImplementedError
 
     @abstractmethod
     def select_candidate_families(
-        self, component_a: str, constraints: dict | None, context: str
+        self,
+        component_a: str,
+        constraints: dict | None,
+        context: str,
+        *,
+        max_families: int = 6,
+        diversity_mode: str = "balanced",
+        family_bias_strength: float = 0.5,
+        prior_productive_families: dict[str, int] | None = None,
     ) -> list[CandidateFamily]:
         raise NotImplementedError
 

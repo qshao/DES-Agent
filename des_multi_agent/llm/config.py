@@ -5,6 +5,7 @@ from typing import Mapping
 
 
 _ALLOWED_PROVIDERS = {"disabled", "none", "off", "ollama", "openai", "gemini", "custom_http"}
+_ALLOWED_DIVERSITY_MODES = {"explore", "balanced", "exploit"}
 _SUPPORTED_OLLAMA_MODEL_PREFIXES = ("gemma4:12b", "nemotron-3-nano", "qwen3.6")
 
 
@@ -26,6 +27,13 @@ class LLMConfig:
     max_tokens: int = 512
     temperature: float = 0.2
     timeout_seconds: float = 30.0
+    diversity_mode: str = "balanced"
+    max_families: int = 6
+    family_bias_strength: float = 0.5
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "provider", self.provider.strip().lower())
+        object.__setattr__(self, "diversity_mode", self.diversity_mode.strip().lower())
 
     @classmethod
     def from_mapping(cls, mapping: Mapping[str, object] | None) -> "LLMConfig":
@@ -41,10 +49,27 @@ class LLMConfig:
             max_tokens=int(mapping.get("max_tokens", 512)),
             temperature=float(mapping.get("temperature", 0.2)),
             timeout_seconds=float(mapping.get("timeout_seconds", 30.0)),
+            diversity_mode=str(mapping.get("diversity_mode", "balanced")),
+            max_families=int(mapping.get("max_families", 6)),
+            family_bias_strength=float(mapping.get("family_bias_strength", 0.5)),
         )
 
     def validate(self) -> None:
-        provider = self.provider.strip().lower()
+        diversity_mode = self.diversity_mode
+        if diversity_mode not in _ALLOWED_DIVERSITY_MODES:
+            raise ValueError(
+                "Unsupported llm.diversity_mode: "
+                f"{self.diversity_mode}; expected one of explore, balanced, exploit"
+            )
+        if self.max_families <= 0:
+            raise ValueError(f"llm.max_families must be positive, got {self.max_families}")
+        if not 0.0 <= self.family_bias_strength <= 1.0:
+            raise ValueError(
+                "llm.family_bias_strength must be in [0.0, 1.0], "
+                f"got {self.family_bias_strength}"
+            )
+
+        provider = self.provider
         if not self.enabled or provider in {"disabled", "none", "off"}:
             return
         if provider not in _ALLOWED_PROVIDERS:

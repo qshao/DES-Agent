@@ -29,6 +29,9 @@ class BaseLLMProvider(LLMProvider):
         max_tokens: int = 512,
         temperature: float = 0.2,
         timeout_seconds: float = 30.0,
+        diversity_mode: str = "balanced",
+        max_families: int = 6,
+        family_bias_strength: float = 0.5,
         request_fn=post_json_chat,
     ):
         self.model_name = model_name
@@ -38,6 +41,9 @@ class BaseLLMProvider(LLMProvider):
         self.max_tokens = max_tokens
         self.temperature = temperature
         self.timeout_seconds = timeout_seconds
+        self.diversity_mode = diversity_mode
+        self.max_families = max_families
+        self.family_bias_strength = family_bias_strength
         self.transport = RequestTransport(request_fn=request_fn, timeout_seconds=timeout_seconds)
 
     def _request(self, prompt: str) -> str:
@@ -59,22 +65,70 @@ class BaseLLMProvider(LLMProvider):
         return review
 
     def brainstorm_candidates(
-        self, component_a: str, constraints: dict | None, context: str
+        self,
+        component_a: str,
+        constraints: dict | None,
+        context: str,
+        *,
+        max_families: int | None = None,
+        diversity_mode: str | None = None,
+        family_bias_strength: float | None = None,
+        prior_productive_families: dict[str, int] | None = None,
     ) -> list[CandidateBrainstorm]:
         families: list[CandidateFamily] = []
+        effective_max_families = getattr(self, "max_families", 6) if max_families is None else max_families
+        effective_diversity_mode = getattr(self, "diversity_mode", "balanced") if diversity_mode is None else diversity_mode
+        effective_family_bias_strength = (
+            getattr(self, "family_bias_strength", 0.5) if family_bias_strength is None else family_bias_strength
+        )
         try:
-            families = self.select_candidate_families(component_a, constraints, context)
+            families = self.select_candidate_families(
+                component_a,
+                constraints,
+                context,
+                max_families=effective_max_families,
+                diversity_mode=effective_diversity_mode,
+                family_bias_strength=effective_family_bias_strength,
+                prior_productive_families=prior_productive_families,
+            )
         except Exception as exc:
             print(f"family selection failed, falling back to single-stage brainstorm: {exc}", file=sys.stderr)
         raw = self._request(
-            candidate_brainstorm_prompt(component_a, constraints, context, self.max_candidates, families)
+            candidate_brainstorm_prompt(
+                component_a,
+                constraints,
+                context,
+                self.max_candidates,
+                families,
+                diversity_mode=effective_diversity_mode,
+                family_bias_strength=effective_family_bias_strength,
+                prior_productive_families=prior_productive_families,
+            )
         )
         return parse_candidate_brainstorms(raw)[: self.max_candidates]
 
     def select_candidate_families(
-        self, component_a: str, constraints: dict | None, context: str
+        self,
+        component_a: str,
+        constraints: dict | None,
+        context: str,
+        *,
+        max_families: int = 6,
+        diversity_mode: str = "balanced",
+        family_bias_strength: float = 0.5,
+        prior_productive_families: dict[str, int] | None = None,
     ) -> list[CandidateFamily]:
-        raw = self._request(family_selection_prompt(component_a, constraints, context))
+        raw = self._request(
+            family_selection_prompt(
+                component_a,
+                constraints,
+                context,
+                max_families=max_families,
+                diversity_mode=diversity_mode,
+                family_bias_strength=family_bias_strength,
+                prior_productive_families=prior_productive_families,
+            )
+        )
         return parse_candidate_families(raw)
 
     def generate_explanations(self, results: list[DesResult], context: str) -> list[ExplanationNote]:

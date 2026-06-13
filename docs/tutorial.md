@@ -399,6 +399,9 @@ LLM mode is optional. Configure it with `llm.example.yaml`:
 llm:
   provider: ollama
   model_name: gemma4:12b
+  diversity_mode: balanced
+  max_families: 6
+  family_bias_strength: 0.5
 ```
 
 Run a DES search with LLM support:
@@ -420,6 +423,14 @@ When enabled, the LLM can:
 - review candidates one by one
 - generate explanations and critiques
 - flag chemical contradictions as `agree`, `conflict`, or `uncertain`
+
+Use `diversity_mode` to control how broad the brainstorm should be:
+
+- `explore` prefers chemically distinct families
+- `balanced` keeps a mix of productive and novel families
+- `exploit` concentrates on families that worked well in earlier cycles
+
+`max_families` caps how many families the first brainstorm stage should return, and `family_bias_strength` controls how strongly prior productive families influence later cycles. These settings affect brainstorming only; they do not change the deterministic scorer or the final ranking rules.
 
 The supported example model configs include Gemma 4-12B, Nemotron 3 Nano, and Qwen 3.6.
 
