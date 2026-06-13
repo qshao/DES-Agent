@@ -70,7 +70,7 @@ LLM-backed DES examples also respect the diversity controls in the YAML config:
 - `max_families` caps the family-selection stage
 - `family_bias_strength` controls how strongly prior productive families influence later cycles
 
-These settings steer brainstorm diversity only. The final DES ranking still comes from the deterministic model and the normal filters.
+These settings steer brainstorm diversity only. The final DES ranking still comes from the deterministic model and the normal filters. The same LLM path can also act as a chemistry advisor, adding compact rationales, warnings, and next-step suggestions to the report while still leaving the numeric score unchanged.
 
 DES runs can also write into a standard flat run directory with `--output-dir runs/run_001`. That folder becomes the canonical home for `report.txt`, `run.json`, `run.csv`, and `run.manifest.json`. With `--n-cycles N`, each cycle gets its own subdirectory (`cycle_01/`, `cycle_02/`, …) inside the output directory. You can also save, label, and reuse DES run memory with `--save-run-memory`, `label-run`, and `--reuse-run` if you want a later run to bias ranking from an earlier one. If you keep several labeled runs under `runs/`, `--reuse-run runs/` will use the whole labeled history in that history directory.
 

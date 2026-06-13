@@ -423,6 +423,7 @@ When enabled, the LLM can:
 - review candidates one by one
 - generate explanations and critiques
 - flag chemical contradictions as `agree`, `conflict`, or `uncertain`
+- act as a chemistry advisor that adds short rationales, warnings, and hybrid next-step suggestions
 
 Use `diversity_mode` to control how broad the brainstorm should be:
 
@@ -431,6 +432,8 @@ Use `diversity_mode` to control how broad the brainstorm should be:
 - `exploit` concentrates on families that worked well in earlier cycles
 
 `max_families` caps how many families the first brainstorm stage should return, and `family_bias_strength` controls how strongly prior productive families influence later cycles. These settings affect brainstorming only; they do not change the deterministic scorer or the final ranking rules.
+
+The chemistry advisor layer reuses the same LLM provider but focuses on candidate rationales, warnings, and next-step suggestions. It uses prior run memory only as a soft prior, so current-run evidence still controls the final decision.
 
 The supported example model configs include Gemma 4-12B, Nemotron 3 Nano, and Qwen 3.6.
 

@@ -236,3 +236,12 @@ def test_demo_renders_candidate_reviews(monkeypatch, capsys):
     out = capsys.readouterr().out
     assert "LLM candidate reviews" in out
     assert "demo review" in out
+
+
+def test_tutorial_mentions_chemistry_advisor():
+    text = Path("docs/tutorial.md").read_text(encoding="utf-8")
+    assert "chemistry advisor" in text
+    assert "next-step suggestions" in text
+    examples = Path("examples/README.md").read_text(encoding="utf-8")
+    assert "chemistry advisor" in examples
+    assert "warnings" in examples
