@@ -1,4 +1,8 @@
+import pytest
+
 from des_multi_agent import orchestrator
+from des_multi_agent.chemical_lesson_summary import ChemistryLessonSummary
+from des_multi_agent.chemical_pattern_memory import ChemicalPatternMemory
 from des_multi_agent.evaluation import DesResult
 from des_multi_agent.llm.schemas import CandidateBrainstorm, CandidateReview, ChemistryAssessment, ChemistryNextStep, CritiqueNote, ExplanationNote
 from des_multi_agent.prediction import CurvePrediction
@@ -218,6 +222,129 @@ def test_proposal_diversity_overrides_llm_config_and_filters_post_merge(monkeypa
     assert captured["cfg"]["diversity_mode"] == "explore"
     assert outcome.candidate_proposals == [CandidateProposal(smiles="OCCO", rationale="baseline", family="polyol", source="heuristic", source_id="")]
     assert outcome.llm_warnings == []
+
+
+def test_pattern_memory_notes_reach_llm_brainstorm_context(monkeypatch):
+    captured_contexts = []
+
+    class _CapturingLLM(_FakeLLM):
+        def brainstorm_candidates(self, component_a, constraints, context, **kwargs):
+            captured_contexts.append(context)
+            return []
+
+    monkeypatch.setattr(orchestrator, "build_llm_provider", lambda cfg, request_fn=None: _CapturingLLM())
+    monkeypatch.setattr(
+        orchestrator,
+        "generate_candidates",
+        lambda component_a, n, constraints=None: [CandidateProposal(smiles="OCCO", rationale="baseline", family="diol")],
+    )
+    monkeypatch.setattr(orchestrator, "filter_candidates", lambda component_a, candidates: candidates)
+    monkeypatch.setattr(
+        orchestrator,
+        "resolve_melting_point",
+        lambda component, override_k=None: MeltingPointEstimate(component=component, tm_k=300.0, source="heuristic", confidence=0.5),
+    )
+    monkeypatch.setattr(
+        orchestrator,
+        "predict_curve",
+        lambda *args, **kwargs: CurvePrediction(
+            smiles_a="CCO",
+            smiles_b="OCCO",
+            ratios=[0.1],
+            tm_pred_k=[250.0],
+            t1_k=300.0,
+            t2_k=300.0,
+            checkpoint_path="ckpt.pt",
+        ),
+    )
+    monkeypatch.setattr(
+        orchestrator,
+        "classify_des",
+        lambda curve, thresholds: DesResult(
+            curve=curve,
+            absolute_pass=True,
+            relative_pass=True,
+            is_des=True,
+            rationale="ok",
+            min_tm_k=250.0,
+        ),
+    )
+    monkeypatch.setattr(orchestrator, "rank_results", lambda results: results)
+
+    outcome = orchestrator.run_search_report(
+        component_a="CCO",
+        n=1,
+        checkpoint_path="ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt",
+        llm_cfg={"enabled": True, "provider": "ollama", "model_name": "llama3.1", "api_base_url": "http://localhost:11434"},
+        prior_pattern_memory=ChemicalPatternMemory(
+            prompt_notes=["Prior predictions found these productive DES families: diol."],
+            good_examples=["OCCO"],
+            confidence="medium",
+        ),
+        prior_chemistry_lesson_summary=ChemistryLessonSummary(
+            run_summary=["Prior lesson: stay near productive diols."],
+            notes=["Prior lesson note."],
+        ),
+    )
+
+    assert any("Prior predictions found these productive DES families: diol." in context for context in captured_contexts)
+    assert any("Prior lesson: stay near productive diols." in context for context in captured_contexts)
+    assert outcome.chemical_pattern_memory.good_examples == ["OCCO"]
+    assert outcome.chemistry_lesson_summary.cycle_summary
+
+
+def test_pattern_memory_bias_adjusts_ranking(monkeypatch):
+    monkeypatch.setattr(orchestrator, "build_llm_provider", lambda cfg, request_fn=None: None)
+    monkeypatch.setattr(
+        orchestrator,
+        "generate_candidates",
+        lambda component_a, n, constraints=None: [CandidateProposal(smiles="OCCO", rationale="baseline", family="diol")],
+    )
+    monkeypatch.setattr(orchestrator, "filter_candidates", lambda component_a, candidates: candidates)
+    monkeypatch.setattr(
+        orchestrator,
+        "resolve_melting_point",
+        lambda component, override_k=None: MeltingPointEstimate(component=component, tm_k=300.0, source="heuristic", confidence=0.5),
+    )
+    monkeypatch.setattr(
+        orchestrator,
+        "predict_curve",
+        lambda *args, **kwargs: CurvePrediction(
+            smiles_a="CCO",
+            smiles_b="OCCO",
+            ratios=[0.1],
+            tm_pred_k=[250.0],
+            t1_k=300.0,
+            t2_k=300.0,
+            checkpoint_path="ckpt.pt",
+        ),
+    )
+    monkeypatch.setattr(
+        orchestrator,
+        "classify_des",
+        lambda curve, thresholds: DesResult(
+            curve=curve,
+            absolute_pass=True,
+            relative_pass=True,
+            is_des=True,
+            rationale="ok",
+            min_tm_k=250.0,
+        ),
+    )
+    monkeypatch.setattr(orchestrator, "rank_results", lambda results: results)
+
+    outcome = orchestrator.run_search_report(
+        component_a="CCO",
+        n=1,
+        checkpoint_path="ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt",
+        prior_pattern_memory=ChemicalPatternMemory(
+            ranking_bias_by_smiles={"OCCO": 0.20},
+            confidence="high",
+        ),
+    )
+
+    assert outcome.annotated_results[0].ranking_score == pytest.approx(outcome.annotated_results[0].trust_score + 0.20)
+    assert any("Applied chemical pattern memory ranking bias" in note for note in outcome.memory_notes)
 
 
 def test_llm_failures_are_reported_without_breaking_deterministic_search(monkeypatch):

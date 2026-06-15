@@ -5,6 +5,8 @@ import pathlib
 from collections import Counter
 from dataclasses import dataclass, field
 
+from .chemical_lesson_summary import ChemistryLessonSummary
+from .chemical_pattern_memory import ChemicalPatternMemory
 from .orchestrator import run_search_report
 from .schemas import DesThresholds
 from .uncertainty import UncertaintyPolicy
@@ -51,6 +53,10 @@ def run_multi_cycle_search(
     ensemble_checkpoints: list[str] | None = None,
     candidates_file: str | None = None,
     proposal_diversity_cfg=None,
+    prior_pattern_memory: ChemicalPatternMemory | None = None,
+    prior_chemistry_lesson_summary: ChemistryLessonSummary | None = None,
+    chemical_pattern_memory_mode: str = "adaptive",
+    pattern_memory_max_examples: int = 3,
 ) -> MultiCycleOutcome:
     """Run up to n_cycles iterations, passing top hits forward as brainstorm context.
 
@@ -61,6 +67,8 @@ def run_multi_cycle_search(
     prev_top: frozenset = frozenset()
     last_outcome = None
     accumulated_ledger: Counter[str] = Counter()
+    cycle_pattern_memory = prior_pattern_memory
+    cycle_lesson_summary = prior_chemistry_lesson_summary
 
     for cycle in range(1, n_cycles + 1):
         prior_results = last_outcome.results[:top_k_convergence] if last_outcome else None
@@ -88,6 +96,10 @@ def run_multi_cycle_search(
             prior_cycle_top_results=prior_results,
             prior_family_ledger=accumulated_ledger if cycle > 1 else None,
             proposal_diversity_cfg=proposal_diversity_cfg,
+            prior_pattern_memory=cycle_pattern_memory,
+            prior_chemistry_lesson_summary=cycle_lesson_summary,
+            chemical_pattern_memory_mode=chemical_pattern_memory_mode,
+            pattern_memory_max_examples=pattern_memory_max_examples,
         )
 
         # H6 — build family ledger: DES-positive hit count per chemical family
@@ -118,6 +130,8 @@ def run_multi_cycle_search(
 
         last_outcome = outcome
         prev_top = top_k
+        cycle_pattern_memory = getattr(outcome, "chemical_pattern_memory", None)
+        cycle_lesson_summary = getattr(outcome, "chemistry_lesson_summary", None)
 
         if converged:
             break

@@ -455,7 +455,37 @@ Use `diversity_mode` to control how broad the brainstorm should be:
 
 The chemistry advisor layer reuses the same LLM provider but focuses on candidate rationales, warnings, and next-step suggestions. It uses prior run memory only as a soft prior, so current-run evidence still controls the final decision.
 
-The supported example model configs include Gemma 4-12B, Nemotron 3 Nano, and Qwen 3.6.
+### Chemical Pattern Memory
+
+Chemical pattern memory turns prior predictions into compact chemistry lessons for the next cycle. It uses both current-cycle outcomes and saved run memory to bias proposal generation and ranking without hard-coding a family lock-in.
+
+Use these flags to control it:
+
+| Flag | Meaning |
+|------|---------|
+| `--chemical-pattern-memory` | `off`, `soft`, or `adaptive`; controls how strongly prior chemical patterns influence the next DES cycle |
+| `--pattern-memory-max-examples` | Maximum representative good/bad examples to include in the prompt context |
+
+Recommended starting point:
+
+- `adaptive` if you want the next cycle to learn from prior hits and failures
+- `soft` if you want the memory layer to stay present but conservative
+- `off` if you want the run to ignore prior chemical lessons entirely
+
+The pattern-memory layer is separate from proposal diversity: proposal diversity controls how broad the brainstorm is, while pattern memory controls how prior chemical lessons bias the next cycle and the report narrative. The same flags also apply to `selectivity-des`, because its DES phase uses the same multi-cycle DES search loop.
+
+### Chemistry Lesson Summary
+
+The chemistry lesson summary is the short chemistry note that appears in the report and is reused by the next cycle. It is built from the current cycle's results plus any saved run memory, and it turns the run into a compact lesson such as:
+
+- which families or motifs looked productive
+- which families or motifs should be avoided
+- which next step is conservative versus exploratory
+- which failure modes to watch for
+
+It is not a separate user-facing control. When there is enough evidence, it is produced automatically and fed back into the next cycle's prompt context.
+
+The supported example model configs include Gemma 4-12B, Nemotron 3 Nano, and Qwen 3.6. The refreshed chemistry-lesson-summary captures are shown in Gemma 4-12B and lidocaine; betaine remains the frozen baseline example.
 
 See:
 

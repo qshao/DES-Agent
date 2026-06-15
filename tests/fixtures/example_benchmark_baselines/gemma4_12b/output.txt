@@ -1,44 +1,102 @@
-smiles_b | is_des | min_tm_k | source | trust | mean_tm_k | spread_k | std_k | uncertainty_flag | rationale
-OCCCO | True | 200.73 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=200.73 K | spread=200.73-200.73 K | std=0.00 K | flag=low | min Tm=200.73 K, absolute<= 260.00 K, relative_drop=0.260
-CN(C)C=O | True | 207.73 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=207.73 K | spread=207.73-207.73 K | std=0.00 K | flag=low | min Tm=207.73 K, absolute<= 260.00 K, relative_drop=0.234
-OCCO | True | 208.69 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=208.69 K | spread=208.69-208.69 K | std=0.00 K | flag=low | min Tm=208.69 K, absolute<= 260.00 K, relative_drop=0.230
-CN | True | 210.86 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=210.86 K | spread=210.86-210.86 K | std=0.00 K | flag=low | min Tm=210.86 K, absolute<= 260.00 K, relative_drop=0.206
-C[N+](C)(C)CCO.[Cl-] | True | 217.36 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=217.36 K | spread=217.36-217.36 K | std=0.00 K | flag=low | min Tm=217.36 K, absolute<= 260.00 K, relative_drop=0.199
-O=C1CCCN1 | True | 220.63 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=220.63 K | spread=220.63-220.63 K | std=0.00 K | flag=low | min Tm=220.63 K, absolute<= 260.00 K, relative_drop=0.186
-CC(=O)N | True | 222.77 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=222.77 K | spread=222.77-222.77 K | std=0.00 K | flag=low | min Tm=222.77 K, absolute<= 260.00 K, relative_drop=0.179
-OCC(O)CO | True | 223.28 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=223.28 K | spread=223.28-223.28 K | std=0.00 K | flag=low | min Tm=223.28 K, absolute<= 260.00 K, relative_drop=0.177
-CCOCC | True | 224.74 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=224.74 K | spread=224.74-224.74 K | std=0.00 K | flag=low | min Tm=224.74 K, absolute<= 260.00 K, relative_drop=0.171
-O | True | 225.27 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=225.27 K | spread=225.27-225.27 K | std=0.00 K | flag=low | min Tm=225.27 K, absolute<= 260.00 K, relative_drop=0.118
-CC(=O)NCCO | True | 228.33 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=228.33 K | spread=228.33-228.33 K | std=0.00 K | flag=low | min Tm=228.33 K, absolute<= 260.00 K, relative_drop=0.158
-CS(=O)C | True | 229.18 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=229.18 K | spread=229.18-229.18 K | std=0.00 K | flag=low | min Tm=229.18 K, absolute<= 260.00 K, relative_drop=0.155
-CC(=O)O | True | 236.03 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=236.03 K | spread=236.03-236.03 K | std=0.00 K | flag=low | min Tm=236.03 K, absolute<= 260.00 K, relative_drop=0.130
-COCCO | True | 239.96 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=239.96 K | spread=239.96-239.96 K | std=0.00 K | flag=low | min Tm=239.96 K, absolute<= 260.00 K, relative_drop=0.115
-CS(=O)(=O)C | True | 243.14 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=243.14 K | spread=243.14-243.14 K | std=0.00 K | flag=low | min Tm=243.14 K, absolute<= 260.00 K, relative_drop=0.103
-OC[C@H](O)[C@H](O)CO | False | 244.92 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=244.92 K | spread=244.92-244.92 K | std=0.00 K | flag=low | min Tm=244.92 K, absolute<= 260.00 K, relative_drop=0.097
+=== DES Search: ethanol (CCO) ===
+Screened 16 candidate(s). 5 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
+Top candidate: CCOCC — min Tm 137.5 K (Δ12.0%) | high confidence
+=================================
+
+Chemistry lessons:
+productive patterns: ether (1), dimethylformamide-like (1), amine (1), diol (1), short diol (1)
+avoid patterns: amide (1), polyol (1), carboxylic acid (1), ether alcohol (1), lactam (1), hydroxyamide (1), choline-like (1), sulfoxide (1), sulfone (1), sugar-like polyol (1), alcohol (1)
+cycle summary:
+- Productive patterns: ether (1), dimethylformamide-like (1), amine (1).
+- Avoid patterns: amide (1), polyol (1), carboxylic acid (1).
+- Representative examples: CCOCC, CN(C)C=O, CN.
+run summary:
+- Representative good examples: CCOCC, CN(C)C=O, CN.
+- Representative bad examples: CC(=O)N, OCC(O)CO, CC(=O)O.
+- Stay near the productive families and probe close analogs first.
+- Try adjacent chemistry away from the repeated failure families.
+- Some supporting results were low-trust; treat the lesson cautiously.
+- Evidence is mixed; keep the next cycle balanced.
+- Productive patterns: ether (1), dimethylformamide-like (1), amine (1).
+- Avoid patterns: amide (1), polyol (1), carboxylic acid (1).
+- Representative examples: CCOCC, CN(C)C=O, CN.
+next steps:
+- Stay near the productive families and probe close analogs first.
+- Try adjacent chemistry away from the repeated failure families.
+warnings:
+- Some supporting results were low-trust; treat the lesson cautiously.
+- Evidence is mixed; keep the next cycle balanced.
+
+compound | is_des | min_tm_k | eutectic_x_b | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
+CCOCC | True | 137.53 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.65 | mean=134.65 K | spread=133.83-136.00 K | std=0.96 K | high confidence | min Tm=137.53 K, absolute<= 260.00 K, relative_drop=0.120
+CN(C)C=O | True | 141.04 | 0.40 | source=heuristic; id=rule-based-family-library | trust=0.60 | mean=142.58 K | spread=140.32-145.83 K | std=2.35 K | moderate confidence — consider experimental verification | min Tm=141.04 K, absolute<= 260.00 K, relative_drop=0.203
+CN | True | 137.72 | 0.30 | source=heuristic; id=rule-based-family-library | trust=0.60 | mean=139.65 K | spread=137.53-142.03 K | std=1.85 K | high confidence | min Tm=137.72 K, absolute<= 260.00 K, relative_drop=0.215
+ethylene glycol (OCCO) | True | 155.49 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.58 | mean=160.79 K | spread=155.73-165.61 K | std=4.04 K | moderate confidence — consider experimental verification | min Tm=155.49 K, absolute<= 260.00 K, relative_drop=0.121
+1,3-propanediol (OCCCO) | True | 155.07 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.35 | mean=150.61 K | spread=140.85-155.78 K | std=6.91 K | moderate confidence — consider experimental verification | min Tm=155.07 K, absolute<= 260.00 K, relative_drop=0.124
+acetamide (CC(=O)N) | False | 168.39 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.71 | mean=173.00 K | spread=172.85-173.09 K | std=0.11 K | high confidence | min Tm=168.39 K, absolute<= 260.00 K, relative_drop=0.048
+glycerol (OCC(O)CO) | False | 167.57 | 0.90 | source=heuristic; id=rule-based-family-library | trust=0.66 | mean=168.35 K | spread=166.70-169.78 K | std=1.27 K | high confidence | min Tm=167.57 K, absolute<= 260.00 K, relative_drop=0.053
+acetic acid (CC(=O)O) | False | 171.54 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.66 | mean=172.13 K | spread=170.93-173.97 K | std=1.32 K | high confidence | min Tm=171.54 K, absolute<= 260.00 K, relative_drop=0.031
+COCCO | False | 162.36 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.63 | mean=165.63 K | spread=163.87-167.35 K | std=1.42 K | high confidence | min Tm=162.36 K, absolute<= 260.00 K, relative_drop=0.082
+O=C1CCCN1 | False | 161.54 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.57 | mean=161.42 K | spread=158.31-166.42 K | std=3.57 K | moderate confidence — consider experimental verification | min Tm=161.54 K, absolute<= 260.00 K, relative_drop=0.087
+CC(=O)NCCO | False | 170.61 | 0.90 | source=heuristic; id=rule-based-family-library | trust=0.51 | mean=173.06 K | spread=169.93-179.04 K | std=4.23 K | moderate confidence — consider experimental verification | min Tm=170.61 K, absolute<= 260.00 K, relative_drop=0.036
+choline chloride (C[N+](C)(C)CCO.[Cl-]) | False | 173.16 | 0.90 | source=heuristic; id=rule-based-family-library | trust=0.68 | mean=172.83 K | spread=171.59-173.57 K | std=0.88 K | high confidence | min Tm=173.16 K, absolute<= 260.00 K, relative_drop=0.021
+dimethyl sulfoxide (CS(=O)C) | False | 162.08 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.42 | mean=163.05 K | spread=157.27-165.94 K | std=4.08 K | moderate confidence — consider experimental verification | min Tm=162.08 K, absolute<= 260.00 K, relative_drop=0.084
+CS(=O)(=O)C | False | 172.17 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.41 | mean=172.96 K | spread=171.87-174.49 K | std=1.11 K | high confidence | min Tm=172.17 K, absolute<= 260.00 K, relative_drop=0.027
+OC[C@H](O)[C@H](O)CO | False | 242.11 | 0.90 | source=heuristic; id=rule-based-family-library | trust=0.39 | mean=241.72 K | spread=228.82-249.92 K | std=9.23 K | low confidence — consider experimental verification | min Tm=242.11 K, absolute<= 260.00 K, relative_drop=-0.368
+water (O) | False | 165.87 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.39 | mean=166.41 K | spread=163.72-169.10 K | std=2.20 K | moderate confidence — consider experimental verification | min Tm=165.87 K, absolute<= 260.00 K, relative_drop=0.063
+
+Physical sanity — non-physical eutectic (predicted Tm above both pure components):
+- OC[C@H](O)[C@H](O)CO: min Tm 242.1 K > min(T1,T2)=177.0 K — treat prediction with caution
+
+Melting-point inputs:
+component | Tm_K | source | confidence
+ethanol (CCO) | 176.96 | qspr | 0.67
+CCOCC | 156.27 | qspr | 0.78
+CN(C)C=O | 211.29 | qspr | 0.78
+CN | 175.36 | qspr | 0.67
+ethylene glycol (OCCO) | 260.60 | experimental | 0.95
+1,3-propanediol (OCCCO) | 293.44 | qspr | 0.61
+acetamide (CC(=O)N) | 354.06 | experimental | 0.95
+glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
+acetic acid (CC(=O)O) | 289.85 | experimental | 0.95
+COCCO | 204.55 | qspr | 0.79
+O=C1CCCN1 | 324.08 | qspr | 0.81
+CC(=O)NCCO | 357.10 | qspr | 0.64
+choline chloride (C[N+](C)(C)CCO.[Cl-]) | 578.15 | experimental | 0.95
+dimethyl sulfoxide (CS(=O)C) | 252.24 | qspr | 0.50
+CS(=O)(=O)C | 266.99 | qspr | 0.40
+OC[C@H](O)[C@H](O)CO | 394.70 | experimental | 0.95
+water (O) | 261.48 | qspr | 0.40
 
 LLM candidate reviews:
-OCCO | keep | confidence=0.95 | The candidate OCCO is a direct match for the component CCO (ethanol) in terms of chemical relevance within this context. | Candidate matches target structure.
-OCC(O)CO | keep | confidence=0.95 | The candidate OCC(O)CO is a valid chemical structure and matches the core scaffold of Component A (CCO). | Structure represents glycerol.
-CC(=O)N | keep | confidence=0.95 | The candidate CC(=O)N is a valid chemical structure (acetamide) and is structurally similar to the target component CCO (ethanol), maintaining the core functional group characteristics. | Valid organic compound; High structural similarity to input context
-CC(=O)O | keep | confidence=1.00 | The candidate CC(=O)O is a valid chemical structure (acetic acid) and matches the structural requirements for the component CCO. | Candidate is chemically stable and common.
-CN | keep | confidence=0.95 | The candidate is a simple primary amine (methylamine), which is a common building block and valid chemical entity. | Standard small molecule component.
-C[N+](C)(C)C.[Cl-] | reject | confidence=0.95 | The candidate is a quaternary ammonium salt (trimethylammonium chloride), which is an inorganic/simple ionic compound and does not match the target organic functional group CCO (ethanol). | Structure is chemically distinct from the target component.
-C[N+](C)(C)CCO.[Cl-] | keep | confidence=0.95 | The candidate is a valid chemical structure (ethanolammonium cation with chloride counterion) that contains the core fragment CCO. | Valid salt form of ethanolamine.
-NC(=O)N | reject | confidence=0.95 | The candidate NC(=O)N (urea) is a very simple, common chemical compound that does not possess the structural complexity or specific functional groups typically sought in drug discovery candidates compared to the starting material CCO. | Low complexity; Common reagent/intermediate
-OC[C@H](O)[C@H](O)CO | keep | confidence=0.98 | The candidate is a valid stereoisomer of glycerol (glycerol), which matches the chemical structure implied by the component CCO. | Stereocenters are correctly defined for a common polyol.
-O=C1CCCN1 | keep | confidence=0.95 | The candidate is a stable heterocyclic compound (a pyrrolidinone derivative) and represents a valid chemical structure for the given context. | Structure is chemically feasible; Stable functional groups
+OCCO | keep | confidence=1.00 | The candidate OCCO is a direct match for the component CCO (ethanol) in the context of chemical similarity or substitution. | Candidate matches target structure.
+OCC(O)CO | keep | confidence=0.95 | The candidate OCC(O)CO is a valid chemical structure and matches the core scaffold of Component A (CCO). | Candidate is chemically stable.; Matches requested structural requirements.
+CC(=O)N | keep | confidence=0.95 | The candidate CC(=O)N is a valid chemical structure (acetamide) and is structurally related to the target component CCO. | Valid chemical entity; Stable compound
+CC(=O)O | keep | confidence=1.00 | The candidate CC(=O)O is the correct chemical representation for the component CCO (acetic acid) in this context. | Matches the intended chemical structure.
+CN | keep | confidence=0.95 | The candidate is a simple primary amine (methylamine) which serves as a fundamental building block in medicinal chemistry and chemical synthesis. | Standard small molecule building block.
+C[N+](C)(C)C.[Cl-] | reject | confidence=0.95 | The candidate is a quaternary ammonium salt (trimethylammonium chloride), which is an inorganic/simple ionic compound and does not possess the structural complexity or pharmacological potential expected for this target. | Salt form of trimethylamine; Low chemical complexity
+C[N+](C)(C)CCO.[Cl-] | deprioritize | confidence=0.92 | The candidate is a quaternary ammonium salt of ethanolamine (choline chloride). While chemically stable and common in industrial applications, it is a simple inorganic-organic hybrid salt rather than a novel drug-like small molecule. | High symmetry; Commonly used as a solvent/electrolyte; Low structural complexity for medicinal chemistry
+NC(=O)N | reject | confidence=0.95 | The candidate NC(=O)N (urea) is a very simple, common chemical compound that does not possess the structural complexity or specific functional groups typically sought in advanced drug discovery candidates. | Simple urea derivative; Low novelty
+OC[C@H](O)[C@H](O)CO | keep | confidence=0.98 | The candidate is a stereospecific representation of glycerol (propan-1,2,3-triol). While the target component A (CCO) is the non-chiral base structure, the provided SMILES represents a valid chemical isomer/conformer that maintains the core functional identity. | Stereocenters are explicitly defined; Matches structural backbone of glycerol
+OCCCO | keep | confidence=0.95 | The candidate OCCCO matches the target component CCO (propan-1-ol) with an additional oxygen atom, but in many chemical contexts, it represents a valid related derivative or is acceptable depending on specific structural constraints. | Candidate closely resembles the target structure.
+O=C1CCCN1 | keep | confidence=0.95 | The candidate is a stable and well-defined chemical structure (1-azetidin-3-one). It is a valid organic molecule with no obvious reactive functional groups that would lead to instability or synthesis issues. | Small ring system; Stable carbonyl group
 O=C1NC(=O)NC1 | reject | confidence=0.95 | The candidate SMILES 'O=C1NC(=O)NC1' (urea) does not match the target component 'CCO' (ethanol). | Mismatch between input context and candidate structure.
-CS(=O)C | keep | confidence=0.95 | The candidate CS(=O)C (dimethyl sulfoxide) is a common and stable chemical compound. It matches the structural motif of the component CCO while incorporating a sulfur-based functional group. | Stable reagent; Commonly used in organic synthesis
-CS(=O)(=O)C | keep | confidence=0.95 | The candidate is a common and stable chemical moiety (methanesulfonate). It is chemically feasible and structurally consistent with the provided context. | Standard methanesulfonate group.
-OC1=CC=CC=N1 | reject | confidence=0.95 | The candidate 'OC1=CC=CC=N1' (2-pyrrolin-1-ol) is a structural isomer of the target component 'CCO' (ethanol). The chemical identity does not match the requested component. | Structural mismatch with target CCO
-CN(C)C=O | keep | confidence=0.95 | The candidate matches the provided SMILES string CN(C)C=O exactly. | Candidate is a valid chemical structure.
-CCOCC | keep | confidence=0.95 | The candidate matches the specified component CCO and follows the requested structure. | Deterministic selection from provided list.
-CC(=O)NCCO | keep | confidence=0.95 | The candidate CC(=O)NCCO is a valid chemical structure (N-methylethanolamine derivative or similar amide) and matches the core structural motif of Component A (CCO) while incorporating standard functional groups. | Candidate maintains the ethanol backbone from component A.
+CS(=O)C | keep | confidence=0.95 | The candidate CS(=O)C (dimethyl sulfoxide) is a well-known solvent and reagent with stable chemical properties. | Standard industrial chemical
+CS(=O)(=O)C | keep | confidence=0.95 | The candidate is a common and stable chemical moiety (methanesulfonate). It matches the structural requirements for the provided component. | Standard methanesulfonate group.
+OC1=CC=CC=N1 | reject | confidence=0.95 | The candidate 'OC1=CC=CC=N1' (3-hydroxy-1,2-dimethylimidazolinium or similar tautomer) is a significantly different chemical scaffold compared to the target component 'CCO' (ethanol). The addition of a nitrogen atom and a ring structure changes the fundamental pharmacophore. | Structural mismatch with target CCO; Candidate contains heterocyclic elements not present in source
+CN(C)C=O | keep | confidence=0.95 | The candidate is a valid chemical structure (N-methylacetamide derivative or similar small organic molecule) and matches the provided SMILES string. | Valid structure; Stable compound
+CCOCC | keep | confidence=0.95 | The candidate matches the specified chemical structure for Component A: CCO. | Deterministic selection from requested candidates.
+CC(=O)NCCO | keep | confidence=0.94 | The molecule is a standard derivative of the target scaffold with no significant steric hindrance or electronic issues. | High confidence due to structural similarity to known active compounds.
 
 Warnings:
-- LLM brainstorming failed: Unterminated string starting at: line 93 column 15 (char 3007)
+- LLM brainstorming failed: LLM response is not valid JSON. Excerpt: [\n  {\n    "smiles": "CC(=O)OC1=CC=C(C=C1)C(=O)O",\n    "rationale": "Aspirin derivative; classic carboxylic acid for hydrogen bonding with CCO.",\n    "fam...
 - LLM candidate review returned wrong SMILES for O
-- LLM candidate review returned wrong SMILES for OCCCO
 - LLM candidate review returned wrong SMILES for COCCO
-- LLM explanation generation failed: Expecting value: line 65 column 16 (char 2512)
-- LLM critique generation failed: Unterminated string starting at: line 75 column 17 (char 2086)
+- LLM explanation generation failed: LLM response is not valid JSON. Excerpt: [\n  {\n    "smiles": "CCOCC",\n    "summary": "Identified as a drug substance (des) with a melting point of 137.53 K.",\n    "evidence": "min Tm=137.53 K, a...
+- LLM critique generation failed: LLM response is not valid JSON. Excerpt: [\n  {\n    "smiles": "CCOCC",\n    "assessment": "is_des=True",\n    "concerns": "min Tm=137.53 K, absolute<= 260.00 K, relative_drop=0.120"\n  },\n  {\n   ...
+- LLM chemistry assessment failed for CCOCC: LLM response is not valid JSON. Excerpt: [\n  {\n    "smiles": "CCOCC",\n    "decision": "positive",\n    "confidence": 0.82,\n    "rationale": "Structure is a standard alkyl-based chain with low co...
+- LLM chemistry assessment failed for CN(C)C=O: LLM response is not valid JSON. Excerpt: [\n  {\n    "smiles": "CCOCC",\n    "decision": "positive",\n    "confidence": 0.82,\n    "rationale": "Structure matches a known DES candidate with high the...
+
+Run memory:
+- Chemical pattern memory favored productive families: ether, dimethylformamide-like, amine.
+- Chemical pattern memory penalized caution families: amide, polyol, carboxylic acid.

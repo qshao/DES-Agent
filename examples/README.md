@@ -24,6 +24,8 @@ Feature map:
 | `metal_binding/` | no | no | yes | no | yes |
 | `metal_selectivity_standalone/` | no | no | yes | no | yes |
 
+Chemical pattern memory shows up most clearly in `des_run_memory_feedback/` and the multi-cycle DES examples, where prior predictions shape the next cycle's prompt context and report notes.
+
 - [`des_viscosity/`](./des_viscosity) for offline DES viscosity
 - [`viscosity_template/`](./viscosity_template) for a template-style DES viscosity workflow you can adapt
 - [`viscosity_composite_ranking/`](./viscosity_composite_ranking) for viscosity-threshold gating and composite ranking with `--viscosity-threshold` and `--viscosity-weight`
@@ -44,6 +46,7 @@ Feature map:
 - [`des_run_memory_feedback/`](./des_run_memory_feedback) for DES run memory
 - [`betaine_des/`](./betaine_des) for a betaine DES search
 - [`betaine_des_gemma4_12b/`](./betaine_des_gemma4_12b) for the betaine search with Ollama Gemma 4-12B
+- Note: this folder stays as the frozen baseline capture; the refreshed chemistry-lesson-summary examples are Gemma 4-12B and lidocaine
 - [`ni2_co2_selectivity/`](./ni2_co2_selectivity) for the Ni2+/Co2+ selectivity-DES example
 - [`metal_selectivity_standalone/`](./metal_selectivity_standalone) for standalone metal selectivity
 - [`preset_thresholds/`](./preset_thresholds) for named DES presets
@@ -80,7 +83,7 @@ The same folders also power the pytest-based example benchmark suite in [`tests/
 > and demonstrated separately. The **LLM-backed** captures (e.g. `gemma4_12b`,
 > `ni_co_selectivity_des*`) predate this feature and were not regenerated.
 
-The LLM-backed examples also include a model-specific `llm.*.yaml` file. The shared demo entrypoint covers the LLM-enabled DES runs, including the two-stage brainstorm, proposal-diversity controls, and chemistry-advisor notes. DES runs can also write into a standard flat run directory with `--output-dir runs/run_001`, and run memory can be saved, labeled, and reused to bias later ranking.
+The LLM-backed examples also include a model-specific `llm.*.yaml` file. The shared demo entrypoint covers the LLM-enabled DES runs, including the two-stage brainstorm, proposal-diversity controls, chemistry-advisor notes, chemical-pattern memory, and the chemistry lesson summary block that now appears in the report. DES runs can also write into a standard flat run directory with `--output-dir runs/run_001`, and run memory can be saved, labeled, and reused to bias later ranking.
 
 ```bash
 python -m examples.demo_des_search --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --llm-config <folder>/llm.<name>.yaml

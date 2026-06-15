@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 
+from des_multi_agent.chemical_lesson_summary import ChemistryLessonSummary
 from des_multi_agent.llm.schemas import ChemistryAssessment, ChemistryNextStep
 from des_multi_agent.reporting import format_metal_binding_report, format_report
 from des_multi_agent.workflows.metal_binding import MetalBindingOutcome
@@ -51,3 +52,22 @@ def test_format_report_includes_chemistry_advisor_sections():
     assert "LLM chemistry advisor:" in output
     assert "LLM next steps:" in output
     assert "phase separation risk" in output
+
+
+def test_format_report_includes_chemistry_lesson_summary():
+    output = format_report(
+        [],
+        chemistry_lesson_summary=ChemistryLessonSummary(
+            productive_patterns={"diol": 2},
+            avoid_patterns={"aromatic acid": 1},
+            cycle_summary=["Productive patterns: diol (2)."],
+            run_summary=["Run summary: keep diols near the top."],
+            next_steps=["Stay near the productive families."],
+            warnings=["Evidence is tentative."],
+        ),
+    )
+    assert "Chemistry lessons:" in output
+    assert "productive patterns: diol (2)" in output
+    assert "avoid patterns: aromatic acid (1)" in output
+    assert "next steps:" in output
+    assert "warnings:" in output

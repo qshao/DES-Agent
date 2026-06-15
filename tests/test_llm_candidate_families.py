@@ -1,5 +1,9 @@
 from __future__ import annotations
+from types import SimpleNamespace
 import pytest
+from des_multi_agent.chemical_lesson_summary import ChemistryLessonSummary
+from des_multi_agent.chemical_pattern_memory import ChemicalPatternMemory
+
 
 
 # ── H6: CandidateFamily schema ───────────────────────────────────────────────
@@ -148,11 +152,46 @@ def test_cycle_delta_has_family_ledger():
     assert delta.family_ledger["polyols"] == 2
 
 
+def test_multi_cycle_passes_lesson_summary_between_cycles(monkeypatch, tmp_path):
+    calls = []
+
+    def fake_run_search_report(**kwargs):
+        calls.append(kwargs)
+        lesson = ChemistryLessonSummary(run_summary=[f"cycle {len(calls)} lesson"])
+        return SimpleNamespace(
+            results=[],
+            annotated_results=[],
+            candidate_proposals=[],
+            candidate_reviews=[],
+            explanation_notes=[],
+            critique_notes=[],
+            brainstorm_candidates=[],
+            llm_warnings=[],
+            memory_notes=[],
+            viscosity_predictions=[],
+            chemistry_lesson_summary=lesson,
+        )
+
+    monkeypatch.setattr("des_multi_agent.multi_cycle.run_search_report", fake_run_search_report)
+    from des_multi_agent.multi_cycle import run_multi_cycle_search
+
+    ckpt = tmp_path / "ckpt.pt"
+    ckpt.write_bytes(b"")
+    cfg = tmp_path / "config.yaml"
+    cfg.write_text("", encoding="utf-8")
+
+    run_multi_cycle_search("CCO", 2, str(ckpt), str(cfg), n_cycles=2)
+
+    assert calls[0]["prior_chemistry_lesson_summary"] is None
+    assert calls[1]["prior_chemistry_lesson_summary"].run_summary == ["cycle 1 lesson"]
+
+
 def test_multi_cycle_builds_family_ledger(monkeypatch, tmp_path):
     """run_multi_cycle_search builds a family_ledger from brainstorm_candidates + DES results."""
     from dataclasses import dataclass
     from des_multi_agent.evaluation import DesResult
     from des_multi_agent.llm.schemas import CandidateBrainstorm
+    from des_multi_agent.chemical_pattern_memory import ChemicalPatternMemory
 
     @dataclass(frozen=True)
     class _Curve:
@@ -226,6 +265,7 @@ def test_multi_cycle_accumulates_family_ledger_across_cycles(monkeypatch, tmp_pa
     from dataclasses import dataclass
     from des_multi_agent.evaluation import DesResult
     from des_multi_agent.llm.schemas import CandidateBrainstorm
+    from des_multi_agent.chemical_pattern_memory import ChemicalPatternMemory
 
     @dataclass(frozen=True)
     class _Curve:
@@ -275,6 +315,58 @@ def test_multi_cycle_accumulates_family_ledger_across_cycles(monkeypatch, tmp_pa
     delta2 = result.cycle_deltas[1]
     assert delta1.family_ledger.get("polyols", 0) >= 1
     assert delta2.family_ledger.get("amides", 0) >= 1
+
+
+def test_multi_cycle_passes_pattern_memory_between_cycles(monkeypatch, tmp_path):
+    from dataclasses import dataclass
+    from des_multi_agent.evaluation import DesResult
+    from des_multi_agent.llm.schemas import CandidateBrainstorm
+
+    @dataclass(frozen=True)
+    class _Curve:
+        smiles_b: str
+        smiles_a: str = "Cc1ccc(O)cc1"
+        tm_pred_k: list = None
+        ratios: list = None
+        t1_k: float = 330.0
+        t2_k: float = 289.0
+        def __post_init__(self):
+            if self.tm_pred_k is None:
+                object.__setattr__(self, "tm_pred_k", [230.0])
+            if self.ratios is None:
+                object.__setattr__(self, "ratios", [0.5])
+
+    calls = []
+
+    def _fake_search(**kwargs):
+        calls.append(kwargs)
+        outcome = __import__('unittest.mock').mock.MagicMock()
+        outcome.results = [DesResult(
+            curve=_Curve(smiles_b=f"cycle-{len(calls)}"), absolute_pass=True,
+            relative_pass=True, is_des=True, rationale="t", min_tm_k=230.0,
+        )]
+        outcome.brainstorm_candidates = [CandidateBrainstorm(smiles=f"cycle-{len(calls)}", rationale="ok", family="polyols")]
+        outcome.chemical_pattern_memory = ChemicalPatternMemory(prompt_notes=[f"cycle {len(calls)} lesson"])
+        return outcome
+
+    monkeypatch.setattr("des_multi_agent.multi_cycle.run_search_report", _fake_search)
+
+    from des_multi_agent.multi_cycle import run_multi_cycle_search
+    ckpt = tmp_path / "ckpt.pt"; ckpt.write_bytes(b"")
+    cfg = tmp_path / "config.yaml"; cfg.write_text("")
+
+    result = run_multi_cycle_search(
+        "CCO",
+        2,
+        str(ckpt),
+        str(cfg),
+        n_cycles=2,
+        chemical_pattern_memory_mode="adaptive",
+    )
+
+    assert calls[0]["prior_pattern_memory"] is None
+    assert calls[1]["prior_pattern_memory"].prompt_notes == ["cycle 1 lesson"]
+    assert result.total_cycles == 2
 
 
 def test_family_selection_prompt_includes_balanced_diversity_guidance():

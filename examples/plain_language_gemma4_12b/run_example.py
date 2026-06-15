@@ -141,6 +141,7 @@ def main() -> int:
             brainstorm_candidates=outcome.brainstorm_candidates,
             llm_warnings=outcome.llm_warnings,
             memory_notes=getattr(outcome, "memory_notes", None),
+            chemistry_lesson_summary=getattr(outcome, "chemistry_lesson_summary", None),
             viscosity_predictions=outcome.viscosity_predictions,
         )
     )

@@ -137,6 +137,18 @@ def build_parser():
         default=None,
         help="Maximum accepted proposals per chemical family before the rest are suppressed",
     )
+    parser.add_argument(
+        "--chemical-pattern-memory",
+        choices=["off", "soft", "adaptive"],
+        default=None,
+        help="How strongly prior chemical patterns should influence the next DES cycle",
+    )
+    parser.add_argument(
+        "--pattern-memory-max-examples",
+        type=_positive_int,
+        default=None,
+        help="Maximum representative good/bad examples to include in chemical pattern memory prompts",
+    )
     parser.add_argument("--discovery-path", default=None, help="Optional local discovery directory containing literature.yaml and library.yaml")
     parser.add_argument("--viscosity-model-path", default=None, help="Optional local DESignSolvents viscosity model artifact")
     parser.add_argument("--metal-ion", default=None, help="Metal ion for the metal-binding workflow")
@@ -584,6 +596,8 @@ def main(argv=None):
                     ensemble_checkpoints=ensemble_ckpts,
                     candidates_file=getattr(args, "candidates_file", None),
                     proposal_diversity_cfg=proposal_diversity_cfg,
+                    chemical_pattern_memory_mode=getattr(args, "chemical_pattern_memory", None) or "adaptive",
+                    pattern_memory_max_examples=getattr(args, "pattern_memory_max_examples", None) or 3,
                     n_cycles=args.n_cycles,
                 )
                 outcome = multi_outcome.final_outcome
@@ -616,6 +630,8 @@ def main(argv=None):
                     save_run_memory_path=getattr(args, "save_run_memory", None),
                     reuse_run_path=getattr(args, "reuse_run", None),
                     proposal_diversity_cfg=proposal_diversity_cfg,
+                    chemical_pattern_memory_mode=getattr(args, "chemical_pattern_memory", None) or "adaptive",
+                    pattern_memory_max_examples=getattr(args, "pattern_memory_max_examples", None) or 3,
                 )
         except (FileNotFoundError, ValueError) as exc:
             parser.error(str(exc))
@@ -689,6 +705,8 @@ def main(argv=None):
                 viscosity_model_path=getattr(args, "viscosity_model_path", None),
                 viscosity_weight=getattr(args, "viscosity_weight", 0.3),
                 viscosity_threshold_cp=getattr(args, "viscosity_threshold", None),
+                chemical_pattern_memory_mode=getattr(args, "chemical_pattern_memory", None) or "adaptive",
+                pattern_memory_max_examples=getattr(args, "pattern_memory_max_examples", None) or 3,
             )
         except (FileNotFoundError, ValueError) as exc:
             parser.error(str(exc))

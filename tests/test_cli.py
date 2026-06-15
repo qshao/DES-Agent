@@ -216,11 +216,79 @@ def test_cli_parser_supports_proposal_diversity_flags():
     assert args.proposal_max_similarity == 0.72
     assert args.proposal_per_family_budget == 2
 
+def test_cli_parser_supports_chemical_pattern_memory_flags():
+    parser = build_parser()
+    args = parser.parse_args([
+        "--workflow",
+        "des",
+        "--component-a",
+        "CCO",
+        "--checkpoint-path",
+        "ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt",
+        "--chemical-pattern-memory",
+        "soft",
+        "--pattern-memory-max-examples",
+        "5",
+    ])
+    assert args.chemical_pattern_memory == "soft"
+    assert args.pattern_memory_max_examples == 5
+
 
 def test_cli_parser_accepts_doctor_subcommand():
     parser = build_parser()
     args = parser.parse_args(["doctor"])
     assert args.command == "doctor"
+
+
+def test_cli_pattern_memory_zero_examples_is_rejected():
+    parser = build_parser()
+    with pytest.raises(SystemExit):
+        parser.parse_args([
+            "--component-a",
+            "CCO",
+            "--checkpoint-path",
+            "ckpt.pt",
+            "--pattern-memory-max-examples",
+            "0",
+        ])
+
+
+def test_selectivity_des_cli_forwards_pattern_memory_cfg(monkeypatch, tmp_path, capsys):
+    checkpoint_path = tmp_path / "ckpt.pt"
+    checkpoint_path.write_text("ckpt", encoding="utf-8")
+    config_path = tmp_path / "config.yaml"
+    config_path.write_text("device: cpu\n", encoding="utf-8")
+    captured = {}
+
+    def fake_run_selectivity_des_pipeline(**kwargs):
+        captured.update(kwargs)
+        return SimpleNamespace(selectivity_outcome=None, ligand_des_results=[], n_outer_cycles_run=1, converged=False, warnings=[])
+
+    monkeypatch.setattr(cli_module, "run_selectivity_des_pipeline", fake_run_selectivity_des_pipeline)
+    monkeypatch.setattr(cli_module, "format_selectivity_des_report", lambda *args, **kwargs: "SELECTIVITY DES REPORT")
+
+    cli_module.main([
+        "--workflow",
+        "selectivity-des",
+        "--target-metal-ion",
+        "Cu2+",
+        "--competitor-metal-ion",
+        "Zn2+",
+        "--checkpoint-path",
+        str(checkpoint_path),
+        "--config-path",
+        str(config_path),
+        "--chemical-pattern-memory",
+        "soft",
+        "--pattern-memory-max-examples",
+        "6",
+    ])
+
+    out = capsys.readouterr().out.strip().splitlines()
+    assert out[0] == "SELECTIVITY DES REPORT"
+    assert any(line.startswith("summary:") for line in out)
+    assert captured["chemical_pattern_memory_mode"] == "soft"
+    assert captured["pattern_memory_max_examples"] == 6
 
 
 def test_cli_parser_accepts_output_dir():
@@ -288,6 +356,105 @@ def test_des_cli_forwards_proposal_diversity_cfg_to_run_search_report(monkeypatc
         "max_similarity": 0.72,
         "per_family_budget": 2,
     }
+    assert captured["chemical_pattern_memory_mode"] == "adaptive"
+    assert captured["pattern_memory_max_examples"] == 3
+
+
+def test_des_cli_forwards_pattern_memory_cfg_to_run_search_report(monkeypatch, tmp_path, capsys):
+    checkpoint_path = tmp_path / "ckpt.pt"
+    checkpoint_path.write_text("ckpt", encoding="utf-8")
+    config_path = tmp_path / "config.yaml"
+    config_path.write_text("device: cpu\n", encoding="utf-8")
+    captured = {}
+
+    def fake_run_search_report(**kwargs):
+        captured.update(kwargs)
+        return SimpleNamespace(
+            results=[],
+            annotated_results=[],
+            candidate_proposals=[],
+            candidate_reviews=[],
+            explanation_notes=[],
+            critique_notes=[],
+            brainstorm_candidates=[],
+            llm_warnings=[],
+            memory_notes=[],
+            viscosity_predictions=[],
+        )
+
+    monkeypatch.setattr(cli_module, "run_search_report", fake_run_search_report)
+    monkeypatch.setattr(cli_module, "format_report", lambda *args, **kwargs: "DES REPORT")
+
+    cli_module.main([
+        "--workflow",
+        "des",
+        "--component-a",
+        "CCO",
+        "--checkpoint-path",
+        str(checkpoint_path),
+        "--config-path",
+        str(config_path),
+        "--chemical-pattern-memory",
+        "soft",
+        "--pattern-memory-max-examples",
+        "5",
+    ])
+
+    out = capsys.readouterr().out.strip().splitlines()
+    assert out[0] == "DES REPORT"
+    assert any(line.startswith("summary:") for line in out)
+    assert captured["chemical_pattern_memory_mode"] == "soft"
+    assert captured["pattern_memory_max_examples"] == 5
+
+
+def test_des_cli_forwards_pattern_memory_cfg_to_run_multi_cycle_search(monkeypatch, tmp_path, capsys):
+    checkpoint_path = tmp_path / "ckpt.pt"
+    checkpoint_path.write_text("ckpt", encoding="utf-8")
+    config_path = tmp_path / "config.yaml"
+    config_path.write_text("device: cpu\n", encoding="utf-8")
+    captured = {}
+
+    def fake_run_multi_cycle_search(**kwargs):
+        captured.update(kwargs)
+        final = SimpleNamespace(
+            results=[],
+            annotated_results=[],
+            candidate_proposals=[],
+            candidate_reviews=[],
+            explanation_notes=[],
+            critique_notes=[],
+            brainstorm_candidates=[],
+            llm_warnings=[],
+            memory_notes=[],
+            viscosity_predictions=[],
+        )
+        return SimpleNamespace(final_outcome=final, cycle_deltas=[], total_cycles=2, converged=False)
+
+    monkeypatch.setattr(cli_module, "run_multi_cycle_search", fake_run_multi_cycle_search)
+    monkeypatch.setattr(cli_module, "format_report", lambda *args, **kwargs: "DES REPORT")
+
+    cli_module.main([
+        "--workflow",
+        "des",
+        "--component-a",
+        "CCO",
+        "--checkpoint-path",
+        str(checkpoint_path),
+        "--config-path",
+        str(config_path),
+        "--n-cycles",
+        "2",
+        "--chemical-pattern-memory",
+        "off",
+        "--pattern-memory-max-examples",
+        "4",
+    ])
+
+    out = capsys.readouterr().out.strip().splitlines()
+    assert out[0] == "DES REPORT"
+    assert any(line.startswith("summary:") for line in out)
+    assert captured["chemical_pattern_memory_mode"] == "off"
+    assert captured["pattern_memory_max_examples"] == 4
 
 
 def test_des_cli_forwards_output_dir_to_run_search_report(monkeypatch, tmp_path, capsys):

@@ -70,6 +70,8 @@ def run_selectivity_des_pipeline(
     viscosity_model_path: str | None = None,
     viscosity_weight: float = 0.3,
     viscosity_threshold_cp: float | None = None,
+    chemical_pattern_memory_mode: str = "adaptive",
+    pattern_memory_max_examples: int = 3,
 ) -> SelectivityDesPipelineOutcome:
     all_warnings: list[str] = []
     des_compatible_smiles: set[str] = set()
@@ -140,6 +142,8 @@ def run_selectivity_des_pipeline(
                     viscosity_model_path=viscosity_model_path,
                     viscosity_weight=viscosity_weight,
                     viscosity_threshold_cp=viscosity_threshold_cp,
+                    chemical_pattern_memory_mode=chemical_pattern_memory_mode,
+                    pattern_memory_max_examples=pattern_memory_max_examples,
                 )
                 des_compat = any(r.is_des for r in des_mco.final_outcome.results)
                 n_screened = sum(d.n_screened for d in des_mco.cycle_deltas)

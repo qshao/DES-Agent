@@ -5,6 +5,7 @@ import io
 import json
 from collections.abc import Sequence
 
+from .chemical_lesson_summary import ChemistryLessonSummary
 from .llm.schemas import CandidateBrainstorm, CandidateReview, ChemistryAssessment, ChemistryNextStep, CritiqueNote, ExplanationNote
 from .predictors.designsolvents import ViscosityPrediction
 from .schemas import CandidateProposal
@@ -50,6 +51,40 @@ def _confidence_label(trust_score: float | None, uncertainty_flag: str) -> str:
     if trust_score is not None and trust_score >= 0.70:
         return "moderate-high confidence"
     return "moderate confidence — consider experimental verification"
+
+
+def _format_chemistry_lesson_block(summary: ChemistryLessonSummary | None) -> list[str]:
+    if summary is None:
+        return []
+    if not any([
+        summary.productive_patterns,
+        summary.avoid_patterns,
+        summary.cycle_summary,
+        summary.run_summary,
+        summary.next_steps,
+        summary.warnings,
+    ]):
+        return []
+    lines = ["Chemistry lessons:"]
+    if summary.productive_patterns:
+        productive = ", ".join(f"{family} ({count})" for family, count in summary.productive_patterns.items())
+        lines.append(f"productive patterns: {productive}")
+    if summary.avoid_patterns:
+        avoid = ", ".join(f"{family} ({count})" for family, count in summary.avoid_patterns.items())
+        lines.append(f"avoid patterns: {avoid}")
+    if summary.cycle_summary:
+        lines.append("cycle summary:")
+        lines.extend(f"- {note}" for note in summary.cycle_summary)
+    if summary.run_summary and summary.run_summary != summary.cycle_summary:
+        lines.append("run summary:")
+        lines.extend(f"- {note}" for note in summary.run_summary)
+    if summary.next_steps:
+        lines.append("next steps:")
+        lines.extend(f"- {note}" for note in summary.next_steps)
+    if summary.warnings:
+        lines.append("warnings:")
+        lines.extend(f"- {note}" for note in summary.warnings)
+    return lines
 
 
 def _format_summary_block(
@@ -148,11 +183,16 @@ def format_report(
     contradiction_notes=None,
     advisor_assessments: Sequence[ChemistryAssessment] | None = None,
     advisor_next_steps: Sequence[ChemistryNextStep] | None = None,
+    chemistry_lesson_summary: ChemistryLessonSummary | None = None,
 ) -> str:
     proposal_by_smiles = {item.smiles: item for item in candidate_proposals or []}
     annotation_by_smiles = {item.result.curve.smiles_b: item for item in annotated_results or []}
 
     lines = [_format_summary_block(results, annotated_results, resolve_names=resolve_names), ""]
+    lesson_lines = _format_chemistry_lesson_block(chemistry_lesson_summary)
+    if lesson_lines:
+        lines.extend(lesson_lines)
+        lines.append("")
 
     if annotation_by_smiles:
         lines.append("compound | is_des | min_tm_k | eutectic_x_b | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale")
@@ -336,9 +376,13 @@ def format_report_csv(results, annotated_results=None, resolve_names: bool = Tru
     return buf.getvalue()
 
 
-def format_report_prose(results, annotated_results=None, resolve_names: bool = True) -> str:
+def format_report_prose(results, annotated_results=None, resolve_names: bool = True, chemistry_lesson_summary: ChemistryLessonSummary | None = None) -> str:
     """Render just the plain-language summary block."""
-    return _format_summary_block(results, annotated_results, resolve_names=resolve_names)
+    block = _format_summary_block(results, annotated_results, resolve_names=resolve_names)
+    lesson_lines = _format_chemistry_lesson_block(chemistry_lesson_summary)
+    if not lesson_lines:
+        return block
+    return "\n".join([block, ""] + lesson_lines)
 
 
 def format_metal_binding_report(outcome) -> str:

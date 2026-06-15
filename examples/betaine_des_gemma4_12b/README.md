@@ -54,6 +54,8 @@ The file [`output.txt`](./output.txt) contains the captured report from a real r
 - **Chemistry-advisor notes**: concise follow-up guidance and caveats that help explain why the top candidates are plausible.
 - **Viscosity predictions**: predicted mixture viscosity for each DES-positive pair.
 
+**Status:** frozen baseline capture. Refreshed chemistry-lesson-summary examples: Gemma 4-12B and lidocaine.
+
 ## How to Adapt
 
 - Lower `--viscosity-weight` toward `0.3` to give more weight to Tm depression; raise it toward `1.0` to rank almost entirely by viscosity.

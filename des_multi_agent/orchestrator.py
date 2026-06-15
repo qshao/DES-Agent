@@ -6,6 +6,8 @@ from pathlib import Path
 import sys
 
 from .candidate_generation import generate_candidates
+from .chemical_lesson_summary import ChemistryLessonSummary, ChemistryLessonSummaryConfig, build_chemistry_lesson_summary
+from .chemical_pattern_memory import ChemicalPatternMemory, ChemicalPatternMemoryConfig, apply_pattern_memory_bias, build_pattern_memory, merge_pattern_memories
 from .chemistry_filter import canonicalize_smiles, filter_candidates
 from .proposal_diversity import ProposalDiversityConfig, apply_proposal_diversity
 from .config import DEFAULT_ABSOLUTE_TM_MAX_K, DEFAULT_RELATIVE_DROP_MIN
@@ -48,6 +50,8 @@ class SearchOutcome:
     advisor_assessments: list[ChemistryAssessment] = field(default_factory=list)
     advisor_next_steps: list[ChemistryNextStep] = field(default_factory=list)
     viscosity_predictions: list[ViscosityPrediction] = field(default_factory=list)
+    chemical_pattern_memory: ChemicalPatternMemory = field(default_factory=ChemicalPatternMemory)
+    chemistry_lesson_summary: ChemistryLessonSummary = field(default_factory=ChemistryLessonSummary)
     report_text: str = ""
 
 
@@ -164,6 +168,32 @@ def _build_proposal_diversity_config(
         max_families=int(proposal_diversity_cfg.get("max_families", base_cfg.max_families)),
         family_bias_strength=float(proposal_diversity_cfg.get("family_bias_strength", base_cfg.family_bias_strength)),
     )
+
+
+def _append_pattern_memory_context(context: str, memory: ChemicalPatternMemory | None) -> str:
+    if memory is None or not memory.prompt_notes:
+        return context
+    lines = [context, "", "Chemical lessons from prior predictions:"]
+    lines.extend(f"  - {note}" for note in memory.prompt_notes[:6])
+    return "\n".join(lines)
+
+
+def _append_chemistry_lesson_context(context: str, summary: ChemistryLessonSummary | None) -> str:
+    if summary is None:
+        return context
+    notes: list[str] = []
+    notes.extend(summary.run_summary[:6])
+    if not notes:
+        notes.extend(summary.cycle_summary[:6])
+    if not notes:
+        return context
+    lines = [context, "", "Chemistry lessons from prior predictions:"]
+    lines.extend(f"  - {note}" for note in notes[:6])
+    if summary.next_steps:
+        lines.append("  - Next steps: " + "; ".join(summary.next_steps[:2]))
+    if summary.warnings:
+        lines.append("  - Warnings: " + "; ".join(summary.warnings[:2]))
+    return "\n".join(lines)
 
 
 def _build_chemistry_advisor_context(base_context: str, annotated_results: list[AnnotatedResult], memory_notes: list[str]) -> str:
@@ -369,6 +399,7 @@ def _build_des_export_payload(
         "contradiction_notes": [asdict(n) for n in outcome.contradiction_notes],
         "memory_notes": list(outcome.memory_notes),
         "warnings": list(outcome.llm_warnings),
+        "chemistry_lesson_summary": asdict(outcome.chemistry_lesson_summary),
     }
 
 
@@ -415,6 +446,10 @@ def run_search_report(
     prior_cycle_top_results: list | None = None,
     prior_family_ledger: dict[str, int] | None = None,
     proposal_diversity_cfg: Mapping[str, object] | None = None,
+    prior_pattern_memory: ChemicalPatternMemory | None = None,
+    prior_chemistry_lesson_summary: ChemistryLessonSummary | None = None,
+    chemical_pattern_memory_mode: str = "adaptive",
+    pattern_memory_max_examples: int = 3,
 ):
     # D1 — validate component_a SMILES before any expensive work
     try:
@@ -441,7 +476,24 @@ def run_search_report(
     candidate_proposals, notes = _merge_candidates(discovery_candidates, heuristic_candidates)
     all_dedup_notes.extend(notes)
 
-    review_context = _search_context(component_a, n, str(checkpoint_path), str(config_path))
+    pattern_cfg = ChemicalPatternMemoryConfig(mode=chemical_pattern_memory_mode, max_examples=pattern_memory_max_examples)
+    reuse_memories: list = []
+    reuse_pattern_memory = ChemicalPatternMemory()
+    reuse_run_note: str | None = None
+    if reuse_run_path:
+        reuse_memories = load_run_memory_history(reuse_run_path)
+        reuse_pattern_memory = build_pattern_memory(
+            component_a=component_a,
+            annotated_results=[],
+            candidate_proposals=candidate_proposals,
+            run_memories=reuse_memories,
+            config=pattern_cfg,
+        )
+        reuse_run_note = f"Loaded reuse memory from {reuse_run_path} ({len(reuse_memories)} run memory file(s))."
+    active_pattern_memory = merge_pattern_memories(prior_pattern_memory, reuse_pattern_memory)
+
+    review_context = _append_pattern_memory_context(_search_context(component_a, n, str(checkpoint_path), str(config_path)), active_pattern_memory)
+    review_context = _append_chemistry_lesson_context(review_context, prior_chemistry_lesson_summary)
     effective_llm_cfg = _merge_llm_diversity_overrides(llm_cfg, proposal_diversity_cfg)
     provider = build_llm_provider(effective_llm_cfg, request_fn=llm_request_fn) if effective_llm_cfg else None
     llm_candidates: list[CandidateBrainstorm] = []
@@ -458,6 +510,8 @@ def run_search_report(
                     family_ledger=prior_family_ledger,
                     diversity_mode=getattr(provider, "diversity_mode", "balanced"),
                 )
+            brainstorm_context = _append_pattern_memory_context(brainstorm_context, active_pattern_memory)
+            brainstorm_context = _append_chemistry_lesson_context(brainstorm_context, prior_chemistry_lesson_summary)
             llm_candidates = provider.brainstorm_candidates(
                 component_a,
                 None,
@@ -576,16 +630,21 @@ def run_search_report(
     annotated_results = apply_uncertainty_policy(ranked, uncertainty_by_smiles, policy)
     annotated_results = _apply_review_penalties(annotated_results, review_penalties)
     memory_notes: list[str] = list(all_dedup_notes)
-    reuse_memories = []
-    if reuse_run_path:
-        reuse_memories = load_run_memory_history(reuse_run_path)
+    if reuse_run_note is not None:
+        memory_notes.insert(0, reuse_run_note)
+    if reuse_memories:
         annotated_results, reuse_notes = apply_run_memory_preferences(
             annotated_results=annotated_results,
             memory=reuse_memories,
             component_a=component_a,
         )
         memory_notes.extend(reuse_notes)
-        memory_notes.insert(0, f"Loaded reuse memory from {reuse_run_path} ({len(reuse_memories)} run memory file(s)).")
+    annotated_results, pattern_notes = apply_pattern_memory_bias(
+        annotated_results,
+        candidate_proposals,
+        active_pattern_memory,
+    )
+    memory_notes.extend(pattern_notes)
     final_results = [item.result for item in annotated_results]
     explanation_notes: list[ExplanationNote] = []
     critique_notes: list[CritiqueNote] = []
@@ -606,6 +665,10 @@ def run_search_report(
         except Exception as exc:
             llm_warnings.append(f"LLM contradiction detection failed: {exc}")
     advisor_memory_notes = build_chemistry_advisor_memory_notes(reuse_memories)
+    if active_pattern_memory.prompt_notes:
+        advisor_memory_notes = advisor_memory_notes + active_pattern_memory.prompt_notes[:6]
+    if prior_chemistry_lesson_summary is not None:
+        advisor_memory_notes = advisor_memory_notes + prior_chemistry_lesson_summary.run_summary[:6]
     advisor_assessments: list[ChemistryAssessment] = []
     advisor_next_steps: list[ChemistryNextStep] = []
     if provider is not None and annotated_results:
@@ -621,6 +684,23 @@ def run_search_report(
             advisor_next_steps = provider.suggest_next_steps(advisor_context, advisor_memory_notes)
         except Exception as exc:
             llm_warnings.append(f"LLM chemistry next-step guidance failed: {exc}")
+    current_pattern_memory = build_pattern_memory(
+        component_a=component_a,
+        annotated_results=annotated_results,
+        candidate_proposals=candidate_proposals,
+        run_memories=reuse_memories,
+        config=pattern_cfg,
+    )
+    memory_notes.extend(current_pattern_memory.notes)
+    current_lesson_summary = build_chemistry_lesson_summary(
+        component_a=component_a,
+        annotated_results=annotated_results,
+        candidate_proposals=candidate_proposals,
+        run_memories=reuse_memories,
+        prior_pattern_memory=active_pattern_memory,
+        prior_lesson_summary=prior_chemistry_lesson_summary,
+        config=ChemistryLessonSummaryConfig(mode="adaptive", max_examples=pattern_memory_max_examples),
+    )
     if save_run_memory_path:
         memory = build_run_memory(
             component_a=component_a,
@@ -644,6 +724,8 @@ def run_search_report(
         advisor_assessments=advisor_assessments,
         advisor_next_steps=advisor_next_steps,
         viscosity_predictions=viscosity_predictions,
+        chemical_pattern_memory=current_pattern_memory,
+        chemistry_lesson_summary=current_lesson_summary,
     )
     _progress(6, "Building report...")
     report_text = format_report(
@@ -660,6 +742,7 @@ def run_search_report(
         contradiction_notes=contradiction_notes,
         advisor_assessments=advisor_assessments,
         advisor_next_steps=advisor_next_steps,
+        chemistry_lesson_summary=current_lesson_summary,
     )
     export_output_dir = _resolve_des_output_dir(output_dir, save_run_memory_path)
     if export_output_dir is not None:
