@@ -50,7 +50,7 @@ class SearchOutcome:
     advisor_assessments: list[ChemistryAssessment] = field(default_factory=list)
     advisor_next_steps: list[ChemistryNextStep] = field(default_factory=list)
     viscosity_predictions: list[ViscosityPrediction] = field(default_factory=list)
-    claim_verdicts: list = field(default_factory=list)
+    claim_verdicts: list[object] = field(default_factory=list)
     chemical_pattern_memory: ChemicalPatternMemory = field(default_factory=ChemicalPatternMemory)
     chemistry_lesson_summary: ChemistryLessonSummary = field(default_factory=ChemistryLessonSummary)
     report_text: str = ""
@@ -673,10 +673,10 @@ def run_search_report(
         except Exception as exc:
             llm_warnings.append(f"LLM contradiction detection failed: {exc}")
     # Deterministic grounding: verify family + DES plausibility claims
-    claim_verdicts: list = []
+    from .chemistry.claim_grounding import ground_des_plausibility, ground_family
+    claim_verdicts: list[object] = []
     grounding_penalty_by_smiles: dict[str, float] = {}
     try:
-        from .chemistry.claim_grounding import ground_des_plausibility, ground_family
         family_by_smiles = {c.smiles: c.family for c in llm_candidates}
         for item in annotated_results:
             smiles_b = item.result.curve.smiles_b
@@ -708,6 +708,7 @@ def run_search_report(
         llm_warnings.append(f"[GROUNDING] Grounding failed (non-fatal): {exc}")
     if grounding_penalty_by_smiles:
         annotated_results = _apply_review_penalties(annotated_results, grounding_penalty_by_smiles)
+    final_results = [item.result for item in annotated_results]
     advisor_memory_notes = build_chemistry_advisor_memory_notes(reuse_memories)
     if active_pattern_memory.prompt_notes:
         advisor_memory_notes = advisor_memory_notes + active_pattern_memory.prompt_notes[:6]
