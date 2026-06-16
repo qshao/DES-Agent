@@ -32,6 +32,7 @@ class MetalBindingScreenOutcome:
     llm_candidate_reviews: list[CandidateReview] = field(default_factory=list)
     llm_brainstorm: list[CandidateBrainstorm] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
+    claim_verdicts: list[object] = field(default_factory=list)
 
 
 def _score_proposals(
@@ -120,6 +121,7 @@ def run_metal_binding_screen(
     all_reviews: list[CandidateReview] = []
     all_brainstorm: list[CandidateBrainstorm] = []
     all_warnings: list[str] = []
+    all_coord_verdicts: list[object] = []
     cumulative_results: list[LigandScreenResult] = []
     prev_cycle_results: list[LigandScreenResult] = []
 
@@ -137,6 +139,21 @@ def run_metal_binding_screen(
                 all_brainstorm.extend(brainstorms)
                 llm_proposals = _llm_proposals_from_brainstorm(brainstorms)
                 proposals.extend(_deduplicate_proposals(llm_proposals, seen_smiles))
+                # Ground coordination claims from LLM rationale
+                from ..chemistry.claim_grounding import ground_coordination as _ground_coord
+                _coord_verdicts: list[object] = []
+                for b in brainstorms:
+                    if b.rationale:
+                        try:
+                            v = _ground_coord(b.smiles, b.rationale)
+                            _coord_verdicts.append(v)
+                            if v.status == "contradicted":
+                                all_warnings.append(
+                                    f"[GROUNDING] Coordination contradicted for {b.smiles}: {v.detail}"
+                                )
+                        except Exception:
+                            pass
+                all_coord_verdicts.extend(_coord_verdicts)
             except Exception as exc:
                 all_warnings.append(f"LLM brainstorm failed (cycle {cycle}): {exc}")
 
@@ -185,6 +202,7 @@ def run_metal_binding_screen(
         llm_candidate_reviews=all_reviews,
         llm_brainstorm=all_brainstorm,
         warnings=all_warnings,
+        claim_verdicts=all_coord_verdicts,
     )
 
 

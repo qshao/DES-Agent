@@ -321,3 +321,23 @@ def test_stability_rule_blend_discriminates_ni_over_co():
 def test_stability_rule_weight_zero_runs():
     out = run_metal_selectivity_screen("Ni2+", "Co2+", n=4, n_cycles=1, stability_rule_weight=0.0)
     assert out.results
+
+
+# ---------------------------------------------------------------------------
+# Phase 5: claim_verdicts field (grounding)
+# ---------------------------------------------------------------------------
+
+def test_run_metal_selectivity_screen_claim_verdicts_is_list():
+    """claim_verdicts field exists and is a list on SelectivityScreenOutcome."""
+    outcome = SelectivityScreenOutcome(
+        target_metal="Cu2+", competitor_metal="Zn2+", results=[], n_screened=0, n_cycles=1
+    )
+    assert isinstance(outcome.claim_verdicts, list)
+
+
+def test_run_metal_selectivity_screen_claim_verdicts_populated_without_llm():
+    """claim_verdicts is populated from selectivity grounding even without LLM."""
+    outcome = run_metal_selectivity_screen("Cu2+", "Zn2+", n=3, n_cycles=1)
+    assert isinstance(outcome.claim_verdicts, list)
+    # Selectivity grounding runs on every result, so verdicts ≥ number of results
+    assert len(outcome.claim_verdicts) >= len(outcome.results)

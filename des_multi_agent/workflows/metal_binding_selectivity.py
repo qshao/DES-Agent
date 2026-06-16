@@ -34,6 +34,7 @@ class SelectivityScreenOutcome:
     llm_brainstorm: list[CandidateBrainstorm] = field(default_factory=list)
     llm_candidate_reviews: list[CandidateReview] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
+    claim_verdicts: list[object] = field(default_factory=list)
 
 
 def _compute_composite(log_k_target: float, log_k_competitor: float,
@@ -195,6 +196,7 @@ def run_metal_selectivity_screen(
     all_reviews: list[CandidateReview] = []
     all_brainstorm: list[CandidateBrainstorm] = []
     all_warnings: list[str] = []
+    all_sel_verdicts: list[object] = []
     cumulative_results: list[SelectivityResult] = []
     prev_cycle_results: list[SelectivityResult] = []
 
@@ -235,6 +237,21 @@ def run_metal_selectivity_screen(
             all_warnings.extend(warnings)
             if result is not None:
                 cycle_results.append(result)
+
+        # Ground selectivity claims (rule-based ΔlogK vs. LLM-implied target > competitor)
+        from ..chemistry.claim_grounding import ground_selectivity as _ground_sel
+        _sel_verdicts: list[object] = []
+        for r in cycle_results:
+            try:
+                v = _ground_sel(target_metal, competitor_metal, r.ligand_smiles, "target_selective")
+                _sel_verdicts.append(v)
+                if v.status == "contradicted":
+                    all_warnings.append(
+                        f"[GROUNDING] Selectivity contradicted for {r.ligand_smiles}: {v.detail}"
+                    )
+            except Exception:
+                pass
+        all_sel_verdicts.extend(_sel_verdicts)
 
         if llm_provider is not None:
             context = _build_selectivity_context(
@@ -284,4 +301,5 @@ def run_metal_selectivity_screen(
         llm_brainstorm=all_brainstorm,
         llm_candidate_reviews=all_reviews,
         warnings=all_warnings,
+        claim_verdicts=all_sel_verdicts,
     )

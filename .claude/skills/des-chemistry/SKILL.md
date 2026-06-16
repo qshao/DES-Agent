@@ -170,6 +170,82 @@ best = rank_by_hbond("C[N+](C)(C)CCO.[Cl-]", candidate_smiles_list)
 
 ---
 
+## `claim_grounding.py` — Unified Grounding Layer
+
+**What it is:** The single entry point for deterministic chemistry grounding.
+Zero LLM dependency. Identical verdicts regardless of LLM backend or model provider.
+
+**When to use:** any time you need to cross-check an LLM-generated claim against
+structural evidence — coordination mode, selectivity direction, family membership,
+or DES plausibility — without calling any language model.
+
+### `structural_facts(smiles) -> StructuralFacts`
+
+Computes HBD count, HBA count, H-bond role, donor element counts, denticity, mean
+donor softness, and family features (polyol, amide, carboxylic acid, amine, phenol).
+Returns a safe zero-valued sentinel on invalid SMILES. Never raises.
+
+```python
+from des_multi_agent.chemistry.claim_grounding import structural_facts
+
+sf = structural_facts("NCC(=O)O")   # glycine
+print(sf.as_prompt_block())
+# computed facts: HBD=2, HBA=3, role=amphoteric, donor atoms=1 N, 2 O,
+#   denticity=2, features=['carboxylic acid', 'amine']
+```
+
+**`StructuralFacts.as_prompt_block()`** returns a compact single-line string
+suitable for injection into LLM prompts (used by Phase 3 source-side fact injection).
+
+### `GroundingVerdict`
+
+```python
+@dataclass(frozen=True)
+class GroundingVerdict:
+    claim: str
+    status: str    # "verified" | "contradicted" | "unverifiable"
+    detail: str
+    penalty: float  # 0.25 for "contradicted"; 0.0 otherwise
+```
+
+Invariant: `penalty == 0.25` iff `status == "contradicted"`.
+Enforced in `__post_init__` — raises `ValueError` if violated.
+
+### Checker functions
+
+| Function | Checks |
+|----------|--------|
+| `ground_coordination(smiles, claim_text)` | Parses coordination mode from natural language and compares against actual donor atoms and denticity |
+| `ground_selectivity(target, competitor, smiles, claim_sign)` | Computes rule-based ΔlogK and checks whether direction matches `claim_sign` ("target_selective" / "competitor_selective" / "neutral") |
+| `ground_family(smiles, family_label)` | SMARTS-based check that SMILES belongs to a named chemical family |
+| `ground_des_plausibility(component_a, candidate)` | H-bond complementarity check; "strong"/"moderate" → verified, "none" → contradicted, "weak" → unverifiable |
+
+All four return a `GroundingVerdict` and never raise (unknown metals and invalid SMILES
+return `"unverifiable"` with `penalty=0.0`).
+
+**Example — ground a family claim:**
+
+```python
+from des_multi_agent.chemistry.claim_grounding import ground_family
+
+v = ground_family("OCC(O)CO", "polyol")
+# GroundingVerdict(claim="OCC(O)CO is a polyol", status="verified",
+#                  detail="found 3 match(es) of '[OX2H]'; need ≥2", penalty=0.0)
+
+v2 = ground_family("c1ccccc1", "polyol")
+# GroundingVerdict(claim="c1ccccc1 is a polyol", status="contradicted",
+#                  detail="found 0 match(es)...", penalty=0.25)
+```
+
+**Wiring:** The grounding layer is already active in:
+- `run_search_report` (`orchestrator.py`) — DES workflow: annotates and demotes contradicted claims (Phase 2)
+- `run_metal_binding_screen` (`metal_binding_screen.py`) — grounds coordination claims from LLM brainstorm rationale (Phase 5)
+- `run_metal_selectivity_screen` (`metal_binding_selectivity.py`) — grounds per-result selectivity direction against rule-based ΔlogK (Phase 5)
+
+All grounding warnings carry the `[GROUNDING]` prefix for easy grep/filter.
+
+---
+
 ## Physical DES Eutectic Model
 
 The DES eutectic temperature comes from `predict_curve()` in

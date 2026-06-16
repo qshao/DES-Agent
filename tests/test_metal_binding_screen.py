@@ -264,3 +264,32 @@ def test_cli_metal_binding_single_pair_still_works(monkeypatch, capsys):
     ])
     out = capsys.readouterr().out
     assert "SINGLE PAIR REPORT" in out
+
+
+# ---------------------------------------------------------------------------
+# Phase 5: claim_verdicts field (grounding)
+# ---------------------------------------------------------------------------
+
+def test_run_metal_binding_screen_claim_verdicts_is_list():
+    """claim_verdicts field exists and is a list on MetalBindingScreenOutcome."""
+    outcome = MetalBindingScreenOutcome(metal_ion="Cu2+", results=[], n_screened=0, n_cycles=1)
+    assert isinstance(outcome.claim_verdicts, list)
+
+
+def test_run_metal_binding_screen_claim_verdicts_populated_with_llm():
+    """When LLM provides brainstorms with rationale, claim_verdicts is populated."""
+    mock_llm = MagicMock()
+    mock_llm.brainstorm_ligands.return_value = [
+        CandidateBrainstorm(
+            smiles="NCC(=O)O",
+            rationale="bidentate N,O chelator",
+            family="aminoacid",
+        ),
+    ]
+    mock_llm.review_ligand.return_value = MagicMock(
+        smiles="NCC(=O)O", decision="keep", confidence=0.9,
+        rationale="good chelator", notes=[],
+    )
+    outcome = run_metal_binding_screen("Cu2+", n=3, llm_provider=mock_llm, n_cycles=1)
+    assert isinstance(outcome.claim_verdicts, list)
+    assert len(outcome.claim_verdicts) >= 1
