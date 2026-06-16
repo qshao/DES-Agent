@@ -660,7 +660,7 @@ def test_cli_parser_accepts_doctor_config_and_llm_checks():
 
 # --- name resolution integration ---
 
-def test_cli_accepts_molecule_name_for_component_a(monkeypatch, tmp_path):
+def test_cli_accepts_molecule_name_for_component_a(monkeypatch):
     """--component-a 'urea' should resolve to NC(N)=O before the pipeline runs."""
     received = {}
 

@@ -91,7 +91,7 @@ def build_parser():
     parser.add_argument(
         "--component-a",
         default=None,
-        help="SMILES string for the primary DES component (required for --workflow des)",
+        help="SMILES string or molecule name for the primary DES component (required for --workflow des)",
     )
     parser.add_argument(
         "--n",
@@ -152,7 +152,7 @@ def build_parser():
     parser.add_argument("--discovery-path", default=None, help="Optional local discovery directory containing literature.yaml and library.yaml")
     parser.add_argument("--viscosity-model-path", default=None, help="Optional local DESignSolvents viscosity model artifact")
     parser.add_argument("--metal-ion", default=None, help="Metal ion for the metal-binding workflow")
-    parser.add_argument("--ligand-smiles", default=None, help="Ligand SMILES for the metal-binding workflow")
+    parser.add_argument("--ligand-smiles", default=None, help="Ligand SMILES or molecule name for the metal-binding workflow")
     parser.add_argument("--stability-constant-model-path", default=None, help="Optional local stability-constant model artifact")
     parser.add_argument("--target-metal-ion", default=None, help="Target metal ion for the metal-selectivity workflow (e.g., Cu2+)")
     parser.add_argument("--competitor-metal-ion", default=None, help="Competitor metal ion for the metal-selectivity workflow (e.g., Zn2+)")
@@ -539,8 +539,6 @@ def main(argv=None):
         try:
             from .chemistry.name_resolution import resolve_to_smiles as _resolve
             args.component_a = _resolve(args.component_a)
-            if getattr(args, "component_b", None):
-                args.component_b = _resolve(args.component_b)
         except ImportError:
             pass  # rdkit not available; skip resolution
         except ValueError as exc:
