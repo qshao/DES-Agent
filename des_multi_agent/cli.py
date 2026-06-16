@@ -332,6 +332,10 @@ def build_parser():
     history_parser = subparsers.add_parser("history", help="Show a summary table of all past runs in a history directory")
     history_parser.add_argument("history_dir", help="Directory containing run subdirectories with run.manifest.json files")
     history_parser.set_defaults(command="history")
+    subparsers.add_parser(
+        "list-molecules",
+        help="List all molecule names supported for --component-a / --component-b input",
+    )
     # E4 — config
     config_parser = subparsers.add_parser("config", help="Read or write persistent user config")
     config_subparsers = config_parser.add_subparsers(dest="config_subcommand")
@@ -486,6 +490,20 @@ def main(argv=None):
         else:
             parser.error("Usage: des-agent config set KEY=VALUE")
         return
+    if getattr(args, "command", None) == "list-molecules":
+        from .chemistry.name_resolution import list_molecules
+        role_order = {"HBA": 0, "HBD": 1, "amphoteric": 2, "ligand": 3, "solvent": 4}
+        entries = sorted(list_molecules(), key=lambda e: (role_order.get(e["role"], 9), e["canonical_name"]))
+        current_role = None
+        for e in entries:
+            if e["role"] != current_role:
+                current_role = e["role"]
+                print(f"\n[{current_role}]")
+            aliases = ", ".join(e["synonyms"]) if e["synonyms"] else ""
+            print(f"  {e['canonical_name']:<35}  {e['smiles']}")
+            if aliases:
+                print(f"    aliases: {aliases}")
+        raise SystemExit(0)
     if getattr(args, "command", None) == "supported-metals":
         print(_format_supported_metals())
         return
