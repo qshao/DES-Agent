@@ -332,10 +332,11 @@ def build_parser():
     history_parser = subparsers.add_parser("history", help="Show a summary table of all past runs in a history directory")
     history_parser.add_argument("history_dir", help="Directory containing run subdirectories with run.manifest.json files")
     history_parser.set_defaults(command="history")
-    subparsers.add_parser(
+    list_molecules_parser = subparsers.add_parser(
         "list-molecules",
         help="List all molecule names supported for --component-a / --component-b input",
     )
+    list_molecules_parser.set_defaults(command="list-molecules")
     # E4 — config
     config_parser = subparsers.add_parser("config", help="Read or write persistent user config")
     config_subparsers = config_parser.add_subparsers(dest="config_subcommand")
