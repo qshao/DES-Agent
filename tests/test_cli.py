@@ -716,11 +716,8 @@ def test_list_molecules_subcommand_prints_table(monkeypatch, capsys):
 
     argv = ["des-agent", "list-molecules"]
     monkeypatch.setattr(sys, "argv", argv)
-    with pytest.raises(SystemExit) as exc_info:
-        cli_module.main()
-    assert exc_info.value.code == 0
+    cli_module.main()
     captured = capsys.readouterr()
-    # Table should contain known entries
     assert "choline chloride" in captured.out
     assert "urea" in captured.out
     assert "HBA" in captured.out

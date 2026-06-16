@@ -504,7 +504,7 @@ def main(argv=None):
             print(f"  {e['canonical_name']:<35}  {e['smiles']}")
             if aliases:
                 print(f"    aliases: {aliases}")
-        raise SystemExit(0)
+        return
     if getattr(args, "command", None) == "supported-metals":
         print(_format_supported_metals())
         return
