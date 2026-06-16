@@ -50,6 +50,7 @@ class SearchOutcome:
     advisor_assessments: list[ChemistryAssessment] = field(default_factory=list)
     advisor_next_steps: list[ChemistryNextStep] = field(default_factory=list)
     viscosity_predictions: list[ViscosityPrediction] = field(default_factory=list)
+    claim_verdicts: list = field(default_factory=list)
     chemical_pattern_memory: ChemicalPatternMemory = field(default_factory=ChemicalPatternMemory)
     chemistry_lesson_summary: ChemistryLessonSummary = field(default_factory=ChemistryLessonSummary)
     report_text: str = ""
@@ -671,6 +672,42 @@ def run_search_report(
             contradiction_notes = provider.detect_contradictions(final_results, review_context)
         except Exception as exc:
             llm_warnings.append(f"LLM contradiction detection failed: {exc}")
+    # Deterministic grounding: verify family + DES plausibility claims
+    claim_verdicts: list = []
+    grounding_penalty_by_smiles: dict[str, float] = {}
+    try:
+        from .chemistry.claim_grounding import ground_des_plausibility, ground_family
+        family_by_smiles = {c.smiles: c.family for c in llm_candidates}
+        for item in annotated_results:
+            smiles_b = item.result.curve.smiles_b
+            # Ground DES plausibility
+            plausibility_v = ground_des_plausibility(component_a, smiles_b)
+            claim_verdicts.append(plausibility_v)
+            if plausibility_v.status == "contradicted":
+                grounding_penalty_by_smiles[smiles_b] = max(
+                    grounding_penalty_by_smiles.get(smiles_b, 0.0),
+                    plausibility_v.penalty,
+                )
+                llm_warnings.append(
+                    f"[GROUNDING] DES plausibility contradicted for {smiles_b}: {plausibility_v.detail}"
+                )
+            # Ground family classification if LLM provided one
+            family = family_by_smiles.get(smiles_b)
+            if family:
+                family_v = ground_family(smiles_b, family)
+                claim_verdicts.append(family_v)
+                if family_v.status == "contradicted":
+                    grounding_penalty_by_smiles[smiles_b] = max(
+                        grounding_penalty_by_smiles.get(smiles_b, 0.0),
+                        family_v.penalty,
+                    )
+                    llm_warnings.append(
+                        f"[GROUNDING] Family '{family}' contradicted for {smiles_b}: {family_v.detail}"
+                    )
+    except Exception as exc:
+        llm_warnings.append(f"[GROUNDING] Grounding failed (non-fatal): {exc}")
+    if grounding_penalty_by_smiles:
+        annotated_results = _apply_review_penalties(annotated_results, grounding_penalty_by_smiles)
     advisor_memory_notes = build_chemistry_advisor_memory_notes(reuse_memories)
     if active_pattern_memory.prompt_notes:
         advisor_memory_notes = advisor_memory_notes + active_pattern_memory.prompt_notes[:6]
@@ -733,6 +770,7 @@ def run_search_report(
         viscosity_predictions=viscosity_predictions,
         chemical_pattern_memory=current_pattern_memory,
         chemistry_lesson_summary=current_lesson_summary,
+        claim_verdicts=claim_verdicts,
     )
     _progress(6, "Building report...")
     report_text = format_report(
@@ -750,6 +788,7 @@ def run_search_report(
         advisor_assessments=advisor_assessments,
         advisor_next_steps=advisor_next_steps,
         chemistry_lesson_summary=current_lesson_summary,
+        claim_verdicts=claim_verdicts,
     )
     export_output_dir = _resolve_des_output_dir(output_dir, save_run_memory_path)
     if export_output_dir is not None:

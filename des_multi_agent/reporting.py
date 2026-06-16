@@ -184,6 +184,7 @@ def format_report(
     advisor_assessments: Sequence[ChemistryAssessment] | None = None,
     advisor_next_steps: Sequence[ChemistryNextStep] | None = None,
     chemistry_lesson_summary: ChemistryLessonSummary | None = None,
+    claim_verdicts: Sequence | None = None,
 ) -> str:
     proposal_by_smiles = {item.smiles: item for item in candidate_proposals or []}
     annotation_by_smiles = {item.result.curve.smiles_b: item for item in annotated_results or []}
@@ -290,6 +291,17 @@ def format_report(
         lines.append("LLM next steps:")
         for step in advisor_next_steps:
             lines.append(f"{step.mode} | {step.summary} | {step.rationale}")
+    if claim_verdicts:
+        rendered_verdicts = []
+        for v in claim_verdicts:
+            if v.status == "verified":
+                rendered_verdicts.append(f"- ✓ verified | {v.claim}")
+            elif v.status == "contradicted":
+                rendered_verdicts.append(f"- ✗ contradicted — {v.detail} | {v.claim}")
+        if rendered_verdicts:
+            lines.append("")
+            lines.append("Grounding verdicts:")
+            lines.extend(rendered_verdicts)
     if llm_warnings:
         lines.append("")
         lines.append("Warnings:")

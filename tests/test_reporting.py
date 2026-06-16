@@ -71,3 +71,33 @@ def test_format_report_includes_chemistry_lesson_summary():
     assert "avoid patterns: aromatic acid (1)" in output
     assert "next steps:" in output
     assert "warnings:" in output
+
+
+def test_format_report_renders_contradicted_grounding_verdict():
+    from des_multi_agent.chemistry.claim_grounding import GroundingVerdict
+    v = GroundingVerdict("urea is a polyol", "contradicted", "found 0 matches of '[OX2H]'; need ≥2", 0.25)
+    result = format_report([], claim_verdicts=[v])
+    assert "contradicted" in result
+    assert "urea is a polyol" in result
+
+
+def test_format_report_renders_verified_grounding_verdict():
+    from des_multi_agent.chemistry.claim_grounding import GroundingVerdict
+    v = GroundingVerdict("OCCO is a polyol", "verified", "found 2 matches of '[OX2H]'; need ≥2", 0.0)
+    result = format_report([], claim_verdicts=[v])
+    assert "verified" in result
+    assert "OCCO is a polyol" in result
+
+
+def test_format_report_skips_unverifiable_grounding_verdicts():
+    from des_multi_agent.chemistry.claim_grounding import GroundingVerdict
+    v = GroundingVerdict("CCO is a phenol", "unverifiable", "family label not in deterministic table", 0.0)
+    result = format_report([], claim_verdicts=[v])
+    # unverifiable verdicts should not appear in the report
+    assert "CCO is a phenol" not in result
+
+
+def test_format_report_claim_verdicts_none_by_default():
+    """format_report still works when claim_verdicts is not passed."""
+    result = format_report([])
+    assert "Grounding verdicts:" not in result
