@@ -143,12 +143,22 @@ def structural_facts(smiles: str) -> StructuralFacts:
 
 @dataclass(frozen=True)
 class GroundingVerdict:
-    """Outcome of a single deterministic chemistry grounding check."""
+    """Outcome of a single deterministic chemistry grounding check.
+
+    Invariant: penalty == 0.0 when status is "verified" or "unverifiable";
+    penalty > 0.0 when status is "contradicted".
+    """
 
     claim: str
     status: str    # "verified" | "contradicted" | "unverifiable"
     detail: str
     penalty: float  # 0.0 for verified/unverifiable, 0.25 for contradicted
+
+    def __post_init__(self) -> None:
+        if self.status == "contradicted" and self.penalty == 0.0:
+            raise ValueError("contradicted verdict must carry a non-zero penalty")
+        if self.status in ("verified", "unverifiable") and self.penalty != 0.0:
+            raise ValueError(f"status={self.status!r} must have penalty=0.0")
 
 
 # ---------------------------------------------------------------------------
@@ -203,6 +213,10 @@ def ground_selectivity(
 
     *claim_sign* is one of:
       ``"target_selective"`` | ``"competitor_selective"`` | ``"neutral"``
+
+    When the rule-based verdict is ``"neutral"`` but *claim_sign* is directional
+    (or vice-versa), the result is ``"unverifiable"`` rather than ``"contradicted"``
+    — the evidence is too weak to call a contradiction in either direction.
     """
     norm_target = _normalise_metal(target)
     norm_competitor = _normalise_metal(competitor)
