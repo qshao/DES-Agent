@@ -68,3 +68,8 @@ class ChemistryNextStep:
     mode: str
     summary: str
     rationale: str
+
+
+# Re-export the deterministic grounding verdict so callers can import it from
+# either des_multi_agent.llm.schemas or des_multi_agent.chemistry.claim_grounding.
+from ..chemistry.claim_grounding import GroundingVerdict  # noqa: E402, F401
