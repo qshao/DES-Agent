@@ -23,6 +23,7 @@ from typing import Any
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
+from .chemistry.name_resolution import resolve_to_smiles
 from .config import DEFAULT_CONFIG_PATH
 from .orchestrator import run_search_report
 from .prediction import discover_ensemble_checkpoints
@@ -104,6 +105,10 @@ def health() -> HealthResponse:
 def search(req: DESSearchRequest) -> DESSearchResponse:
     """Screen component B candidates against a fixed component A."""
     try:
+        try:
+            component_a = resolve_to_smiles(req.component_a)
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
         policy = UncertaintyPolicy(
             mode=req.uncertainty_mode,
             min_trust_score=req.min_trust_score,
@@ -126,7 +131,7 @@ def search(req: DESSearchRequest) -> DESSearchResponse:
             ensemble_ckpts = [str(p) for p in found]
 
         outcome = run_search_report(
-            component_a=req.component_a,
+            component_a=component_a,
             n=req.n,
             checkpoint_path=req.checkpoint_path,
             config_path=req.config_path,
