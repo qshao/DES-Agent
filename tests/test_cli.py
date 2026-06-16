@@ -656,3 +656,54 @@ def test_cli_parser_accepts_doctor_config_and_llm_checks():
     args = parser.parse_args(["doctor", "--check", "config", "--check", "llm"])
     assert args.command == "doctor"
     assert args.check == ["config", "llm"]
+
+
+# --- name resolution integration ---
+
+def test_cli_accepts_molecule_name_for_component_a(monkeypatch, tmp_path):
+    """--component-a 'urea' should resolve to NC(N)=O before the pipeline runs."""
+    received = {}
+
+    def fake_run_search_report(component_a, **kwargs):
+        received["component_a"] = component_a
+        from des_multi_agent.orchestrator import SearchOutcome
+        return SearchOutcome(
+            results=[], annotated_results=[], candidate_proposals=[],
+            candidate_reviews=[], brainstorm_candidates=[], explanation_notes=[],
+            critique_notes=[], llm_warnings=[], contradiction_notes=[],
+            viscosity_predictions=[], chemical_pattern_memory=None,
+            chemistry_lesson_summary=None,
+        )
+
+    monkeypatch.setattr("des_multi_agent.cli.run_search_report", fake_run_search_report)
+    monkeypatch.setattr("des_multi_agent.cli.run_multi_cycle_search", lambda *a, **kw: (_ for _ in ()).throw(AssertionError("should not be called")))
+
+    import des_multi_agent.cli as cli_module
+    # Patch checkpoint discovery so the test does not need a real file
+    monkeypatch.setattr(cli_module, "_discover_checkpoint", lambda: "fake.pt")
+    monkeypatch.setattr(cli_module, "resolve_existing_path", lambda p, **kw: p)
+
+    import sys
+    argv = ["des-agent", "--component-a", "urea", "--checkpoint-path", "fake.pt"]
+    monkeypatch.setattr(sys, "argv", argv)
+    try:
+        cli_module.main()
+    except SystemExit:
+        pass
+
+    assert received.get("component_a") == "NC(N)=O"
+
+
+def test_cli_unknown_molecule_name_exits_with_error(monkeypatch, capsys):
+    import sys
+    import des_multi_agent.cli as cli_module
+    monkeypatch.setattr(cli_module, "_discover_checkpoint", lambda: "fake.pt")
+    monkeypatch.setattr(cli_module, "resolve_existing_path", lambda p, **kw: p)
+
+    argv = ["des-agent", "--component-a", "not_a_real_molecule_xyz", "--checkpoint-path", "fake.pt"]
+    monkeypatch.setattr(sys, "argv", argv)
+    with pytest.raises(SystemExit) as exc_info:
+        cli_module.main()
+    assert exc_info.value.code != 0
+    captured = capsys.readouterr()
+    assert "not_a_real_molecule_xyz" in (captured.out + captured.err)

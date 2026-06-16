@@ -535,16 +535,16 @@ def main(argv=None):
                 )
         checkpoint_path = resolve_existing_path(args.checkpoint_path)
         config_path = resolve_existing_path(args.config_path)
-        # Validate SMILES early
+        # Resolve molecule names → canonical SMILES at the input boundary.
         try:
-            from rdkit import Chem as _Chem
-            if _Chem.MolFromSmiles(args.component_a) is None:
-                parser.error(
-                    f"--component-a {args.component_a!r} is not a valid SMILES string. "
-                    "Example: 'CCO' for ethanol, 'c1ccccc1' for benzene."
-                )
+            from .chemistry.name_resolution import resolve_to_smiles as _resolve
+            args.component_a = _resolve(args.component_a)
+            if getattr(args, "component_b", None):
+                args.component_b = _resolve(args.component_b)
         except ImportError:
-            pass  # rdkit not available; skip early validation
+            pass  # rdkit not available; skip resolution
+        except ValueError as exc:
+            parser.error(str(exc))
         ensemble_ckpts: list[str] | None = None
         if getattr(args, "ensemble", False):
             found = discover_ensemble_checkpoints()
@@ -758,6 +758,14 @@ def main(argv=None):
 
     if not args.ligand_smiles:
         parser.error("metal-binding single-pair mode requires --ligand-smiles")
+    # Resolve ligand name → SMILES at input boundary
+    try:
+        from .chemistry.name_resolution import resolve_to_smiles as _resolve
+        args.ligand_smiles = _resolve(args.ligand_smiles)
+    except ImportError:
+        pass
+    except ValueError as exc:
+        parser.error(str(exc))
     outcome = run_metal_binding_workflow(
         metal_ion=args.metal_ion,
         ligand_smiles=args.ligand_smiles,
