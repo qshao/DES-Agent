@@ -112,7 +112,7 @@
       "role": "HBD"
     },
     {
-      "smiles": "O=C(O)CC(O)(C(=O)O)C(=O)O",
+      "smiles": "O=C(O)CC(O)(CC(=O)O)C(=O)O",
       "names": ["citric acid", "2-hydroxypropane-1,2,3-tricarboxylic acid"],
       "role": "HBD"
     },
