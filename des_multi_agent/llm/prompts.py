@@ -34,10 +34,15 @@ def ligand_brainstorm_prompt(
     context: str,
     max_items: int | None = None,
     families: list | None = None,
+    facts_block: str = "",
 ) -> str:
     parts = [
         "Return raw JSON only. Do not use markdown fences or commentary.\n",
         f"Return a JSON array of candidate ligand SMILES that are predicted to bind strongly to {metal_ion}.\n",
+    ]
+    if facts_block:
+        parts.append(f"Computed facts:\n{facts_block}\n")
+    parts += [
         f"Constraints: {constraints or {}}\n",
         f"Context: {context}\n",
     ]
@@ -76,11 +81,16 @@ def ligand_selectivity_brainstorm_prompt(
     context: str,
     max_items: int | None = None,
     families: list | None = None,
+    facts_block: str = "",
 ) -> str:
     parts = [
         "Return raw JSON only. Do not use markdown fences or commentary.\n",
         f"Return a JSON array of candidate ligand SMILES designed for HIGH SELECTIVITY "
         f"for {target_metal} over {competitor_metal}.\n",
+    ]
+    if facts_block:
+        parts.append(f"Computed facts:\n{facts_block}\n")
+    parts += [
         f"Constraints: {constraints or {}}\n",
         f"Context: {context}\n",
     ]
@@ -139,17 +149,22 @@ def _des_prior_family_block(prior_productive_families: dict[str, int] | None) ->
         lines.append(f"  - {family}: {count} prior DES-positive hit(s)\n")
     return "".join(lines)
 
-def candidate_review_prompt(component_a: str, candidate_smiles: str, context: str) -> str:
-    return (
-        "Return raw JSON only. Do not use markdown fences or commentary.\n"
-        "Return one JSON object for a single candidate review.\n"
-        f"Component A: {component_a}\n"
-        f"Candidate: {candidate_smiles}\n"
-        f"Context: {context}\n"
-        "The JSON object must contain smiles, decision, confidence, rationale, and notes.\n"
-        "decision must be one of keep, reject, or deprioritize.\n"
-        'Example: { "smiles": "OCCO", "decision": "keep", "confidence": 0.87, "rationale": "Good candidate.", "notes": ["short note"] }'
-    )
+def candidate_review_prompt(component_a: str, candidate_smiles: str, context: str, facts_block: str = "") -> str:
+    parts = [
+        "Return raw JSON only. Do not use markdown fences or commentary.\n",
+        "Return one JSON object for a single candidate review.\n",
+        f"Component A: {component_a}\n",
+    ]
+    if facts_block:
+        parts.append(f"Computed facts:\n{facts_block}\n")
+    parts += [
+        f"Candidate: {candidate_smiles}\n",
+        f"Context: {context}\n",
+        "The JSON object must contain smiles, decision, confidence, rationale, and notes.\n",
+        "decision must be one of keep, reject, or deprioritize.\n",
+        'Example: { "smiles": "OCCO", "decision": "keep", "confidence": 0.87, "rationale": "Good candidate.", "notes": ["short note"] }',
+    ]
+    return "".join(parts)
 
 
 def candidate_brainstorm_prompt(
@@ -161,10 +176,15 @@ def candidate_brainstorm_prompt(
     diversity_mode: str = "balanced",
     family_bias_strength: float = 0.5,
     prior_productive_families: dict[str, int] | None = None,
+    facts_block: str = "",
 ) -> str:
     parts = [
         "Return raw JSON only. Do not use markdown fences or commentary.\n",
         "Return a JSON array of candidate partner molecules for DES screening.\n",
+    ]
+    if facts_block:
+        parts.append(f"Computed facts:\n{facts_block}\n")
+    parts += [
         f"Component A: {component_a}\n",
         f"Constraints: {constraints or {}}\n",
         f"Context: {context}\n",
@@ -231,10 +251,14 @@ def critique_prompt(results: Sequence[DesResult], context: str, max_items: int |
     return "".join(parts)
 
 
-def contradiction_prompt(results: Sequence[DesResult], context: str, max_items: int | None = None) -> str:
+def contradiction_prompt(results: Sequence[DesResult], context: str, max_items: int | None = None, facts_block: str = "") -> str:
     parts = [
         "Return raw JSON only. Do not use markdown fences or commentary.\n",
         "Return a JSON array examining whether each ML DES prediction is chemically plausible.\n",
+    ]
+    if facts_block:
+        parts.append(f"Computed facts:\n{facts_block}\n")
+    parts += [
         f"Context: {context}\n",
         "Results:\n",
         f"{_results_summary(results)}\n",
@@ -251,10 +275,15 @@ def chemistry_assessment_prompt(
     candidate_smiles: str,
     context: str,
     memory_notes: Sequence[str] | None = None,
+    facts_block: str = "",
 ) -> str:
     parts = [
         "Return raw JSON only. Do not use markdown fences or commentary.\n",
         "Return a JSON array of chemistry assessments for a DES candidate.\n",
+    ]
+    if facts_block:
+        parts.append(f"Computed facts:\n{facts_block}\n")
+    parts += [
         f"Candidate: {candidate_smiles}\n",
         f"Context: {context}\n",
     ]

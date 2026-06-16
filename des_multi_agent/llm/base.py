@@ -6,6 +6,7 @@ import sys
 from urllib.parse import urlencode, urlsplit, urlunsplit, parse_qsl
 
 from ..evaluation import DesResult
+from ..chemistry.claim_grounding import structural_facts
 from .client import post_json_chat
 from .parser import parse_candidate_brainstorms, parse_candidate_families, parse_candidate_review, parse_chemistry_assessments, parse_chemistry_next_steps, parse_contradiction_notes, parse_critique_notes, parse_explanation_notes, parse_ligand_families
 from .prompts import candidate_brainstorm_prompt, candidate_review_prompt, chemistry_assessment_prompt, chemistry_next_step_prompt, contradiction_prompt, critique_prompt, explanation_prompt, family_selection_prompt, ligand_brainstorm_prompt, ligand_family_selection_prompt, ligand_review_prompt, ligand_selectivity_brainstorm_prompt
@@ -60,7 +61,8 @@ class BaseLLMProvider(LLMProvider):
         return self._request(task_router_prompt(request, normalized=normalized))
 
     def review_candidate(self, component_a: str, candidate_smiles: str, context: str) -> CandidateReview:
-        raw = self._request(candidate_review_prompt(component_a, candidate_smiles, context))
+        facts_block = structural_facts(candidate_smiles).as_prompt_block()
+        raw = self._request(candidate_review_prompt(component_a, candidate_smiles, context, facts_block=facts_block))
         review = parse_candidate_review(raw)
         return review
 
@@ -93,6 +95,7 @@ class BaseLLMProvider(LLMProvider):
             )
         except Exception as exc:
             print(f"family selection failed, falling back to single-stage brainstorm: {exc}", file=sys.stderr)
+        facts_block = structural_facts(component_a).as_prompt_block()
         raw = self._request(
             candidate_brainstorm_prompt(
                 component_a,
@@ -103,6 +106,7 @@ class BaseLLMProvider(LLMProvider):
                 diversity_mode=effective_diversity_mode,
                 family_bias_strength=effective_family_bias_strength,
                 prior_productive_families=prior_productive_families,
+                facts_block=facts_block,
             )
         )
         return parse_candidate_brainstorms(raw)[: self.max_candidates]
@@ -140,7 +144,7 @@ class BaseLLMProvider(LLMProvider):
         return parse_critique_notes(raw)
 
     def detect_contradictions(self, results: list[DesResult], context: str) -> list[ContradictionNote]:
-        raw = self._request(contradiction_prompt(results, context, len(results) or None))
+        raw = self._request(contradiction_prompt(results, context, len(results) or None, facts_block=""))
         return parse_contradiction_notes(raw)
 
     def assess_candidate_chemistry(
@@ -149,7 +153,8 @@ class BaseLLMProvider(LLMProvider):
         context: str,
         memory_notes: list[str] | None = None,
     ) -> list[ChemistryAssessment]:
-        raw = self._request(chemistry_assessment_prompt(candidate_smiles, context, memory_notes))
+        facts_block = structural_facts(candidate_smiles).as_prompt_block()
+        raw = self._request(chemistry_assessment_prompt(candidate_smiles, context, memory_notes, facts_block=facts_block))
         return parse_chemistry_assessments(raw)
 
     def suggest_next_steps(
