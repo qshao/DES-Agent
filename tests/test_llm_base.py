@@ -89,7 +89,7 @@ def test_assess_candidate_chemistry_injects_facts_block():
 
 
 def test_detect_contradictions_no_facts_block():
-    """detect_contradictions passes facts_block='' (empty) as specified."""
+    """detect_contradictions with default empty facts_block injects no computed facts."""
     captured = {}
 
     class CapturingProvider(base_mod.BaseLLMProvider):
@@ -104,5 +104,30 @@ def test_detect_contradictions_no_facts_block():
 
     provider = CapturingProvider.__new__(CapturingProvider)
     provider.detect_contradictions([], "ctx")
-    # Per spec: facts_block="" for contradictions; no computed facts injected
+    # default facts_block="" => no computed facts injected
     assert "Computed facts:" not in captured["prompt"]
+
+
+def test_detect_contradictions_passes_facts_block():
+    """detect_contradictions forwards a non-empty facts_block into the prompt."""
+    captured = {}
+
+    class CapturingProvider(base_mod.BaseLLMProvider):
+        def _request(self, prompt):
+            captured["prompt"] = prompt
+            return "[]"
+
+        def extract_text(self, raw):
+            return raw
+
+        request_profile = None
+
+    from des_multi_agent.evaluation import DesResult
+    from des_multi_agent.prediction import CurvePrediction
+
+    provider = CapturingProvider.__new__(CapturingProvider)
+    curve = CurvePrediction("CCO", "NC(N)=O", [0.5], [280.0], 302.0, 406.0, "fake")
+    result = DesResult(curve=curve, is_des=True, min_tm_k=280.0, rationale="test",
+                       absolute_pass=True, relative_pass=True)
+    provider.detect_contradictions([result], "ctx", facts_block="H-bond plausibility: strong")
+    assert "H-bond plausibility: strong" in captured["prompt"]

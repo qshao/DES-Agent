@@ -11,6 +11,7 @@ Two verifiers:
 from __future__ import annotations
 
 import re
+import sys
 from dataclasses import dataclass, field
 
 from .coordination import coordination_profile
@@ -219,11 +220,20 @@ def verify_selectivity_claim(
 def batch_verify_coordination(
     smiles_claim_pairs: list[tuple[str, str]],
 ) -> list[ClaimVerification]:
-    """Verify a batch of (smiles, claim_text) pairs; silently skip on error."""
+    """Verify a batch of (smiles, claim_text) pairs; skip items that raise unexpectedly."""
     results: list[ClaimVerification] = []
     for smiles, claim in smiles_claim_pairs:
         try:
             results.append(verify_coordination_claim(smiles, claim))
-        except Exception:
-            pass
+        except Exception as exc:
+            # verify_coordination_claim handles all anticipated errors internally
+            # (bad SMILES, no donors) and returns a structured verdict.  An
+            # exception here means an unanticipated bug — surface it so it is not
+            # silently hidden in production logs.
+            print(
+                f"[WARNING] batch_verify_coordination: unexpected error for "
+                f"smiles={smiles!r}: {exc}",
+                file=sys.stderr,
+                flush=True,
+            )
     return results

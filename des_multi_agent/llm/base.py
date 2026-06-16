@@ -143,8 +143,8 @@ class BaseLLMProvider(LLMProvider):
         raw = self._request(critique_prompt(results, context, len(results) or None))
         return parse_critique_notes(raw)
 
-    def detect_contradictions(self, results: list[DesResult], context: str) -> list[ContradictionNote]:
-        raw = self._request(contradiction_prompt(results, context, len(results) or None, facts_block=""))
+    def detect_contradictions(self, results: list[DesResult], context: str, facts_block: str = "") -> list[ContradictionNote]:
+        raw = self._request(contradiction_prompt(results, context, len(results) or None, facts_block=facts_block))
         return parse_contradiction_notes(raw)
 
     def assess_candidate_chemistry(

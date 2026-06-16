@@ -77,6 +77,7 @@ def build_pattern_memory(
     candidate_proposals: Sequence[CandidateProposal],
     run_memories: Sequence[RunMemory] | None,
     config: ChemicalPatternMemoryConfig,
+    contradicted_family_smiles: set[str] | None = None,
 ) -> ChemicalPatternMemory:
     if config.mode == "off":
         return ChemicalPatternMemory()
@@ -89,18 +90,20 @@ def build_pattern_memory(
     bias_by_smiles: dict[str, float] = {}
     label_seen = False
 
+    _skip_family = contradicted_family_smiles or set()
     for item in annotated_results:
         smiles = item.result.curve.smiles_b
         family = family_by_smiles.get(smiles, "")
+        family_trusted = family and smiles not in _skip_family
         low_trust = getattr(item, "trust_score", 1.0) < 0.5
         multiplier = 0.5 if low_trust and config.mode == "adaptive" else 1.0
         if item.result.is_des:
-            if family:
+            if family_trusted:
                 productive[family] += 1
             good_examples.append(smiles)
             bias_by_smiles[smiles] = max(bias_by_smiles.get(smiles, 0.0), 0.04 * multiplier)
         else:
-            if family:
+            if family_trusted:
                 avoid[family] += 1
             bad_examples.append(smiles)
             bias_by_smiles[smiles] = min(bias_by_smiles.get(smiles, 0.0), -0.04 * multiplier)

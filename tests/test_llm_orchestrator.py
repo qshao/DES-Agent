@@ -29,7 +29,7 @@ class _FakeLLM:
     def critique_results(self, results, context):
         return [CritiqueNote(smiles="OCCO", assessment="advisory only", concerns=["possible outlier"])]
 
-    def detect_contradictions(self, results, context):
+    def detect_contradictions(self, results, context, facts_block=""):
         return []
 
     def assess_candidate_chemistry(self, candidate_smiles, context, memory_notes=None):
@@ -71,7 +71,7 @@ class _FailingLLM:
     def critique_results(self, results, context):
         raise RuntimeError("boom")
 
-    def detect_contradictions(self, results, context):
+    def detect_contradictions(self, results, context, facts_block=""):
         raise RuntimeError("boom")
 
     def assess_candidate_chemistry(self, candidate_smiles, context, memory_notes=None):

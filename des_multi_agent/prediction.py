@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import os
 from pathlib import Path
 import sys
+import threading
 from typing import Any, Dict
 
 import numpy as np
@@ -59,6 +60,7 @@ _EMBEDDER_CACHE: dict[tuple[str, str], "EmbedderBundle"] = {}
 _COMPAT_CACHE: dict[str, list[str]] = {}
 _EMBED_CACHE: dict[tuple[str, str, str], Any] = {}
 _EMBED_CACHE_MAXSIZE = 8192
+_EMBED_CACHE_LOCK = threading.Lock()
 
 
 def clear_prediction_caches() -> None:
@@ -121,13 +123,18 @@ def _embed_cached(
     across cycles and outer loops, so this collapses repeated embedding work.
     """
     key = (scope_key, str(device), smiles)
-    cached = _EMBED_CACHE.get(key)
+    with _EMBED_CACHE_LOCK:
+        cached = _EMBED_CACHE.get(key)
     if cached is None:
-        cached = bundle.embedder.embed([smiles])
-        if len(_EMBED_CACHE) >= _EMBED_CACHE_MAXSIZE:
-            # dicts preserve insertion order; drop the oldest entry (FIFO)
-            _EMBED_CACHE.pop(next(iter(_EMBED_CACHE)))
-        _EMBED_CACHE[key] = cached
+        computed = bundle.embedder.embed([smiles])
+        with _EMBED_CACHE_LOCK:
+            # Re-check under lock: another thread may have computed while we did.
+            if key not in _EMBED_CACHE:
+                if len(_EMBED_CACHE) >= _EMBED_CACHE_MAXSIZE:
+                    # dicts preserve insertion order; drop the oldest entry (FIFO)
+                    _EMBED_CACHE.pop(next(iter(_EMBED_CACHE)))
+                _EMBED_CACHE[key] = computed
+            cached = _EMBED_CACHE[key]
     return torch.tensor(cached, device=device)
 
 

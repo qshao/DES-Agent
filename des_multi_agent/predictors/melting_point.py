@@ -67,8 +67,15 @@ class MeltingPointQSPR:
         x = (emb - self._feat_mean) / self._feat_std
         preds = torch.stack([m(x) for m in self._members])  # (n_members, 1)
         preds_k = preds * self._tm_std + self._tm_mean
-        std_k = float(preds_k.std(unbiased=False).item())
-        ci_k = self.conformal_q * std_k if self.conformal_q else None
+        if len(self._members) > 1:
+            std_k = float(preds_k.std(unbiased=False).item())
+            ci_k = self.conformal_q * std_k if self.conformal_q else None
+        else:
+            # Single-member ensemble: no inter-model variance available.
+            # Use inf so _qspr_confidence() maps to the minimum confidence floor
+            # rather than false-maximum certainty (std=0 → conf=0.85).
+            std_k = float("inf")
+            ci_k = None
         return QSPRPrediction(tm_k=float(preds_k.mean().item()), std_k=std_k, ci_k=ci_k)
 
 

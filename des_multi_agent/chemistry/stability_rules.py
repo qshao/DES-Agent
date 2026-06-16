@@ -48,9 +48,8 @@ def hsab_match(metal_ion: str, ligand_smiles: str) -> float:
     return 1.0 - abs(_metal_softness(metal_ion) - prof.mean_donor_softness)
 
 
-def rule_based_log_k(metal_ion: str, ligand_smiles: str) -> float:
-    """A transparent stability-constant estimate (relative log K units)."""
-    prof = coordination_profile(ligand_smiles)
+def _rule_based_log_k_from_profile(metal_ion: str, prof) -> float:
+    """Compute log K from a pre-computed coordination profile."""
     if prof.n_donor_atoms == 0:
         return 0.0
     iw = irving_williams_offset(metal_ion)
@@ -61,8 +60,17 @@ def rule_based_log_k(metal_ion: str, ligand_smiles: str) -> float:
     return _BASE_LOG_K + iw + _W_HSAB * hsab + chelate + charge + donor
 
 
+def rule_based_log_k(metal_ion: str, ligand_smiles: str) -> float:
+    """A transparent stability-constant estimate (relative log K units)."""
+    return _rule_based_log_k_from_profile(metal_ion, coordination_profile(ligand_smiles))
+
+
 def selectivity_delta_log_k(target_metal: str, competitor_metal: str, ligand_smiles: str) -> float:
     """log K(target) - log K(competitor) for the same ligand (positive = target
     selective). The chelate/donor terms cancel, leaving the Irving-Williams and
     HSAB metal differences."""
-    return rule_based_log_k(target_metal, ligand_smiles) - rule_based_log_k(competitor_metal, ligand_smiles)
+    prof = coordination_profile(ligand_smiles)
+    return (
+        _rule_based_log_k_from_profile(target_metal, prof)
+        - _rule_based_log_k_from_profile(competitor_metal, prof)
+    )

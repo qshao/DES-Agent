@@ -53,7 +53,8 @@ def estimate_min_tm_uncertainty(
     input_confidence = min(est_a.confidence, est_b.confidence)
 
     repeated_values: list[float] = []
-    _rng_state = torch.get_rng_state()
+    _cpu_rng_state = torch.get_rng_state()
+    _cuda_rng_states = torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None
     torch.manual_seed(_MC_SEED)
     try:
         for _ in range(_N_REPEATS):
@@ -70,14 +71,21 @@ def estimate_min_tm_uncertainty(
                 raise ValueError("Predicted curve did not contain any melting-temperature values")
             repeated_values.append(min(curve.tm_pred_k))
     finally:
-        torch.set_rng_state(_rng_state)
+        torch.set_rng_state(_cpu_rng_state)
+        if _cuda_rng_states is not None:
+            torch.cuda.set_rng_state_all(_cuda_rng_states)
 
     mean_tm_k = mean(repeated_values)
     std_tm_k = pstdev(repeated_values) if len(repeated_values) > 1 else 0.0
     min_tm_k = min(repeated_values)
     max_tm_k = max(repeated_values)
     spread_trust = _trust_score(std_tm_k)
-    trust_score = spread_trust * input_confidence
+    # trust_score reflects only MC-dropout spread repeatability.  The input
+    # confidence (pure-component Tm source quality) is factored in separately
+    # by score_candidate_trust() in heuristics.py via neat_confidence.  Baking
+    # it in here would double-penalise heuristic-Tm pairs and silence them
+    # entirely when filtered with the default min_trust_score threshold.
+    trust_score = spread_trust
     uncertainty_flag = _uncertainty_flag(std_tm_k)
     explanation = _explanation(repeated_values, std_tm_k, trust_score, uncertainty_flag)
     explanation += (

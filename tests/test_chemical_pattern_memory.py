@@ -116,3 +116,79 @@ def test_low_confidence_memory_has_smaller_effect():
     adjusted, _ = apply_pattern_memory_bias([_annotated_result("OCCO")], [], memory)
 
     assert adjusted[0].ranking_score == 1.10
+
+
+def test_build_pattern_memory_skips_contradicted_family():
+    """Contradicted family labels are excluded from productive/avoid counting."""
+    # Build annotated results: urea (NC(N)=O) is_des=True, labeled family="polyol"
+    # (polyol is wrong for urea — simulates a contradicted family)
+    annotated_results = [_annotated_result("NC(N)=O", is_des=True)]
+    proposals = [
+        CandidateProposal(
+            smiles="NC(N)=O",
+            rationale="urea mislabeled as polyol",
+            family="polyol",
+            source="llm",
+            source_id="brainstorm",
+        )
+    ]
+
+    # Without contradicted_family_smiles: family is counted
+    memory_normal = build_pattern_memory(
+        component_a="CCO",
+        annotated_results=annotated_results,
+        candidate_proposals=proposals,
+        run_memories=None,
+        config=ChemicalPatternMemoryConfig(mode="adaptive"),
+    )
+    assert "polyol" in memory_normal.productive_families
+
+    # With contradicted_family_smiles containing urea's SMILES: family NOT counted
+    memory_protected = build_pattern_memory(
+        component_a="CCO",
+        annotated_results=annotated_results,
+        candidate_proposals=proposals,
+        run_memories=None,
+        config=ChemicalPatternMemoryConfig(mode="adaptive"),
+        contradicted_family_smiles={"NC(N)=O"},
+    )
+    assert "polyol" not in memory_protected.productive_families
+    # good_examples still populated (only family label skipped)
+    assert "NC(N)=O" in memory_protected.good_examples
+
+
+def test_build_pattern_memory_skips_contradicted_family_avoid():
+    """Contradicted family labels are excluded from avoid counting too."""
+    annotated_results = [_annotated_result("NC(N)=O", is_des=False)]
+    proposals = [
+        CandidateProposal(
+            smiles="NC(N)=O",
+            rationale="urea mislabeled as polyol",
+            family="polyol",
+            source="llm",
+            source_id="brainstorm",
+        )
+    ]
+
+    # Without: family counted in avoid
+    memory_normal = build_pattern_memory(
+        component_a="CCO",
+        annotated_results=annotated_results,
+        candidate_proposals=proposals,
+        run_memories=None,
+        config=ChemicalPatternMemoryConfig(mode="adaptive"),
+    )
+    assert "polyol" in memory_normal.avoid_families
+
+    # With contradicted_family_smiles: family NOT in avoid
+    memory_protected = build_pattern_memory(
+        component_a="CCO",
+        annotated_results=annotated_results,
+        candidate_proposals=proposals,
+        run_memories=None,
+        config=ChemicalPatternMemoryConfig(mode="adaptive"),
+        contradicted_family_smiles={"NC(N)=O"},
+    )
+    assert "polyol" not in memory_protected.avoid_families
+    # bad_examples still populated
+    assert "NC(N)=O" in memory_protected.bad_examples

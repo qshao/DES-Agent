@@ -666,16 +666,30 @@ def run_search_report(
             critique_notes = provider.critique_results(final_results, review_context)
         except Exception as exc:
             llm_warnings.append(f"LLM critique generation failed: {exc}")
+    # Pre-compute plausibility evidence for the contradiction prompt
+    contradiction_facts_block = ""
+    try:
+        from .chemistry.claim_grounding import ground_des_plausibility as _gdp
+        plines = []
+        for r in final_results:
+            pv = _gdp(component_a, r.curve.smiles_b)
+            label_desc = f"label={pv.detail.split('label=')[1].split(',')[0]}" if "label=" in pv.detail else pv.detail[:60]
+            plines.append(f"- {r.curve.smiles_b}: DES plausibility {pv.status} ({label_desc})")
+        if plines:
+            contradiction_facts_block = "Deterministic H-bond plausibility:\n" + "\n".join(plines)
+    except Exception:
+        pass  # non-fatal; fall back to empty facts block
     contradiction_notes: list[ContradictionNote] = []
     if provider is not None:
         try:
-            contradiction_notes = provider.detect_contradictions(final_results, review_context)
+            contradiction_notes = provider.detect_contradictions(final_results, review_context, facts_block=contradiction_facts_block)
         except Exception as exc:
             llm_warnings.append(f"LLM contradiction detection failed: {exc}")
     # Deterministic grounding: verify family + DES plausibility claims
     from .chemistry.claim_grounding import ground_des_plausibility, ground_family
     claim_verdicts: list[object] = []
     grounding_penalty_by_smiles: dict[str, float] = {}
+    contradicted_family_smiles: set[str] = set()
     try:
         family_by_smiles = {c.smiles: c.family for c in llm_candidates}
         for item in annotated_results:
@@ -697,6 +711,7 @@ def run_search_report(
                 family_v = ground_family(smiles_b, family)
                 claim_verdicts.append(family_v)
                 if family_v.status == "contradicted":
+                    contradicted_family_smiles.add(smiles_b)
                     grounding_penalty_by_smiles[smiles_b] = max(
                         grounding_penalty_by_smiles.get(smiles_b, 0.0),
                         family_v.penalty,
@@ -735,6 +750,7 @@ def run_search_report(
         candidate_proposals=candidate_proposals,
         run_memories=reuse_memories,
         config=pattern_cfg,
+        contradicted_family_smiles=contradicted_family_smiles,
     )
     memory_notes.extend(current_pattern_memory.notes)
     current_lesson_summary = build_chemistry_lesson_summary(

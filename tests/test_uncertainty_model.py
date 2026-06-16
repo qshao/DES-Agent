@@ -83,10 +83,15 @@ def _run_with_input_confidence(monkeypatch, confidence: float):
     )
 
 
-def test_trust_score_reflects_input_melting_point_confidence(monkeypatch):
-    # identical prediction spread; only the input Tm confidence differs
+def test_trust_score_reflects_spread_not_input_confidence(monkeypatch):
+    # trust_score encodes only MC-dropout spread repeatability; input Tm
+    # confidence is factored in separately by score_candidate_trust() so that
+    # it is applied exactly once (not double-penalised).
     high = _run_with_input_confidence(monkeypatch, 0.95)
     low = _run_with_input_confidence(monkeypatch, 0.35)
     assert high.std_tm_k == pytest.approx(low.std_tm_k)
-    assert high.trust_score > low.trust_score
+    assert high.trust_score == pytest.approx(low.trust_score)
     assert 0.0 <= low.trust_score <= 1.0
+    # The explanation still records the input confidence for transparency.
+    assert "confidence=0.95" in high.explanation
+    assert "confidence=0.35" in low.explanation
