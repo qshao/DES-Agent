@@ -88,6 +88,7 @@ def _score_proposal_pair(
     model_path,
     w_affinity: float,
     w_selectivity: float,
+    stability_rule_weight: float = 0.0,
 ) -> tuple[SelectivityResult | None, list[str]]:
     warnings: list[str] = []
     try:
@@ -100,13 +101,31 @@ def _score_proposal_pair(
     except Exception as exc:
         warnings.append(f"Prediction failed for {proposal.smiles}: {exc}")
         return None, warnings
+
+    val_target = pred_target.value
+    val_competitor = pred_competitor.value
+    # Blend in the rule-based (Irving-Williams + HSAB + chelate) log K so the
+    # metal *difference* reflects real coordination chemistry rather than the
+    # heuristic model's near-uniform output.
+    if stability_rule_weight > 0.0:
+        try:
+            from ..chemistry.stability_rules import rule_based_log_k
+
+            rt = rule_based_log_k(target_metal, proposal.smiles)
+            rc = rule_based_log_k(competitor_metal, proposal.smiles)
+            w = stability_rule_weight
+            val_target = (1.0 - w) * val_target + w * rt
+            val_competitor = (1.0 - w) * val_competitor + w * rc
+        except Exception as exc:
+            warnings.append(f"stability-rule blend failed for {proposal.smiles}: {exc}")
+
     delta_log_k, composite_score = _compute_composite(
-        pred_target.value, pred_competitor.value, w_affinity, w_selectivity
+        val_target, val_competitor, w_affinity, w_selectivity
     )
     return SelectivityResult(
         ligand_smiles=proposal.smiles,
-        log_k_target=pred_target.value,
-        log_k_competitor=pred_competitor.value,
+        log_k_target=val_target,
+        log_k_competitor=val_competitor,
         delta_log_k=delta_log_k,
         composite_score=composite_score,
         source=proposal.source,
@@ -170,6 +189,7 @@ def run_metal_selectivity_screen(
     w_selectivity: float = 0.5,
     des_compatible_hints: list[str] | None = None,
     des_incompatible_hints: list[str] | None = None,
+    stability_rule_weight: float = 0.5,
 ) -> SelectivityScreenOutcome:
     seen_smiles: set[str] = set()
     all_reviews: list[CandidateReview] = []
@@ -209,7 +229,8 @@ def run_metal_selectivity_screen(
         cycle_results: list[SelectivityResult] = []
         for proposal in proposals:
             result, warnings = _score_proposal_pair(
-                target_metal, competitor_metal, proposal, model_path, w_affinity, w_selectivity
+                target_metal, competitor_metal, proposal, model_path, w_affinity, w_selectivity,
+                stability_rule_weight=stability_rule_weight,
             )
             all_warnings.extend(warnings)
             if result is not None:

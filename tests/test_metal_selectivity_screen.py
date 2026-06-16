@@ -306,3 +306,18 @@ def test_build_context_omits_hint_sections_when_none():
     ctx = _build_selectivity_context("Cu2+", "Zn2+", [], 1, 0.5, 0.5)
     assert "formed DES" not in ctx
     assert "NOT form DES" not in ctx
+
+
+def test_stability_rule_blend_discriminates_ni_over_co():
+    # with the Irving-Williams rule blend, Ni2+ is favoured over Co2+ for chelators
+    out = run_metal_selectivity_screen("Ni2+", "Co2+", n=6, n_cycles=1, stability_rule_weight=1.0)
+    assert out.results
+    assert all(r.delta_log_k > 0 for r in out.results)
+    # invariant still holds under the blend
+    for r in out.results:
+        assert abs(r.delta_log_k - (r.log_k_target - r.log_k_competitor)) < 1e-9
+
+
+def test_stability_rule_weight_zero_runs():
+    out = run_metal_selectivity_screen("Ni2+", "Co2+", n=4, n_cycles=1, stability_rule_weight=0.0)
+    assert out.results

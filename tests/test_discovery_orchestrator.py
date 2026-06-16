@@ -157,7 +157,7 @@ embedding:
     )
 
     outcome = orchestrator.run_search_report(
-        component_a="CCO",
+        component_a="c1ccccc1",  # benzene — distinct from the CCO/C(C)O candidates so neither is suppressed as self-pair
         n=1,
         checkpoint_path=str(checkpoint_path),
         config_path=str(config_path),

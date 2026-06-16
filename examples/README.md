@@ -83,7 +83,7 @@ The same folders also power the pytest-based example benchmark suite in [`tests/
 > and demonstrated separately. The **LLM-backed** captures (e.g. `gemma4_12b`,
 > `ni_co_selectivity_des*`) predate this feature and were not regenerated.
 
-The LLM-backed examples also include a model-specific `llm.*.yaml` file. The shared demo entrypoint covers the LLM-enabled DES runs, including the two-stage brainstorm, proposal-diversity controls, chemistry-advisor notes, chemical-pattern memory, and the chemistry lesson summary block that now appears in the report. DES runs can also write into a standard flat run directory with `--output-dir runs/run_001`, and run memory can be saved, labeled, and reused to bias later ranking.
+The LLM-backed examples also include a model-specific `llm.*.yaml` file. The shared demo entrypoint covers the LLM-enabled DES runs, including the two-stage brainstorm, proposal-diversity controls, chemistry advisor notes, chemical-pattern memory, and the chemistry lesson summary block that now appears in the report. DES runs can also write into a standard flat run directory with `--output-dir runs/run_001`, and run memory can be saved, labeled, and reused to bias later ranking. The run directory (also called a *history directory*) stores `report.txt`, `run.json`, `run.csv`, and `run.manifest.json`. Any chemistry advisor warnings or next-step suggestions are included in the report.
 
 ```bash
 python -m examples.demo_des_search --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --llm-config <folder>/llm.<name>.yaml

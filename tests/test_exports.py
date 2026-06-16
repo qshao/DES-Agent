@@ -339,7 +339,7 @@ embedding:
     assert any("2 run memory file(s)" in note for note in outcome.memory_notes)
     # No output_dir passed → export_des_run_bundle should NOT be called
     assert captured == {}, "export_des_run_bundle must not be called when output_dir is not set"
-    assert "summary:" not in outcome.report_text
+    assert "\nsummary:" not in outcome.report_text  # CLI compact-summary block must not be embedded in report_text
 
 
 def test_export_des_run_bundle_preserves_existing_bundle_when_replace_fails(monkeypatch, tmp_path: Path):
