@@ -49,3 +49,32 @@ embedding:
     assert top.t2_source == "heuristic"
     assert top.t1_confidence == 0.5
     assert top.t2_confidence == 0.5
+
+
+def test_candidates_file_accepts_molecule_names(tmp_path):
+    """_load_candidates_file should resolve molecule names to SMILES."""
+    from des_multi_agent.orchestrator import _load_candidates_file
+
+    f = tmp_path / "candidates.txt"
+    f.write_text("urea\ncholine chloride\n# this is a comment\nNC(N)=O\n")
+    proposals = _load_candidates_file(str(f))
+    smiles_list = [p.smiles for p in proposals]
+    # urea → NC(N)=O; choline chloride → its SMILES; comment skipped; NC(N)=O passes through
+    assert "NC(N)=O" in smiles_list
+    # choline chloride should be resolved — check it's a valid SMILES
+    from rdkit import Chem
+    for s in smiles_list:
+        assert Chem.MolFromSmiles(s) is not None, f"Invalid SMILES in output: {s!r}"
+
+
+def test_candidates_file_skips_unknown_names_with_warning(tmp_path, capsys):
+    """Unknown names in candidates file print a warning and are skipped."""
+    from des_multi_agent.orchestrator import _load_candidates_file
+
+    f = tmp_path / "candidates.txt"
+    f.write_text("urea\nnot_a_real_molecule_xyz\n")
+    proposals = _load_candidates_file(str(f))
+    smiles_list = [p.smiles for p in proposals]
+    assert len(smiles_list) == 1  # only urea
+    captured = capsys.readouterr()
+    assert "not_a_real_molecule_xyz" in captured.err

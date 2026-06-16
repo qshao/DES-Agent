@@ -412,14 +412,21 @@ def _resolve_des_output_dir(output_dir: str | None, save_run_memory_path: str | 
 
 
 def _load_candidates_file(path: str) -> list[CandidateProposal]:
-    """Read one SMILES per line from a file; skip blanks and # comments."""
+    """Read one SMILES or molecule name per line from a file; skip blanks and # comments."""
+    from .chemistry.name_resolution import resolve_to_smiles
+
     p = Path(path)
     if not p.exists():
         raise FileNotFoundError(f"Candidates file not found: {path}")
     proposals: list[CandidateProposal] = []
     for line in p.read_text(encoding="utf-8").splitlines():
-        smiles = line.strip()
-        if not smiles or smiles.startswith("#"):
+        raw = line.strip()
+        if not raw or raw.startswith("#"):
+            continue
+        try:
+            smiles = resolve_to_smiles(raw)
+        except ValueError as exc:
+            print(f"[WARNING] candidates file: skipping {raw!r} — {exc}", file=sys.stderr, flush=True)
             continue
         proposals.append(CandidateProposal(smiles=smiles, rationale="from file", family="unknown", source="file", source_id=""))
     return proposals
