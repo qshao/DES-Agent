@@ -134,6 +134,16 @@ def test_resolve_to_smiles_canonical_smiles_unchanged():
 # Group 4: error paths
 # ---------------------------------------------------------------------------
 
+def test_resolve_to_smiles_empty_string_raises_value_error():
+    with pytest.raises(ValueError):
+        resolve_to_smiles("")
+
+
+def test_resolve_to_smiles_whitespace_only_raises_value_error():
+    with pytest.raises(ValueError):
+        resolve_to_smiles("   ")
+
+
 def test_resolve_to_smiles_unknown_raises_value_error():
     with pytest.raises(ValueError, match="not_a_molecule_xyz"):
         resolve_to_smiles("not_a_molecule_xyz")

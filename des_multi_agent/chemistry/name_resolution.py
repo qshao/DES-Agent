@@ -50,6 +50,13 @@ def resolve_to_smiles(text: str) -> str:
       3. Raise ValueError with a user-friendly message including a 'did you mean'
          suggestion when the input is close to a known name.
     """
+    if not text or not text.strip():
+        raise ValueError(
+            "Unknown molecule: ''"
+            "\n  → Run 'des-agent list-molecules' to see all supported names."
+            "\n  → If you have a SMILES string, pass that directly instead."
+        )
+
     mol = Chem.MolFromSmiles(text)
     if mol is not None:
         return Chem.MolToSmiles(mol)
