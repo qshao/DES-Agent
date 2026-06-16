@@ -117,6 +117,7 @@ def run_metal_binding_screen(
     constraints: dict | None = None,
     n_cycles: int = 1,
 ) -> MetalBindingScreenOutcome:
+    from ..chemistry.claim_grounding import ground_coordination as _ground_coord
     seen_smiles: set[str] = set()
     all_reviews: list[CandidateReview] = []
     all_brainstorm: list[CandidateBrainstorm] = []
@@ -140,7 +141,6 @@ def run_metal_binding_screen(
                 llm_proposals = _llm_proposals_from_brainstorm(brainstorms)
                 proposals.extend(_deduplicate_proposals(llm_proposals, seen_smiles))
                 # Ground coordination claims from LLM rationale
-                from ..chemistry.claim_grounding import ground_coordination as _ground_coord
                 _coord_verdicts: list[object] = []
                 for b in brainstorms:
                     if b.rationale:
