@@ -1,0 +1,290 @@
+{
+  "version": "1.0",
+  "entries": [
+    {
+      "smiles": "C[N+](C)(C)CCO.[Cl-]",
+      "names": ["choline chloride", "ChCl", "choline Cl", "choline hydrochloride"],
+      "role": "HBA"
+    },
+    {
+      "smiles": "C[N+](C)(C)CCO.[Br-]",
+      "names": ["choline bromide", "choline hydrobromide"],
+      "role": "HBA"
+    },
+    {
+      "smiles": "C[N+](C)(C)CC(=O)[O-]",
+      "names": ["betaine", "trimethylglycine", "glycine betaine", "TMG"],
+      "role": "HBA"
+    },
+    {
+      "smiles": "CC(=O)[O-].C[N+](C)(C)CCO",
+      "names": ["choline acetate"],
+      "role": "HBA"
+    },
+    {
+      "smiles": "CCCC[N+](CCCC)(CCCC)CCCC.[Br-]",
+      "names": ["tetrabutylammonium bromide", "TBAB", "Bu4NBr"],
+      "role": "HBA"
+    },
+    {
+      "smiles": "CCCC[N+](CCCC)(CCCC)CCCC.[Cl-]",
+      "names": ["tetrabutylammonium chloride", "TBAC", "Bu4NCl"],
+      "role": "HBA"
+    },
+    {
+      "smiles": "CCCC[P+](CCCC)(CCCC)CCCC.[Br-]",
+      "names": ["tetrabutylphosphonium bromide", "TBPB", "Bu4PBr"],
+      "role": "HBA"
+    },
+    {
+      "smiles": "NC(N)=O",
+      "names": ["urea", "carbamide"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "NC(N)=S",
+      "names": ["thiourea", "thiocarbamide"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "CNC(N)=O",
+      "names": ["N-methylurea", "methylurea", "1-methylurea"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "CC(N)=O",
+      "names": ["acetamide", "acetic acid amide", "ethanamide"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "O=C1CCCCCN1",
+      "names": ["caprolactam", "epsilon-caprolactam", "2-azepanone", "6-hexanelactam"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "OCC(O)CO",
+      "names": ["glycerol", "glycerin", "glycerine", "1,2,3-propanetriol", "propane-1,2,3-triol"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "OCCO",
+      "names": ["ethylene glycol", "monoethylene glycol", "MEG", "1,2-ethanediol", "ethan-1,2-diol"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "CC(O)CO",
+      "names": ["propylene glycol", "1,2-propanediol", "propane-1,2-diol", "PG"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "OCCCCO",
+      "names": ["1,4-butanediol", "butane-1,4-diol", "BDO", "tetramethylene glycol"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "CC(O)CCO",
+      "names": ["1,3-butanediol", "butane-1,3-diol", "1,3-BD"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "OCCOCCO",
+      "names": ["diethylene glycol", "DEG", "2,2'-oxydiethanol", "digol"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "OCCOCCOCCO",
+      "names": ["triethylene glycol", "TEG", "triglycol", "2,2'-(ethane-1,2-diylbis(oxy))diethanol"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "OCC(O)C(O)C(O)C(O)CO",
+      "names": ["sorbitol", "D-sorbitol", "glucitol", "D-glucitol", "sorbol"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "O=C(O)C(=O)O",
+      "names": ["oxalic acid", "ethanedioic acid"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "O=C(O)CC(=O)O",
+      "names": ["malonic acid", "propanedioic acid", "methanedicarboxylic acid"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "O=C(O)CC(O)(C(=O)O)C(=O)O",
+      "names": ["citric acid", "2-hydroxypropane-1,2,3-tricarboxylic acid"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "O=C(O)CC(O)C(=O)O",
+      "names": ["malic acid", "2-hydroxybutanedioic acid", "hydroxybutanedioic acid"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "O=C(O)C(O)C(O)C(=O)O",
+      "names": ["tartaric acid", "2,3-dihydroxybutanedioic acid", "dihydroxysuccinic acid"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "O=C(O)CCC(=O)O",
+      "names": ["succinic acid", "butanedioic acid", "amber acid"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "O=C(O)CCCC(=O)O",
+      "names": ["glutaric acid", "pentanedioic acid"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "O=C(O)CCCCC(=O)O",
+      "names": ["adipic acid", "hexanedioic acid"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "CC(O)C(=O)O",
+      "names": ["lactic acid", "2-hydroxypropanoic acid", "milk acid"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "CC(=O)CCC(=O)O",
+      "names": ["levulinic acid", "4-oxopentanoic acid", "3-acetylpropionic acid"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "CC(=O)O",
+      "names": ["acetic acid", "ethanoic acid", "glacial acetic acid"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "O=CO",
+      "names": ["formic acid", "methanoic acid"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "CCC(=O)O",
+      "names": ["propionic acid", "propanoic acid"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "CCCCCCCC(=O)O",
+      "names": ["caprylic acid", "octanoic acid", "n-octanoic acid"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "CCCCCCCCCC(=O)O",
+      "names": ["capric acid", "decanoic acid", "n-decanoic acid"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "Oc1ccccc1",
+      "names": ["phenol", "hydroxybenzene", "carbolic acid"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "CC(C)C1CCC(C)C(O)C1",
+      "names": ["menthol", "l-menthol", "peppermint camphor", "(1R,2S,5R)-menthol"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "Cc1ccc(O)c(C(C)C)c1",
+      "names": ["thymol", "2-isopropyl-5-methylphenol", "thymic acid"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "Cc1ccc(C(C)C)cc1O",
+      "names": ["carvacrol", "5-isopropyl-2-methylphenol", "2-methyl-5-isopropylphenol"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "OCC1OC(O)(CO)C(O)C1O",
+      "names": ["fructose", "D-fructose", "levulose", "fruit sugar"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "OCC1OC(O)C(O)C(O)C1O",
+      "names": ["glucose", "D-glucose", "dextrose", "grape sugar"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "OCC1OC(OC2(CO)OC(CO)C(O)C2O)C(O)C(O)C1O",
+      "names": ["sucrose", "table sugar", "saccharose", "cane sugar", "beet sugar"],
+      "role": "HBD"
+    },
+    {
+      "smiles": "NCC(=O)O",
+      "names": ["glycine", "aminoacetic acid", "2-aminoacetic acid"],
+      "role": "amphoteric"
+    },
+    {
+      "smiles": "CC(N)C(=O)O",
+      "names": ["alanine", "L-alanine", "2-aminopropanoic acid"],
+      "role": "amphoteric"
+    },
+    {
+      "smiles": "O=C(O)C1CCCN1",
+      "names": ["proline", "L-proline", "pyrrolidine-2-carboxylic acid"],
+      "role": "amphoteric"
+    },
+    {
+      "smiles": "NC(CO)C(=O)O",
+      "names": ["serine", "L-serine", "2-amino-3-hydroxypropanoic acid"],
+      "role": "amphoteric"
+    },
+    {
+      "smiles": "NC(CS)C(=O)O",
+      "names": ["cysteine", "L-cysteine", "2-amino-3-mercaptopropanoic acid"],
+      "role": "amphoteric"
+    },
+    {
+      "smiles": "NC(Cc1cnc[nH]1)C(=O)O",
+      "names": ["histidine", "L-histidine", "2-amino-3-(1H-imidazol-4-yl)propanoic acid"],
+      "role": "amphoteric"
+    },
+    {
+      "smiles": "O=C(O)CN(CCN(CC(=O)O)CC(=O)O)CC(=O)O",
+      "names": ["EDTA", "edetic acid", "ethylenediaminetetraacetic acid"],
+      "role": "ligand"
+    },
+    {
+      "smiles": "O=C(O)CN(CC(=O)O)CC(=O)O",
+      "names": ["NTA", "nitrilotriacetic acid", "2,2',2''-nitrilotriacetic acid"],
+      "role": "ligand"
+    },
+    {
+      "smiles": "O=C(O)CN(CCN(CC(=O)O)CC(=O)O)CCN(CC(=O)O)CC(=O)O",
+      "names": ["DTPA", "diethylenetriaminepentaacetic acid", "pentetic acid"],
+      "role": "ligand"
+    },
+    {
+      "smiles": "Oc1ccc2ncccc2c1",
+      "names": ["8-hydroxyquinoline", "oxine", "8-quinolinol"],
+      "role": "ligand"
+    },
+    {
+      "smiles": "O",
+      "names": ["water", "H2O"],
+      "role": "solvent"
+    },
+    {
+      "smiles": "CCO",
+      "names": ["ethanol", "ethyl alcohol", "EtOH"],
+      "role": "solvent"
+    },
+    {
+      "smiles": "CO",
+      "names": ["methanol", "methyl alcohol", "MeOH", "wood alcohol"],
+      "role": "solvent"
+    },
+    {
+      "smiles": "CS(C)=O",
+      "names": ["DMSO", "dimethyl sulfoxide", "dimethylsulfoxide"],
+      "role": "solvent"
+    },
+    {
+      "smiles": "CC#N",
+      "names": ["acetonitrile", "MeCN", "methyl cyanide"],
+      "role": "solvent"
+    }
+  ]
+}
