@@ -15,7 +15,7 @@ CONFIG_PATH="ml_des_mp/config.yaml"
 echo "=== table (default) ===" > "${SCRIPT_DIR}/output.txt"
 python -m des_multi_agent.cli \
   --workflow des \
-  --component-a "CCO" \
+  --component-a "ethanol" \
   --n 5 \
   --checkpoint-path "${CHECKPOINT_PATH}" \
   --config-path "${CONFIG_PATH}" \
@@ -26,7 +26,7 @@ echo "" >> "${SCRIPT_DIR}/output.txt"
 echo "=== json ===" >> "${SCRIPT_DIR}/output.txt"
 python -m des_multi_agent.cli \
   --workflow des \
-  --component-a "CCO" \
+  --component-a "ethanol" \
   --n 5 \
   --checkpoint-path "${CHECKPOINT_PATH}" \
   --config-path "${CONFIG_PATH}" \
@@ -37,7 +37,7 @@ echo "" >> "${SCRIPT_DIR}/output.txt"
 echo "=== csv ===" >> "${SCRIPT_DIR}/output.txt"
 python -m des_multi_agent.cli \
   --workflow des \
-  --component-a "CCO" \
+  --component-a "ethanol" \
   --n 5 \
   --checkpoint-path "${CHECKPOINT_PATH}" \
   --config-path "${CONFIG_PATH}" \
@@ -48,7 +48,7 @@ echo "" >> "${SCRIPT_DIR}/output.txt"
 echo "=== prose ===" >> "${SCRIPT_DIR}/output.txt"
 python -m des_multi_agent.cli \
   --workflow des \
-  --component-a "CCO" \
+  --component-a "ethanol" \
   --n 5 \
   --checkpoint-path "${CHECKPOINT_PATH}" \
   --config-path "${CONFIG_PATH}" \

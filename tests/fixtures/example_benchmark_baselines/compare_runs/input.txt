@@ -1,3 +1,3 @@
 Compare two DES screening runs for ethanol (CCO).
-Run A: component_a=CCO, n=3, checkpoint ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt
-Run B: component_a=CCO, n=5, same checkpoint
+Run A: component_a=ethanol, n=3, checkpoint ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt
+Run B: component_a=ethanol, n=5, same checkpoint

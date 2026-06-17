@@ -70,5 +70,5 @@ rank | compound | min_tm_k | is_des | trust | uncertainty | runs
 
 === HISTORY ===
 run_name | exported_at_utc | component_a | n_screened | n_des | top_candidate | top_min_tm_k
-run_01 | 2026-06-17T01:33:32.472868Z | CCO | 5 | 5 | OCCO | 201.75 K
-run_02 | 2026-06-17T01:33:36.663684Z | CCO | 5 | 5 | OCCO | 201.75 K
+run_01 | 2026-06-17T01:41:13.234755Z | CCO | 5 | 5 | OCCO | 201.75 K
+run_02 | 2026-06-17T01:41:17.521164Z | CCO | 5 | 5 | OCCO | 201.75 K

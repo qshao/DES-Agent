@@ -14,14 +14,14 @@ cd "${REPO_ROOT}"
 
 {
   echo "=== RUN A (n=3) ==="
-  python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 3 \
+  python -m des_multi_agent.cli --workflow des --component-a "ethanol" --n 3 \
     --checkpoint-path "${CHECKPOINT_PATH}" \
     --config-path "${CONFIG_PATH}" \
     --save-run-memory /tmp/des_compare_run_a.json 2>/dev/null
   echo
 
   echo "=== RUN B (n=5) ==="
-  python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 5 \
+  python -m des_multi_agent.cli --workflow des --component-a "ethanol" --n 5 \
     --checkpoint-path "${CHECKPOINT_PATH}" \
     --config-path "${CONFIG_PATH}" \
     --save-run-memory /tmp/des_compare_run_b.json 2>/dev/null

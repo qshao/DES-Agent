@@ -1,9 +1,45 @@
-smiles_b | is_des | min_tm_k | source | trust | mean_tm_k | spread_k | std_k | uncertainty_flag | rationale
-OCCO | True | 208.69 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=208.69 K | spread=208.69-208.69 K | std=0.00 K | flag=low | min Tm=208.69 K, absolute<= 260.00 K, relative_drop=0.230
-CC(=O)N | True | 222.77 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=222.77 K | spread=222.77-222.77 K | std=0.00 K | flag=low | min Tm=222.77 K, absolute<= 260.00 K, relative_drop=0.179
-OCC(O)CO | True | 223.28 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=223.28 K | spread=223.28-223.28 K | std=0.00 K | flag=low | min Tm=223.28 K, absolute<= 260.00 K, relative_drop=0.177
-O | True | 225.27 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=225.27 K | spread=225.27-225.27 K | std=0.00 K | flag=low | min Tm=225.27 K, absolute<= 260.00 K, relative_drop=0.118
-CC(=O)O | True | 236.03 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=236.03 K | spread=236.03-236.03 K | std=0.00 K | flag=low | min Tm=236.03 K, absolute<= 260.00 K, relative_drop=0.130
+=== DES Search: ethanol (CCO) ===
+Screened 5 candidate(s). 1 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
+Top candidate: ethylene glycol (OCCO) — min Tm 155.5 K (Δ12.1%) | moderate-high confidence
+=================================
+
+Chemistry lessons:
+productive patterns: diol (1)
+avoid patterns: amide (1), polyol (1), carboxylic acid (1), alcohol (1)
+cycle summary:
+- Productive patterns: diol (1).
+- Avoid patterns: amide (1), polyol (1), carboxylic acid (1).
+- Representative examples: OCCO, CC(=O)N, OCC(O)CO.
+run summary:
+- Representative good examples: OCCO.
+- Representative bad examples: CC(=O)N, OCC(O)CO, CC(=O)O.
+- Stay near the productive families and probe close analogs first.
+- Try adjacent chemistry away from the repeated failure families.
+- Evidence is mixed; keep the next cycle balanced.
+- Productive patterns: diol (1).
+- Avoid patterns: amide (1), polyol (1), carboxylic acid (1).
+- Representative examples: OCCO, CC(=O)N, OCC(O)CO.
+next steps:
+- Stay near the productive families and probe close analogs first.
+- Try adjacent chemistry away from the repeated failure families.
+warnings:
+- Evidence is mixed; keep the next cycle balanced.
+
+compound | is_des | min_tm_k | eutectic_x_b | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
+ethylene glycol (OCCO) | True | 155.49 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.74 | mean=160.79 K | spread=155.73-165.61 K | std=4.04 K | moderate-high confidence | min Tm=155.49 K, absolute<= 260.00 K, relative_drop=0.121
+acetamide (CC(=O)N) | False | 168.39 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.94 | mean=173.00 K | spread=172.85-173.09 K | std=0.11 K | high confidence | min Tm=168.39 K, absolute<= 260.00 K, relative_drop=0.048
+glycerol (OCC(O)CO) | False | 167.57 | 0.90 | source=heuristic; id=rule-based-family-library | trust=0.87 | mean=168.35 K | spread=166.70-169.78 K | std=1.27 K | high confidence | min Tm=167.57 K, absolute<= 260.00 K, relative_drop=0.053
+acetic acid (CC(=O)O) | False | 171.54 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.86 | mean=172.13 K | spread=170.93-173.97 K | std=1.32 K | high confidence | min Tm=171.54 K, absolute<= 260.00 K, relative_drop=0.031
+water (O) | False | 165.87 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.74 | mean=166.41 K | spread=163.72-169.10 K | std=2.20 K | moderate-high confidence | min Tm=165.87 K, absolute<= 260.00 K, relative_drop=0.063
+
+Melting-point inputs:
+component | Tm_K | source | confidence
+ethanol (CCO) | 176.96 | qspr | 0.67
+ethylene glycol (OCCO) | 260.60 | experimental | 0.95
+acetamide (CC(=O)N) | 354.06 | experimental | 0.95
+glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
+acetic acid (CC(=O)O) | 289.85 | experimental | 0.95
+water (O) | 261.48 | qspr | 0.40
 
 Viscosity predictions:
 smiles_a | smiles_b | viscosity | units | model | source
@@ -12,3 +48,7 @@ CCO | OCCO | 13.74 | mPa*s | DESignSolvents | artifact
 CCO | OCC(O)CO | 16.08 | mPa*s | DESignSolvents | artifact
 CCO | CC(=O)N | 12.69 | mPa*s | DESignSolvents | artifact
 CCO | CC(=O)O | 12.36 | mPa*s | DESignSolvents | artifact
+
+Run memory:
+- Chemical pattern memory favored productive families: diol.
+- Chemical pattern memory penalized caution families: amide, polyol, carboxylic acid.

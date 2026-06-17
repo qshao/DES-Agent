@@ -1,5 +1,5 @@
 workflow=des
-component_a=CCO
+component_a=ethanol
 n=5
 checkpoint_path=ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt
 dry_run=true

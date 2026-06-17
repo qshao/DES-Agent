@@ -89,6 +89,24 @@ You can also pass the checkpoint through the wrapper environment variable:
 DES_CHECKPOINT_PATH=ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt ./scripts/demo-real.sh
 ```
 
+### Molecule Names
+
+Pass a common name instead of a SMILES string wherever `--component-a` is accepted:
+
+```bash
+# These are equivalent:
+python -m des_multi_agent.cli --workflow des --component-a "ethanol" ...
+python -m des_multi_agent.cli --workflow des --component-a "CCO" ...
+```
+
+List all supported names:
+
+```bash
+python -m des_multi_agent.cli list-molecules
+```
+
+Name resolution is case-insensitive and supports common aliases (`ChCl`, `betaine`, `urea`, etc.). If a name is not found, the input is treated as a SMILES string as before.
+
 ### Standard Run Directory
 
 For real work, write outputs into a dedicated run folder:
@@ -495,6 +513,27 @@ See:
 - [examples/lidocaine_gemma4_12b/](../examples/lidocaine_gemma4_12b)
 - [examples/betaine_des_gemma4_12b/](../examples/betaine_des_gemma4_12b)
 
+### Chemistry Grounding Layer
+
+When an LLM is enabled, every coordination claim, selectivity direction, family
+label, and DES plausibility assertion is automatically verified against the
+molecular structure using deterministic chemistry tools. The grounding layer is
+LLM-agnostic — identical verdicts regardless of which model is configured.
+
+**Report output:**
+- `✓ verified` — the claim is consistent with the computed structure
+- `✗ contradicted — <correction>` — the claim conflicts with structure; the
+  candidate is demoted in the ranking by a fixed −0.25 penalty
+- Unverifiable claims (e.g. unknown family labels) are left unmarked
+
+**Source-side fact injection:** Before each LLM call, computed structural
+facts (HBD, HBA, denticity, donor elements, family tags) are injected into the
+prompt as a `Computed facts:` block so the model reasons over verified data
+rather than recalled chemistry.
+
+No new flags are needed — grounding runs automatically whenever `--llm-config`
+is set.
+
 ## 10. Plain-Language Routing
 
 Use `task-router` to convert a plain-language request into JSON without running anything:
@@ -541,6 +580,18 @@ python -m des_multi_agent.cli \
 ```
 
 The metal-binding workflow is separate from DES screening. DES run memory does not apply to metal-binding runs.
+
+### Protonation-Aware Coordination
+
+The metal-binding and metal-selectivity workflows profile ligand donor atoms at
+the aqueous pH of the binding experiment. This matters because a ligand like
+glycine (`NCC(=O)O`) is a bidentate N,O-chelator as drawn but a zwitterion at
+pH 7 — the amine N is protonated and cannot donate to the metal.
+
+The `binding_pH` defaults to 7.0. This is a Python-level parameter exposed
+through the `run_metal_binding_screen` / `run_metal_selectivity_screen` API.
+When the LLM is enabled, it also receives a "species @ pH 7.0" fact block in
+its prompt, grounding its coordination claims in the actual species.
 
 See [examples/metal_binding/](../examples/metal_binding) and [examples/ligand_binding_template/](../examples/ligand_binding_template).
 

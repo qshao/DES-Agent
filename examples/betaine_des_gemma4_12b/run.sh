@@ -9,7 +9,7 @@ cd "${REPO_ROOT}"
 
 python -m des_multi_agent.cli \
   --workflow des \
-  --component-a "C[N+](C)(C)CC(=O)[O-]" \
+  --component-a "betaine" \
   --n 20 \
   --checkpoint-path "${CHECKPOINT_PATH}" \
   --config-path ml_des_mp/config.yaml \

@@ -9,6 +9,6 @@ python -m des_multi_agent.cli \
   --workflow metal-selectivity \
   --target-metal-ion "Cu2+" \
   --competitor-metal-ion "Zn2+" \
-  --n 5 \
+  --n 10 \
   --stability-constant-model-path artifacts/stability_constants/model.json \
   > "${SCRIPT_DIR}/output.txt" 2>/dev/null

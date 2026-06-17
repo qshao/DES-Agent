@@ -2,6 +2,8 @@
 
 A set of small runnable examples live here.
 
+> **Tip:** Pass molecule names instead of SMILES: `--component-a "ethanol"` works just like `--component-a "CCO"`. Run `python -m des_multi_agent.cli list-molecules` to see all supported names.
+
 Start here:
 
 - Plain-language routing: [`plain_language_gemma4_12b/`](./plain_language_gemma4_12b) or [`plain_language_metal_binding_gemma4_12b/`](./plain_language_metal_binding_gemma4_12b)
@@ -12,17 +14,17 @@ Start here:
 
 Feature map:
 
-| Example | Plain-language | Proposal diversity | Chemistry advisor | Run memory | Offline-only |
-|---------|----------------|--------------------|-------------------|------------|--------------|
-| `plain_language_gemma4_12b/` | yes | yes | yes | no | no |
-| `plain_language_metal_binding_gemma4_12b/` | yes | no | no | no | yes |
-| `des_viscosity/` | no | no | no | no | yes |
-| `des_run_memory_feedback/` | no | yes | no | yes | yes |
-| `ni_co_selectivity_des/` | no | yes | yes | no | no |
-| `ni_co_selectivity_des_qwen36/` | no | yes | yes | no | no |
-| `ni_co_selectivity_des_nemotron/` | no | yes | yes | no | no |
-| `metal_binding/` | no | no | yes | no | yes |
-| `metal_selectivity_standalone/` | no | no | yes | no | yes |
+| Example | Plain-language | Proposal diversity | Chemistry advisor | Run memory | Grounding | Offline-only |
+|---------|----------------|--------------------|-------------------|------------|-----------|--------------|
+| `plain_language_gemma4_12b/` | yes | yes | yes | no | yes | no |
+| `plain_language_metal_binding_gemma4_12b/` | yes | no | no | no | no | yes |
+| `des_viscosity/` | no | no | no | no | no | yes |
+| `des_run_memory_feedback/` | no | yes | no | yes | no | yes |
+| `ni_co_selectivity_des/` | no | yes | yes | no | yes | no |
+| `ni_co_selectivity_des_qwen36/` | no | yes | yes | no | yes | no |
+| `ni_co_selectivity_des_nemotron/` | no | yes | yes | no | yes | no |
+| `metal_binding/` | no | no | yes | no | no | yes |
+| `metal_selectivity_standalone/` | no | no | yes | no | no | yes |
 
 Chemical pattern memory shows up most clearly in `des_run_memory_feedback/` and the multi-cycle DES examples, where prior predictions shape the next cycle's prompt context and report notes.
 
@@ -95,7 +97,7 @@ python -m examples.demo_des_search --component-a "CCO" --n 20 --checkpoint-path 
 
 The metal-binding examples use `python -m des_multi_agent.cli --workflow metal-binding ...` and the bundled stability-constant artifact.
 The task-router example uses `python -m des_multi_agent.cli task-router "..."` and prints JSON only. It also demonstrates the normalization layer, including follow-up questions for ambiguous requests like a free base versus a salt form.
-The task-execute command uses `python -m des_multi_agent.cli task-execute "..."` to route and run the matching workflow in one step.
+The task-execute command uses `python -m des_multi_agent.cli task-execute "..."` to route and run the matching workflow in one step (requires Ollama or another configured LLM provider).
 
 See [`docs/tutorial.md`](/home/qshao/DES-Agent/docs/tutorial.md) for the full walkthrough and output guide.
 

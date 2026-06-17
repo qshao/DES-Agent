@@ -1,5 +1,5 @@
 metal_ion | ligand_smiles | value | units | model | source
-Cu2+ | NCCN | 10.77 | log K | stabilityconstant-ml-models | artifact
+Cu2+ | NCC(=O)O | 11.31 | log K | stabilityconstant-ml-models | artifact
 summary:
 - command: metal-binding
 - workflow: metal-binding

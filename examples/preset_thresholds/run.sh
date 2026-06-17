@@ -15,7 +15,7 @@ CONFIG_PATH="ml_des_mp/config.yaml"
 echo "=== strict preset (Tm ≤ 240 K, drop ≥ 15%) ===" > "${SCRIPT_DIR}/output.txt"
 python -m des_multi_agent.cli \
   --workflow des \
-  --component-a "CCO" \
+  --component-a "ethanol" \
   --n 5 \
   --checkpoint-path "${CHECKPOINT_PATH}" \
   --config-path "${CONFIG_PATH}" \
@@ -26,7 +26,7 @@ echo "" >> "${SCRIPT_DIR}/output.txt"
 echo "=== relaxed preset (Tm ≤ 280 K, drop ≥ 5%) ===" >> "${SCRIPT_DIR}/output.txt"
 python -m des_multi_agent.cli \
   --workflow des \
-  --component-a "CCO" \
+  --component-a "ethanol" \
   --n 5 \
   --checkpoint-path "${CHECKPOINT_PATH}" \
   --config-path "${CONFIG_PATH}" \

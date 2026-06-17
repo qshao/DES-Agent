@@ -11,7 +11,7 @@ cd "${REPO_ROOT}"
 
 python -m des_multi_agent.cli \
   --workflow des \
-  --component-a "CCO" \
+  --component-a "ethanol" \
   --n 5 \
   --ensemble \
   --config-path ml_des_mp/config.yaml \

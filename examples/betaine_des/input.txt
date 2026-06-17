@@ -1,5 +1,5 @@
 workflow=des
-component_a=C[N+](C)(C)CC(=O)[O-]  # betaine (trimethylglycine), zwitterionic form
+component_a=betaine
 n=20
 checkpoint_path=ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt
 abs_tm_threshold=340

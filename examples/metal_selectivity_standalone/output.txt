@@ -1,14 +1,19 @@
 === Metal Selectivity Screen: Cu2+ over Zn2+ ===
-Screened 5 candidate(s) over 1 cycle(s).
+Screened 10 candidate(s) over 1 cycle(s).
 Top ligand: O=C(O)CN(CC(=O)O)CC(=O)O — score=7.43 (ΔlogK=-0.08, logK(Cu2+)=14.94)
 ====================================================
 
 ligand | log_k_target | log_k_competitor | delta_log_k | score | source | rationale
 O=C(O)CN(CC(=O)O)CC(=O)O | 14.94 | 15.02 | -0.08 | 7.43 | source=heuristic; id=rule-based-ligand-library | nitrilotriacetate (tetradentate N,O,O,O-chelator)
 O=C(O)CNCC(=O)O | 13.15 | 13.23 | -0.08 | 6.54 | source=heuristic; id=rule-based-ligand-library | iminodiacetate (tridentate N,O,O-chelator)
+O=C(O)c1ccccc1O | 11.98 | 11.84 | 0.14 | 6.06 | source=heuristic; id=rule-based-ligand-library | salicylate (bidentate O,O-chelator)
+c1cnc2ccc3ncccc3c2c1 | 11.26 | 10.83 | 0.42 | 5.84 | source=heuristic; id=rule-based-ligand-library | 1,10-phenanthroline (bidentate N,N-chelator)
 Oc1cccc2ncccc12 | 11.19 | 10.91 | 0.28 | 5.73 | source=heuristic; id=rule-based-ligand-library | 8-hydroxyquinoline (bidentate N,O-chelator)
 Oc1ccccc1O | 11.12 | 10.98 | 0.14 | 5.63 | source=heuristic; id=rule-based-ligand-library | catecholate (bidentate O,O-chelator)
 NCC(=O)O | 11.31 | 11.39 | -0.08 | 5.62 | source=heuristic; id=rule-based-ligand-library | aminoacetate (bidentate N,O-chelator)
+c1ccc(-c2ccccn2)nc1 | 10.81 | 10.46 | 0.35 | 5.58 | source=heuristic; id=rule-based-ligand-library | 2,2-bipyridine (bidentate N,N-chelator)
+CC(=O)NO | 10.66 | 10.74 | -0.08 | 5.29 | source=heuristic; id=rule-based-ligand-library | acetohydroxamate (bidentate N,O-chelator)
+CC(=O)CC(C)=O | 9.47 | 9.55 | -0.08 | 4.69 | source=heuristic; id=rule-based-ligand-library | acetylacetonate (bidentate O,O-chelator)
 summary:
 - command: metal-selectivity
 - status: completed

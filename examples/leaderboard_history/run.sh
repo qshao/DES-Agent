@@ -18,14 +18,14 @@ rm -rf "${HISTORY_DIR}"
 
 {
   echo "=== RUN 1 ==="
-  python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 5 \
+  python -m des_multi_agent.cli --workflow des --component-a "ethanol" --n 5 \
     --checkpoint-path "${CHECKPOINT_PATH}" \
     --config-path "${CONFIG_PATH}" \
     --output-dir "${HISTORY_DIR}/run_01" 2>/dev/null
   echo
 
   echo "=== RUN 2 ==="
-  python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 5 \
+  python -m des_multi_agent.cli --workflow des --component-a "ethanol" --n 5 \
     --checkpoint-path "${CHECKPOINT_PATH}" \
     --config-path "${CONFIG_PATH}" \
     --output-dir "${HISTORY_DIR}/run_02" 2>/dev/null

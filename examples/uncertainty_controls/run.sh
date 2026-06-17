@@ -15,7 +15,7 @@ CONFIG_PATH="ml_des_mp/config.yaml"
 echo "=== report_only: annotate uncertainty without changing ranking ===" > "${SCRIPT_DIR}/output.txt"
 python -m des_multi_agent.cli \
   --workflow des \
-  --component-a "CCO" \
+  --component-a "ethanol" \
   --n 5 \
   --checkpoint-path "${CHECKPOINT_PATH}" \
   --config-path "${CONFIG_PATH}" \
@@ -26,7 +26,7 @@ echo "" >> "${SCRIPT_DIR}/output.txt"
 echo "=== penalize: soft down-rank candidates below min-trust-score ===" >> "${SCRIPT_DIR}/output.txt"
 python -m des_multi_agent.cli \
   --workflow des \
-  --component-a "CCO" \
+  --component-a "ethanol" \
   --n 5 \
   --checkpoint-path "${CHECKPOINT_PATH}" \
   --config-path "${CONFIG_PATH}" \
@@ -39,7 +39,7 @@ echo "" >> "${SCRIPT_DIR}/output.txt"
 echo "=== filter: hard-remove candidates below min-trust-score 0.9 ===" >> "${SCRIPT_DIR}/output.txt"
 python -m des_multi_agent.cli \
   --workflow des \
-  --component-a "CCO" \
+  --component-a "ethanol" \
   --n 5 \
   --checkpoint-path "${CHECKPOINT_PATH}" \
   --config-path "${CONFIG_PATH}" \

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 
+from des_multi_agent.chemistry.name_resolution import resolve_to_smiles as _resolve_name
 from des_multi_agent.cli import _positive_int, _unit_float, load_llm_config
 from des_multi_agent.config import DEFAULT_CONFIG_PATH, PROJECT_ROOT
 from des_multi_agent.evaluation import DesResult
@@ -214,8 +215,9 @@ def _mock_outcome(component_a: str, n: int) -> SearchOutcome:
 def main(argv=None):
     parser = build_parser()
     args = parser.parse_args(argv)
+    component_a = _resolve_name(args.component_a)
     if args.mock:
-        outcome = _mock_outcome(args.component_a, args.n)
+        outcome = _mock_outcome(component_a, args.n)
     else:
         checkpoint_path = resolve_existing_path(args.checkpoint_path)
         config_path = resolve_existing_path(args.config_path)
@@ -234,7 +236,7 @@ def main(argv=None):
             if args.proposal_per_family_budget is not None:
                 proposal_diversity_cfg["per_family_budget"] = args.proposal_per_family_budget
         outcome = run_search_report(
-            component_a=args.component_a,
+            component_a=component_a,
             n=args.n,
             checkpoint_path=str(checkpoint_path),
             config_path=str(config_path),

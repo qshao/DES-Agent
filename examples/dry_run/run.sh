@@ -7,7 +7,7 @@ cd "${REPO_ROOT}"
 
 python -m des_multi_agent.cli \
   --workflow des \
-  --component-a "CCO" \
+  --component-a "ethanol" \
   --n 5 \
   --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
   --config-path ml_des_mp/config.yaml \
