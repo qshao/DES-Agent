@@ -1,0 +1,1 @@
+[dry-run] Paths resolved, config parsed, checkpoint compatible — OK.
