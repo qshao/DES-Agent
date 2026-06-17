@@ -246,6 +246,38 @@ All grounding warnings carry the `[GROUNDING]` prefix for easy grep/filter.
 
 ---
 
+## `protonation.py` — Dominant-Species Engine (pKa-aware)
+
+**When to use:** any time donor availability or H-bond counts must reflect the
+species that actually exists at a given pH rather than the drawn neutral form —
+chiefly the metal-binding workflows.
+
+```python
+from des_multi_agent.chemistry.protonation import dominant_species
+
+res = dominant_species("NCC(=O)O", pH=7.0)   # glycine
+# ProtonationResult(
+#   species_smiles="...(zwitterion)...",
+#   net_charge=0,
+#   groups=[IonizedGroup("carboxylic acid", ..., state="deprotonated", charge=-1),
+#           IonizedGroup("amine", ..., state="protonated", charge=+1)],
+# )
+```
+
+- Hand-rolled SMARTS→pKa table; acids deprotonate when pH > pKa, bases protonate
+  when pH < pKa. Un-tabulated groups are left exactly as drawn (never guessed).
+- **Never raises** — returns a passthrough result on any error.
+- Wired into `claim_grounding.structural_facts(smiles, pH=None)` and
+  `ground_coordination(smiles, claim, pH=None)`: pass a `pH` to profile the
+  species; omit it (default `None`) to keep the as-drawn behavior unchanged.
+- The DES partner search stays as-drawn (neat liquid); the metal-binding workflows
+  pass `binding_pH` (default 7.0) to all coordination grounding calls.
+- **Limitation:** models the free-ligand dominant species, not metal-assisted
+  deprotonation on coordination; family classification always stays on the as-drawn
+  form; tautomers are deferred (1A-bis).
+
+---
+
 ## Physical DES Eutectic Model
 
 The DES eutectic temperature comes from `predict_curve()` in
