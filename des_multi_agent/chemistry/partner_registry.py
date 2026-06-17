@@ -11,6 +11,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from rdkit import Chem
+from rdkit.Chem import Descriptors
 
 from .hbond import hbond_profile
 
@@ -64,3 +65,26 @@ def is_known(smiles: str) -> bool:
     """
     k = _inchikey(smiles)
     return k is not None and k in known_inchikeys()
+
+
+_ALLOWED_ELEMENTS = {"H", "C", "N", "O", "S", "P", "F", "Cl", "Br", "I"}
+
+
+def structural_sanity(smiles: str) -> tuple[bool, str]:
+    """Deterministic 'is this a sane small molecule' check.
+
+    Fails when: unparseable; any atom outside the allowed-element set; any
+    radical electrons; molecular weight outside the open interval (40, 400).
+    """
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        return False, "invalid SMILES"
+    for atom in mol.GetAtoms():
+        if atom.GetSymbol() not in _ALLOWED_ELEMENTS:
+            return False, f"disallowed element: {atom.GetSymbol()}"
+        if atom.GetNumRadicalElectrons() > 0:
+            return False, "radical species"
+    mw = Descriptors.MolWt(mol)
+    if not (40.0 < mw < 400.0):
+        return False, f"molecular weight out of range: {mw:.1f}"
+    return True, ""

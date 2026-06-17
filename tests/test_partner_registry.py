@@ -1,4 +1,4 @@
-from des_multi_agent.chemistry.partner_registry import is_known, known_inchikeys
+from des_multi_agent.chemistry.partner_registry import is_known, known_inchikeys, structural_sanity
 
 
 def test_known_inchikeys_is_nonempty_frozenset():
@@ -24,3 +24,41 @@ def test_is_known_false_for_invented_molecule():
 
 def test_is_known_false_on_unparseable_without_raising():
     assert is_known("not_a_smiles((((") is False
+
+
+def test_structural_sanity_passes_common_des_components():
+    for smi in ("CCO", "NC(N)=O", "OCC(O)CO"):  # ethanol, urea, glycerol
+        ok, reason = structural_sanity(smi)
+        assert ok is True, (smi, reason)
+        assert reason == ""
+
+
+def test_structural_sanity_rejects_disallowed_element():
+    ok, reason = structural_sanity("OB(O)O")  # boric acid — boron not allowed
+    assert ok is False
+    assert "element" in reason.lower()
+
+
+def test_structural_sanity_rejects_oversized_molecule():
+    # long alkane, MW well above 400
+    ok, reason = structural_sanity("C" * 40)
+    assert ok is False
+    assert "weight" in reason.lower()
+
+
+def test_structural_sanity_rejects_tiny_molecule():
+    ok, reason = structural_sanity("C")  # methane, MW ~16 < 40
+    assert ok is False
+    assert "weight" in reason.lower()
+
+
+def test_structural_sanity_rejects_radical():
+    ok, reason = structural_sanity("[CH3]")  # methyl radical
+    assert ok is False
+    assert "radical" in reason.lower()
+
+
+def test_structural_sanity_rejects_invalid_smiles():
+    ok, reason = structural_sanity("xyz(((")
+    assert ok is False
+    assert "invalid" in reason.lower()
