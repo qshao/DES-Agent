@@ -320,6 +320,14 @@ def _apply_review_penalties(
     return rank_annotated_results(adjusted)
 
 
+def _canonical(smiles: str) -> str:
+    """Return canonical SMILES, or the input string if unparseable."""
+    try:
+        return canonicalize_smiles(smiles)
+    except ValueError:
+        return smiles
+
+
 def _grade_partner_reality(
     component_a: str,
     candidate_smiles: list[str],
@@ -328,7 +336,10 @@ def _grade_partner_reality(
     """Grade LLM-sourced partner proposals against reality.
 
     Returns (verdicts, penalty_by_smiles, drop_smiles). Non-LLM candidates are
-    skipped (real by construction). Never raises.
+    skipped (real by construction). ``llm_smiles`` must contain canonical forms;
+    each candidate is canonicalized before the membership check so the dedup race
+    (heuristic wins with canonical form, LLM proposed a non-canonical spelling)
+    does not cause grading to be silently skipped. Never raises.
     """
     from .chemistry.claim_grounding import ground_partner_reality
 
@@ -336,7 +347,7 @@ def _grade_partner_reality(
     penalties: dict[str, float] = {}
     drops: set[str] = set()
     for smi in candidate_smiles:
-        if smi not in llm_smiles:
+        if _canonical(smi) not in llm_smiles:
             continue
         rv = ground_partner_reality(component_a, smi)
         verdicts.append(rv)
@@ -719,7 +730,7 @@ def run_search_report(
     contradicted_family_smiles: set[str] = set()
     drop_smiles: set[str] = set()
     try:
-        family_by_smiles = {c.smiles: c.family for c in llm_candidates}
+        family_by_smiles = {_canonical(c.smiles): c.family for c in llm_candidates}
         # Accumulate claim-level grounding (DES plausibility + family) tagged by
         # the SMILES it describes, plus the SMILES that plausibility contradicted.
         # The final claim_verdicts / warnings are assembled below, once reality
@@ -744,7 +755,7 @@ def run_search_report(
                     f"[GROUNDING] DES plausibility contradicted for {smiles_b}: {plausibility_v.detail}",
                 ))
             # Ground family classification if LLM provided one
-            family = family_by_smiles.get(smiles_b)
+            family = family_by_smiles.get(_canonical(smiles_b))
             if family:
                 family_v = ground_family(smiles_b, family)
                 tagged_verdicts.append((smiles_b, family_v))

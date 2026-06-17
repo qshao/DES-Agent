@@ -5,9 +5,11 @@ def test_grade_partitions_into_keep_demote_drop():
     # component_a = butane (no H-bond donors/acceptors) so that the branched
     # alkane gets label="none" → demote, and a Si-containing molecule fails the
     # structural-sanity gate → drop.  Urea is in the known set → keep.
-    branched_alkane = "CCCC(CC)CCCC"  # 4-ethyloctane
+    branched_alkane = "CCCC(CC)CCCC"  # 4-ethyloctane (non-canonical raw SMILES)
     drop_candidate = "CCCC[Si](C)(C)C"  # silane — disallowed element
-    llm_smiles = {"NC(N)=O", branched_alkane, drop_candidate, "CCO"}
+    # llm_smiles must contain canonical forms (caller contract after fix #3);
+    # "CCCC(CC)CCCC" canonicalizes to "CCCCC(CC)CCC".
+    llm_smiles = {"NC(N)=O", "CCCCC(CC)CCC", drop_candidate, "CCO"}
     verdicts, penalties, drops = _grade_partner_reality(
         component_a="CCCC",          # butane — no H-bond capability
         candidate_smiles=["NC(N)=O", branched_alkane, drop_candidate, "CCO"],
