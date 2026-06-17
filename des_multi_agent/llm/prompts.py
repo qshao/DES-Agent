@@ -177,6 +177,7 @@ def candidate_brainstorm_prompt(
     family_bias_strength: float = 0.5,
     prior_productive_families: dict[str, int] | None = None,
     facts_block: str = "",
+    known_partner_menu: list | None = None,
 ) -> str:
     parts = [
         "Return raw JSON only. Do not use markdown fences or commentary.\n",
@@ -184,6 +185,13 @@ def candidate_brainstorm_prompt(
     ]
     if facts_block:
         parts.append(f"Computed facts:\n{facts_block}\n")
+    if known_partner_menu:
+        menu_lines = ["Prefer partners from this list of known, real molecules. "
+                      "You MAY propose others, but only with an explicit "
+                      "justification in the rationale:\n"]
+        for e in known_partner_menu:
+            menu_lines.append(f"  - {e.display_name} [{e.role}]\n")
+        parts.append("".join(menu_lines))
     parts += [
         f"Component A: {component_a}\n",
         f"Constraints: {constraints or {}}\n",
