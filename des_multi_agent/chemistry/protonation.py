@@ -48,12 +48,12 @@ class ProtonationResult:
     input_smiles: str
     pH: float
     species_smiles: str        # canonical SMILES of the dominant species
-    mol: object                # RDKit Mol of the dominant species, or None
+    mol: object                # Chem.Mol | None  (object keeps frozen dataclass happy)
     groups: list[IonizedGroup] = field(default_factory=list)
     net_charge: int = 0
 
 
-def _passthrough(smiles_or_mol, pH: float) -> ProtonationResult:
+def _passthrough(smiles_or_mol: object, pH: float) -> ProtonationResult:
     """Safe fallback: canonicalize if possible, otherwise echo the raw input."""
     if isinstance(smiles_or_mol, Chem.Mol):
         mol = smiles_or_mol
@@ -99,6 +99,9 @@ def dominant_species(smiles_or_mol, pH: float = 7.0) -> ProtonationResult:
             return _passthrough(smiles_or_mol, pH)
         input_smiles = Chem.MolToSmiles(base)
         rw = Chem.RWMol(base)
+        # Flush implicit H counts into the RWMol's cache before any edits so
+        # that GetTotalNumHs() is accurate throughout the editing loop.
+        rw.UpdatePropertyCache(strict=False)
 
         touched: set[int] = set()
         groups: list[IonizedGroup] = []
@@ -106,7 +109,10 @@ def dominant_species(smiles_or_mol, pH: float = 7.0) -> ProtonationResult:
             patt = Chem.MolFromSmarts(smarts)
             if patt is None:
                 continue
-            for match in rw.GetSubstructMatches(patt):
+            # Match against the original read-only mol so that edits applied
+            # to earlier atoms cannot corrupt SMARTS matching for later ones
+            # (e.g. [N+] or H-count patterns would see stale state on rw).
+            for match in base.GetSubstructMatches(patt):
                 idx = match[0]
                 if idx in touched:
                     continue
