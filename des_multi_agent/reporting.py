@@ -298,6 +298,12 @@ def format_report(
                 rendered_verdicts.append(f"- ✓ verified | {v.claim}")
             elif v.status == "contradicted":
                 rendered_verdicts.append(f"- ✗ contradicted — {v.detail} | {v.claim}")
+            elif v.status == "known":
+                rendered_verdicts.append(f"- ✓ known | {v.claim}")
+            elif v.status == "novel_plausible":
+                rendered_verdicts.append(f"- ◆ novel (plausible) | {v.claim}")
+            elif v.status == "novel_implausible":
+                rendered_verdicts.append(f"- ✗ implausible — {v.detail} | {v.claim}")
         if rendered_verdicts:
             lines.append("")
             lines.append("Grounding verdicts:")
