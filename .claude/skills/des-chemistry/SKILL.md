@@ -317,3 +317,27 @@ and can be deprioritised.
 | Choline Cl + oxalic acid | HBA/HBD + HBD | moderate |
 | Betaine + glycerol | HBA + amphoteric | moderate |
 | Menthol + thymol | weak HBD + weak HBD | weak |
+
+---
+
+## Partner reality anchoring (`chemistry/partner_registry.py` + `ground_partner_reality`)
+
+Anchors DES-partner brainstorming to real, attested molecules and grades each
+LLM proposal deterministically.
+
+- `partner_registry.known_inchikeys()` / `is_known(smiles)` — membership in the
+  curated registry ∪ experimental melting-point dataset (canonical InChIKey).
+- `partner_registry.known_partner_menu(role, limit)` — role-tagged menu
+  (curated entries first, then experimental compounds auto-tagged via
+  `hbond_profile`) injected into the brainstorm prompt for the role
+  complementary to component A.
+- `partner_registry.structural_sanity(smiles)` — element whitelist
+  {H,C,N,O,S,P,F,Cl,Br,I}, MW in (40, 400), no radicals.
+- `claim_grounding.ground_partner_reality(component_a, smiles) -> PartnerVerdict`
+  — the output-side entry point. Contract:
+  - `known` / `novel_plausible` → keep
+  - `novel_implausible` + no complementarity → demote (−0.25)
+  - `novel_implausible` + bad structure / invalid → drop
+
+Only LLM-sourced proposals are graded; heuristic/discovery candidates are real
+by construction. Metal-ligand brainstorming is a planned parallel (not yet wired).
