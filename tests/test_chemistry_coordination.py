@@ -51,3 +51,19 @@ def test_quaternary_ammonium_nitrogen_is_not_a_donor():
     p = coordination_profile("C[N+](C)(C)CCO")
     assert p.donor_element_counts.get("N", 0) == 0
     assert p.donor_element_counts.get("O", 0) == 1
+
+
+def test_protonated_ammonium_nitrogen_is_not_a_donor():
+    from des_multi_agent.chemistry.coordination import coordination_profile
+    # Protonated ethylammonium: N has +1 and three H's, no lone pair to donate.
+    prof = coordination_profile("CC[NH3+]")
+    assert prof.donor_element_counts.get("N", 0) == 0
+    assert prof.n_donor_atoms == 0
+
+
+def test_deprotonated_carboxylate_oxygens_still_donate():
+    from des_multi_agent.chemistry.coordination import coordination_profile
+    # Acetate: both carboxylate O's are donors, collapsing to one site.
+    prof = coordination_profile("CC(=O)[O-]")
+    assert prof.donor_element_counts.get("O", 0) == 2
+    assert prof.denticity == 1
