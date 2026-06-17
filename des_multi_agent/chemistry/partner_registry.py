@@ -7,6 +7,7 @@ proposal/prompt path.
 from __future__ import annotations
 
 import json
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
@@ -88,3 +89,75 @@ def structural_sanity(smiles: str) -> tuple[bool, str]:
     if not (40.0 < mw < 400.0):
         return False, f"molecular weight out of range: {mw:.1f}"
     return True, ""
+
+
+@dataclass(frozen=True)
+class MenuEntry:
+    smiles: str
+    display_name: str   # curated name, or the SMILES for auto-tagged entries
+    role: str           # "HBD" | "HBA" | "amphoteric"
+
+
+def _serves(entry_role: str, wanted: str) -> bool:
+    return (
+        entry_role == wanted
+        or entry_role == "amphoteric"
+        or wanted == "amphoteric"
+    )
+
+
+@lru_cache(maxsize=1)
+def _all_menu_entries() -> tuple[MenuEntry, ...]:
+    """Curated registry entries first, then auto-role-tagged experimental
+    compounds, deduped by InChIKey. Built once and cached."""
+    entries: list[MenuEntry] = []
+    seen: set[str] = set()
+
+    # Curated registry: trust the stored role tag; keep H-bonders only.
+    try:
+        data = json.loads(_COMMON_NAMES_PATH.read_text(encoding="utf-8"))
+        for entry in data.get("entries", []):
+            role = entry.get("role", "")
+            if role not in ("HBD", "HBA", "amphoteric"):
+                continue
+            k = _inchikey(entry["smiles"])
+            if k is None or k in seen:
+                continue
+            seen.add(k)
+            name = entry["names"][0] if entry.get("names") else entry["smiles"]
+            entries.append(MenuEntry(entry["smiles"], name, role))
+    except Exception:
+        pass
+
+    # Experimental compounds: derive role from the H-bond profiler.
+    try:
+        data = json.loads(_EXPERIMENTAL_PATH.read_text(encoding="utf-8"))
+        for record in data.get("entries", {}).values():
+            smi = record["smiles"]
+            k = _inchikey(smi)
+            if k is None or k in seen:
+                continue
+            role = hbond_profile(smi).role
+            if role not in ("HBD", "HBA", "amphoteric"):
+                continue
+            seen.add(k)
+            entries.append(MenuEntry(smi, smi, role))
+    except Exception:
+        pass
+
+    return tuple(entries)
+
+
+def known_partner_menu(role: str, limit: int = 30) -> list[MenuEntry]:
+    """Menu entries that can serve the wanted partner role `role`.
+
+    An entry serves `role` when its role equals `role`, or either side is
+    "amphoteric". Curated entries precede auto-tagged ones; capped at `limit`.
+    """
+    out: list[MenuEntry] = []
+    for e in _all_menu_entries():
+        if _serves(e.role, role):
+            out.append(e)
+            if len(out) >= limit:
+                break
+    return out
