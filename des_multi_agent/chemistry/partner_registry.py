@@ -133,15 +133,18 @@ def _all_menu_entries() -> tuple[MenuEntry, ...]:
     try:
         data = json.loads(_EXPERIMENTAL_PATH.read_text(encoding="utf-8"))
         for record in data.get("entries", {}).values():
-            smi = record["smiles"]
-            k = _inchikey(smi)
-            if k is None or k in seen:
+            try:
+                smi = record["smiles"]
+                k = _inchikey(smi)
+                if k is None or k in seen:
+                    continue
+                role = hbond_profile(smi).role
+                if role not in ("HBD", "HBA", "amphoteric"):
+                    continue
+                seen.add(k)
+                entries.append(MenuEntry(smi, smi, role))
+            except Exception:
                 continue
-            role = hbond_profile(smi).role
-            if role not in ("HBD", "HBA", "amphoteric"):
-                continue
-            seen.add(k)
-            entries.append(MenuEntry(smi, smi, role))
     except Exception:
         pass
 
