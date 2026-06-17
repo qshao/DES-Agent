@@ -195,3 +195,47 @@ def test_ground_des_plausibility_contradicted():
     so des_hbond_complementarity returns label='none'."""
     verdict = ground_des_plausibility(TBACL, TBACL)
     assert verdict.status == "contradicted"
+
+
+# ---------------------------------------------------------------------------
+# Group 7 — pH-aware structural_facts() and ground_coordination()
+# ---------------------------------------------------------------------------
+
+def test_structural_facts_default_ph_none_is_unchanged_for_glycine():
+    # Regression guard: pH=None must reproduce the as-drawn Phase 1 result.
+    facts = structural_facts("NCC(=O)O")
+    assert facts.denticity == 2
+    assert facts.n_donor_atoms >= 2
+    assert facts.net_charge == 0
+    assert facts.protonation_summary == ""
+
+
+def test_structural_facts_ph7_glycine_is_species_aware():
+    # At pH 7 glycine is a zwitterion: N is protonated (not a donor),
+    # only the carboxylate site remains → denticity 1.
+    facts = structural_facts("NCC(=O)O", pH=7.0)
+    assert facts.denticity == 1
+    assert facts.donor_element_counts.get("N", 0) == 0
+    assert facts.net_charge == 0
+    assert facts.protonation_summary != ""
+
+
+def test_as_prompt_block_species_clause_only_when_ph_applied():
+    drawn = structural_facts("NCC(=O)O").as_prompt_block()
+    species = structural_facts("NCC(=O)O", pH=7.0).as_prompt_block()
+    assert "species @ pH" not in drawn
+    assert "species @ pH" in species
+
+
+def test_ground_coordination_ph_aware_demotes_protonated_amine_claim():
+    # "bidentate N,O-chelator" is true as-drawn but not for the pH-7 zwitterion
+    # whose amine N is protonated.
+    drawn = ground_coordination("NCC(=O)O", "bidentate N,O-chelator")
+    species = ground_coordination("NCC(=O)O", "bidentate N,O-chelator", pH=7.0)
+    assert drawn.status == "verified"
+    assert species.status != "verified"
+
+
+def test_ground_coordination_default_ph_none_unchanged():
+    v = ground_coordination("NCC(=O)O", "bidentate N,O-chelator")
+    assert v.status == "verified"

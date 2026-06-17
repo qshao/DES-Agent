@@ -18,6 +18,7 @@ from rdkit import Chem
 from .claim_verification import verify_coordination_claim, verify_selectivity_claim
 from .coordination import coordination_profile
 from .hbond import des_hbond_complementarity, hbond_profile
+from .protonation import dominant_species
 
 # ---------------------------------------------------------------------------
 # Metal normalisation helpers
@@ -76,6 +77,8 @@ class StructuralFacts:
     donor_element_counts: dict[str, int]
     mean_donor_softness: float
     family_features: list[str]            # detected family tags, e.g. ["polyol"]
+    net_charge: int = 0                   # net formal charge of the profiled species
+    protonation_summary: str = ""         # non-empty only when a pH was applied
 
     def as_prompt_block(self) -> str:
         """Return a compact single-line fact string suitable for LLM injection."""
@@ -84,23 +87,44 @@ class StructuralFacts:
             for elem, count in self.donor_element_counts.items()
         ) or "none"
         feat_str = str(self.family_features)
-        return (
+        block = (
             f"computed facts: HBD={self.n_hbd}, HBA={self.n_hba}, "
             f"role={self.hbond_role}, donor atoms={donor_str}, "
             f"denticity={self.denticity}, features={feat_str}"
         )
+        if self.protonation_summary:
+            block += f"; {self.protonation_summary}"
+        return block
 
 
-def structural_facts(smiles: str) -> StructuralFacts:
+def structural_facts(smiles: str, pH: float | None = None) -> StructuralFacts:
     """Compute a deterministic structural summary for *smiles*.
 
-    Never raises — returns a safe sentinel object on any error.
+    When *pH* is None (default) the molecule is profiled as drawn — byte-identical
+    to the original behavior. When *pH* is a float, the dominant ionized species at
+    that pH is profiled for H-bond and coordination counts (family features are
+    always read from the as-drawn form). Never raises.
     """
     try:
-        hb = hbond_profile(smiles)
-        cp = coordination_profile(smiles)
+        net_charge = 0
+        protonation_summary = ""
+        if pH is None:
+            profiled = smiles
+        else:
+            res = dominant_species(smiles, pH)
+            profiled = res.species_smiles
+            net_charge = res.net_charge
+            ionized = [g for g in res.groups if g.state != "neutral"]
+            if ionized:
+                parts = ", ".join(f"{g.group_name} {g.state}" for g in ionized)
+                protonation_summary = f"species @ pH{pH:g}: net charge {net_charge:+d} ({parts})"
+            else:
+                protonation_summary = f"species @ pH{pH:g}: net charge {net_charge:+d} (no ionizable groups)"
 
-        # Detect family features
+        hb = hbond_profile(profiled)
+        cp = coordination_profile(profiled)
+
+        # Family features are read from the AS-DRAWN molecule.
         mol = Chem.MolFromSmiles(smiles)
         features: list[str] = []
         if mol is not None:
@@ -121,6 +145,8 @@ def structural_facts(smiles: str) -> StructuralFacts:
             donor_element_counts=dict(cp.donor_element_counts),
             mean_donor_softness=cp.mean_donor_softness,
             family_features=features,
+            net_charge=net_charge,
+            protonation_summary=protonation_summary,
         )
     except Exception:
         return StructuralFacts(
@@ -175,13 +201,19 @@ _COORD_VERDICT_MAP: dict[str, str] = {
 }
 
 
-def ground_coordination(smiles: str, claim_text: str) -> GroundingVerdict:
+def ground_coordination(
+    smiles: str, claim_text: str, pH: float | None = None
+) -> GroundingVerdict:
     """Verify a natural-language coordination claim against structural evidence.
 
     Uses :func:`verify_coordination_claim` from *claim_verification.py* and maps
-    the result to a :class:`GroundingVerdict`.
+    the result to a :class:`GroundingVerdict`. When *pH* is provided, the claim
+    is verified against the dominant ionized species at that pH.
     """
-    cv = verify_coordination_claim(smiles, claim_text)
+    target_smiles = smiles
+    if pH is not None:
+        target_smiles = dominant_species(smiles, pH).species_smiles
+    cv = verify_coordination_claim(target_smiles, claim_text)
     status = _COORD_VERDICT_MAP.get(cv.verdict, "unverifiable")
     penalty = 0.25 if status == "contradicted" else 0.0
     detail = "; ".join(cv.notes) if cv.notes else cv.verdict
