@@ -39,9 +39,9 @@ def _is_donor(atom) -> bool:
         return False
     if atom.GetFormalCharge() > 0 and sym == "N" and atom.GetDegree() == 4:
         return False
-    # A protonated N/O (positive formal charge, lone pair consumed by an N–H/O–H
-    # bond) cannot donate to a metal — e.g. an ammonium N⁺ on a protonated species.
-    if atom.GetFormalCharge() > 0 and sym in ("N", "O") and atom.GetTotalNumHs() > 0:
+    # Any positively charged N/O has no lone pair available to donate,
+    # regardless of H count (covers ammonium, oxonium, etc.).
+    if atom.GetFormalCharge() > 0 and sym in ("N", "O"):
         return False
     return True
 

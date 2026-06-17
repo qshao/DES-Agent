@@ -33,6 +33,12 @@ _IONIZABLE_SMARTS: list[tuple[str, str, float, str]] = [
     ("[NX3;H2,H1,H0;!$([N+]);!$(NC=O);!$(N=*);!$(Nc)]", "amine", 10.6, "base"),
 ]
 
+# Precompile once at module load — avoids 10 SMARTS compilations per dominant_species call.
+_IONIZABLE_PATTERNS: list[tuple[object, str, float, str]] = [
+    (Chem.MolFromSmarts(smarts), name, pka, kind)
+    for smarts, name, pka, kind in _IONIZABLE_SMARTS
+]
+
 
 @dataclass(frozen=True)
 class IonizedGroup:
@@ -105,8 +111,7 @@ def dominant_species(smiles_or_mol, pH: float = 7.0) -> ProtonationResult:
 
         touched: set[int] = set()
         groups: list[IonizedGroup] = []
-        for smarts, name, pka, kind in _IONIZABLE_SMARTS:
-            patt = Chem.MolFromSmarts(smarts)
+        for patt, name, pka, kind in _IONIZABLE_PATTERNS:
             if patt is None:
                 continue
             # Match against the original read-only mol so that edits applied

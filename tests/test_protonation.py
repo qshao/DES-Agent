@@ -76,3 +76,9 @@ def test_table_integrity_every_smarts_compiles_and_is_well_formed():
         assert Chem.MolFromSmarts(smarts) is not None, f"bad SMARTS: {smarts!r} ({name})"
         assert isinstance(pka, (int, float))
         assert kind in ("acid", "base")
+
+
+def test_precompiled_patterns_all_non_none():
+    from des_multi_agent.chemistry.protonation import _IONIZABLE_PATTERNS
+    for patt, name, pka, kind in _IONIZABLE_PATTERNS:
+        assert patt is not None, f"precompiled SMARTS is None for {name!r}"
