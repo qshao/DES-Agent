@@ -339,5 +339,16 @@ def test_run_metal_selectivity_screen_claim_verdicts_populated_without_llm():
     """claim_verdicts is populated from selectivity grounding even without LLM."""
     outcome = run_metal_selectivity_screen("Cu2+", "Zn2+", n=3, n_cycles=1)
     assert isinstance(outcome.claim_verdicts, list)
-    # Selectivity grounding runs on every result, so verdicts ≥ number of results
-    assert len(outcome.claim_verdicts) >= len(outcome.results)
+    # No LLM → no LLM-sourced proposals → no verdicts (heuristic proposals make no claims).
+    assert len(outcome.claim_verdicts) == 0
+
+
+def test_selectivity_grounding_skips_heuristic_proposals():
+    """Heuristic proposals carry no LLM selectivity claim; no grounding verdicts
+    should be emitted for them."""
+    outcome = run_metal_selectivity_screen("Cu2+", "Zn2+", n=3, n_cycles=1)
+    # No LLM provider → all results are heuristic → no claims to ground.
+    assert isinstance(outcome.claim_verdicts, list)
+    assert len(outcome.claim_verdicts) == 0
+    # No false-positive [GROUNDING] warnings either.
+    assert not any("[GROUNDING]" in w for w in outcome.warnings)

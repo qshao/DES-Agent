@@ -14,6 +14,14 @@ from ..schemas import CandidateProposal
 
 @dataclass(frozen=True)
 class SelectivityResult:
+    """One ligand screened in a metal selectivity run.
+
+    ``log_k_target`` and ``log_k_competitor`` hold raw ML predictions when
+    ``stability_rule_weight == 0`` (the default). When the blend is enabled
+    (``stability_rule_weight > 0``), they store the ML + rule-based blended
+    value rather than the raw ML output.
+    """
+
     ligand_smiles: str
     log_k_target: float
     log_k_competitor: float
@@ -190,7 +198,7 @@ def run_metal_selectivity_screen(
     w_selectivity: float = 0.5,
     des_compatible_hints: list[str] | None = None,
     des_incompatible_hints: list[str] | None = None,
-    stability_rule_weight: float = 0.5,
+    stability_rule_weight: float = 0.0,
     binding_pH: float = 7.0,
 ) -> SelectivityScreenOutcome:
     from ..chemistry.claim_grounding import ground_coordination as _ground_coord
@@ -257,6 +265,8 @@ def run_metal_selectivity_screen(
         from ..chemistry.claim_grounding import ground_selectivity as _ground_sel
         _sel_verdicts: list[object] = []
         for r in cycle_results:
+            if r.source != "llm":
+                continue
             try:
                 v = _ground_sel(target_metal, competitor_metal, r.ligand_smiles, "target_selective")
                 _sel_verdicts.append(v)
