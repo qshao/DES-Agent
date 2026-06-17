@@ -720,44 +720,72 @@ def run_search_report(
     drop_smiles: set[str] = set()
     try:
         family_by_smiles = {c.smiles: c.family for c in llm_candidates}
+        # Accumulate claim-level grounding (DES plausibility + family) tagged by
+        # the SMILES it describes, plus the SMILES that plausibility contradicted.
+        # The final claim_verdicts / warnings are assembled below, once reality
+        # grading has decided which candidates are dropped, so a dropped molecule
+        # leaves no stale verdict behind (only the reality verdict explaining it).
+        tagged_verdicts: list[tuple[str, object]] = []   # (smiles, verdict)
+        tagged_warnings: list[tuple[str, str]] = []       # (smiles, warning)
+        plausibility_contradicted: set[str] = set()
         for item in annotated_results:
             smiles_b = item.result.curve.smiles_b
             # Ground DES plausibility
             plausibility_v = ground_des_plausibility(component_a, smiles_b)
-            claim_verdicts.append(plausibility_v)
+            tagged_verdicts.append((smiles_b, plausibility_v))
             if plausibility_v.status == "contradicted":
+                plausibility_contradicted.add(smiles_b)
                 grounding_penalty_by_smiles[smiles_b] = max(
                     grounding_penalty_by_smiles.get(smiles_b, 0.0),
                     plausibility_v.penalty,
                 )
-                llm_warnings.append(
-                    f"[GROUNDING] DES plausibility contradicted for {smiles_b}: {plausibility_v.detail}"
-                )
+                tagged_warnings.append((
+                    smiles_b,
+                    f"[GROUNDING] DES plausibility contradicted for {smiles_b}: {plausibility_v.detail}",
+                ))
             # Ground family classification if LLM provided one
             family = family_by_smiles.get(smiles_b)
             if family:
                 family_v = ground_family(smiles_b, family)
-                claim_verdicts.append(family_v)
+                tagged_verdicts.append((smiles_b, family_v))
                 if family_v.status == "contradicted":
                     contradicted_family_smiles.add(smiles_b)
                     grounding_penalty_by_smiles[smiles_b] = max(
                         grounding_penalty_by_smiles.get(smiles_b, 0.0),
                         family_v.penalty,
                     )
-                    llm_warnings.append(
-                        f"[GROUNDING] Family '{family}' contradicted for {smiles_b}: {family_v.detail}"
-                    )
+                    tagged_warnings.append((
+                        smiles_b,
+                        f"[GROUNDING] Family '{family}' contradicted for {smiles_b}: {family_v.detail}",
+                    ))
         ordered_smiles = [item.result.curve.smiles_b for item in annotated_results]
         reality_verdicts, reality_penalties, reality_drops = _grade_partner_reality(
             component_a, ordered_smiles, set(family_by_smiles)
         )
-        claim_verdicts.extend(reality_verdicts)
+        drop_smiles.update(reality_drops)
+        # Emit claim-level grounding, excluding any candidate reality dropped:
+        # it is gone from the results, so its plausibility/family verdicts would
+        # mislead. Its reality verdict (added below) explains the removal.
+        for smi, verdict in tagged_verdicts:
+            if smi not in drop_smiles:
+                claim_verdicts.append(verdict)
+        for smi, warning in tagged_warnings:
+            if smi not in drop_smiles:
+                llm_warnings.append(warning)
+        # Reality verdicts: a "demote" for no complementarity duplicates the DES
+        # plausibility "contradicted" already recorded for the same molecule, so
+        # suppress that verdict and warning (the penalty is unchanged via max()).
+        for verdict in reality_verdicts:
+            smi = verdict.claim.split("partner reality: ", 1)[-1]
+            if verdict.disposition == "demote" and smi in plausibility_contradicted:
+                continue
+            claim_verdicts.append(verdict)
         for smi, pen in reality_penalties.items():
             grounding_penalty_by_smiles[smi] = max(grounding_penalty_by_smiles.get(smi, 0.0), pen)
-            llm_warnings.append(f"[REALITY] no H-bond complementarity — demoted: {smi}")
+            if smi not in plausibility_contradicted:
+                llm_warnings.append(f"[REALITY] no H-bond complementarity — demoted: {smi}")
         for smi in reality_drops:
             llm_warnings.append(f"[REALITY] not a real/sane molecule — dropped: {smi}")
-        drop_smiles.update(reality_drops)
     except Exception as exc:
         llm_warnings.append(f"[GROUNDING] Grounding failed (non-fatal): {exc}")
     if drop_smiles:
