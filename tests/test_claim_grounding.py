@@ -239,3 +239,59 @@ def test_ground_coordination_ph_aware_demotes_protonated_amine_claim():
 def test_ground_coordination_default_ph_none_unchanged():
     v = ground_coordination("NCC(=O)O", "bidentate N,O-chelator")
     assert v.status == "verified"
+
+
+# ---------------------------------------------------------------------------
+# Group 8 — PartnerVerdict + ground_partner_reality()
+# ---------------------------------------------------------------------------
+from des_multi_agent.chemistry.claim_grounding import (
+    PartnerVerdict,
+    ground_partner_reality,
+)
+
+
+def test_partner_reality_known_compound_keeps():
+    v = ground_partner_reality("CC(=O)O", "NC(N)=O")  # acetic acid + urea (known)
+    assert v.status == "known"
+    assert v.disposition == "keep"
+    assert v.penalty == 0.0
+
+
+def test_partner_reality_novel_complementary_keeps_as_plausible():
+    # a valid, sane, complementary HBD not in the known set
+    # is_known('OCCCCCCO') returns False, so status should be "novel_plausible"
+    v = ground_partner_reality("C[N+](C)(C)CCO.[Cl-]", "OCCCCCCO")  # 1,6-hexanediol
+    assert v.status == "novel_plausible"
+    assert v.disposition == "keep"
+    assert v.penalty == 0.0
+
+
+def test_partner_reality_noncomplementary_novel_demotes():
+    # valid + sane but no H-bond complementarity with a pure alkane component
+    v = ground_partner_reality("CCCCCCCC", "CCCCCCCCCC")  # octane + decane
+    assert v.status == "novel_implausible"
+    assert v.disposition == "demote"
+    assert v.penalty == 0.25
+
+
+def test_partner_reality_bad_element_drops():
+    # OB(O)O (boric acid) is in experimental.json so use a novel boron compound
+    # that is not in the known set but still fails the structural-sanity B check
+    v = ground_partner_reality("CCO", "OB1OCC(CO1)C")  # cyclic boronate — fails sanity
+    assert v.status == "novel_implausible"
+    assert v.disposition == "drop"
+    assert v.penalty == 0.0
+
+
+def test_partner_reality_invalid_smiles_drops():
+    v = ground_partner_reality("CCO", "garbage(((")
+    assert v.status == "novel_implausible"
+    assert v.disposition == "drop"
+
+
+def test_partner_verdict_invariants_enforced():
+    import pytest
+    with pytest.raises(ValueError):
+        PartnerVerdict(claim="x", status="known", detail="", penalty=0.25, disposition="keep")
+    with pytest.raises(ValueError):
+        PartnerVerdict(claim="x", status="novel_implausible", detail="", penalty=0.0, disposition="demote")

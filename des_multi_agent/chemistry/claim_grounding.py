@@ -18,6 +18,7 @@ from rdkit import Chem
 from .claim_verification import verify_coordination_claim, verify_selectivity_claim
 from .coordination import coordination_profile
 from .hbond import des_hbond_complementarity, hbond_profile
+from .partner_registry import is_known, structural_sanity
 from .protonation import dominant_species
 
 # ---------------------------------------------------------------------------
@@ -185,6 +186,70 @@ class GroundingVerdict:
             raise ValueError("contradicted verdict must carry a non-zero penalty")
         if self.status in ("verified", "unverifiable") and self.penalty != 0.0:
             raise ValueError(f"status={self.status!r} must have penalty=0.0")
+
+
+# ---------------------------------------------------------------------------
+# PartnerVerdict
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class PartnerVerdict:
+    """Reality grading of one proposed DES partner.
+
+    status:      "known" | "novel_plausible" | "novel_implausible"
+    disposition: "keep" | "demote" | "drop"
+    Invariants:
+      keep   ⟺ penalty == 0.0 and status in {known, novel_plausible}
+      demote ⟹ penalty > 0.0 and status == novel_implausible
+      drop   ⟹ penalty == 0.0 and status == novel_implausible
+    """
+
+    claim: str
+    status: str
+    detail: str
+    penalty: float
+    disposition: str
+
+    def __post_init__(self) -> None:
+        if self.disposition == "keep":
+            if self.penalty != 0.0 or self.status not in ("known", "novel_plausible"):
+                raise ValueError("keep requires penalty=0.0 and a non-implausible status")
+        elif self.disposition == "demote":
+            if self.penalty <= 0.0 or self.status != "novel_implausible":
+                raise ValueError("demote requires penalty>0.0 and status=novel_implausible")
+        elif self.disposition == "drop":
+            if self.penalty != 0.0 or self.status != "novel_implausible":
+                raise ValueError("drop requires penalty=0.0 and status=novel_implausible")
+        else:
+            raise ValueError(f"unknown disposition: {self.disposition!r}")
+
+
+def ground_partner_reality(component_a: str, candidate_smiles: str) -> PartnerVerdict:
+    """Deterministically grade a proposed DES partner against reality.
+
+    Order: invalid → drop; known → keep; bad structure → drop; no H-bond
+    complementarity → demote; otherwise novel-plausible → keep. Never raises;
+    on internal error returns a neutral keep (we do not punish our own failure).
+    """
+    claim = f"partner reality: {candidate_smiles}"
+    try:
+        if Chem.MolFromSmiles(candidate_smiles) is None:
+            return PartnerVerdict(claim, "novel_implausible", "invalid SMILES", 0.0, "drop")
+        if is_known(candidate_smiles):
+            return PartnerVerdict(claim, "known", "known/attested compound", 0.0, "keep")
+        ok, reason = structural_sanity(candidate_smiles)
+        if not ok:
+            return PartnerVerdict(claim, "novel_implausible", reason, 0.0, "drop")
+        label = des_hbond_complementarity(component_a, candidate_smiles).label
+        if label == "none":
+            return PartnerVerdict(
+                claim, "novel_implausible",
+                "no H-bond complementarity with component A", 0.25, "demote",
+            )
+        return PartnerVerdict(claim, "novel_plausible", f"novel; complementarity={label}", 0.0, "keep")
+    except Exception:
+        return PartnerVerdict(claim, "novel_plausible", "reality check skipped (internal error)", 0.0, "keep")
 
 
 # ---------------------------------------------------------------------------
