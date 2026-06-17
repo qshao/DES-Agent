@@ -7,6 +7,8 @@ from urllib.parse import urlencode, urlsplit, urlunsplit, parse_qsl
 
 from ..evaluation import DesResult
 from ..chemistry.claim_grounding import structural_facts
+from ..chemistry.hbond import hbond_profile
+from ..chemistry.partner_registry import known_partner_menu
 from .client import post_json_chat
 from .parser import parse_candidate_brainstorms, parse_candidate_families, parse_candidate_review, parse_chemistry_assessments, parse_chemistry_next_steps, parse_contradiction_notes, parse_critique_notes, parse_explanation_notes, parse_ligand_families
 from .prompts import candidate_brainstorm_prompt, candidate_review_prompt, chemistry_assessment_prompt, chemistry_next_step_prompt, contradiction_prompt, critique_prompt, explanation_prompt, family_selection_prompt, ligand_brainstorm_prompt, ligand_family_selection_prompt, ligand_review_prompt, ligand_selectivity_brainstorm_prompt
@@ -15,6 +17,15 @@ from .provider import LLMProvider
 from .schemas import CandidateBrainstorm, CandidateFamily, CandidateReview, ChemistryAssessment, ChemistryNextStep, ContradictionNote, CritiqueNote, ExplanationNote, LigandFamily
 from .specs import RequestProfile
 from .transport import RequestTransport
+
+
+def _complementary_role(role: str) -> str:
+    """Partner role that complements a component with the given H-bond role."""
+    if role == "HBA":
+        return "HBD"
+    if role == "HBD":
+        return "HBA"
+    return "amphoteric"
 
 
 class BaseLLMProvider(LLMProvider):
@@ -96,6 +107,11 @@ class BaseLLMProvider(LLMProvider):
         except Exception as exc:
             print(f"family selection failed, falling back to single-stage brainstorm: {exc}", file=sys.stderr)
         facts_block = structural_facts(component_a).as_prompt_block()
+        try:
+            wanted = _complementary_role(hbond_profile(component_a).role)
+            partner_menu = known_partner_menu(wanted, limit=30)
+        except Exception:
+            partner_menu = None
         raw = self._request(
             candidate_brainstorm_prompt(
                 component_a,
@@ -107,6 +123,7 @@ class BaseLLMProvider(LLMProvider):
                 family_bias_strength=effective_family_bias_strength,
                 prior_productive_families=prior_productive_families,
                 facts_block=facts_block,
+                known_partner_menu=partner_menu,
             )
         )
         return parse_candidate_brainstorms(raw)[: self.max_candidates]
