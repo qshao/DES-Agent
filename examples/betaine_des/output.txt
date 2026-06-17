@@ -4,32 +4,32 @@ Top candidate: acetamide (CC(=O)N) — min Tm 335.4 K (Δ5.3%) | high confidence
 ===================================================
 
 compound | is_des | min_tm_k | eutectic_x_b | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
-acetamide (CC(=O)N) | True | 335.35 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.93 | mean=336.08 K | spread=335.64-336.30 K | std=0.31 K | high confidence | min Tm=335.35 K, absolute<= 340.00 K, relative_drop=0.053
-glycerol (OCC(O)CO) | True | 267.65 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.73 | mean=275.95 K | spread=268.95-279.97 K | std=4.97 K | moderate-high confidence | min Tm=267.65 K, absolute<= 340.00 K, relative_drop=0.081
-CS(=O)(=O)C | True | 249.03 | 0.30 | source=heuristic; id=rule-based-family-library | trust=0.39 | mean=250.15 K | spread=246.44-252.81 K | std=2.70 K | moderate confidence — consider experimental verification | min Tm=249.03 K, absolute<= 340.00 K, relative_drop=0.128
-choline chloride (C[N+](C)(C)CCO.[Cl-]) | False | 445.30 | 0.40 | source=heuristic; id=rule-based-family-library | trust=0.86 | mean=450.37 K | spread=448.52-452.43 K | std=1.60 K | high confidence | min Tm=445.30 K, absolute<= 340.00 K, relative_drop=0.213
-urea (NC(=O)N) | False | 354.92 | 0.30 | source=heuristic; id=rule-based-family-library | trust=0.84 | mean=361.02 K | spread=358.94-363.50 K | std=1.88 K | high confidence | min Tm=354.92 K, absolute<= 340.00 K, relative_drop=0.125
-C[N+](C)(C)C.[Cl-] | False | 470.42 | 0.40 | source=heuristic; id=rule-based-family-library | trust=0.82 | mean=476.82 K | spread=474.14-479.81 K | std=2.32 K | moderate-high confidence | min Tm=470.42 K, absolute<= 340.00 K, relative_drop=0.169
-OC[C@H](O)[C@H](O)CO | False | 357.97 | 0.30 | source=heuristic; id=rule-based-family-library | trust=0.58 | mean=363.34 K | spread=359.68-370.60 K | std=5.13 K | moderate confidence — consider experimental verification | min Tm=357.97 K, absolute<= 340.00 K, relative_drop=0.093
-acetic acid (CC(=O)O) | False | 358.21 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.54 | mean=363.01 K | spread=353.88-370.38 K | std=6.85 K | moderate confidence — consider experimental verification | min Tm=358.21 K, absolute<= 340.00 K, relative_drop=-0.236
-ethylene glycol (OCCO) | False | 273.25 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.52 | mean=266.61 K | spread=259.98-277.96 K | std=8.06 K | low confidence — consider experimental verification | min Tm=273.25 K, absolute<= 340.00 K, relative_drop=-0.049
-COCCO | False | 284.60 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.44 | mean=284.88 K | spread=284.63-285.05 K | std=0.18 K | high confidence | min Tm=284.60 K, absolute<= 340.00 K, relative_drop=0.011
-1,3-propanediol (OCCCO) | False | 284.24 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.43 | mean=284.62 K | spread=284.19-284.96 K | std=0.32 K | high confidence | min Tm=284.24 K, absolute<= 340.00 K, relative_drop=0.027
-CC(=O)NCCO | False | 293.29 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.43 | mean=293.33 K | spread=292.72-294.18 K | std=0.62 K | high confidence | min Tm=293.29 K, absolute<= 340.00 K, relative_drop=0.044
-OC1=CC=CC=N1 | False | 305.44 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.38 | mean=301.81 K | spread=299.32-306.43 K | std=3.27 K | moderate confidence — consider experimental verification | min Tm=305.44 K, absolute<= 340.00 K, relative_drop=-0.007
-O=C1CCCN1 | False | 365.67 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.36 | mean=369.01 K | spread=365.61-375.69 K | std=4.73 K | moderate confidence — consider experimental verification | min Tm=365.67 K, absolute<= 340.00 K, relative_drop=-0.231
-CN | False | 363.51 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.28 | mean=363.96 K | spread=357.05-370.51 K | std=5.50 K | moderate confidence — consider experimental verification | min Tm=363.51 K, absolute<= 340.00 K, relative_drop=-0.369
-O=C1NC(=O)NC1 | False | 368.32 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.28 | mean=371.80 K | spread=363.89-377.22 K | std=5.72 K | moderate confidence — consider experimental verification | min Tm=368.32 K, absolute<= 340.00 K, relative_drop=-0.180
-water (O) | False | 317.03 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.28 | mean=320.53 K | spread=313.89-328.17 K | std=5.87 K | moderate confidence — consider experimental verification | min Tm=317.03 K, absolute<= 340.00 K, relative_drop=-0.241
-dimethyl sulfoxide (CS(=O)C) | False | 268.46 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.27 | mean=276.69 K | spread=267.42-283.84 K | std=6.87 K | moderate confidence — consider experimental verification | min Tm=268.46 K, absolute<= 340.00 K, relative_drop=0.026
-CCOCC | False | 301.82 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.27 | mean=305.30 K | spread=297.65-316.15 K | std=7.88 K | moderate confidence — consider experimental verification | min Tm=301.82 K, absolute<= 340.00 K, relative_drop=-0.082
-CN(C)C=O | False | 320.07 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.26 | mean=327.15 K | spread=315.83-334.28 K | std=8.09 K | low confidence — consider experimental verification | min Tm=320.07 K, absolute<= 340.00 K, relative_drop=-0.132
+acetamide (CC(=O)N) | True | 335.35 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.96 | mean=336.08 K | spread=335.64-336.30 K | std=0.31 K | high confidence | min Tm=335.35 K, absolute<= 340.00 K, relative_drop=0.053
+glycerol (OCC(O)CO) | True | 267.65 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.75 | mean=275.95 K | spread=268.95-279.97 K | std=4.97 K | moderate-high confidence | min Tm=267.65 K, absolute<= 340.00 K, relative_drop=0.081
+CS(=O)(=O)C | True | 249.03 | 0.30 | source=heuristic; id=rule-based-family-library | trust=0.75 | mean=250.15 K | spread=246.44-252.81 K | std=2.70 K | moderate-high confidence | min Tm=249.03 K, absolute<= 340.00 K, relative_drop=0.128
+choline chloride (C[N+](C)(C)CCO.[Cl-]) | False | 445.30 | 0.40 | source=heuristic; id=rule-based-family-library | trust=0.89 | mean=450.37 K | spread=448.52-452.43 K | std=1.60 K | high confidence | min Tm=445.30 K, absolute<= 340.00 K, relative_drop=0.213
+COCCO | False | 284.60 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.88 | mean=284.88 K | spread=284.63-285.05 K | std=0.18 K | high confidence | min Tm=284.60 K, absolute<= 340.00 K, relative_drop=0.011
+urea (NC(=O)N) | False | 354.92 | 0.30 | source=heuristic; id=rule-based-family-library | trust=0.87 | mean=361.02 K | spread=358.94-363.50 K | std=1.88 K | high confidence | min Tm=354.92 K, absolute<= 340.00 K, relative_drop=0.125
+1,3-propanediol (OCCCO) | False | 284.24 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.87 | mean=284.62 K | spread=284.19-284.96 K | std=0.32 K | high confidence | min Tm=284.24 K, absolute<= 340.00 K, relative_drop=0.027
+CC(=O)NCCO | False | 293.29 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.85 | mean=293.33 K | spread=292.72-294.18 K | std=0.62 K | high confidence | min Tm=293.29 K, absolute<= 340.00 K, relative_drop=0.044
+C[N+](C)(C)C.[Cl-] | False | 470.42 | 0.40 | source=heuristic; id=rule-based-family-library | trust=0.85 | mean=476.82 K | spread=474.14-479.81 K | std=2.32 K | moderate-high confidence | min Tm=470.42 K, absolute<= 340.00 K, relative_drop=0.169
+OC1=CC=CC=N1 | False | 305.44 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.72 | mean=301.81 K | spread=299.32-306.43 K | std=3.27 K | moderate-high confidence | min Tm=305.44 K, absolute<= 340.00 K, relative_drop=-0.007
+O=C1CCCN1 | False | 365.67 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.67 | mean=369.01 K | spread=365.61-375.69 K | std=4.73 K | moderate confidence — consider experimental verification | min Tm=365.67 K, absolute<= 340.00 K, relative_drop=-0.231
+OC[C@H](O)[C@H](O)CO | False | 357.97 | 0.30 | source=heuristic; id=rule-based-family-library | trust=0.60 | mean=363.34 K | spread=359.68-370.60 K | std=5.13 K | moderate confidence — consider experimental verification | min Tm=357.97 K, absolute<= 340.00 K, relative_drop=0.093
+acetic acid (CC(=O)O) | False | 358.21 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.56 | mean=363.01 K | spread=353.88-370.38 K | std=6.85 K | moderate confidence — consider experimental verification | min Tm=358.21 K, absolute<= 340.00 K, relative_drop=-0.236
+ethylene glycol (OCCO) | False | 273.25 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.54 | mean=266.61 K | spread=259.98-277.96 K | std=8.06 K | low confidence — consider experimental verification | min Tm=273.25 K, absolute<= 340.00 K, relative_drop=-0.049
+CN | False | 363.51 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.52 | mean=363.96 K | spread=357.05-370.51 K | std=5.50 K | moderate confidence — consider experimental verification | min Tm=363.51 K, absolute<= 340.00 K, relative_drop=-0.369
+O=C1NC(=O)NC1 | False | 368.32 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.51 | mean=371.80 K | spread=363.89-377.22 K | std=5.72 K | moderate confidence — consider experimental verification | min Tm=368.32 K, absolute<= 340.00 K, relative_drop=-0.180
+water (O) | False | 317.03 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.51 | mean=320.53 K | spread=313.89-328.17 K | std=5.87 K | moderate confidence — consider experimental verification | min Tm=317.03 K, absolute<= 340.00 K, relative_drop=-0.241
+dimethyl sulfoxide (CS(=O)C) | False | 268.46 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.49 | mean=276.69 K | spread=267.42-283.84 K | std=6.87 K | moderate confidence — consider experimental verification | min Tm=268.46 K, absolute<= 340.00 K, relative_drop=0.026
+CCOCC | False | 301.82 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.47 | mean=305.30 K | spread=297.65-316.15 K | std=7.88 K | moderate confidence — consider experimental verification | min Tm=301.82 K, absolute<= 340.00 K, relative_drop=-0.082
+CN(C)C=O | False | 320.07 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.47 | mean=327.15 K | spread=315.83-334.28 K | std=8.09 K | low confidence — consider experimental verification | min Tm=320.07 K, absolute<= 340.00 K, relative_drop=-0.132
 
 Physical sanity — non-physical eutectic (predicted Tm above both pure components):
-- acetic acid (CC(=O)O): min Tm 358.2 K > min(T1,T2)=289.9 K — treat prediction with caution
-- ethylene glycol (OCCO): min Tm 273.3 K > min(T1,T2)=260.6 K — treat prediction with caution
 - OC1=CC=CC=N1: min Tm 305.4 K > min(T1,T2)=303.2 K — treat prediction with caution
 - O=C1CCCN1: min Tm 365.7 K > min(T1,T2)=297.0 K — treat prediction with caution
+- acetic acid (CC(=O)O): min Tm 358.2 K > min(T1,T2)=289.9 K — treat prediction with caution
+- ethylene glycol (OCCO): min Tm 273.3 K > min(T1,T2)=260.6 K — treat prediction with caution
 - CN: min Tm 363.5 K > min(T1,T2)=265.5 K — treat prediction with caution
 - O=C1NC(=O)NC1: min Tm 368.3 K > min(T1,T2)=312.3 K — treat prediction with caution
 - water (O): min Tm 317.0 K > min(T1,T2)=255.4 K — treat prediction with caution
@@ -43,16 +43,16 @@ acetamide (CC(=O)N) | 354.06 | experimental | 0.95
 glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
 CS(=O)(=O)C | 285.54 | heuristic | 0.35
 choline chloride (C[N+](C)(C)CCO.[Cl-]) | 578.15 | experimental | 0.95
+COCCO | 287.90 | heuristic | 0.35
 urea (NC(=O)N) | 405.85 | experimental | 0.95
+1,3-propanediol (OCCCO) | 292.00 | heuristic | 0.35
+CC(=O)NCCO | 306.78 | heuristic | 0.35
 C[N+](C)(C)C.[Cl-] | 612.87 | experimental | 0.95
+OC1=CC=CC=N1 | 303.21 | heuristic | 0.35
+O=C1CCCN1 | 296.98 | heuristic | 0.35
 OC[C@H](O)[C@H](O)CO | 394.70 | experimental | 0.95
 acetic acid (CC(=O)O) | 289.85 | experimental | 0.95
 ethylene glycol (OCCO) | 260.60 | experimental | 0.95
-COCCO | 287.90 | heuristic | 0.35
-1,3-propanediol (OCCCO) | 292.00 | heuristic | 0.35
-CC(=O)NCCO | 306.78 | heuristic | 0.35
-OC1=CC=CC=N1 | 303.21 | heuristic | 0.35
-O=C1CCCN1 | 296.98 | heuristic | 0.35
 CN | 265.54 | heuristic | 0.35
 O=C1NC(=O)NC1 | 312.27 | heuristic | 0.35
 water (O) | 255.36 | heuristic | 0.35
@@ -82,9 +82,14 @@ C[N+](C)(C)CC(=O)[O-] | OC1=CC=CC=N1 | 14.79 | mPa*s | DESignSolvents | artifact
 C[N+](C)(C)CC(=O)[O-] | CN(C)C=O | 13.36 | mPa*s | DESignSolvents | artifact
 C[N+](C)(C)CC(=O)[O-] | CCOCC | 13.07 | mPa*s | DESignSolvents | artifact
 C[N+](C)(C)CC(=O)[O-] | CC(=O)NCCO | 16.00 | mPa*s | DESignSolvents | artifact
+
+Run memory:
+- Applied chemical pattern memory ranking bias to 20 candidate(s).
+- Chemical pattern memory favored productive families: amide, polyol, sulfone.
+- Chemical pattern memory penalized caution families: choline-like, ether alcohol, urea.
 summary:
 - command: des
 - workflow: des
 - ranked candidates: 20
-- reuse memory: no
+- reuse memory: yes
 - exports written: yes
