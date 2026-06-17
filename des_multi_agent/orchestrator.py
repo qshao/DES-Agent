@@ -320,6 +320,33 @@ def _apply_review_penalties(
     return rank_annotated_results(adjusted)
 
 
+def _grade_partner_reality(
+    component_a: str,
+    candidate_smiles: list[str],
+    llm_smiles: set[str],
+) -> tuple[list[object], dict[str, float], set[str]]:
+    """Grade LLM-sourced partner proposals against reality.
+
+    Returns (verdicts, penalty_by_smiles, drop_smiles). Non-LLM candidates are
+    skipped (real by construction). Never raises.
+    """
+    from .chemistry.claim_grounding import ground_partner_reality
+
+    verdicts: list[object] = []
+    penalties: dict[str, float] = {}
+    drops: set[str] = set()
+    for smi in candidate_smiles:
+        if smi not in llm_smiles:
+            continue
+        rv = ground_partner_reality(component_a, smi)
+        verdicts.append(rv)
+        if rv.disposition == "demote":
+            penalties[smi] = max(penalties.get(smi, 0.0), rv.penalty)
+        elif rv.disposition == "drop":
+            drops.add(smi)
+    return verdicts, penalties, drops
+
+
 def _predict_viscosity_predictions(
     component_a: str,
     proposals: list[CandidateProposal],
@@ -690,6 +717,7 @@ def run_search_report(
     claim_verdicts: list[object] = []
     grounding_penalty_by_smiles: dict[str, float] = {}
     contradicted_family_smiles: set[str] = set()
+    drop_smiles: set[str] = set()
     try:
         family_by_smiles = {c.smiles: c.family for c in llm_candidates}
         for item in annotated_results:
@@ -719,8 +747,24 @@ def run_search_report(
                     llm_warnings.append(
                         f"[GROUNDING] Family '{family}' contradicted for {smiles_b}: {family_v.detail}"
                     )
+        ordered_smiles = [item.result.curve.smiles_b for item in annotated_results]
+        reality_verdicts, reality_penalties, reality_drops = _grade_partner_reality(
+            component_a, ordered_smiles, set(family_by_smiles)
+        )
+        claim_verdicts.extend(reality_verdicts)
+        for smi, pen in reality_penalties.items():
+            grounding_penalty_by_smiles[smi] = max(grounding_penalty_by_smiles.get(smi, 0.0), pen)
+            llm_warnings.append(f"[REALITY] no H-bond complementarity — demoted: {smi}")
+        for smi in reality_drops:
+            llm_warnings.append(f"[REALITY] not a real/sane molecule — dropped: {smi}")
+        drop_smiles.update(reality_drops)
     except Exception as exc:
         llm_warnings.append(f"[GROUNDING] Grounding failed (non-fatal): {exc}")
+    if drop_smiles:
+        annotated_results = [
+            it for it in annotated_results
+            if it.result.curve.smiles_b not in drop_smiles
+        ]
     if grounding_penalty_by_smiles:
         annotated_results = _apply_review_penalties(annotated_results, grounding_penalty_by_smiles)
     final_results = [item.result for item in annotated_results]
