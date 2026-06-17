@@ -1,6 +1,6 @@
 # DES-Agent
 
-This repository contains a deterministic DES screening pipeline plus optional layers for uncertainty, local discovery, LLM-assisted candidate brainstorming (two-stage, family-first), viscosity-aware composite ranking, multi-cycle iterative screening with convergence detection, LLM chemical contradiction detection, and a separate metal-binding workflow for stability-constant prediction.
+This repository contains a deterministic DES screening pipeline plus optional layers for uncertainty, local discovery, LLM-assisted candidate brainstorming (two-stage, family-first), viscosity-aware composite ranking, multi-cycle iterative screening with convergence detection, LLM chemical contradiction detection, and a separate metal-binding workflow for stability-constant prediction. Additional capabilities include: molecule-name resolution (pass "ethanol" instead of "CCO" — the system resolves names to SMILES automatically); a deterministic chemistry grounding layer (source-side structural-fact injection into every LLM prompt plus output-side claim verification against RDKit-computed structure); protonation-aware metal-binding that computes dominant species at a user-specified pH before running stability-constant prediction; and reality-anchored partner proposals that anchor LLM brainstorm to a registry of known real molecules, demoting or dropping implausible proposals before ranking.
 
 ## Quick Start
 
@@ -34,8 +34,10 @@ Offline mock demo, recommended first:
 Direct command if you prefer:
 
 ```bash
-python -m examples.demo_des_search --mock --component-a "CCO" --n 5
+python -m examples.demo_des_search --mock --component-a "ethanol" --n 5
 ```
+
+> **Tip:** You can pass molecule names instead of SMILES. `--component-a "ethanol"` resolves to CCO automatically. `python -m des_multi_agent.cli list-molecules` prints all recognised names.
 
 Real deterministic demo against the shipped checkpoint:
 
@@ -46,19 +48,19 @@ Real deterministic demo against the shipped checkpoint:
 Direct command if you prefer:
 
 ```bash
-python -m examples.demo_des_search --component-a "CCO" --n 5 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt
+python -m examples.demo_des_search --component-a "ethanol" --n 5 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt
 ```
 
 Optional local discovery:
 
 ```bash
-python -m examples.demo_des_search --component-a "CCO" --n 5 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --discovery-path /path/to/discovery
+python -m examples.demo_des_search --component-a "ethanol" --n 5 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --discovery-path /path/to/discovery
 ```
 
 Save a DES run memory file for later reuse:
 
 ```bash
-python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --config-path ml_des_mp/config.yaml --save-run-memory runs/run_001/run.memory.json
+python -m des_multi_agent.cli --workflow des --component-a "ethanol" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --config-path ml_des_mp/config.yaml --save-run-memory runs/run_001/run.memory.json
 python -m des_multi_agent.cli view-run runs/run_001
 ```
 
@@ -67,13 +69,13 @@ Every DES run can also write into a standard flat run directory with `--output-d
 Label the saved run in place with explicit SMILES and `good` / `bad` labels:
 
 ```bash
-python -m des_multi_agent.cli label-run --run runs/run_001 --label "O=good" --label "CC(=O)O=bad"
+python -m des_multi_agent.cli label-run --run runs/run_001 --label "water=good" --label "acetic acid=bad"
 ```
 
 Reuse the labeled DES memory file, folder, or a parent history directory of labeled runs to nudge ranking on a later run:
 
 ```bash
-python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --config-path ml_des_mp/config.yaml --reuse-run runs/run_001/run.memory.json
+python -m des_multi_agent.cli --workflow des --component-a "ethanol" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --config-path ml_des_mp/config.yaml --reuse-run runs/run_001/run.memory.json
 ```
 
 Compare two saved runs from the same workflow with `compare-runs`:
@@ -88,13 +90,13 @@ Every command prints a compact `summary:` block after its main output. For parse
 Optional Ollama LLM run (Gemma, Nemotron, or Qwen via `model_name`). The LLM reviews candidates one by one and uses a two-stage brainstorm: it first selects chemical families (polyols, amides, etc.) then distributes candidates across them. It also detects chemical contradictions per candidate (`agree`/`conflict`/`uncertain`):
 
 ```bash
-python -m examples.demo_des_search --component-a "CCO" --n 20 --llm-config llm.example.yaml
+python -m examples.demo_des_search --component-a "ethanol" --n 20 --llm-config llm.example.yaml
 ```
 
 Multi-cycle iterative screening — top hits from each cycle seed the next; stops when top-K converges:
 
 ```bash
-python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 \
+python -m des_multi_agent.cli --workflow des --component-a "ethanol" --n 20 \
   --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
   --config-path ml_des_mp/config.yaml --n-cycles 3 --llm-config llm.example.yaml
 ```
@@ -102,7 +104,7 @@ python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 \
 Viscosity-aware composite ranking with threshold gate:
 
 ```bash
-python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 \
+python -m des_multi_agent.cli --workflow des --component-a "ethanol" --n 20 \
   --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
   --config-path ml_des_mp/config.yaml \
   --viscosity-model-path artifacts/designsolvents/viscosity/model.json \
@@ -142,7 +144,7 @@ Metal-binding example:
 Validate paths and checkpoint before a real run (exits immediately, no predictions):
 
 ```bash
-python -m des_multi_agent.cli --workflow des --component-a "CCO" \
+python -m des_multi_agent.cli --workflow des --component-a "ethanol" \
   --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
   --config-path ml_des_mp/config.yaml --dry-run
 ```
@@ -150,7 +152,7 @@ python -m des_multi_agent.cli --workflow des --component-a "CCO" \
 Named threshold presets (`strict` / `standard` / `relaxed`) — no arithmetic required:
 
 ```bash
-python -m des_multi_agent.cli --workflow des --component-a "CCO" \
+python -m des_multi_agent.cli --workflow des --component-a "ethanol" \
   --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
   --config-path ml_des_mp/config.yaml --preset strict
 ```
@@ -158,7 +160,7 @@ python -m des_multi_agent.cli --workflow des --component-a "CCO" \
 Fold-ensemble predictions with per-candidate `ens_std` uncertainty:
 
 ```bash
-python -m des_multi_agent.cli --workflow des --component-a "CCO" \
+python -m des_multi_agent.cli --workflow des --component-a "ethanol" \
   --ensemble --config-path ml_des_mp/config.yaml
 ```
 
@@ -166,12 +168,12 @@ Machine-readable output for scripting:
 
 ```bash
 # JSON
-python -m des_multi_agent.cli --workflow des --component-a "CCO" \
+python -m des_multi_agent.cli --workflow des --component-a "ethanol" \
   --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
   --format json
 
 # CSV
-python -m des_multi_agent.cli --workflow des --component-a "CCO" \
+python -m des_multi_agent.cli --workflow des --component-a "ethanol" \
   --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
   --format csv > results.csv
 ```
@@ -248,16 +250,37 @@ The router loads `llm.example.yaml` by default, supports both `des` and `metal-b
 - `llm.example.yaml` is a ready-to-edit optional LLM config
 - `docs/future-improvements.md` tracks the next planned extensions
 - `tests/test_benchmarks_examples.py` is the example benchmark suite that compares captured outputs against frozen baselines
+- `des_multi_agent/chemistry/partner_registry.py` — known-compound registry and anchor menu for reality-anchored partner proposals
+- `des_multi_agent/chemistry/claim_grounding.py` — deterministic chemistry grounding (structural facts, claim verdicts, partner reality grading)
+- `artifacts/molecule_names/common_names.json` — curated molecule-name → SMILES mapping used by name resolution and the partner menu
 
 ## Uncertainty Controls
 
 The CLI lets you tune how uncertainty affects filtering and ranking with `--uncertainty-mode`:
 
 ```bash
-python -m des_multi_agent.cli --workflow des --component-a "CCO" --n 20 \
+python -m des_multi_agent.cli --workflow des --component-a "ethanol" --n 20 \
   --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
   --config-path ml_des_mp/config.yaml \
   --uncertainty-mode filter --min-trust-score 0.70 --soft-penalty-weight 0.20
 ```
 
 The default mode is `penalize`. Use `report_only` to inspect trust columns without changing ranking, or `filter` to remove low-trust candidates entirely. For all three modes compared on the same query, see [`examples/uncertainty_controls/`](/home/qshao/DES-Agent/examples/uncertainty_controls).
+
+## Chemistry Grounding and Reality Anchoring
+
+When an LLM is configured, the pipeline runs two deterministic grounding passes that are LLM-agnostic (identical results regardless of backend):
+
+**Source-side fact injection:** Structural facts (H-bond profile, coordination profile) are computed for component A and injected into every brainstorm and review prompt so the LLM reasons over computed data rather than memory.
+
+**Output-side claim verification:** Every LLM claim is checked against RDKit-computed structure:
+- Family labels (polyol, amide, etc.) are verified with SMARTS.
+- DES H-bond complementarity is verified with `des_hbond_complementarity`.
+- Contradicted claims are flagged in the report (`✗ contradicted — <correction>`); the candidate takes a −0.25 ranking penalty.
+
+**Reality-anchored partner proposals:** Before each brainstorm, a menu of up to 30 known, real partners (filtered to the complementary H-bond role) is injected into the prompt. After brainstorm, every LLM proposal is graded:
+- `✓ known` — matched in the real-compound registry → kept
+- `◆ novel (plausible)` — structurally sane, H-bond-complementary → kept
+- `✗ implausible` — no H-bond fit → demoted (−0.25); structurally invalid → dropped
+
+No extra flags needed — grounding and reality anchoring activate automatically under `--llm-config`.
