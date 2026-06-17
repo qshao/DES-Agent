@@ -14,17 +14,17 @@ Start here:
 
 Feature map:
 
-| Example | Plain-language | Proposal diversity | Chemistry advisor | Run memory | Grounding | Offline-only |
-|---------|----------------|--------------------|-------------------|------------|-----------|--------------|
-| `plain_language_gemma4_12b/` | yes | yes | yes | no | yes | no |
-| `plain_language_metal_binding_gemma4_12b/` | yes | no | no | no | no | yes |
-| `des_viscosity/` | no | no | no | no | no | yes |
-| `des_run_memory_feedback/` | no | yes | no | yes | no | yes |
-| `ni_co_selectivity_des/` | no | yes | yes | no | yes | no |
-| `ni_co_selectivity_des_qwen36/` | no | yes | yes | no | yes | no |
-| `ni_co_selectivity_des_nemotron/` | no | yes | yes | no | yes | no |
-| `metal_binding/` | no | no | yes | no | no | yes |
-| `metal_selectivity_standalone/` | no | no | yes | no | no | yes |
+| Example | Plain-language | Proposal diversity | Chemistry advisor | Run memory | Grounding | Reality anchoring | Offline-only |
+|---------|----------------|--------------------|-------------------|------------|-----------|-------------------|--------------|
+| `plain_language_gemma4_12b/` | yes | yes | yes | no | yes | yes | no |
+| `plain_language_metal_binding_gemma4_12b/` | yes | no | no | no | no | no | yes |
+| `des_viscosity/` | no | no | no | no | no | no | yes |
+| `des_run_memory_feedback/` | no | yes | no | yes | no | no | yes |
+| `ni_co_selectivity_des/` | no | yes | yes | no | yes | yes | no |
+| `ni_co_selectivity_des_qwen36/` | no | yes | yes | no | yes | yes | no |
+| `ni_co_selectivity_des_nemotron/` | no | yes | yes | no | yes | yes | no |
+| `metal_binding/` | no | no | yes | no | no | no | yes |
+| `metal_selectivity_standalone/` | no | no | yes | no | no | no | yes |
 
 Chemical pattern memory shows up most clearly in `des_run_memory_feedback/` and the multi-cycle DES examples, where prior predictions shape the next cycle's prompt context and report notes.
 
@@ -85,7 +85,7 @@ The same folders also power the pytest-based example benchmark suite in [`tests/
 > and demonstrated separately. The **LLM-backed** captures (e.g. `gemma4_12b`,
 > `ni_co_selectivity_des*`) predate this feature and were not regenerated.
 
-The LLM-backed examples also include a model-specific `llm.*.yaml` file. The shared demo entrypoint covers the LLM-enabled DES runs, including the two-stage brainstorm, proposal-diversity controls, chemistry advisor notes, chemical-pattern memory, and the chemistry lesson summary block that now appears in the report. DES runs can also write into a standard flat run directory with `--output-dir runs/run_001`, and run memory can be saved, labeled, and reused to bias later ranking. The run directory (also called a *history directory*) stores `report.txt`, `run.json`, `run.csv`, and `run.manifest.json`. Any chemistry advisor warnings or next-step suggestions are included in the report.
+The LLM-backed examples also include a model-specific `llm.*.yaml` file. The shared demo entrypoint covers the LLM-enabled DES runs, including the two-stage brainstorm, proposal-diversity controls, chemistry advisor notes, chemical-pattern memory, and the chemistry lesson summary block that now appears in the report. DES runs can also write into a standard flat run directory with `--output-dir runs/run_001`, and run memory can be saved, labeled, and reused to bias later ranking. The run directory (also called a *history directory*) stores `report.txt`, `run.json`, `run.csv`, and `run.manifest.json`. Any chemistry advisor warnings or next-step suggestions are included in the report. Both the chemistry grounding layer and reality-anchored partner proposals are LLM-dependent — they activate automatically whenever `--llm-config` is set, with no additional flags needed.
 
 ```bash
 python -m examples.demo_des_search --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --llm-config <folder>/llm.<name>.yaml

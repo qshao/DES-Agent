@@ -18,7 +18,7 @@
       "smiles_b": "CC(=O)N",
       "source": "heuristic",
       "source_id": "rule-based-family-library",
-      "trust_score": 0.4286185036393708,
+      "trust_score": 0.862481438969631,
       "uncertainty_flag": "low"
     },
     {
@@ -27,7 +27,7 @@
       "smiles_b": "OCCO",
       "source": "heuristic",
       "source_id": "rule-based-family-library",
-      "trust_score": 0.41249396756686385,
+      "trust_score": 0.8164113359053253,
       "uncertainty_flag": "low"
     },
     {
@@ -36,7 +36,7 @@
       "smiles_b": "CC(=O)O",
       "source": "heuristic",
       "source_id": "rule-based-family-library",
-      "trust_score": 0.38488230804712775,
+      "trust_score": 0.7375208801346508,
       "uncertainty_flag": "medium"
     },
     {
@@ -45,7 +45,7 @@
       "smiles_b": "OCC(O)CO",
       "source": "heuristic",
       "source_id": "rule-based-family-library",
-      "trust_score": 0.38336426855616995,
+      "trust_score": 0.7331836244461999,
       "uncertainty_flag": "medium"
     },
     {
@@ -54,7 +54,7 @@
       "smiles_b": "O",
       "source": "heuristic",
       "source_id": "rule-based-family-library",
-      "trust_score": 0.30858172984172666,
+      "trust_score": 0.6866620852620762,
       "uncertainty_flag": "medium"
     }
   ],

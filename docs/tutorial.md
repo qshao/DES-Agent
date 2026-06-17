@@ -534,6 +534,33 @@ rather than recalled chemistry.
 No new flags are needed — grounding runs automatically whenever `--llm-config`
 is set.
 
+### Reality-Anchored Partner Proposals
+
+When an LLM is enabled, every proposed DES partner is evaluated against a
+registry of known, real molecules before it reaches the ranking step.
+
+**Source-side — anchor menu:** Before the brainstorm call, a menu of up to
+30 known HBA/HBD partners (matched to the role complementary to component A)
+is injected into the prompt. The menu draws from a curated registry of 57
+hand-tagged molecules plus hundreds of experimentally-characterised compounds
+auto-role-tagged from the shipped melting-point dataset. The LLM is instructed
+to prefer these but may propose off-menu candidates with explicit justification.
+
+**Output-side — partner verdict:** Every LLM proposal is graded
+deterministically:
+
+| Verdict | Meaning | Action |
+|---------|---------|--------|
+| `✓ known` | Canonical InChIKey matches the real-compound registry | Keep |
+| `◆ novel (plausible)` | Off-registry; structurally sane; H-bond-complements component A | Keep, flagged |
+| `✗ implausible` — no complementarity | Real or invented molecule, but no H-bond fit with component A | Demote −0.25 |
+| `✗ implausible` — bad structure | Disallowed element / MW out of range / radical | Drop from results |
+
+Verdicts appear in the Grounding section of the report, alongside the
+family and plausibility verdicts from the Chemistry Grounding Layer above.
+No new flags are needed — the layer runs automatically whenever `--llm-config`
+is set.
+
 ## 10. Plain-Language Routing
 
 Use `task-router` to convert a plain-language request into JSON without running anything:
