@@ -191,12 +191,15 @@ def run_metal_selectivity_screen(
     des_compatible_hints: list[str] | None = None,
     des_incompatible_hints: list[str] | None = None,
     stability_rule_weight: float = 0.5,
+    binding_pH: float = 7.0,
 ) -> SelectivityScreenOutcome:
+    from ..chemistry.claim_grounding import ground_coordination as _ground_coord
     seen_smiles: set[str] = set()
     all_reviews: list[CandidateReview] = []
     all_brainstorm: list[CandidateBrainstorm] = []
     all_warnings: list[str] = []
     all_sel_verdicts: list[object] = []
+    all_coord_verdicts: list[object] = []
     cumulative_results: list[SelectivityResult] = []
     prev_cycle_results: list[SelectivityResult] = []
 
@@ -221,6 +224,18 @@ def run_metal_selectivity_screen(
                 all_brainstorm.extend(brainstorms)
                 llm_proposals = _llm_proposals_from_brainstorm(brainstorms)
                 proposals.extend(_deduplicate_proposals(llm_proposals, seen_smiles))
+                # Ground coordination claims from LLM rationale (species-aware).
+                for b in brainstorms:
+                    if b.rationale:
+                        try:
+                            v = _ground_coord(b.smiles, b.rationale, pH=binding_pH)
+                            all_coord_verdicts.append(v)
+                            if v.status == "contradicted":
+                                all_warnings.append(
+                                    f"[GROUNDING] Coordination contradicted for {b.smiles}: {v.detail}"
+                                )
+                        except Exception:
+                            pass
             except Exception as exc:
                 all_warnings.append(f"LLM brainstorm failed (cycle {cycle}): {exc}")
 
@@ -301,5 +316,5 @@ def run_metal_selectivity_screen(
         llm_brainstorm=all_brainstorm,
         llm_candidate_reviews=all_reviews,
         warnings=all_warnings,
-        claim_verdicts=all_sel_verdicts,
+        claim_verdicts=all_sel_verdicts + all_coord_verdicts,
     )

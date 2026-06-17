@@ -116,6 +116,7 @@ def run_metal_binding_screen(
     llm_provider=None,
     constraints: dict | None = None,
     n_cycles: int = 1,
+    binding_pH: float = 7.0,
 ) -> MetalBindingScreenOutcome:
     from ..chemistry.claim_grounding import ground_coordination as _ground_coord
     seen_smiles: set[str] = set()
@@ -145,7 +146,7 @@ def run_metal_binding_screen(
                 for b in brainstorms:
                     if b.rationale:
                         try:
-                            v = _ground_coord(b.smiles, b.rationale)
+                            v = _ground_coord(b.smiles, b.rationale, pH=binding_pH)
                             _coord_verdicts.append(v)
                             if v.status == "contradicted":
                                 all_warnings.append(
