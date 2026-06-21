@@ -5,6 +5,8 @@ Workflow-agnostic: this module is imported BY workflows, never the reverse.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 
 @dataclass(frozen=True)
@@ -135,3 +137,18 @@ def format_trajectory_console(traj: SearchTrajectory) -> str:
         conv_tag = " ✓ converged" if s.converged else ""
         out.append(f"  cycle {s.cycle}: {change}{top}{fam}{conv_tag}")
     return "\n".join(out)
+
+
+def write_trajectory_artifact(output_dir: str | Path, traj: SearchTrajectory) -> Path:
+    """Atomically write trajectory.md into output_dir; return its path."""
+    out_dir = Path(output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    final_path = out_dir / "trajectory.md"
+    content = format_trajectory_report(traj)
+    with NamedTemporaryFile(
+        "w", encoding="utf-8", dir=out_dir, prefix=".trajectory-", suffix=".md", delete=False
+    ) as fh:
+        fh.write(content)
+        staged = Path(fh.name)
+    staged.replace(final_path)
+    return final_path
