@@ -341,6 +341,16 @@ python -m des_multi_agent.cli \
 
 With `--output-dir runs/run_001`, multi-cycle runs write cycle folders such as `cycle_01/`, `cycle_02/`, and `cycle_03/`.
 
+### Iteration trajectory
+
+Any run with `--n-cycles > 1` (and the metal-selectivity / selectivity-DES
+workflows) now prints a compact per-cycle **trajectory** to stdout: how many
+candidates were screened and hit each cycle, which entered or left the
+shortlist, which chemical families were reinforced, and whether the search
+converged. Pass `--output-dir DIR` to also write a durable, readable
+`DIR/trajectory.md` with the full cycle-by-cycle narrative and the final
+shortlist.
+
 See [examples/multi_cycle_des/](../examples/multi_cycle_des).
 
 ## 7. Run Memory, Labels, And Reuse

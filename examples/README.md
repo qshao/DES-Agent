@@ -91,7 +91,7 @@ The LLM-backed examples also include a model-specific `llm.*.yaml` file. The sha
 python -m examples.demo_des_search --component-a "CCO" --n 20 --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt --llm-config <folder>/llm.<name>.yaml
 ```
 
-**Multi-cycle iterative screening** (`--n-cycles N`): top hits from each cycle seed the next cycle's brainstorm; the loop stops early when the top-K candidate set stabilises across two consecutive cycles. Each cycle prints a progress line to stderr (`[cycle N/M] screened=… des=… top-K changes: …`).
+**Multi-cycle iterative screening** (`--n-cycles N`): top hits from each cycle seed the next cycle's brainstorm; the loop stops early when the top-K candidate set stabilises across two consecutive cycles. Each cycle prints a progress line to stderr (`[cycle N/M] screened=… des=… top-K changes: …`). When `--output-dir` is set, a `trajectory.md` is written alongside the usual `report.txt`/`run.json`/`run.csv`/`run.manifest.json` bundle — a durable cycle-by-cycle narrative with the final shortlist. See [`examples/multi_cycle_des/trajectory.md`](./multi_cycle_des/trajectory.md) for a captured example.
 
 **Viscosity-aware composite ranking**: the DES viscosity examples use `--viscosity-model-path artifacts/designsolvents/viscosity/model.json`. Add `--viscosity-threshold CP` to gate candidates above a viscosity limit (cP) to the bottom of the ranking, and `--viscosity-weight W` (0–1, default 0.3) to control how much viscosity blends into the composite score.
 

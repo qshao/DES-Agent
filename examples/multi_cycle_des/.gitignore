@@ -1,0 +1,2 @@
+# Per-cycle run bundles are noisy transient artifacts; only trajectory.md is committed.
+cycle_*/

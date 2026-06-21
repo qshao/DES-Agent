@@ -16,4 +16,5 @@ python -m des_multi_agent.cli \
   --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
   --config-path ml_des_mp/config.yaml \
   --n-cycles 3 \
+  --output-dir "${SCRIPT_DIR}" \
   > "${SCRIPT_DIR}/output.txt" 2>/dev/null
