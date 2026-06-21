@@ -114,7 +114,7 @@ def format_trajectory_report(traj: SearchTrajectory) -> str:
             lines.append(f"{i}. {e.label} — {traj.metric_label} {e.metric_value:.1f}")
     else:
         lines.append("_No final results._")
-    return "\n".join(lines)
+    return "\n".join(lines) + "\n"
 
 
 def format_trajectory_console(traj: SearchTrajectory) -> str:

@@ -1,6 +1,6 @@
-[09:42:36] SMILES Parse Error: syntax error while parsing: ethanol
-[09:42:36] SMILES Parse Error: check for mistakes around position 1:
-[09:42:36] ethanol
-[09:42:36] ^
-[09:42:36] SMILES Parse Error: Failed parsing SMILES 'ethanol' for input: 'ethanol'
+[21:30:52] SMILES Parse Error: syntax error while parsing: ethanol
+[21:30:52] SMILES Parse Error: check for mistakes around position 1:
+[21:30:52] ethanol
+[21:30:52] ^
+[21:30:52] SMILES Parse Error: Failed parsing SMILES 'ethanol' for input: 'ethanol'
 [dry-run] Paths resolved, config parsed, checkpoint compatible — OK.
