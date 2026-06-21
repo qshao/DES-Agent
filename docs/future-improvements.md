@@ -28,6 +28,9 @@ This document tracks the next useful extensions for DES-Agent after the current 
 8. Reality-anchored DES partner proposals
    - Before each LLM brainstorm a menu of up to 30 known, real partner molecules (role-matched to component A) is injected into the prompt. After brainstorm every LLM proposal is graded as `known`, `novel_plausible`, or `novel_implausible`; implausible proposals are demoted (−0.25) or dropped.
 
+9. Readable iteration trajectories
+   - All three iterative workflows (DES multi-cycle, metal-selectivity, selectivity-DES pipeline) now capture per-cycle snapshots (shortlist, entrants/dropouts, family ledger, convergence reason) and attach them as a `SearchTrajectory` to their outcome. The CLI prints a compact per-cycle trace to stderr and writes a full `trajectory.md` Markdown artifact to `--output-dir` when set. Capture is best-effort and never affects search results.
+
 ## Next Up
 
 1. Metal-ligand brainstorm anchoring
@@ -35,3 +38,12 @@ This document tracks the next useful extensions for DES-Agent after the current 
 
 2. Expanded common-names registry
    - Add more entries to `artifacts/molecule_names/common_names.json`, especially pharmaceutical actives used as DES component A candidates.
+
+3. JSON trajectory export
+   - A machine-readable sibling of `trajectory.md` (e.g. `trajectory.json`) for dashboard or downstream analysis use. The `SearchTrajectory` dataclass is already serialisable; the writer is the only addition needed.
+
+4. Legacy final-report table cleanup
+   - The dense pipe-table blocks in `reporting.py` predate the trajectory feature. Restructuring them to match the cleaner trajectory-style narrative is a separate, higher-churn effort deferred from the trajectory work.
+
+5. `total_cycles` accuracy under best-effort capture failure (metal workflows)
+   - In `metal_binding_selectivity.py` and `selectivity_des_pipeline.py`, `SearchTrajectory.total_cycles` counts successful snapshots rather than cycles actually run. If a snapshot build fails (rare), the header line under-reports. Fix: track a separate `cycles_run` counter in those two workflows.
