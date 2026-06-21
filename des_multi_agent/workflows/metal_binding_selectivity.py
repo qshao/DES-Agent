@@ -10,6 +10,7 @@ from ..chemistry_filter import canonicalize_smiles
 from ..llm.schemas import CandidateBrainstorm, CandidateReview
 from ..predictors.stability_constants import predict_log_k
 from ..schemas import CandidateProposal
+from ..trajectory import CycleSnapshot, SearchTrajectory, TopEntry, shortlist_delta
 
 
 @dataclass(frozen=True)
@@ -43,6 +44,7 @@ class SelectivityScreenOutcome:
     llm_candidate_reviews: list[CandidateReview] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
     claim_verdicts: list[object] = field(default_factory=list)
+    trajectory: object = None   # SearchTrajectory | None
 
 
 def _compute_composite(log_k_target: float, log_k_competitor: float,
@@ -210,6 +212,9 @@ def run_metal_selectivity_screen(
     all_coord_verdicts: list[object] = []
     cumulative_results: list[SelectivityResult] = []
     prev_cycle_results: list[SelectivityResult] = []
+    sel_snapshots: list[CycleSnapshot] = []
+    sel_prev_labels: list[str] = []
+    sel_converged = False
 
     for cycle in range(1, n_cycles + 1):
         proposals: list[CandidateProposal] = []
@@ -307,7 +312,35 @@ def run_metal_selectivity_screen(
             flush=True,
         )
 
-        if cycle > 1 and _top_k_stable(prev_cycle_results, cumulative_results):
+        this_converged = cycle > 1 and _top_k_stable(prev_cycle_results, cumulative_results)
+        try:
+            top5 = cumulative_results[:5]
+            entries = [
+                TopEntry(
+                    label=r.ligand_smiles, metric_name="composite_score",
+                    metric_value=r.composite_score,
+                    secondary=f"ΔlogK={r.delta_log_k:.2f}, logK({target_metal})={r.log_k_target:.2f}",
+                )
+                for r in top5
+            ]
+            curr_labels = [r.ligand_smiles for r in top5]
+            snap_new, snap_drop = shortlist_delta(sel_prev_labels, curr_labels)
+            sel_snapshots.append(CycleSnapshot(
+                cycle=cycle,
+                n_screened=len(proposals),
+                n_hits=sum(1 for r in cumulative_results if r.delta_log_k > 0),
+                top_entries=entries,
+                new_entrants=snap_new if cycle > 1 else [],
+                dropouts=snap_drop if cycle > 1 else [],
+                converged=this_converged,
+                convergence_reason="top-5 ligand set stable vs previous cycle" if this_converged else "",
+            ))
+            sel_prev_labels = curr_labels
+        except Exception as exc:
+            all_warnings.append(f"[TRAJECTORY] snapshot capture failed (cycle {cycle}): {exc}")
+
+        if this_converged:
+            sel_converged = True
             print(
                 f"[cycle {cycle}/{n_cycles}] top-5 stable — converged early",
                 file=sys.stderr,
@@ -317,6 +350,16 @@ def run_metal_selectivity_screen(
 
         prev_cycle_results = list(cumulative_results)
 
+    sel_trajectory = SearchTrajectory(
+        workflow="metal-selectivity",
+        headline=f"{target_metal} over {competitor_metal} selectivity",
+        metric_label="composite score",
+        snapshots=sel_snapshots,
+        total_cycles=len(sel_snapshots),
+        converged=sel_converged,
+        convergence_reason=(sel_snapshots[-1].convergence_reason if sel_snapshots else ""),
+        final_summary=(sel_snapshots[-1].top_entries if sel_snapshots else []),
+    )
     return SelectivityScreenOutcome(
         target_metal=target_metal,
         competitor_metal=competitor_metal,
@@ -327,4 +370,5 @@ def run_metal_selectivity_screen(
         llm_candidate_reviews=all_reviews,
         warnings=all_warnings,
         claim_verdicts=all_sel_verdicts + all_coord_verdicts,
+        trajectory=sel_trajectory,
     )
