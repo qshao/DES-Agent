@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 
 from ..evaluation import DesResult
 from ..multi_cycle import run_multi_cycle_search
+from ..trajectory import CycleSnapshot, SearchTrajectory, TopEntry, shortlist_delta
 from .metal_binding_selectivity import (
     SelectivityResult,
     SelectivityScreenOutcome,
@@ -29,6 +30,7 @@ class SelectivityDesPipelineOutcome:
     n_outer_cycles_run: int
     converged: bool
     warnings: list[str] = field(default_factory=list)
+    trajectory: object = None   # SearchTrajectory | None
 
 
 def _bridge_filter(
@@ -81,6 +83,8 @@ def run_selectivity_des_pipeline(
     final_ligand_des_results: list[LigandDesResult] = []
     converged = False
     outer_cycle_count = 0
+    pipe_snapshots: list[CycleSnapshot] = []
+    pipe_prev_labels: list[str] = []
 
     llm_provider = None
     if llm_cfg is not None:
@@ -174,6 +178,36 @@ def run_selectivity_des_pipeline(
         des_compatible_smiles = new_compatible
         des_incompatible_smiles = new_incompatible
 
+        this_converged = outer_cycle > 1 and new_compatible == prev_compatible
+        try:
+            compatible_ldrs = sorted(
+                (ldr for ldr in ligand_des_results if ldr.des_compatible),
+                key=lambda ldr: ldr.ligand.composite_score, reverse=True,
+            )
+            entries = [
+                TopEntry(
+                    label=ldr.ligand.ligand_smiles, metric_name="composite_score",
+                    metric_value=ldr.ligand.composite_score,
+                    secondary=f"ΔlogK={ldr.ligand.delta_log_k:.2f}, DES-compatible",
+                )
+                for ldr in compatible_ldrs
+            ]
+            curr_labels = sorted(new_compatible)
+            snap_new, snap_drop = shortlist_delta(pipe_prev_labels, curr_labels)
+            pipe_snapshots.append(CycleSnapshot(
+                cycle=outer_cycle,
+                n_screened=len(shortlisted),
+                n_hits=len(new_compatible),
+                top_entries=entries,
+                new_entrants=snap_new if outer_cycle > 1 else [],
+                dropouts=snap_drop if outer_cycle > 1 else [],
+                converged=this_converged,
+                convergence_reason="DES-compatible ligand set stable vs previous outer cycle" if this_converged else "",
+            ))
+            pipe_prev_labels = curr_labels
+        except Exception as exc:
+            all_warnings.append(f"[TRAJECTORY] snapshot capture failed (outer {outer_cycle}): {exc}")
+
         if outer_cycle > 1 and new_compatible == prev_compatible:
             converged = True
             print(
@@ -184,6 +218,16 @@ def run_selectivity_des_pipeline(
 
         prev_compatible = new_compatible
 
+    pipe_trajectory = SearchTrajectory(
+        workflow="selectivity-des",
+        headline=f"{target_metal} over {competitor_metal} — selectivity-DES",
+        metric_label="composite score",
+        snapshots=pipe_snapshots,
+        total_cycles=len(pipe_snapshots),
+        converged=converged,
+        convergence_reason=(pipe_snapshots[-1].convergence_reason if pipe_snapshots else ""),
+        final_summary=(pipe_snapshots[-1].top_entries if pipe_snapshots else []),
+    )
     return SelectivityDesPipelineOutcome(
         target_metal=target_metal,
         competitor_metal=competitor_metal,
@@ -192,4 +236,5 @@ def run_selectivity_des_pipeline(
         n_outer_cycles_run=outer_cycle_count,
         converged=converged,
         warnings=all_warnings,
+        trajectory=pipe_trajectory,
     )
