@@ -1,6 +1,6 @@
 # DES-Agent
 
-This repository contains a deterministic DES screening pipeline plus optional layers for uncertainty, local discovery, LLM-assisted candidate brainstorming (two-stage, family-first), viscosity-aware composite ranking, multi-cycle iterative screening with convergence detection, LLM chemical contradiction detection, and a separate metal-binding workflow for stability-constant prediction. Additional capabilities include: molecule-name resolution (pass "ethanol" instead of "CCO" — the system resolves names to SMILES automatically); a deterministic chemistry grounding layer (source-side structural-fact injection into every LLM prompt plus output-side claim verification against RDKit-computed structure); protonation-aware metal-binding that computes dominant species at a user-specified pH before running stability-constant prediction; and reality-anchored partner proposals that anchor LLM brainstorm to a registry of known real molecules, demoting or dropping implausible proposals before ranking.
+This repository contains a deterministic DES screening pipeline plus optional layers for uncertainty, local discovery, LLM-assisted candidate brainstorming (two-stage, family-first), viscosity-aware composite ranking, multi-cycle iterative screening with convergence detection, LLM chemical contradiction detection, and a separate metal-binding workflow for stability-constant prediction. Additional capabilities include: molecule-name resolution (pass "ethanol" instead of "CCO" — the system resolves names to SMILES automatically); a deterministic chemistry grounding layer (source-side structural-fact injection into every LLM prompt plus output-side claim verification against RDKit-computed structure); protonation-aware metal-binding that computes dominant species at a user-specified pH before running stability-constant prediction; reality-anchored partner proposals that anchor LLM brainstorm to a registry of known real molecules, demoting or dropping implausible proposals before ranking; and readable iteration trajectories that capture per-cycle shortlist changes, family reinforcement, and convergence reason as both a live console trace and a durable `trajectory.md` artifact.
 
 ## Quick Start
 
@@ -93,12 +93,13 @@ Optional Ollama LLM run (Gemma, Nemotron, or Qwen via `model_name`). The LLM rev
 python -m examples.demo_des_search --component-a "ethanol" --n 20 --llm-config llm.example.yaml
 ```
 
-Multi-cycle iterative screening — top hits from each cycle seed the next; stops when top-K converges:
+Multi-cycle iterative screening — top hits from each cycle seed the next; stops when top-K converges. Pass `--output-dir` to also write a `trajectory.md` with the full cycle-by-cycle narrative:
 
 ```bash
 python -m des_multi_agent.cli --workflow des --component-a "ethanol" --n 20 \
   --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
-  --config-path ml_des_mp/config.yaml --n-cycles 3 --llm-config llm.example.yaml
+  --config-path ml_des_mp/config.yaml --n-cycles 3 --llm-config llm.example.yaml \
+  --output-dir runs/ethanol_multicycle
 ```
 
 Viscosity-aware composite ranking with threshold gate:
@@ -213,6 +214,8 @@ Key flags:
 
 The report shows a selectivity table with a `des_compatible` column (Section 1) and per-ligand DES partner blocks (Section 2). The outer loop stops early when the DES-compatible ligand set stabilises across two consecutive cycles.
 
+All three iterative workflows (`des` with `--n-cycles > 1`, `metal-selectivity`, `selectivity-des`) print a compact per-cycle trajectory to stderr after the run and write `trajectory.md` into `--output-dir` when set. See [`examples/multi_cycle_des/trajectory.md`](/home/qshao/DES-Agent/examples/multi_cycle_des/trajectory.md) for a captured example.
+
 ## Task Router
 
 Use the task router to turn a plain-language request into a JSON job without running the workflow:
@@ -250,6 +253,7 @@ The router loads `llm.example.yaml` by default, supports both `des` and `metal-b
 - `llm.example.yaml` is a ready-to-edit optional LLM config
 - `docs/future-improvements.md` tracks the next planned extensions
 - `tests/test_benchmarks_examples.py` is the example benchmark suite that compares captured outputs against frozen baselines
+- `des_multi_agent/trajectory.py` — workflow-agnostic trajectory model (`TopEntry`/`CycleSnapshot`/`SearchTrajectory`), Markdown + console renderers, and atomic `trajectory.md` writer
 - `des_multi_agent/chemistry/partner_registry.py` — known-compound registry and anchor menu for reality-anchored partner proposals
 - `des_multi_agent/chemistry/claim_grounding.py` — deterministic chemistry grounding (structural facts, claim verdicts, partner reality grading)
 - `artifacts/molecule_names/common_names.json` — curated molecule-name → SMILES mapping used by name resolution and the partner menu
