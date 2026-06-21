@@ -25,6 +25,7 @@ from .reporting import (
     format_report, format_report_csv, format_report_json, format_report_prose,
     format_selectivity_des_report,
 )
+from .trajectory import format_trajectory_console, write_trajectory_artifact
 from .workflows.selectivity_des_pipeline import run_selectivity_des_pipeline
 from .summary import build_command_summary, render_command_summary
 from .task_executor import execute_task_request, execute_task_request_detailed
@@ -51,6 +52,22 @@ def _init_presets() -> None:
 
 
 _init_presets()
+
+
+def _emit_trajectory(traj, output_dir) -> None:
+    """Print the console trajectory summary to stderr and optionally write trajectory.md.
+
+    Printing to stderr keeps stdout clean for --format json/csv machine consumers.
+    A no-op when traj is None.
+    """
+    if traj is None:
+        return
+    print(format_trajectory_console(traj), file=sys.stderr)
+    if output_dir:
+        try:
+            write_trajectory_artifact(output_dir, traj)
+        except OSError as exc:
+            print(f"[WARNING] failed to write trajectory.md: {exc}", file=sys.stderr)
 
 
 def _positive_int(value: str) -> int:
@@ -618,16 +635,6 @@ def main(argv=None):
                     n_cycles=args.n_cycles,
                 )
                 outcome = multi_outcome.final_outcome
-                for delta in multi_outcome.cycle_deltas:
-                    new = f"+{len(delta.new_entrants)}" if delta.new_entrants else "0"
-                    out = f"-{len(delta.dropouts)}" if delta.dropouts else "0"
-                    print(
-                        f"[cycle {delta.cycle}/{multi_outcome.total_cycles}] "
-                        f"screened={delta.n_screened} des={delta.n_des} "
-                        f"top-K changes: {new} new, {out} dropped"
-                        + (" — CONVERGED" if delta.converged else ""),
-                        file=sys.stderr,
-                    )
             else:
                 outcome = run_search_report(
                     component_a=args.component_a,
@@ -677,6 +684,8 @@ def main(argv=None):
                 )
             )
         _print_summary("des", outcome)
+        if getattr(args, "n_cycles", 1) > 1:
+            _emit_trajectory(getattr(multi_outcome, "trajectory", None), args.output_dir)
         return
 
     if args.workflow == "selectivity-des":
@@ -729,6 +738,7 @@ def main(argv=None):
             parser.error(str(exc))
         print(format_selectivity_des_report(pipeline_outcome))
         _print_summary("selectivity-des", pipeline_outcome)
+        _emit_trajectory(getattr(pipeline_outcome, "trajectory", None), getattr(args, "output_dir", None))
         return
 
     if args.workflow == "metal-selectivity":
@@ -751,6 +761,7 @@ def main(argv=None):
         )
         print(format_metal_selectivity_report(sel_outcome))
         _print_summary("metal-selectivity", sel_outcome)
+        _emit_trajectory(getattr(sel_outcome, "trajectory", None), getattr(args, "output_dir", None))
         return
 
     if not args.metal_ion:
