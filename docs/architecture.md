@@ -16,3 +16,6 @@ The single LLM-agnostic surface for chemistry grounding. Source-side: `structura
 
 **`des_multi_agent/chemistry/name_resolution.py`**
 Resolves common molecule names to canonical SMILES via `artifacts/molecule_names/common_names.json`. Used by all CLI entry points; falls back to treating the input as SMILES if no name match.
+
+**`des_multi_agent/trajectory.py`**
+Workflow-agnostic readable-trajectory layer. `TopEntry` / `CycleSnapshot` / `SearchTrajectory` frozen dataclasses capture per-cycle search state (shortlist, entrants/dropouts, family ledger, convergence). `shortlist_delta` computes label-set differences between cycles. `format_trajectory_report` renders a full Markdown narrative (`trajectory.md`); `format_trajectory_console` renders a compact per-cycle stderr trace. `write_trajectory_artifact` writes atomically via `NamedTemporaryFile` + `Path.replace`. All three iterative workflows (`multi_cycle.py`, `metal_binding_selectivity.py`, `selectivity_des_pipeline.py`) build snapshots inside their loops (best-effort, `try/except`) and attach a `SearchTrajectory` to their outcome via an additive `None`-default field; the CLI emits the console trace to stderr and writes `trajectory.md` when `--output-dir` is set.
