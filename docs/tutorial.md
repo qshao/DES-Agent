@@ -208,7 +208,7 @@ python -m des_multi_agent.cli \
 
 ### Candidate Sources
 
-By default, the system uses built-in candidate generation. You can add local discovery:
+By default, the system uses built-in candidate generation. You can inject literature compounds or a curated library with `--discovery-path`:
 
 ```bash
 python -m des_multi_agent.cli \
@@ -217,8 +217,35 @@ python -m des_multi_agent.cli \
   --n 20 \
   --checkpoint-path ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt \
   --config-path ml_des_mp/config.yaml \
-  --discovery-path tests/fixtures/discovery
+  --discovery-path my_discovery/
 ```
+
+The discovery directory must contain one or both of these files:
+
+**`literature.yaml`** — known component-A / component-B pairs from the literature:
+
+```yaml
+- component_a: CCO
+  component_b: OCCO
+  source: local_literature
+  note: Known diol partner for ethanol-like donors.
+  reference_id: LIT-001
+```
+
+**`library.yaml`** — a curated candidate library (screened against any component A):
+
+```yaml
+- smiles: OCCO
+  family: diol
+  source: curated_library
+  note: Small diol candidate.
+- smiles: OCC(O)CO
+  family: polyol
+  source: curated_library
+  note: Local polyol candidate.
+```
+
+Both files are optional; the discovery directory may contain either or both. SMILES in both files are validated and skipped if unparseable. See `tests/fixtures/discovery/` for a working example.
 
 You can also supply candidates directly:
 
@@ -851,7 +878,81 @@ See:
 - [examples/ni_co_selectivity_des_nemotron/](../examples/ni_co_selectivity_des_nemotron)
 - [examples/ni_co_selectivity_des_qwen36/](../examples/ni_co_selectivity_des_qwen36)
 
-## 16. Choosing An Example Folder
+## 16. Programmatic Use
+
+All workflows are importable and callable directly from Python — useful for notebooks, scripts, and pipeline integration without going through the CLI or HTTP server.
+
+### DES Screening
+
+```python
+from des_multi_agent.orchestrator import run_search_report
+
+outcome = run_search_report(
+    component_a="CCO",
+    n=20,
+    checkpoint_path="ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt",
+    config_path="ml_des_mp/config.yaml",
+    output_dir="runs/run_001",          # optional: writes report.txt / run.json / run.csv
+)
+# outcome.report     — formatted text report
+# outcome.results    — list of ranked candidate dicts
+# outcome.warnings   — list of warning strings
+```
+
+### Metal-Binding Prediction
+
+```python
+from des_multi_agent.workflows.metal_binding import run_metal_binding_workflow
+
+outcome = run_metal_binding_workflow(
+    metal_ion="Cu2+",
+    ligand_smiles="NCCN",
+    model_path="artifacts/stability_constants/model.json",
+)
+# outcome.prediction.log_k      — predicted log K
+# outcome.prediction.confidence — confidence label
+```
+
+### Metal-Selectivity Screening
+
+```python
+from des_multi_agent.workflows.metal_binding_selectivity import run_metal_selectivity_screen
+
+outcome = run_metal_selectivity_screen(
+    target_metal="Cu2+",
+    competitor_metal="Zn2+",
+    n=20,
+    model_path="artifacts/stability_constants/model.json",
+    n_cycles=3,
+    binding_pH=7.0,
+)
+# outcome.ranked_ligands  — list of SelectivityResult
+# outcome.trajectory      — SearchTrajectory | None
+```
+
+### Selectivity-DES Pipeline
+
+```python
+from des_multi_agent.workflows.selectivity_des_pipeline import run_selectivity_des_pipeline
+
+outcome = run_selectivity_des_pipeline(
+    target_metal="Ni2+",
+    competitor_metal="Co2+",
+    checkpoint_path="ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt",
+    n_ligands=20,
+    n_des_candidates=20,
+    n_selectivity_cycles=3,
+    n_des_cycles=3,
+    n_outer_cycles=2,
+    stability_model_path="artifacts/stability_constants/model.json",
+)
+# outcome.selectivity_results  — Phase 1 ligand rankings
+# outcome.des_results          — Phase 2 DES partner results per ligand
+```
+
+All functions return frozen dataclass outcomes. Trajectory data (when present) is in `outcome.trajectory` as a `SearchTrajectory` — pass it to `format_trajectory_report` or `write_trajectory_artifact` from `des_multi_agent.trajectory` to render it.
+
+## 17. Choosing An Example Folder
 
 Use this table when starting new work:
 
@@ -882,7 +983,7 @@ Use this table when starting new work:
 
 The examples also feed the benchmark tests, so treat them as runnable documentation.
 
-## 17. Troubleshooting
+## 18. Troubleshooting
 
 ### Missing Checkpoint
 
@@ -973,7 +1074,7 @@ When QSPR is enabled, set `DES_MP_DEVICE=cuda` to run the QSPR model on GPU (it 
 
 The test suite may show deprecation warnings from `torch_geometric`, `torch.jit`, or FastAPI/Starlette test utilities. These warnings are external library warnings unless a test fails.
 
-## 18. Testing And Benchmarking
+## 19. Testing And Benchmarking
 
 Run the full suite:
 
@@ -1001,14 +1102,44 @@ python -m pytest tests/test_selectivity_des_pipeline.py -q
 
 If you intentionally refresh example output, update the matching frozen baseline and run the benchmark test before committing.
 
-## 19. Recommended Workflow For New Users
+## 20. Recommended Workflow For New Users
 
-1. Run `python -m des_multi_agent.cli doctor`.
-2. Run `./scripts/demo-mock.sh`.
-3. Run one real DES command with `--output-dir runs/run_001`.
-4. Inspect it with `view-run`.
-5. Add viscosity or LLM mode only after the deterministic run works.
-6. Save `run.memory.json`, label candidates with `label-run`, and reuse the history when you have feedback.
-7. Use `compare-runs`, `history`, and `leaderboard` once you have multiple runs.
+1. Install and save persistent defaults so you never repeat the long flags:
+
+   ```bash
+   pip install -e .
+   des-agent config set checkpoint_path=ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt
+   des-agent config set config_path=ml_des_mp/config.yaml
+   ```
+
+2. Run the health check:
+
+   ```bash
+   des-agent doctor
+   ```
+
+3. Confirm the repo works with the offline mock (no checkpoint needed):
+
+   ```bash
+   ./scripts/demo-mock.sh
+   ```
+
+4. Run one real DES command writing to a run directory:
+
+   ```bash
+   des-agent --workflow des --component-a "ethanol" --n 20 --output-dir runs/run_001
+   ```
+
+5. Inspect the result:
+
+   ```bash
+   des-agent view-run runs/run_001
+   ```
+
+6. Add viscosity or LLM mode only after the deterministic run works.
+
+7. Save `run.memory.json`, label candidates with `label-run`, and reuse the history when you have feedback.
+
+8. Use `compare-runs`, `history`, and `leaderboard` once you have multiple runs.
 
 This keeps the workflow reproducible and makes each run easy to inspect later.
