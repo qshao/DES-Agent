@@ -4,6 +4,12 @@ This repository contains a deterministic DES screening pipeline plus optional la
 
 ## Quick Start
 
+After cloning, install the package (requires Python ≥ 3.11):
+
+```bash
+pip install -e .
+```
+
 Run the doctor check first to verify the local repo and example folders:
 
 ```bash

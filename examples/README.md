@@ -14,17 +14,18 @@ Start here:
 
 Feature map:
 
-| Example | Plain-language | Proposal diversity | Chemistry advisor | Run memory | Grounding | Reality anchoring | Offline-only |
-|---------|----------------|--------------------|-------------------|------------|-----------|-------------------|--------------|
-| `plain_language_gemma4_12b/` | yes | yes | yes | no | yes | yes | no |
-| `plain_language_metal_binding_gemma4_12b/` | yes | no | no | no | no | no | yes |
-| `des_viscosity/` | no | no | no | no | no | no | yes |
-| `des_run_memory_feedback/` | no | yes | no | yes | no | no | yes |
-| `ni_co_selectivity_des/` | no | yes | yes | no | yes | yes | no |
-| `ni_co_selectivity_des_qwen36/` | no | yes | yes | no | yes | yes | no |
-| `ni_co_selectivity_des_nemotron/` | no | yes | yes | no | yes | yes | no |
-| `metal_binding/` | no | no | yes | no | no | no | yes |
-| `metal_selectivity_standalone/` | no | no | yes | no | no | no | yes |
+| Example | Plain-language | Proposal diversity | Chemistry advisor | Run memory | Grounding | Reality anchoring | Trajectory | Offline-only |
+|---------|----------------|--------------------|-------------------|------------|-----------|-------------------|------------|--------------|
+| `plain_language_gemma4_12b/` | yes | yes | yes | no | yes | yes | no | no |
+| `plain_language_metal_binding_gemma4_12b/` | yes | no | no | no | no | no | no | yes |
+| `des_viscosity/` | no | no | no | no | no | no | no | yes |
+| `des_run_memory_feedback/` | no | yes | no | yes | no | no | no | yes |
+| `multi_cycle_des/` | no | no | no | no | no | no | yes | yes |
+| `ni_co_selectivity_des/` | no | yes | yes | no | yes | yes | yes | no |
+| `ni_co_selectivity_des_qwen36/` | no | yes | yes | no | yes | yes | yes | no |
+| `ni_co_selectivity_des_nemotron/` | no | yes | yes | no | yes | yes | yes | no |
+| `metal_binding/` | no | no | yes | no | no | no | no | yes |
+| `metal_selectivity_standalone/` | no | no | yes | no | no | no | yes | yes |
 
 Chemical pattern memory shows up most clearly in `des_run_memory_feedback/` and the multi-cycle DES examples, where prior predictions shape the next cycle's prompt context and report notes.
 

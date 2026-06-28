@@ -18,7 +18,33 @@ The project has four main workflow families:
 
 The core DES melting-temperature prediction is deterministic and uses the trained `ml_des_mp` checkpoint. LLM mode is optional. When enabled, the LLM proposes candidates, reviews candidates one by one, explains outputs, and flags chemical contradictions, but the ML model still makes the final DES melting-temperature prediction.
 
-## 2. Setup And Health Checks
+## 2. Installation
+
+**Requirements:** Python ≥ 3.11, and the standard scientific stack (PyTorch, RDKit, etc. — listed in `pyproject.toml`).
+
+After cloning the repository, install the package and its dependencies:
+
+```bash
+pip install -e .
+```
+
+The `-e` flag installs in editable mode so local changes take effect immediately without reinstalling.
+
+If you plan to run the test suite, also install the dev extras:
+
+```bash
+pip install -e ".[dev]"
+```
+
+For LLM-backed workflows you will also need [Ollama](https://ollama.com) running locally with your chosen model pulled:
+
+```bash
+ollama pull gemma4:12b   # or nemotron-mini, qwen2.5:7b, etc.
+```
+
+Confirm the model name in your `llm.example.yaml` matches what you pulled.
+
+## 3. Setup And Health Checks
 
 Run all commands from the repository root unless an example README says otherwise.
 
@@ -48,7 +74,7 @@ python -m des_multi_agent.cli supported-metals
 
 Unsupported ions can still run in the fallback feature path, but selectivity between two unsupported ions is less meaningful.
 
-## 3. First Runs
+## 4. First Runs
 
 ### Offline Mock Demo
 
@@ -138,7 +164,7 @@ Inspect a saved run directory:
 python -m des_multi_agent.cli view-run runs/run_001
 ```
 
-## 4. DES Screening Workflow
+## 5. DES Screening Workflow
 
 ### Required Inputs
 
@@ -293,7 +319,7 @@ The `summary:` block goes to stderr for parseable modes so stdout stays machine-
 
 See [examples/output_formats/](../examples/output_formats).
 
-## 5. Viscosity-Aware DES Ranking
+## 6. Viscosity-Aware DES Ranking
 
 Use the bundled DESignSolvents-style artifact to add viscosity predictions:
 
@@ -325,7 +351,7 @@ python -m des_multi_agent.cli \
 
 See [examples/des_viscosity/](../examples/des_viscosity), [examples/viscosity_template/](../examples/viscosity_template), and [examples/viscosity_composite_ranking/](../examples/viscosity_composite_ranking).
 
-## 6. Multi-Cycle Screening
+## 7. Multi-Cycle Screening
 
 Use `--n-cycles` when you want iterative search. Top hits from each cycle seed the next cycle, and the loop stops early if the top candidates stabilize.
 
@@ -344,7 +370,7 @@ With `--output-dir runs/run_001`, multi-cycle runs write cycle folders such as `
 ### Iteration trajectory
 
 Any run with `--n-cycles > 1` (and the metal-selectivity / selectivity-DES
-workflows) now prints a compact per-cycle **trajectory** to stdout: how many
+workflows) now prints a compact per-cycle **trajectory** to stderr: how many
 candidates were screened and hit each cycle, which entered or left the
 shortlist, which chemical families were reinforced, and whether the search
 converged. Pass `--output-dir DIR` to also write a durable, readable
@@ -353,7 +379,7 @@ shortlist.
 
 See [examples/multi_cycle_des/](../examples/multi_cycle_des).
 
-## 7. Run Memory, Labels, And Reuse
+## 8. Run Memory, Labels, And Reuse
 
 Save a compact run-memory file:
 
@@ -405,7 +431,7 @@ Reuse only nudges ranking. It does not change the underlying predictor or filter
 
 See [examples/des_run_memory_feedback/](../examples/des_run_memory_feedback).
 
-## 8. Comparing And Reviewing Runs
+## 9. Comparing And Reviewing Runs
 
 Compare two saved DES runs:
 
@@ -439,7 +465,7 @@ python -m des_multi_agent.cli view-run runs/run_001
 
 See [examples/compare_runs/](../examples/compare_runs) and [examples/leaderboard_history/](../examples/leaderboard_history).
 
-## 9. Optional LLM Workflows
+## 10. Optional LLM Workflows
 
 LLM mode is optional. Configure it with `llm.example.yaml`:
 
@@ -571,7 +597,7 @@ family and plausibility verdicts from the Chemistry Grounding Layer above.
 No new flags are needed — the layer runs automatically whenever `--llm-config`
 is set.
 
-## 10. Plain-Language Routing
+## 11. Plain-Language Routing
 
 Use `task-router` to convert a plain-language request into JSON without running anything:
 
@@ -594,7 +620,7 @@ See:
 - [examples/plain_language_gemma4_12b/](../examples/plain_language_gemma4_12b)
 - [examples/plain_language_metal_binding_gemma4_12b/](../examples/plain_language_metal_binding_gemma4_12b)
 
-## 11. Metal-Binding Workflow
+## 12. Metal-Binding Workflow
 
 Predict a stability constant for one metal-ligand pair:
 
@@ -632,7 +658,7 @@ its prompt, grounding its coordination claims in the actual species.
 
 See [examples/metal_binding/](../examples/metal_binding) and [examples/ligand_binding_template/](../examples/ligand_binding_template).
 
-## 12. Metal Selectivity
+## 13. Metal Selectivity
 
 Use `metal-selectivity` to rank ligands by target-metal affinity and selectivity over a competitor:
 
@@ -661,7 +687,7 @@ python -m des_multi_agent.cli supported-metals
 
 See [examples/metal_selectivity_standalone/](../examples/metal_selectivity_standalone) and [examples/ni2_co2_selectivity/](../examples/ni2_co2_selectivity).
 
-## 13. Selectivity-DES Pipeline
+## 14. Selectivity-DES Pipeline
 
 Use `selectivity-des` when you want a two-phase loop:
 
@@ -707,7 +733,7 @@ See:
 - [examples/ni_co_selectivity_des_nemotron/](../examples/ni_co_selectivity_des_nemotron)
 - [examples/ni_co_selectivity_des_qwen36/](../examples/ni_co_selectivity_des_qwen36)
 
-## 14. Choosing An Example Folder
+## 15. Choosing An Example Folder
 
 Use this table when starting new work:
 
@@ -729,7 +755,7 @@ Use this table when starting new work:
 
 The examples also feed the benchmark tests, so treat them as runnable documentation.
 
-## 15. Troubleshooting
+## 16. Troubleshooting
 
 ### Missing Checkpoint
 
@@ -794,11 +820,23 @@ Use `--output-dir runs/run_001` for DES runs, then inspect with:
 python -m des_multi_agent.cli view-run runs/run_001
 ```
 
+### QSPR Model Missing Or Stochastic Outputs
+
+Symptom: warnings about a missing `qspr_model.pt`, or melting-point predictions that differ between runs.
+
+The QSPR layer provides an additional melting-point lookup source when the experimental table has no entry for a molecule. Its model file (`qspr_model.pt`) is not committed to the repository because its training is GPU-stochastic. To disable it and use only the committed experimental lookup and heuristic, set:
+
+```bash
+export DES_DISABLE_QSPR=1
+```
+
+All deterministic examples in `examples/` already set this variable in their `run.sh` so their outputs reproduce byte-for-byte. LLM-backed examples (e.g. `gemma4_12b/`) predate this feature and do not set it.
+
 ### Third-Party Warnings
 
 The test suite may show deprecation warnings from `torch_geometric`, `torch.jit`, or FastAPI/Starlette test utilities. These warnings are external library warnings unless a test fails.
 
-## 16. Testing And Benchmarking
+## 17. Testing And Benchmarking
 
 Run the full suite:
 
@@ -826,7 +864,7 @@ python -m pytest tests/test_selectivity_des_pipeline.py -q
 
 If you intentionally refresh example output, update the matching frozen baseline and run the benchmark test before committing.
 
-## 17. Recommended Workflow For New Users
+## 18. Recommended Workflow For New Users
 
 1. Run `python -m des_multi_agent.cli doctor`.
 2. Run `./scripts/demo-mock.sh`.
