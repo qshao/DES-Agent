@@ -79,6 +79,18 @@ python -m des_multi_agent.cli supported-metals
 
 Unsupported ions can still run in the fallback feature path, but selectivity between two unsupported ions is less meaningful.
 
+### Environment Variables
+
+All env vars the package reads, for quick reference:
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `DES_AGENT_CONFIG` | `~/.des-agent/config.yaml` | Override path for the persistent user config file |
+| `DES_CHECKPOINT_PATH` | _(none)_ | Checkpoint path used by `scripts/demo-real.sh`; not read by the CLI directly |
+| `DES_ML_DEVICE` | from `config.yaml` | Device for the DES ChemBERTa stage (`cpu` or `cuda`); set by `--ml-device` |
+| `DES_MP_DEVICE` | `cpu` | Device for the QSPR melting-point model (independent of `DES_ML_DEVICE`) |
+| `DES_DISABLE_QSPR` | _(unset)_ | Set to `1` to skip the QSPR layer and use only the experimental lookup + heuristic |
+
 ### Persistent User Config
 
 To avoid repeating `--checkpoint-path`, `--config-path`, and `--llm-config` on every command, save them as persistent defaults:
@@ -193,7 +205,7 @@ A normal DES run needs:
 - `--config-path`, normally `ml_des_mp/config.yaml`
 - `--n`, the number of candidate partners to screen
 
-Add `--ml-device cpu` to force CPU inference on machines without a GPU, or `--ml-device cuda` to make the selection explicit. The default is taken from the model config.
+`ml_des_mp/config.yaml` configures the DES ML model: embedding method (ChemBERTa), training data paths, split strategy, and — most relevant at inference time — `device: "cuda"` or `"cpu"`. This is the device the ChemBERTa stage runs on. Change it to `"cpu"` in the file if you are on a CPU-only machine, or override it at the command line with `--ml-device cpu` without editing the file.
 
 Minimal command:
 
@@ -948,6 +960,27 @@ outcome = run_selectivity_des_pipeline(
 )
 # outcome.selectivity_results  — Phase 1 ligand rankings
 # outcome.des_results          — Phase 2 DES partner results per ligand
+```
+
+### Multi-Cycle DES Screening
+
+For iterative search with convergence detection, use `run_multi_cycle_search` instead of calling `run_search_report` in a loop:
+
+```python
+from des_multi_agent.multi_cycle import run_multi_cycle_search
+
+outcome = run_multi_cycle_search(
+    component_a="CCO",
+    n=20,
+    checkpoint_path="ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt",
+    config_path="ml_des_mp/config.yaml",
+    n_cycles=3,              # maximum cycles; stops early if top-K converges
+    top_k_convergence=5,     # number of top candidates that must be stable to converge
+    output_dir="runs/multi", # optional: writes cycle_01/ … cycle_N/ plus trajectory.md
+)
+# outcome.cycle_deltas     — list of per-cycle delta summaries
+# outcome.final_outcome    — SearchOutcome from the last cycle
+# outcome.trajectory       — SearchTrajectory | None
 ```
 
 All functions return frozen dataclass outcomes. Trajectory data (when present) is in `outcome.trajectory` as a `SearchTrajectory` — pass it to `format_trajectory_report` or `write_trajectory_artifact` from `des_multi_agent.trajectory` to render it.
