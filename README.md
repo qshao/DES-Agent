@@ -10,6 +10,13 @@ After cloning, install the package (requires Python ≥ 3.11):
 pip install -e .
 ```
 
+This registers a `des-agent` console script. The short form and the long form are equivalent:
+
+```bash
+des-agent --workflow des ...         # short form
+python -m des_multi_agent.cli ...    # equivalent
+```
+
 Run the doctor check first to verify the local repo and example folders:
 
 ```bash
@@ -246,6 +253,17 @@ python -m des_multi_agent.cli task-execute "find DES partners for lidocaine"
 
 The router loads `llm.example.yaml` by default, supports both `des` and `metal-binding`, and normalizes common compound names before returning either a complete job or clarification questions with `workflow=clarify`, as JSON only. It will ask follow-up questions when a request is ambiguous, including free base versus salt-form questions. For a worked example, see [`examples/task_router/`](/home/qshao/DES-Agent/examples/task_router/).
 
+## REST API Server
+
+A thin FastAPI wrapper ships alongside the CLI for notebook and programmatic consumers:
+
+```bash
+python -m des_multi_agent.server                     # http://0.0.0.0:8000
+python -m des_multi_agent.server --host 127.0.0.1 --port 9000
+```
+
+Endpoints: `GET /health` · `POST /search` (DES screening) · `POST /metal-binding`. Interactive docs at `http://localhost:8000/docs`. See Section 12 of `docs/tutorial.md` for request/response examples.
+
 ## Project Layout
 
 - `des_multi_agent/` contains the screening orchestration code
@@ -268,6 +286,7 @@ The router loads `llm.example.yaml` by default, supports both `des` and `metal-b
 - `docs/future-improvements.md` tracks the next planned extensions
 - `tests/test_benchmarks_examples.py` is the example benchmark suite that compares captured outputs against frozen baselines
 - `des_multi_agent/trajectory.py` — workflow-agnostic trajectory model (`TopEntry`/`CycleSnapshot`/`SearchTrajectory`), Markdown + console renderers, and atomic `trajectory.md` writer
+- `des_multi_agent/server.py` — thin FastAPI wrapper; start with `python -m des_multi_agent.server`; exposes `GET /health`, `POST /search`, `POST /metal-binding`
 - `des_multi_agent/chemistry/partner_registry.py` — known-compound registry and anchor menu for reality-anchored partner proposals
 - `des_multi_agent/chemistry/claim_grounding.py` — deterministic chemistry grounding (structural facts, claim verdicts, partner reality grading)
 - `artifacts/molecule_names/common_names.json` — curated molecule-name → SMILES mapping used by name resolution and the partner menu

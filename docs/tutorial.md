@@ -28,7 +28,12 @@ After cloning the repository, install the package and its dependencies:
 pip install -e .
 ```
 
-The `-e` flag installs in editable mode so local changes take effect immediately without reinstalling.
+The `-e` flag installs in editable mode so local changes take effect immediately without reinstalling. It also registers the `des-agent` console script, so you can use either form interchangeably:
+
+```bash
+des-agent --workflow des ...            # short form (after pip install -e .)
+python -m des_multi_agent.cli ...       # equivalent long form
+```
 
 If you plan to run the test suite, also install the dev extras:
 
@@ -36,13 +41,13 @@ If you plan to run the test suite, also install the dev extras:
 pip install -e ".[dev]"
 ```
 
-For LLM-backed workflows you will also need [Ollama](https://ollama.com) running locally with your chosen model pulled:
+For Ollama-backed LLM workflows you will also need [Ollama](https://ollama.com) running locally with your chosen model pulled:
 
 ```bash
-ollama pull gemma4:12b   # or nemotron-mini, qwen2.5:7b, etc.
+ollama pull gemma4:12b   # or nemotron-3-nano:latest, qwen3.6, etc.
 ```
 
-Confirm the model name in your `llm.example.yaml` matches what you pulled.
+Confirm the model name in your `llm.example.yaml` matches what you pulled. OpenAI and Gemini providers are also supported and do not require Ollama — see Section 10 for all provider options.
 
 ## 3. Setup And Health Checks
 
@@ -496,21 +501,60 @@ LLM mode is optional. Configure it with an LLM YAML file. `llm.example.yaml` is 
 - `llm.ni_co_qwen36.yaml` — Qwen 3.6 variant
 - `llm.ni_co_nemotron.yaml` — Nemotron 3 Nano variant
 
-All fields in the YAML (all optional except `provider` and `model_name`):
+Four providers are supported. Choose one and fill in its required fields:
+
+**Ollama (local)** — requires `api_base_url`; supported models: `gemma4:12b`, `nemotron-3-nano:latest`, `qwen3.6`:
 
 ```yaml
 llm:
-  provider: ollama          # required: "ollama" is the only supported value
-  model_name: gemma4:12b    # required: must match a pulled Ollama model name
-  api_base_url: http://localhost:11434   # Ollama endpoint (default shown)
-  max_candidates: 20        # max candidates the LLM reviews per cycle
-  max_tokens: 1024          # token budget for each LLM call
-  temperature: 0.2          # generation temperature (lower = more deterministic)
-  timeout_seconds: 120.0    # per-call HTTP timeout
-  diversity_mode: balanced  # explore | balanced | exploit (brainstorm breadth)
-  max_families: 6           # cap on chemical families in the brainstorm stage
-  family_bias_strength: 0.5 # 0–1; how strongly prior productive families bias later cycles
+  enabled: true
+  provider: ollama
+  model_name: gemma4:12b
+  api_base_url: http://localhost:11434
 ```
+
+**OpenAI** — requires `api_key_env` (the name of the env var holding your API key):
+
+```yaml
+llm:
+  enabled: true
+  provider: openai
+  model_name: gpt-4o
+  api_key_env: OPENAI_API_KEY    # set this env var before running
+```
+
+**Gemini** — same pattern as OpenAI:
+
+```yaml
+llm:
+  enabled: true
+  provider: gemini
+  model_name: gemini-1.5-pro
+  api_key_env: GEMINI_API_KEY
+```
+
+**Custom HTTP** — any OpenAI-compatible endpoint (LM Studio, vLLM, etc.); requires `api_base_url`:
+
+```yaml
+llm:
+  enabled: true
+  provider: custom_http
+  model_name: my-local-model
+  api_base_url: http://localhost:8080
+```
+
+All optional fields with their defaults:
+
+| Field | Default | Meaning |
+|-------|---------|---------|
+| `enabled` | `false` | Must be `true` for LLM calls to fire |
+| `max_candidates` | `20` | Max candidates the LLM reviews per cycle |
+| `max_tokens` | `512` | Token budget per LLM call |
+| `temperature` | `0.2` | Generation temperature |
+| `timeout_seconds` | `30.0` | Per-call HTTP timeout |
+| `diversity_mode` | `balanced` | `explore` / `balanced` / `exploit` |
+| `max_families` | `6` | Cap on chemical families in brainstorm |
+| `family_bias_strength` | `0.5` | 0–1; weight of prior productive families |
 
 Run a DES search with LLM support:
 
@@ -654,7 +698,47 @@ See:
 - [examples/plain_language_gemma4_12b/](../examples/plain_language_gemma4_12b)
 - [examples/plain_language_metal_binding_gemma4_12b/](../examples/plain_language_metal_binding_gemma4_12b)
 
-## 12. Metal-Binding Workflow
+## 12. REST API Server
+
+A thin FastAPI wrapper (`des_multi_agent/server.py`) exposes DES screening and metal-binding as HTTP endpoints. Start it with:
+
+```bash
+python -m des_multi_agent.server                        # default: http://0.0.0.0:8000
+python -m des_multi_agent.server --host 127.0.0.1 --port 9000
+```
+
+Endpoints:
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/health` | Liveness check — returns `{"status": "ok"}` |
+| `POST` | `/search` | DES screening (wraps `run_search_report`) |
+| `POST` | `/metal-binding` | Metal-ion binding prediction (wraps `run_metal_binding_workflow`) |
+
+Example DES search via curl:
+
+```bash
+curl -s http://localhost:8000/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "component_a": "CCO",
+    "n": 10,
+    "checkpoint_path": "ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt",
+    "config_path": "ml_des_mp/config.yaml"
+  }'
+```
+
+The server is also importable for embedding in notebooks or other services:
+
+```python
+from des_multi_agent.server import app
+import uvicorn
+uvicorn.run(app, host="127.0.0.1", port=8000)
+```
+
+Interactive API docs (Swagger UI) are available at `http://localhost:8000/docs` when the server is running.
+
+## 13. Metal-Binding Workflow
 
 Predict a stability constant for one metal-ligand pair:
 
@@ -692,7 +776,7 @@ its prompt, grounding its coordination claims in the actual species.
 
 See [examples/metal_binding/](../examples/metal_binding) and [examples/ligand_binding_template/](../examples/ligand_binding_template).
 
-## 13. Metal Selectivity
+## 14. Metal Selectivity
 
 Use `metal-selectivity` to rank ligands by target-metal affinity and selectivity over a competitor:
 
@@ -721,7 +805,7 @@ python -m des_multi_agent.cli supported-metals
 
 See [examples/metal_selectivity_standalone/](../examples/metal_selectivity_standalone) and [examples/ni2_co2_selectivity/](../examples/ni2_co2_selectivity).
 
-## 14. Selectivity-DES Pipeline
+## 15. Selectivity-DES Pipeline
 
 Use `selectivity-des` when you want a two-phase loop:
 
@@ -767,7 +851,7 @@ See:
 - [examples/ni_co_selectivity_des_nemotron/](../examples/ni_co_selectivity_des_nemotron)
 - [examples/ni_co_selectivity_des_qwen36/](../examples/ni_co_selectivity_des_qwen36)
 
-## 15. Choosing An Example Folder
+## 16. Choosing An Example Folder
 
 Use this table when starting new work:
 
@@ -798,7 +882,7 @@ Use this table when starting new work:
 
 The examples also feed the benchmark tests, so treat them as runnable documentation.
 
-## 16. Troubleshooting
+## 17. Troubleshooting
 
 ### Missing Checkpoint
 
@@ -883,11 +967,13 @@ python -m ml_des_mp.build_mp_dataset   # merge Bradley open MP data + DES compon
 python -m ml_des_mp.train_mp_qspr      # train the deep ensemble (~1 min on GPU)
 ```
 
+When QSPR is enabled, set `DES_MP_DEVICE=cuda` to run the QSPR model on GPU (it defaults to `cpu`, independent of `--ml-device` which controls the DES ChemBERTa stage).
+
 ### Third-Party Warnings
 
 The test suite may show deprecation warnings from `torch_geometric`, `torch.jit`, or FastAPI/Starlette test utilities. These warnings are external library warnings unless a test fails.
 
-## 17. Testing And Benchmarking
+## 18. Testing And Benchmarking
 
 Run the full suite:
 
@@ -915,7 +1001,7 @@ python -m pytest tests/test_selectivity_des_pipeline.py -q
 
 If you intentionally refresh example output, update the matching frozen baseline and run the benchmark test before committing.
 
-## 18. Recommended Workflow For New Users
+## 19. Recommended Workflow For New Users
 
 1. Run `python -m des_multi_agent.cli doctor`.
 2. Run `./scripts/demo-mock.sh`.
