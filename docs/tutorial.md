@@ -906,9 +906,9 @@ outcome = run_search_report(
     config_path="ml_des_mp/config.yaml",
     output_dir="runs/run_001",          # optional: writes report.txt / run.json / run.csv
 )
-# outcome.report     — formatted text report
-# outcome.results    — list of ranked candidate dicts
-# outcome.warnings   — list of warning strings
+# outcome.report_text  — formatted text report
+# outcome.results      — list of DesResult (ranked candidates)
+# outcome.llm_warnings — list of warning strings
 ```
 
 ### Metal-Binding Prediction
@@ -938,8 +938,8 @@ outcome = run_metal_selectivity_screen(
     n_cycles=3,
     binding_pH=7.0,
 )
-# outcome.ranked_ligands  — list of SelectivityResult
-# outcome.trajectory      — SearchTrajectory | None
+# outcome.results    — list of SelectivityResult (ranked)
+# outcome.trajectory — SearchTrajectory | None
 ```
 
 ### Selectivity-DES Pipeline
@@ -958,8 +958,8 @@ outcome = run_selectivity_des_pipeline(
     n_outer_cycles=2,
     stability_model_path="artifacts/stability_constants/model.json",
 )
-# outcome.selectivity_results  — Phase 1 ligand rankings
-# outcome.des_results          — Phase 2 DES partner results per ligand
+# outcome.selectivity_outcome   — SelectivityScreenOutcome (Phase 1 rankings)
+# outcome.ligand_des_results    — list of LigandDesResult (Phase 2, one per top ligand)
 ```
 
 ### Multi-Cycle DES Screening
