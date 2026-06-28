@@ -28,6 +28,14 @@ If you want extra setup checks such as `doctor --check config`, add `--check` fo
 python -m des_multi_agent.cli doctor --check checkpoint --check discovery --check artifacts --check config
 ```
 
+Save the three most-repeated flags as persistent defaults so you don't have to type them on every run:
+
+```bash
+python -m des_multi_agent.cli config set checkpoint_path=ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt
+python -m des_multi_agent.cli config set config_path=ml_des_mp/config.yaml
+python -m des_multi_agent.cli config set llm_config=llm.example.yaml   # optional, for LLM mode
+```
+
 Start with the short tutorial in [`docs/tutorial.md`](/home/qshao/DES-Agent/docs/tutorial.md).
 The quickest launch point is [`examples/README.md`](/home/qshao/DES-Agent/examples/README.md).
 

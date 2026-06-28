@@ -74,6 +74,18 @@ python -m des_multi_agent.cli supported-metals
 
 Unsupported ions can still run in the fallback feature path, but selectivity between two unsupported ions is less meaningful.
 
+### Persistent User Config
+
+To avoid repeating `--checkpoint-path`, `--config-path`, and `--llm-config` on every command, save them as persistent defaults:
+
+```bash
+python -m des_multi_agent.cli config set checkpoint_path=ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt
+python -m des_multi_agent.cli config set config_path=ml_des_mp/config.yaml
+python -m des_multi_agent.cli config set llm_config=llm.example.yaml
+```
+
+These three keys (`checkpoint_path`, `config_path`, `llm_config`) are the only accepted keys. Saved values act as defaults for every subsequent run; an explicit flag on the command line always overrides the saved value. The config is stored in `~/.des-agent/config.yaml` by default (override with `DES_AGENT_CONFIG`).
+
 ## 4. First Runs
 
 ### Offline Mock Demo
@@ -175,6 +187,8 @@ A normal DES run needs:
 - `--checkpoint-path` unless checkpoint auto-discovery finds one
 - `--config-path`, normally `ml_des_mp/config.yaml`
 - `--n`, the number of candidate partners to screen
+
+Add `--ml-device cpu` to force CPU inference on machines without a GPU, or `--ml-device cuda` to make the selection explicit. The default is taken from the model config.
 
 Minimal command:
 
@@ -281,6 +295,15 @@ Modes:
 | `report_only` | Show uncertainty but do not alter ranking |
 | `penalize` | Softly lower low-trust candidates |
 | `filter` | Remove candidates below the trust threshold |
+
+The trust score is derived from the ensemble's fold disagreement (standard deviation of predicted Tm across folds, in K). Two thresholds divide the range into high/medium/low confidence bands; adjust them when the defaults are too strict or too loose for your data distribution:
+
+| Flag | Default (K) | Meaning |
+|------|-------------|---------|
+| `--std-medium-threshold-k` | 5.0 | `ens_std` above this → medium confidence |
+| `--std-high-threshold-k` | 15.0 | `ens_std` above this → low confidence |
+
+Candidates with `ens_std` above `--std-high-threshold-k` are flagged as low confidence; those between the two thresholds are medium confidence.
 
 See [examples/uncertainty_controls/](../examples/uncertainty_controls).
 
@@ -467,15 +490,26 @@ See [examples/compare_runs/](../examples/compare_runs) and [examples/leaderboard
 
 ## 10. Optional LLM Workflows
 
-LLM mode is optional. Configure it with `llm.example.yaml`:
+LLM mode is optional. Configure it with an LLM YAML file. `llm.example.yaml` is the ready-to-edit starting point; the repo also ships three model-specific configs you can copy directly:
+
+- `llm.ni_co_selectivity.yaml` — Ollama/Qwen for selectivity-DES
+- `llm.ni_co_qwen36.yaml` — Qwen 3.6 variant
+- `llm.ni_co_nemotron.yaml` — Nemotron 3 Nano variant
+
+All fields in the YAML (all optional except `provider` and `model_name`):
 
 ```yaml
 llm:
-  provider: ollama
-  model_name: gemma4:12b
-  diversity_mode: balanced
-  max_families: 6
-  family_bias_strength: 0.5
+  provider: ollama          # required: "ollama" is the only supported value
+  model_name: gemma4:12b    # required: must match a pulled Ollama model name
+  api_base_url: http://localhost:11434   # Ollama endpoint (default shown)
+  max_candidates: 20        # max candidates the LLM reviews per cycle
+  max_tokens: 1024          # token budget for each LLM call
+  temperature: 0.2          # generation temperature (lower = more deterministic)
+  timeout_seconds: 120.0    # per-call HTTP timeout
+  diversity_mode: balanced  # explore | balanced | exploit (brainstorm breadth)
+  max_families: 6           # cap on chemical families in the brainstorm stage
+  family_bias_strength: 0.5 # 0–1; how strongly prior productive families bias later cycles
 ```
 
 Run a DES search with LLM support:
@@ -739,9 +773,16 @@ Use this table when starting new work:
 
 | Goal | Start here |
 |------|------------|
+| Confirm install works (no checkpoint needed) | [examples/dry_run/](../examples/dry_run) |
+| Screen a curated SMILES list | [examples/candidates_file/](../examples/candidates_file) |
 | Basic offline DES viscosity | [examples/des_viscosity/](../examples/des_viscosity) |
 | Editable viscosity template | [examples/viscosity_template/](../examples/viscosity_template) |
 | Viscosity composite ranking | [examples/viscosity_composite_ranking/](../examples/viscosity_composite_ranking) |
+| Named threshold presets (`strict`/`relaxed`) | [examples/preset_thresholds/](../examples/preset_thresholds) |
+| Fold-ensemble predictions with `ens_std` | [examples/ensemble_prediction/](../examples/ensemble_prediction) |
+| Uncertainty modes (`filter`/`penalize`/`report_only`) | [examples/uncertainty_controls/](../examples/uncertainty_controls) |
+| Machine-readable output (`--format json/csv`) | [examples/output_formats/](../examples/output_formats) |
+| Multi-cycle iterative DES with trajectory | [examples/multi_cycle_des/](../examples/multi_cycle_des) |
 | Plain-language DES with Gemma | [examples/plain_language_gemma4_12b/](../examples/plain_language_gemma4_12b) |
 | Plain-language metal binding | [examples/plain_language_metal_binding_gemma4_12b/](../examples/plain_language_metal_binding_gemma4_12b) |
 | Save-label-reuse feedback | [examples/des_run_memory_feedback/](../examples/des_run_memory_feedback) |
@@ -749,9 +790,11 @@ Use this table when starting new work:
 | Leaderboard/history | [examples/leaderboard_history/](../examples/leaderboard_history) |
 | Metal binding | [examples/metal_binding/](../examples/metal_binding) |
 | Metal selectivity only | [examples/metal_selectivity_standalone/](../examples/metal_selectivity_standalone) |
+| Ni²⁺/Co²⁺ selectivity (offline) | [examples/ni2_co2_selectivity/](../examples/ni2_co2_selectivity) |
 | Selectivity-DES | [examples/ni_co_selectivity_des/](../examples/ni_co_selectivity_des) |
 | Real lidocaine DES run | [examples/lidocaine_gemma4_12b/](../examples/lidocaine_gemma4_12b) |
-| Real betaine DES run | [examples/betaine_des/](../examples/betaine_des) |
+| Real betaine DES run (deterministic) | [examples/betaine_des/](../examples/betaine_des) |
+| Real betaine DES run (Gemma 4-12B) | [examples/betaine_des_gemma4_12b/](../examples/betaine_des_gemma4_12b) |
 
 The examples also feed the benchmark tests, so treat them as runnable documentation.
 
@@ -831,6 +874,14 @@ export DES_DISABLE_QSPR=1
 ```
 
 All deterministic examples in `examples/` already set this variable in their `run.sh` so their outputs reproduce byte-for-byte. LLM-backed examples (e.g. `gemma4_12b/`) predate this feature and do not set it.
+
+To build `qspr_model.pt` locally (requires GPU; see `artifacts/melting_points/README.md` for details):
+
+```bash
+python -m ml_des_mp.build_mp_lookup    # rebuild the experimental lookup table
+python -m ml_des_mp.build_mp_dataset   # merge Bradley open MP data + DES components
+python -m ml_des_mp.train_mp_qspr      # train the deep ensemble (~1 min on GPU)
+```
 
 ### Third-Party Warnings
 
