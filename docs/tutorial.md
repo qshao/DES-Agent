@@ -921,8 +921,9 @@ outcome = run_metal_binding_workflow(
     ligand_smiles="NCCN",
     model_path="artifacts/stability_constants/model.json",
 )
-# outcome.prediction.log_k      — predicted log K
-# outcome.prediction.confidence — confidence label
+# outcome.prediction.value  — predicted log K (float)
+# outcome.prediction.units  — units string (e.g. "log K")
+# outcome.prediction.source — provenance: "lookup" | "heuristic" | "json_model"
 ```
 
 ### Metal-Selectivity Screening
