@@ -71,7 +71,8 @@ def clear_prediction_caches() -> None:
     _MODEL_CACHE.clear()
     _EMBEDDER_CACHE.clear()
     _COMPAT_CACHE.clear()
-    _EMBED_CACHE.clear()
+    with _EMBED_CACHE_LOCK:
+        _EMBED_CACHE.clear()
 
 
 def _resolve_des_device(cfg: Dict[str, Any]) -> str:

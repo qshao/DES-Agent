@@ -40,22 +40,33 @@ def known_inchikeys() -> frozenset[str]:
     to whatever loads.
     """
     keys: set[str] = set()
+    import warnings
     try:
         data = json.loads(_COMMON_NAMES_PATH.read_text(encoding="utf-8"))
         for entry in data.get("entries", []):
             k = _inchikey(entry["smiles"])
             if k is not None:
                 keys.add(k)
-    except Exception:
-        pass
+    except Exception as exc:
+        warnings.warn(
+            f"partner_registry: could not load {_COMMON_NAMES_PATH}: {exc}; "
+            "is_known() will under-report known partners",
+            RuntimeWarning,
+            stacklevel=2,
+        )
     try:
         data = json.loads(_EXPERIMENTAL_PATH.read_text(encoding="utf-8"))
         for record in data.get("entries", {}).values():
             k = _inchikey(record["smiles"])
             if k is not None:
                 keys.add(k)
-    except Exception:
-        pass
+    except Exception as exc:
+        warnings.warn(
+            f"partner_registry: could not load {_EXPERIMENTAL_PATH}: {exc}; "
+            "is_known() will under-report known partners",
+            RuntimeWarning,
+            stacklevel=2,
+        )
     return frozenset(keys)
 
 

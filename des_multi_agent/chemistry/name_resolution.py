@@ -29,7 +29,10 @@ def _build_index() -> tuple[dict[str, str], list[dict]]:
     return index, entries
 
 
-_NAME_INDEX, _ENTRIES = _build_index()
+try:
+    _NAME_INDEX, _ENTRIES = _build_index()
+except Exception:
+    _NAME_INDEX, _ENTRIES = {}, []
 
 
 def resolve_name(text: str) -> str | None:

@@ -51,13 +51,18 @@ def _normalise_metal(symbol: str) -> str | None:
 # SMARTS family table
 # ---------------------------------------------------------------------------
 
-# Each entry: smarts_pattern, minimum_match_count
+# Each entry: (compiled SMARTS mol, minimum_match_count)
+# Pre-compiled at module load to avoid recompilation on every structural_facts/ground_family call.
 _FAMILY_SMARTS: dict[str, tuple[str, int]] = {
     "polyol":          ("[OX2H]", 2),      # ≥2 hydroxyl groups
     "amide":           ("C(=O)N", 1),
     "carboxylic acid": ("C(=O)[OH]", 1),
     "amine":           ("[NX3;H1,H2]", 1),
     "phenol":          ("c[OH]", 1),
+}
+_FAMILY_PATTERNS: dict[str, tuple[object, int]] = {
+    tag: (Chem.MolFromSmarts(smarts), min_count)
+    for tag, (smarts, min_count) in _FAMILY_SMARTS.items()
 }
 
 # ---------------------------------------------------------------------------
@@ -129,8 +134,7 @@ def structural_facts(smiles: str, pH: float | None = None) -> StructuralFacts:
         mol = Chem.MolFromSmiles(smiles)
         features: list[str] = []
         if mol is not None:
-            for tag, (smarts, min_count) in _FAMILY_SMARTS.items():
-                patt = Chem.MolFromSmarts(smarts)
+            for tag, (patt, min_count) in _FAMILY_PATTERNS.items():
                 if patt is not None:
                     matches = mol.GetSubstructMatches(patt)
                     if len(matches) >= min_count:
@@ -275,19 +279,27 @@ def ground_coordination(
     the result to a :class:`GroundingVerdict`. When *pH* is provided, the claim
     is verified against the dominant ionized species at that pH.
     """
-    target_smiles = smiles
-    if pH is not None:
-        target_smiles = dominant_species(smiles, pH).species_smiles
-    cv = verify_coordination_claim(target_smiles, claim_text)
-    status = _COORD_VERDICT_MAP.get(cv.verdict, "unverifiable")
-    penalty = 0.25 if status == "contradicted" else 0.0
-    detail = "; ".join(cv.notes) if cv.notes else cv.verdict
-    return GroundingVerdict(
-        claim=claim_text,
-        status=status,
-        detail=detail,
-        penalty=penalty,
-    )
+    try:
+        target_smiles = smiles
+        if pH is not None:
+            target_smiles = dominant_species(smiles, pH).species_smiles
+        cv = verify_coordination_claim(target_smiles, claim_text)
+        status = _COORD_VERDICT_MAP.get(cv.verdict, "unverifiable")
+        penalty = 0.25 if status == "contradicted" else 0.0
+        detail = "; ".join(cv.notes) if cv.notes else cv.verdict
+        return GroundingVerdict(
+            claim=claim_text,
+            status=status,
+            detail=detail,
+            penalty=penalty,
+        )
+    except Exception as exc:
+        return GroundingVerdict(
+            claim=claim_text,
+            status="unverifiable",
+            detail=f"coordination grounding failed: {exc}",
+            penalty=0.0,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -379,7 +391,7 @@ def ground_family(smiles: str, family_label: str) -> GroundingVerdict:
     key = family_label.lower().strip()
     claim = f"{smiles} is a {family_label}"
 
-    if key not in _FAMILY_SMARTS:
+    if key not in _FAMILY_PATTERNS:
         return GroundingVerdict(
             claim=claim,
             status="unverifiable",
@@ -396,8 +408,8 @@ def ground_family(smiles: str, family_label: str) -> GroundingVerdict:
             penalty=0.0,
         )
 
-    smarts, min_count = _FAMILY_SMARTS[key]
-    patt = Chem.MolFromSmarts(smarts)
+    patt, min_count = _FAMILY_PATTERNS[key]
+    smarts = _FAMILY_SMARTS[key][0]
     actual_count = len(mol.GetSubstructMatches(patt)) if patt is not None else 0
     detail = f"found {actual_count} match(es) of '{smarts}'; need ≥{min_count}"
 

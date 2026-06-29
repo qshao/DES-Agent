@@ -556,8 +556,6 @@ def run_search_report(
                     family_ledger=prior_family_ledger,
                     diversity_mode=getattr(provider, "diversity_mode", "balanced"),
                 )
-            brainstorm_context = _append_pattern_memory_context(brainstorm_context, active_pattern_memory)
-            brainstorm_context = _append_chemistry_lesson_context(brainstorm_context, prior_chemistry_lesson_summary)
             llm_candidates = provider.brainstorm_candidates(
                 component_a,
                 None,

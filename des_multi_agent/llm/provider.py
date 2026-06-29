@@ -53,7 +53,7 @@ class LLMProvider(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def detect_contradictions(self, results: list[DesResult], context: str) -> list[ContradictionNote]:
+    def detect_contradictions(self, results: list[DesResult], context: str, facts_block: str = "") -> list[ContradictionNote]:
         raise NotImplementedError
 
     @abstractmethod

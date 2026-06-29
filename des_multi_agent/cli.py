@@ -681,6 +681,7 @@ def main(argv=None):
                     llm_warnings=outcome.llm_warnings,
                     memory_notes=getattr(outcome, "memory_notes", None),
                     viscosity_predictions=getattr(outcome, "viscosity_predictions", None),
+                    claim_verdicts=getattr(outcome, "claim_verdicts", None),
                 )
             )
         _print_summary("des", outcome)

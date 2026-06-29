@@ -110,6 +110,11 @@ def _complementarity(profile_a: HBondProfile, profile_b: HBondProfile) -> float:
     else:
         reverse = min(hbd_b, hba_a) / max(hbd_b, hba_a, 1)
 
+    # Pure asymmetric pair (A=HBD only, B=HBA only, or vice versa): the reverse
+    # guard above set the non-applicable direction to 0.0, so averaging would
+    # halve a perfect forward score. Return the dominant direction directly.
+    if forward == 0.0 or reverse == 0.0:
+        return max(forward, reverse)
     return (forward + reverse) / 2.0
 
 
