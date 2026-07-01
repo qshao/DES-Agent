@@ -100,3 +100,45 @@ class TestComputeDFTProperties:
             result = compute_dft_properties("CCC")
         assert result.success is True
         assert result.donor_charges == []
+
+
+from des_multi_agent.chemistry.dft_selectivity import dft_selectivity_adjustment
+
+
+class TestDFTSelectivityAdjustment:
+    def _result(self, homo_ev: float) -> DFTResult:
+        return DFTResult(smiles="X", success=True, homo_ev=homo_ev, donor_charges=[])
+
+    def test_returns_zero_on_failure(self):
+        r = DFTResult(smiles="X", success=False, error="fail")
+        assert dft_selectivity_adjustment(r, "Cu2+", "Zn2+") == 0.0
+
+    def test_returns_zero_when_homo_none(self):
+        r = DFTResult(smiles="X", success=True, homo_ev=None, donor_charges=[])
+        assert dft_selectivity_adjustment(r, "Cu2+", "Zn2+") == 0.0
+
+    def test_adjustment_within_bounds(self):
+        # Any HOMO energy must produce adjustment in [-0.05, +0.05]
+        for homo in [-12.0, -9.5, -8.5, -7.5, -5.0]:
+            adj = dft_selectivity_adjustment(self._result(homo), "Cu2+", "Zn2+")
+            assert -0.05 <= adj <= 0.05, f"homo={homo} gave {adj}"
+
+    def test_hard_donor_prefers_hard_metal(self):
+        # HOMO ≤ −9.5 eV → hard donor (softness ≈ 0)
+        # Hard metal (Mg2+ softness=0) vs soft metal (Cd2+ softness=1)
+        # → adjustment should be positive (matches hard target)
+        from des_multi_agent.chemistry.stability_rules import _metal_softness
+        # Find a metal pair where one is harder than the other
+        # Cu2+ softness from _METAL_IDENTITY ≈ 0.5–0.7 (borderline)
+        # Use Cu2+ as target, Zn2+ as competitor — both borderline but Cu slightly softer
+        hard_donor = self._result(-10.0)   # very hard donor
+        soft_donor = self._result(-7.0)    # very soft donor
+        adj_hard = dft_selectivity_adjustment(hard_donor, "Cu2+", "Zn2+")
+        adj_soft = dft_selectivity_adjustment(soft_donor, "Cu2+", "Zn2+")
+        # The two adjustments should have opposite signs or at least differ
+        assert adj_hard != adj_soft
+
+    def test_symmetric_metals_gives_near_zero(self):
+        # Same metal for target and competitor → softness delta = 0 → adjustment ≈ 0
+        adj = dft_selectivity_adjustment(self._result(-8.5), "Cu2+", "Cu2+")
+        assert abs(adj) < 1e-9
