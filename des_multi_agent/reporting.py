@@ -474,7 +474,8 @@ def format_selectivity_des_report(outcome: "SelectivityDesPipelineOutcome") -> s
     """Render a two-section selectivity-DES pipeline report."""
     n_compatible = sum(1 for r in outcome.ligand_des_results if r.des_compatible)
     header = [
-        f"=== Selectivity-DES Pipeline: {outcome.target_metal} over {outcome.competitor_metal} ===",
+        f"=== Selectivity-DES Pipeline: {outcome.target_metal} over "
+        f"{', '.join(outcome.competitor_metals)} ===",
         f"Outer cycles run: {outcome.n_outer_cycles_run} | Converged: {'yes' if outcome.converged else 'no'}",
         f"Shortlisted ligands: {len(outcome.ligand_des_results)} | DES-compatible: {n_compatible}",
         "=" * 52,

@@ -135,7 +135,7 @@ def test_pipeline_returns_outcome_with_correct_shape(mock_sel, mock_des):
         top_ligands=2,
     )
     assert outcome.target_metal == "Cu2+"
-    assert outcome.competitor_metal == "Zn2+"
+    assert outcome.competitor_metals == ["Zn2+"]
     assert len(outcome.ligand_des_results) == 2
     assert outcome.n_outer_cycles_run == 1
     assert not outcome.converged
@@ -240,7 +240,7 @@ def _make_pipeline_outcome(des_compatible: bool = True) -> SelectivityDesPipelin
     sel_out = _sel_outcome(["NCC(=O)O", "NCCN"])
     return SelectivityDesPipelineOutcome(
         target_metal="Cu2+",
-        competitor_metal="Zn2+",
+        competitor_metals=["Zn2+"],
         selectivity_outcome=sel_out,
         ligand_des_results=[ldr],
         n_outer_cycles_run=2,
@@ -290,7 +290,7 @@ def test_report_section_2_shows_no_partners_when_incompatible():
 def test_report_pipeline_outcome_none_selectivity_does_not_crash():
     outcome = SelectivityDesPipelineOutcome(
         target_metal="Cu2+",
-        competitor_metal="Zn2+",
+        competitor_metals=["Zn2+"],
         selectivity_outcome=None,
         ligand_des_results=[],
         n_outer_cycles_run=0,
@@ -429,3 +429,31 @@ def test_pipeline_phase2_prints_per_ligand_progress(capsys):
     err = capsys.readouterr().err
     assert "ligand 1/2" in err
     assert "ligand 2/2" in err
+
+
+def test_run_selectivity_des_pipeline_accepts_list_competitor(monkeypatch):
+    import des_multi_agent.workflows.selectivity_des_pipeline as pipe
+
+    captured = {}
+
+    def _fake_screen(**kwargs):
+        captured["competitor_metal"] = kwargs["competitor_metal"]
+        return SelectivityScreenOutcome(
+            target_metal=kwargs["target_metal"],
+            competitor_metals=["Zn2+", "Fe3+"],
+            results=[],
+            n_screened=0,
+            n_cycles=1,
+        )
+
+    monkeypatch.setattr(pipe, "run_metal_selectivity_screen", _fake_screen)
+
+    outcome = pipe.run_selectivity_des_pipeline(
+        target_metal="Cu2+",
+        competitor_metal=["Zn2+", "Fe3+"],
+        checkpoint_path="ckpt.pt",
+        n_outer_cycles=1,
+    )
+
+    assert captured["competitor_metal"] == ["Zn2+", "Fe3+"]
+    assert outcome.competitor_metals == ["Zn2+", "Fe3+"]
