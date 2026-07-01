@@ -22,3 +22,25 @@ Workflow-agnostic readable-trajectory layer. `TopEntry` / `CycleSnapshot` / `Sea
 
 **`des_multi_agent/server.py`**
 Thin FastAPI REST wrapper. Exposes three endpoints: `GET /health` (liveness), `POST /search` (DES screening via `run_search_report`), `POST /metal-binding` (stability-constant prediction via `run_metal_binding_workflow`). Start with `python -m des_multi_agent.server [--host HOST] [--port PORT]`; importable as `from des_multi_agent.server import app` for embedding in notebooks or other services. Swagger UI at `/docs`.
+
+## Chemical-Awareness Layer (2026-07)
+
+Six features that accumulate domain knowledge within and across iterative screening runs, making each subsequent cycle and run chemically smarter.
+
+**H-bond complementarity ranking (`orchestrator.py` → `chemistry/hbond.py`)**
+After ML predictions and uncertainty annotation, `_apply_hbond_bias` calls `rank_by_hbond(component_a, candidates)` and applies a ±0.10 ranking adjustment proportional to `(composite_score − 0.5) × 0.20`. Well-matched H-bond partners rise; mismatched ones fall. The bias is deterministic and LLM-agnostic.
+
+**Near-miss analogue expansion (`orchestrator.py`, `workflows/metal_binding_screen.py`)**
+`_generate_analogue_candidates` now expands not only confirmed hits but also near-misses — candidates whose score falls within a window of the DES/binding threshold (default 15 K for DES, 0.5 log-units for metal binding). Near-miss analogues are tagged `source="near_miss_analogue"` and rationale notes the distance to threshold. These probe the productive chemical neighbourhood more precisely than pure heuristic brainstorming.
+
+**UCB1 family scoring (`multi_cycle.py`, `workflows/metal_binding_screen.py`)**
+`_family_ucb_scores(hits, fails, C=1.4)` computes a UCB1 score per family: `hit_rate + C × √(log(N_total) / n_family_trials)`. Families are saturated when UCB < 0.5 with ≥5 trials — much less aggressive than the previous fixed hit-rate threshold. The LLM brainstorm context now receives a ranked UCB table ("worth exploring further" vs. "depleted") instead of a flat saturation list.
+
+**Adaptive transform selection (`analogue_expansion.py`, `multi_cycle.py`, `workflows/metal_binding_screen.py`)**
+`generate_analogues_tagged(smiles, max_n, transform_weights)` returns `(smiles, transform_name)` pairs and re-orders transforms by descending weight. Cross-cycle tracking accumulates per-transform hit/fail counts; a Laplace-smoothed hit rate (`(h+1)/(h+f+2)`) is computed at the start of each cycle and passed as `transform_weights`. Transforms that historically produce hits are applied first.
+
+**Functional-group frequency SAR (`multi_cycle.py`, `orchestrator.py`)**
+`StructuralFacts.family_features` tags (e.g. `polyol`, `amide`, `carboxylic_acid`) are accumulated as hit-weighted and fail-weighted counters (`fg_hit_counts`, `fg_fail_counts`) across cycles. Tags with ≥2 trials are ranked by hit rate and injected into the brainstorm context as "prefer" and "avoid" sub-family SAR signals, providing finer-grained guidance than family-level labels alone.
+
+**Cross-run persistence (`memory_schema.py`, `run_memory.py`, `multi_cycle.py`)**
+`RunMemory` carries six new optional fields: `accumulated_family_scores`, `accumulated_family_hit_counts`, `accumulated_family_fail_counts`, `scaffold_counts`, `fg_hit_counts`, `fg_fail_counts`. `MultiCycleOutcome` exposes all five accumulated dicts so callers can serialize them. `build_run_memory` accepts them as keyword arguments; `parse_run_memory` restores them on load. `build_chemistry_advisor_memory_notes` surfaces the top productive families and FG SAR as narrative notes read by the next run's LLM context.

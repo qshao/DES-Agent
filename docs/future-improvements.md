@@ -31,6 +31,14 @@ This document tracks the next useful extensions for DES-Agent after the current 
 9. Readable iteration trajectories
    - All three iterative workflows (DES multi-cycle, metal-selectivity, selectivity-DES pipeline) now capture per-cycle snapshots (shortlist, entrants/dropouts, family ledger, convergence reason) and attach them as a `SearchTrajectory` to their outcome. The CLI prints a compact per-cycle trace to stderr and writes a full `trajectory.md` Markdown artifact to `--output-dir` when set. Capture is best-effort and never affects search results.
 
+10. Chemical-awareness layer — iterative efficiency and accumulated knowledge
+    - **H-bond complementarity ranking**: `rank_by_hbond` applies a ±0.10 post-prediction ranking adjustment based on DES H-bond complementarity with component A. Deterministic and LLM-agnostic.
+    - **Near-miss analogue expansion**: structural analogues are generated not only from confirmed hits but also from candidates just below the DES/binding threshold, targeting the productive chemical boundary.
+    - **UCB1 family scoring**: replaces binary saturation (fixed hit-rate threshold) with a UCB1 exploration score per family. The LLM context now receives families ranked by exploration value rather than a flat saturation list.
+    - **Adaptive transform selection**: per-transform hit/fail counts are tracked cross-cycle; Laplace-smoothed hit rates bias the RDKit reaction transform order so historically productive transforms are applied first.
+    - **Functional-group SAR tracking**: `StructuralFacts.family_features` tags are accumulated as hit/fail counters and injected into brainstorm prompts as sub-family SAR ("prefer polyol, avoid ester").
+    - **Cross-run persistence**: accumulated family scores, scaffold counts, and FG SAR are serialised into `RunMemory` and surfaced as memory notes at the start of the next run on the same `component_a`.
+
 ## Next Up
 
 1. Metal-ligand brainstorm anchoring
@@ -47,3 +55,9 @@ This document tracks the next useful extensions for DES-Agent after the current 
 
 5. `total_cycles` accuracy under best-effort capture failure (metal workflows)
    - In `metal_binding_selectivity.py` and `selectivity_des_pipeline.py`, `SearchTrajectory.total_cycles` counts successful snapshots rather than cycles actually run. If a snapshot build fails (rare), the header line under-reports. Fix: track a separate `cycles_run` counter in those two workflows.
+
+6. Pharmacophore-based candidate clustering
+   - Replace Murcko scaffold (topology-only) with pharmacophore feature clustering (HBD/HBA positions, aromaticity, charge). More meaningful for DES since two different scaffolds with matching H-bond geometry can both form eutectics. Requires new 3D-feature infrastructure.
+
+7. Tanimoto diversity penalty for evaluated failures
+   - Compute Morgan fingerprint similarity of new proposals to already-evaluated failures and apply a small deprioritization penalty to proposals that are too structurally similar to known-bad candidates. The `prior_evaluated_smiles` set is already passed; fingerprint coverage tracking is the remaining addition.
