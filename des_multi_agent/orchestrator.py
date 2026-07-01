@@ -785,7 +785,7 @@ def run_search_report(
         # plausibility "contradicted" already recorded for the same molecule, so
         # suppress that verdict and warning (the penalty is unchanged via max()).
         for verdict in reality_verdicts:
-            smi = verdict.claim.split("partner reality: ", 1)[-1]
+            smi = verdict.candidate_smiles or verdict.claim.split("partner reality: ", 1)[-1]
             if verdict.disposition == "demote" and smi in plausibility_contradicted:
                 continue
             claim_verdicts.append(verdict)

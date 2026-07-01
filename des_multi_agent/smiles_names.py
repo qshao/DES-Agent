@@ -106,8 +106,8 @@ def _build_canonical_dict() -> dict[str, str]:
 
 _CANONICAL_TO_NAME: dict[str, str] = _build_canonical_dict()
 
-# In-process cache for PubChem results
 _PUBCHEM_CACHE: dict[str, str | None] = {}
+_PUBCHEM_CACHE_MAXSIZE = 512
 
 
 def _canonicalize(smiles: str) -> str | None:
@@ -152,6 +152,8 @@ def resolve_name(smiles: str, *, pubchem: bool = False) -> str | None:
     if canonical in _PUBCHEM_CACHE:
         return _PUBCHEM_CACHE[canonical]
     fetched = _pubchem_lookup(canonical)
+    if len(_PUBCHEM_CACHE) >= _PUBCHEM_CACHE_MAXSIZE:
+        _PUBCHEM_CACHE.pop(next(iter(_PUBCHEM_CACHE)))
     _PUBCHEM_CACHE[canonical] = fetched
     return fetched
 

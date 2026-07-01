@@ -63,15 +63,16 @@ def _bradley_rows(xlsx_path: Path):
 
 
 def _des_rows(csv_path: Path):
-    for r in csv.DictReader(open(csv_path, encoding="utf-8")):
-        for s_col, t_col in (("Smiles#1", "T#1"), ("Smiles#2", "T#2")):
-            sm, tv = (r.get(s_col) or "").strip(), (r.get(t_col) or "").strip()
-            if not sm or not tv:
-                continue
-            try:
-                yield sm, float(tv)
-            except ValueError:
-                continue
+    with open(csv_path, encoding="utf-8") as f:
+        for r in csv.DictReader(f):
+            for s_col, t_col in (("Smiles#1", "T#1"), ("Smiles#2", "T#2")):
+                sm, tv = (r.get(s_col) or "").strip(), (r.get(t_col) or "").strip()
+                if not sm or not tv:
+                    continue
+                try:
+                    yield sm, float(tv)
+                except ValueError:
+                    continue
 
 
 def build(out_path: Path, des_csv: Path, cache: Path) -> dict:

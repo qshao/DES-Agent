@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import os
 import random
+import sys
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -18,8 +20,13 @@ def set_seed(seed: int) -> None:
 
 
 def get_device(device_str: str) -> torch.device:
-    if device_str.lower().startswith("cuda") and torch.cuda.is_available():
-        return torch.device("cuda")
+    if device_str.lower().startswith("cuda"):
+        if torch.cuda.is_available():
+            return torch.device("cuda")
+        print(
+            f"[WARNING] CUDA requested ({device_str!r}) but not available; falling back to CPU.",
+            file=sys.stderr, flush=True,
+        )
     return torch.device("cpu")
 
 

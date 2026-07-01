@@ -91,6 +91,8 @@ def _build_embedder(model_name: str, max_length: int, device: torch.device, cach
 
 
 def load_qspr_model(path: str | Path = QSPR_MODEL_PATH, device: str = "cpu") -> MeltingPointQSPR | None:
+    import warnings as _warnings
+
     path = Path(path)
     if not path.exists():
         return None
@@ -120,5 +122,11 @@ def load_qspr_model(path: str | Path = QSPR_MODEL_PATH, device: str = "cpu") -> 
             std_scale_k=calib.get("std_scale_k"),
             conformal_q=calib.get("conformal_q"),
         )
-    except Exception:
+    except Exception as exc:
+        _warnings.warn(
+            f"QSPR checkpoint at {path} exists but failed to load ({exc}); "
+            "falling back to heuristic melting-point estimation.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
         return None

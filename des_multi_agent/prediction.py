@@ -61,18 +61,30 @@ _COMPAT_CACHE: dict[str, list[str]] = {}
 _EMBED_CACHE: dict[tuple[str, str, str], Any] = {}
 _EMBED_CACHE_MAXSIZE = 8192
 _EMBED_CACHE_LOCK = threading.Lock()
+_CONFIG_CACHE: dict[str, Any] = {}
 
 
 def clear_prediction_caches() -> None:
-    """Drop all cached models, embedders, compat checks, and embeddings.
+    """Drop all cached models, embedders, compat checks, embeddings, and configs.
 
     Mainly useful in tests and when switching checkpoints/configs mid-process.
     """
     _MODEL_CACHE.clear()
     _EMBEDDER_CACHE.clear()
     _COMPAT_CACHE.clear()
+    _CONFIG_CACHE.clear()
     with _EMBED_CACHE_LOCK:
         _EMBED_CACHE.clear()
+
+
+def _load_config(config_path: Path) -> Dict[str, Any]:
+    key = str(config_path)
+    cfg = _CONFIG_CACHE.get(key)
+    if cfg is None:
+        with open(config_path, "r", encoding="utf-8") as f:
+            cfg = yaml.safe_load(f)
+        _CONFIG_CACHE[key] = cfg
+    return cfg
 
 
 def _resolve_des_device(cfg: Dict[str, Any]) -> str:
@@ -293,8 +305,7 @@ def predict_curve(
 ) -> CurvePrediction:
     config_path = resolve_existing_path(config_path)
     checkpoint_path = resolve_existing_path(checkpoint_path, base_dir=config_path.parent)
-    with open(config_path, "r", encoding="utf-8") as f:
-        cfg = yaml.safe_load(f)
+    cfg = _load_config(config_path)
     for warn in _cached_compat(checkpoint_path, cfg):
         print(f"[WARNING] {warn}", file=sys.stderr, flush=True)
     device = get_device(_resolve_des_device(cfg))

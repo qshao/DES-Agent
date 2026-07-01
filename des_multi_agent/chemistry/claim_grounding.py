@@ -214,6 +214,7 @@ class PartnerVerdict:
     detail: str
     penalty: float
     disposition: str
+    candidate_smiles: str = ""   # the SMILES this verdict is about
 
     def __post_init__(self) -> None:
         if self.disposition == "keep":
@@ -239,21 +240,21 @@ def ground_partner_reality(component_a: str, candidate_smiles: str) -> PartnerVe
     claim = f"partner reality: {candidate_smiles}"
     try:
         if Chem.MolFromSmiles(candidate_smiles) is None:
-            return PartnerVerdict(claim, "novel_implausible", "invalid SMILES", 0.0, "drop")
+            return PartnerVerdict(claim, "novel_implausible", "invalid SMILES", 0.0, "drop", candidate_smiles)
         if is_known(candidate_smiles):
-            return PartnerVerdict(claim, "known", "known/attested compound", 0.0, "keep")
+            return PartnerVerdict(claim, "known", "known/attested compound", 0.0, "keep", candidate_smiles)
         ok, reason = structural_sanity(candidate_smiles)
         if not ok:
-            return PartnerVerdict(claim, "novel_implausible", reason, 0.0, "drop")
+            return PartnerVerdict(claim, "novel_implausible", reason, 0.0, "drop", candidate_smiles)
         label = des_hbond_complementarity(component_a, candidate_smiles).label
         if label == "none":
             return PartnerVerdict(
                 claim, "novel_implausible",
-                "no H-bond complementarity with component A", 0.25, "demote",
+                "no H-bond complementarity with component A", 0.25, "demote", candidate_smiles,
             )
-        return PartnerVerdict(claim, "novel_plausible", f"novel; complementarity={label}", 0.0, "keep")
+        return PartnerVerdict(claim, "novel_plausible", f"novel; complementarity={label}", 0.0, "keep", candidate_smiles)
     except Exception:
-        return PartnerVerdict(claim, "novel_plausible", "reality check skipped (internal error)", 0.0, "keep")
+        return PartnerVerdict(claim, "novel_plausible", "reality check skipped (internal error)", 0.0, "keep", candidate_smiles)
 
 
 # ---------------------------------------------------------------------------
