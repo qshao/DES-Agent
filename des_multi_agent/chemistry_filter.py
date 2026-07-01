@@ -4,11 +4,31 @@ from dataclasses import dataclass
 from typing import Iterable, Sequence
 
 from rdkit import Chem
+from rdkit.Chem import rdMolDescriptors
 
 from .schemas import CandidateProposal
 
 
 _ALLOWED_ATOMS = {1, 6, 7, 8, 9, 15, 16, 17, 35, 53}
+
+# Precompiled SMARTS for reactive/unstable groups and toxicophores.
+# Molecules matching any of these are rejected as DES component candidates.
+_VIABILITY_SMARTS: list[tuple[str, str]] = [
+    ("[OX2][OX2]",                 "peroxide bond"),
+    ("[N]=[N+]=[N-]",              "organic azide"),
+    ("[c,C][N+]#N",                "diazonium salt"),
+    ("C(=[OX1])[F,Cl,Br,I]",      "acyl halide"),
+    ("[SX4](=[OX1])(=[OX1])[Cl]", "sulfonyl chloride"),
+    ("[N+](=O)[O-]",               "nitro group"),
+]
+_VIABILITY_PATTERNS: list[tuple[object, str]] = [
+    (Chem.MolFromSmarts(smarts), name)
+    for smarts, name in _VIABILITY_SMARTS
+]
+
+# Synthesizability thresholds for DES components.
+_MAX_RINGS = 4
+_MAX_STEREOCENTERS = 3
 
 
 @dataclass(frozen=True)
@@ -34,6 +54,32 @@ def _is_chemically_plausible(smiles: str) -> bool:
     return True
 
 
+def viability_check(mol: Chem.Mol) -> tuple[bool, str]:
+    """Check that a molecule is stable, non-toxic, and synthesizable as a DES component.
+
+    Rejects reactive/unstable groups (peroxides, azides, diazonium, acyl halides,
+    sulfonyl chlorides, nitro groups) and structures too complex to synthesize
+    (ring count > _MAX_RINGS or stereocenters > _MAX_STEREOCENTERS).
+
+    Returns (ok, reason). Never raises; on any internal error returns (True, "").
+    """
+    try:
+        for patt, name in _VIABILITY_PATTERNS:
+            if patt is None:
+                continue
+            if mol.HasSubstructMatch(patt):
+                return False, f"contains {name}"
+        n_rings = rdMolDescriptors.CalcNumRings(mol)
+        if n_rings > _MAX_RINGS:
+            return False, f"too complex ({n_rings} rings; DES max {_MAX_RINGS})"
+        stereo = Chem.FindMolChiralCenters(mol, includeUnassigned=True)
+        if len(stereo) > _MAX_STEREOCENTERS:
+            return False, f"too many stereocenters ({len(stereo)}; DES max {_MAX_STEREOCENTERS})"
+    except Exception:
+        pass
+    return True, ""
+
+
 def filter_candidates(component_a: str, candidates: Iterable[CandidateProposal]):
     mol_a = Chem.MolFromSmiles(component_a)
     if mol_a is None:
@@ -47,6 +93,9 @@ def filter_candidates(component_a: str, candidates: Iterable[CandidateProposal])
         if mol is None:
             continue
         if any(atom.GetAtomicNum() not in _ALLOWED_ATOMS for atom in mol.GetAtoms()):
+            continue
+        ok, _ = viability_check(mol)
+        if not ok:
             continue
         canonical_candidate = Chem.MolToSmiles(mol, canonical=True)
         if canonical_candidate == canonical_component_a:

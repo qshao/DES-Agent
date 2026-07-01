@@ -20,6 +20,7 @@ from .coordination import coordination_profile
 from .hbond import des_hbond_complementarity, hbond_profile
 from .partner_registry import is_known, structural_sanity
 from .protonation import dominant_species
+from ..chemistry_filter import viability_check
 
 # ---------------------------------------------------------------------------
 # Metal normalisation helpers
@@ -233,19 +234,23 @@ class PartnerVerdict:
 def ground_partner_reality(component_a: str, candidate_smiles: str) -> PartnerVerdict:
     """Deterministically grade a proposed DES partner against reality.
 
-    Order: invalid → drop; known → keep; bad structure → drop; no H-bond
-    complementarity → demote; otherwise novel-plausible → keep. Never raises;
-    on internal error returns a neutral keep (we do not punish our own failure).
+    Order: invalid → drop; known → keep; bad structure → drop; reactive/toxic/
+    too complex → drop; no H-bond complementarity → demote; otherwise keep.
+    Never raises; on internal error returns a neutral keep.
     """
     claim = f"partner reality: {candidate_smiles}"
     try:
-        if Chem.MolFromSmiles(candidate_smiles) is None:
+        mol = Chem.MolFromSmiles(candidate_smiles)
+        if mol is None:
             return PartnerVerdict(claim, "novel_implausible", "invalid SMILES", 0.0, "drop", candidate_smiles)
         if is_known(candidate_smiles):
             return PartnerVerdict(claim, "known", "known/attested compound", 0.0, "keep", candidate_smiles)
         ok, reason = structural_sanity(candidate_smiles)
         if not ok:
             return PartnerVerdict(claim, "novel_implausible", reason, 0.0, "drop", candidate_smiles)
+        ok_v, reason_v = viability_check(mol)
+        if not ok_v:
+            return PartnerVerdict(claim, "novel_implausible", reason_v, 0.0, "drop", candidate_smiles)
         label = des_hbond_complementarity(component_a, candidate_smiles).label
         if label == "none":
             return PartnerVerdict(
