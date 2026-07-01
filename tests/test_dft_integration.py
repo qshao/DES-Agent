@@ -63,8 +63,8 @@ class TestDFTStageWiring:
                 side_effect=_mock_log_k,
             ),
             patch(
-                "des_multi_agent.chemistry.dft_validator.compute_dft_properties",
-                side_effect=lambda smi: chosen,
+                "des_multi_agent.chemistry.dft_cache.cached_compute_dft_properties",
+                side_effect=lambda smi, pH=None, **kwargs: chosen,
             ),
         ):
             return run_metal_selectivity_screen(
@@ -93,3 +93,35 @@ class TestDFTStageWiring:
         dft_warnings = [w for w in outcome.warnings if "[DFT]" in w]
         assert len(dft_warnings) > 0, "Expected at least one [DFT] warning"
         assert any("Warning" in w for w in dft_warnings)
+
+    def test_binding_ph_reaches_dft_stage(self):
+        captured_ph = []
+
+        def _capture(smi, pH=None, **kwargs):
+            captured_ph.append(pH)
+            return FAKE_DFT_SUCCESS
+
+        with (
+            patch(
+                "des_multi_agent.workflows.metal_binding_selectivity.predict_log_k",
+                side_effect=_mock_log_k,
+            ),
+            patch(
+                "des_multi_agent.chemistry.dft_cache.cached_compute_dft_properties",
+                side_effect=_capture,
+            ),
+        ):
+            run_metal_selectivity_screen(
+                target_metal="Cu2+",
+                competitor_metal="Zn2+",
+                n=3,
+                model_path=None,
+                llm_provider=None,
+                n_cycles=1,
+                dft_validate=True,
+                dft_top_n=1,
+                binding_pH=5.5,
+            )
+
+        assert captured_ph, "expected cached_compute_dft_properties to be called"
+        assert all(ph == 5.5 for ph in captured_ph)

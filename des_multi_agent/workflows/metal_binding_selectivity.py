@@ -488,7 +488,7 @@ def run_metal_selectivity_screen(
     # --- Optional DFT validation stage (post-loop) ---
     dft_results_map: dict = {}
     if dft_validate and cumulative_results:
-        from ..chemistry.dft_validator import compute_dft_properties as _dft
+        from ..chemistry.dft_cache import cached_compute_dft_properties as _dft
         from ..chemistry.dft_selectivity import dft_selectivity_adjustment as _dft_adj
         from ..llm.base import nominate_for_dft_fallback as _dft_fallback
 
@@ -507,7 +507,7 @@ def run_metal_selectivity_screen(
             nominated_smiles = _dft_fallback(top_k_pool, dft_top_n)
 
         for smi in nominated_smiles:
-            res = _dft(smi)
+            res = _dft(smi, pH=binding_pH)
             dft_results_map[smi] = res
             if not res.success:
                 all_warnings.append(f"[DFT] Warning: skipping {smi[:40]!r} — {res.error}")
