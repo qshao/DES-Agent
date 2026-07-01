@@ -215,6 +215,16 @@ python -m des_multi_agent.cli --workflow metal-selectivity \
   --stability-constant-model-path artifacts/stability_constants/model.json
 ```
 
+Add `--dft-validate` to refine the top candidates with a B3LYP-D3(BJ)/def2-SVP DFT single-point (requires `gpu4pyscf` and `xtb`). The LLM nominates 1–`--dft-top-n` candidates (default 3); the HOMO energy is used as an HSAB donor-softness proxy to apply a ±0.05 composite-score nudge. DFT failures are non-fatal — the run always completes with rule-based ranking as fallback:
+
+```bash
+python -m des_multi_agent.cli --workflow metal-selectivity \
+  --target-metal-ion Cu2+ \
+  --competitor-metal-ion Zn2+ \
+  --n 20 --stability-constant-model-path artifacts/stability_constants/model.json \
+  --dft-validate --dft-top-n 3
+```
+
 The combined selectivity-DES workflow runs Phase 1 (metal-selectivity screening) and then Phase 2 (DES partner search for the top selective ligands). The two phases are connected by an outer feedback loop: DES-compatible ligands found in Phase 2 are fed back as hints to Phase 1 on the next outer cycle, steering brainstorming toward ligands that are both selective and DES-compatible.
 
 ```bash

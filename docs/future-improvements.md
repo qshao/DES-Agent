@@ -56,6 +56,15 @@ This document tracks the next useful extensions for DES-Agent after the current 
     - **Reality gate SMILES mismatch**: `_apply_ligand_reality_gate` now canonicalizes `b.smiles` before building the drop set, so non-canonical LLM output is correctly filtered against the canonical SMILES stored in `proposals` by `_deduplicate_proposals`.
     - **Reality gate extraction**: the 15-line gate block was copy-pasted in both metal workflow files; extracted into a shared `_apply_ligand_reality_gate` helper in `workflows/_metal_helpers.py`.
 
+16. DFT validation stage for metal-selectivity (`--dft-validate`)
+    - Optional, flag-gated post-ranking DFT refinement for the metal-selectivity workflow. Activated only by explicit `--dft-validate`; never auto-triggered.
+    - Pipeline: SMILES → RDKit MMFF94 embed → xTB GFN2 geometry optimization → gpu4pyscf B3LYP-D3(BJ)/def2-SVP single-point (free ligand, gas phase).
+    - HOMO energy used as HSAB donor-softness proxy (calibration: −9.5 eV = hard donor, −7.5 eV = soft donor) to compute a ±0.05 composite-score nudge via `dft_selectivity_adjustment`. DFT tiebreaks the rule-based ranking; never overrides it.
+    - LLM nominates 1–`--dft-top-n` candidates for DFT from the top shortlist; fallback to top-N by `composite_score` when no LLM is configured.
+    - DFT failures are non-fatal: run completes with rule-based ranking unchanged, per-candidate warnings appear in the report.
+    - Report gains `dft_homo_ev` and `dft_donor_chg` columns for nominated candidates; a `DFT validation: B3LYP-D3(BJ)/def2-SVP` block summarises the method and any warnings.
+    - Startup dependency check verifies `gpu4pyscf` and `xtb` are available before committing to DFT computation.
+
 ## Next Up
 
 1. Expanded common-names registry
