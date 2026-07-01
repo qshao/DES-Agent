@@ -288,6 +288,69 @@ python -m des_multi_agent.cli supported-metals
 
 Ions not on that list still get a predicted value via the fallback model path, but selectivity predictions between two unsupported ions are less reliable.
 
+### Optional: DFT refinement with `--dft-validate`
+
+The rule-based selectivity ranking uses predicted log K values and HSAB hard/soft classification. For borderline cases — where two candidates have similar ΔlogK or the HSAB assignment is ambiguous — you can add a quantum-chemistry check that looks directly at the ligand's electron structure.
+
+**What it does.** When you pass `--dft-validate`, DES-Agent runs a density functional theory (DFT) calculation on the top candidates (default: top 3). The calculation predicts the energy of the ligand's highest occupied molecular orbital (HOMO), which is a direct quantum-mechanical measure of how "soft" or "hard" the donor atoms are.
+
+- A **high HOMO energy** (less negative, e.g. −7.5 eV) means the ligand is a **soft donor** — its electrons are more loosely held and it prefers soft metal ions (Cu⁺, Hg²⁺, Pd²⁺, Ag⁺).
+- A **low HOMO energy** (more negative, e.g. −9.5 eV) means the ligand is a **hard donor** — oxygen-rich, less polarisable, prefers hard metals (Fe³⁺, Ca²⁺, Mg²⁺, Al³⁺).
+
+For a Cu²⁺ vs Zn²⁺ competition: Cu²⁺ sits on the borderline-soft side while Zn²⁺ is borderline-hard. A ligand whose HOMO energy sits closer to the soft end (−7.5 to −8.5 eV) may be predicted as marginally Cu²⁺-selective by DFT even when the log K difference is small. The DFT result nudges the composite score up or down by at most ±0.05, breaking ties without overriding the rule-based ranking.
+
+**When to use it.**
+- You have 2–3 top candidates with similar ΔlogK (< 0.5) and want a tiebreaker before committing synthesis time.
+- Your ligand contains borderline donors (imidazole N, thioether S, phenolate O) whose hardness/softness the simple HSAB table may not capture correctly.
+- You want to record the quantum-chemical donor character of the candidate alongside the stability constant data.
+
+**When not to bother.**
+- Your top candidate already has ΔlogK ≥ 1.0 — the rule-based ranking is unambiguous.
+- Your ligand is a simple carboxylate or amine where hard/soft assignment is clear.
+- You need a fast screen across many metal pairs — DFT adds 1–5 minutes per candidate.
+
+**Prerequisites.** DFT requires two extra packages that are not installed by default:
+
+```bash
+pip install gpu4pyscf xtb-python
+```
+
+`gpu4pyscf` runs the B3LYP/def2-SVP DFT calculation; `xtb-python` runs a fast pre-optimisation of the 3D geometry. A GPU is not required — the calculation runs on CPU if no GPU is available, but will be slower (2–5 minutes per candidate vs 15–30 seconds on GPU).
+
+**Command.**
+
+```bash
+python -m des_multi_agent.cli \
+  --workflow metal-selectivity \
+  --target-metal-ion "Cu2+" \
+  --competitor-metal-ion "Zn2+" \
+  --n 20 \
+  --stability-constant-model-path artifacts/stability_constants/model.json \
+  --dft-validate \
+  --dft-top-n 3
+```
+
+DES-Agent will first run the standard selectivity screen, then the LLM (or fallback: top 3 by score) nominates candidates for DFT. A startup check confirms the packages are installed before any computation begins — if either is missing you will see a clear error message with the install command.
+
+**Reading the DFT columns in the report.**
+
+When `--dft-validate` is active, the selectivity table gains two extra columns for nominated candidates:
+
+```
+ligand         | delta_log_k | score | dft_homo_ev | dft_donor_chg
+NCCN           | +1.40       | 0.89  | -8.12       | -0.30
+NCC(=O)O       | +1.20       | 0.81  | -9.21       | -0.35
+c1ccncc1       | +0.80       | 0.74  | —           | —
+```
+
+| Column | What it means | How to interpret |
+|--------|--------------|-----------------|
+| `dft_homo_ev` | HOMO energy in electronvolts (eV) | −7.5 to −8.5 eV = soft donor; −9.0 to −10 eV = hard donor |
+| `dft_donor_chg` | Average Löwdin charge on donor atoms (N, O, S, P) | More negative = more electron-rich donor sites; correlates with Lewis basicity |
+| `—` | DFT was not run or did not converge for this candidate | Rule-based score used unchanged |
+
+A `[DFT]` summary block at the end of the report lists the method (`B3LYP-D3(BJ)/def2-SVP`) and any per-candidate warnings (e.g. geometry failed to converge). If all DFT calculations fail, the rule-based ranking is used unchanged and the run still completes normally.
+
 ---
 
 ## 9. The Selectivity-DES Pipeline: Two Steps in One
@@ -477,6 +540,7 @@ The comprehensive developer reference with all flags and options is in [`docs/tu
 | DES (strict preset) | add `--preset strict` |
 | Metal binding (single) | `python -m des_multi_agent.cli --workflow metal-binding --metal-ion "Cu2+" --ligand-smiles "NCCN"` |
 | Metal selectivity screen | `python -m des_multi_agent.cli --workflow metal-selectivity --target-metal-ion "Cu2+" --competitor-metal-ion "Zn2+" --n 15` |
+| Metal selectivity + DFT refinement | add `--dft-validate --dft-top-n 3` (requires `gpu4pyscf` and `xtb-python`) |
 | Selectivity + DES pipeline | `python -m des_multi_agent.cli --workflow selectivity-des --target-metal-ion "Ni2+" --competitor-metal-ion "Co2+" --n 10` |
 | Compare two runs | `python -m des_multi_agent.cli compare-runs runs/A runs/B` |
 | View a saved run | `python -m des_multi_agent.cli view-run runs/X` |
