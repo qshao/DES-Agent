@@ -327,49 +327,38 @@ The date-stamped directory becomes a permanent record of which candidates the mo
 
 After you synthesise and test candidates in the lab, you can tell DES-Agent which ones worked and which didn't. This biases future searches toward productive chemical families.
 
-1. Open `runs/urea_screen_2026-07-01/run.json`.
-2. Find the entry for your tested compound. It will look like:
-   ```json
-   {
-     "smiles": "OCCO",
-     "name": "ethylene glycol",
-     "is_des": true,
-     "min_tm_k": 201.8,
-     ...
-   }
-   ```
-3. Add a `"feedback"` field:
-   ```json
-   {
-     "smiles": "OCCO",
-     "feedback": "good",
-     ...
-   }
-   ```
-   Use `"good"` if the compound formed a DES in the lab, `"bad"` if it didn't (or was impractical for another reason).
+Use the `label-run` command — pass molecule names or SMILES and a `good`/`bad` label for each:
 
-4. Pass the labelled file to your next search:
-   ```bash
-   python -m des_multi_agent.cli \
-     --workflow des \
-     --component-a "urea" \
-     --n 20 \
-     --run-memory runs/urea_screen_2026-07-01/run.json \
-     --output-dir runs/urea_screen_round2
-   ```
+```bash
+python -m des_multi_agent.cli label-run \
+  --run runs/urea_screen_2026-07-01 \
+  --label "ethylene glycol=good" \
+  --label "oxalic acid=bad"
+```
 
-The next run will rank `"good"` families higher and `"bad"` families lower, improving candidate quality over successive rounds.
-
-### Accumulating memory across many runs
-
-If you have a directory of previous run files, pass them all at once:
+Then pass the labelled run directory to your next search with `--reuse-run`:
 
 ```bash
 python -m des_multi_agent.cli \
   --workflow des \
   --component-a "urea" \
   --n 20 \
-  --run-memory-dir runs/ \
+  --reuse-run runs/urea_screen_2026-07-01 \
+  --output-dir runs/urea_screen_round2
+```
+
+The next run will rank `"good"` families higher and `"bad"` families lower, improving candidate quality over successive rounds.
+
+### Accumulating memory across many runs
+
+`--reuse-run` also accepts a history directory — pass the parent folder containing all your run directories and every labelled result will contribute:
+
+```bash
+python -m des_multi_agent.cli \
+  --workflow des \
+  --component-a "urea" \
+  --n 20 \
+  --reuse-run runs/ \
   --output-dir runs/urea_screen_round3
 ```
 
@@ -491,5 +480,5 @@ The comprehensive developer reference with all flags and options is in [`docs/tu
 | Selectivity + DES pipeline | `python -m des_multi_agent.cli --workflow selectivity-des --target-metal-ion "Ni2+" --competitor-metal-ion "Co2+" --n 10` |
 | Compare two runs | `python -m des_multi_agent.cli compare-runs runs/A runs/B` |
 | View a saved run | `python -m des_multi_agent.cli view-run runs/X` |
-| DES with feedback | add `--run-memory runs/prev/run.json` |
-| DES with history | add `--run-memory-dir runs/` |
+| Label results | `python -m des_multi_agent.cli label-run --run runs/X --label "name=good"` |
+| DES with feedback | add `--reuse-run runs/X` (run dir, file, or history dir) |
