@@ -162,6 +162,8 @@ def _build_selectivity_context(
     w_selectivity: float,
     des_compatible_hints: list[str] | None = None,
     des_incompatible_hints: list[str] | None = None,
+    family_hit_scores: dict[str, list[float]] | None = None,
+    saturated_families: set[str] | None = None,
 ) -> str:
     lines = [
         f"Target metal: {target_metal}",
@@ -177,6 +179,11 @@ def _build_selectivity_context(
                 f"log_K({competitor_metal})={r.log_k_competitor:.2f}, "
                 f"ΔlogK={r.delta_log_k:.2f}, score={r.composite_score:.2f}"
             )
+        failed = [r for r in prev_results if r.delta_log_k <= 0][:3]
+        if failed:
+            lines.append(f"Non-selective ligands (ΔlogK ≤ 0, avoid similar structures):")
+            for r in failed:
+                lines.append(f"  - {r.ligand_smiles}: ΔlogK={r.delta_log_k:.2f}")
     if des_compatible_hints:
         lines.append("Ligands that formed DES in previous pass (prefer similar scaffolds):")
         for smiles in des_compatible_hints:
@@ -185,7 +192,20 @@ def _build_selectivity_context(
         lines.append("Ligands that did NOT form DES (avoid similar scaffolds):")
         for smiles in des_incompatible_hints:
             lines.append(f"  - {smiles}")
+    if family_hit_scores:
+        items = sorted(family_hit_scores.items(), key=lambda x: -sum(x[1]) / len(x[1]))
+        lines.append("Productive selectivity families (avg composite score):")
+        for fam, scores in items[:3]:
+            avg = sum(scores) / len(scores)
+            lines.append(f"  - {fam}: {len(scores)} selective hits, avg score={avg:.2f}")
+    if saturated_families:
+        lines.append("Exhausted families (diminishing returns, avoid repeating):")
+        for fam in sorted(saturated_families)[:4]:
+            lines.append(f"  - {fam}")
     return "\n".join(lines)
+
+
+_SELECTIVITY_SUCCESS_THRESHOLD = 0.0  # delta_log_k > 0 = selective
 
 
 def run_metal_selectivity_screen(
@@ -204,6 +224,10 @@ def run_metal_selectivity_screen(
     binding_pH: float = 7.0,
 ) -> SelectivityScreenOutcome:
     from ..chemistry.claim_grounding import ground_coordination as _ground_coord
+    from ..chemistry_filter import murcko_scaffold_smiles as _scaffold
+    from ..analogue_expansion import generate_analogues
+    from collections import Counter
+
     seen_smiles: set[str] = set()
     all_reviews: list[CandidateReview] = []
     all_brainstorm: list[CandidateBrainstorm] = []
@@ -216,7 +240,27 @@ def run_metal_selectivity_screen(
     sel_prev_labels: list[str] = []
     sel_converged = False
 
+    # Cross-cycle tracking for Features 1, 3, 4
+    family_hit_scores: dict[str, list[float]] = {}  # family → [composite_score] for selective hits
+    family_fail_ledger: Counter[str] = Counter()
+    scaffold_counts: dict[str, dict] = {}
+
     for cycle in range(1, n_cycles + 1):
+        failing_scaffolds: set[str] = set()
+        saturated_families: set[str] = set()
+        if cycle > 1:
+            failing_scaffolds = {
+                sc for sc, counts in scaffold_counts.items()
+                if counts["fail"] >= 3 and counts["hit"] == 0
+            }
+            family_hit_ledger = Counter({fam: len(scores) for fam, scores in family_hit_scores.items()})
+            for fam in set(family_hit_ledger) | set(family_fail_ledger):
+                hits = family_hit_ledger.get(fam, 0)
+                fails = family_fail_ledger.get(fam, 0)
+                total = hits + fails
+                if total >= 3 and hits / total < 0.3:
+                    saturated_families.add(fam)
+
         proposals: list[CandidateProposal] = []
 
         if cycle == 1 or llm_provider is None:
@@ -224,11 +268,28 @@ def run_metal_selectivity_screen(
             heuristic = generate_ligand_candidates(target_metal, heuristic_n, constraints)
             proposals.extend(_deduplicate_proposals(heuristic, seen_smiles))
 
+        # Feature 2: generate structural analogues of top prior selective hits
+        if cycle > 1 and prev_cycle_results:
+            top_hits = [r for r in prev_cycle_results if r.delta_log_k > _SELECTIVITY_SUCCESS_THRESHOLD][:2]
+            analogue_proposals: list[CandidateProposal] = []
+            for r in top_hits:
+                for analogue_smi in generate_analogues(r.ligand_smiles, max_n=4):
+                    analogue_proposals.append(CandidateProposal(
+                        smiles=analogue_smi,
+                        rationale=f"analogue of {r.ligand_smiles} (ΔlogK={r.delta_log_k:.2f})",
+                        family="analogue",
+                        source="analogue",
+                        source_id=r.ligand_smiles,
+                    ))
+            proposals.extend(_deduplicate_proposals(analogue_proposals, seen_smiles))
+
         if llm_provider is not None:
             context = _build_selectivity_context(
                 target_metal, competitor_metal, prev_cycle_results, cycle, w_affinity, w_selectivity,
                 des_compatible_hints=des_compatible_hints,
                 des_incompatible_hints=des_incompatible_hints,
+                family_hit_scores=family_hit_scores if cycle > 1 else None,
+                saturated_families=saturated_families if cycle > 1 else None,
             )
             try:
                 brainstorms = llm_provider.brainstorm_ligands_selectivity(
@@ -237,7 +298,6 @@ def run_metal_selectivity_screen(
                 all_brainstorm.extend(brainstorms)
                 llm_proposals = _llm_proposals_from_brainstorm(brainstorms)
                 proposals.extend(_deduplicate_proposals(llm_proposals, seen_smiles))
-                # Ground coordination claims from LLM rationale (species-aware).
                 for b in brainstorms:
                     if b.rationale:
                         try:
@@ -252,16 +312,27 @@ def run_metal_selectivity_screen(
             except Exception as exc:
                 all_warnings.append(f"LLM brainstorm failed (cycle {cycle}): {exc}")
 
+        # Feature 4: drop proposals whose scaffold consistently fails selectivity
+        if failing_scaffolds:
+            proposals = [
+                p for p in proposals
+                if not (sc := _scaffold(p.smiles)) or sc not in failing_scaffolds
+            ]
+
         proposals = proposals[:n]
         if not proposals:
             break
 
         cycle_results: list[SelectivityResult] = []
         for proposal in proposals:
-            result, warnings = _score_proposal_pair(
-                target_metal, competitor_metal, proposal, model_path, w_affinity, w_selectivity,
-                stability_rule_weight=stability_rule_weight,
-            )
+            try:
+                result, warnings = _score_proposal_pair(
+                    target_metal, competitor_metal, proposal, model_path, w_affinity, w_selectivity,
+                    stability_rule_weight=stability_rule_weight,
+                )
+            except Exception as exc:
+                all_warnings.append(f"Scoring failed for {proposal.smiles}: {exc}")
+                continue
             all_warnings.extend(warnings)
             if result is not None:
                 cycle_results.append(result)
@@ -295,6 +366,22 @@ def run_metal_selectivity_screen(
                     all_reviews.append(review)
                 except Exception as exc:
                     all_warnings.append(f"LLM review failed for {r.ligand_smiles}: {exc}")
+
+        # Update cross-cycle trackers
+        ligand_family_map = {b.smiles: b.family for b in all_brainstorm}
+        for r in cycle_results:
+            family = ligand_family_map.get(r.ligand_smiles, "")
+            sc = _scaffold(r.ligand_smiles)
+            if r.delta_log_k > _SELECTIVITY_SUCCESS_THRESHOLD:
+                if family and family not in ("", "unknown", "analogue"):
+                    family_hit_scores.setdefault(family, []).append(r.composite_score)
+                if sc:
+                    scaffold_counts.setdefault(sc, {"hit": 0, "fail": 0})["hit"] += 1
+            else:
+                if family and family not in ("", "unknown", "analogue"):
+                    family_fail_ledger[family] += 1
+                if sc:
+                    scaffold_counts.setdefault(sc, {"hit": 0, "fail": 0})["fail"] += 1
 
         by_smiles = {r.ligand_smiles: r for r in cumulative_results}
         for r in cycle_results:

@@ -9,6 +9,25 @@ from rdkit.Chem import rdMolDescriptors
 from .schemas import CandidateProposal
 
 
+def murcko_scaffold_smiles(smiles: str) -> str | None:
+    """Return the canonical Murcko scaffold SMILES for a molecule.
+
+    For acyclic compounds the full canonical SMILES is returned (the molecule
+    itself is its own scaffold).  Returns None on any error; never raises.
+    """
+    try:
+        from rdkit.Chem.Scaffolds import MurckoScaffold
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            return None
+        scaffold = MurckoScaffold.GetScaffoldForMol(mol)
+        if scaffold.GetNumAtoms() == 0:
+            return Chem.MolToSmiles(mol, canonical=True)
+        return Chem.MolToSmiles(scaffold, canonical=True)
+    except Exception:
+        return None
+
+
 _ALLOWED_ATOMS = {1, 6, 7, 8, 9, 15, 16, 17, 35, 53}
 
 # Precompiled SMARTS for reactive/unstable groups and toxicophores.
@@ -80,7 +99,11 @@ def viability_check(mol: Chem.Mol) -> tuple[bool, str]:
     return True, ""
 
 
-def filter_candidates(component_a: str, candidates: Iterable[CandidateProposal]):
+def filter_candidates(
+    component_a: str,
+    candidates: Iterable[CandidateProposal],
+    failing_scaffolds: set[str] | None = None,
+):
     mol_a = Chem.MolFromSmiles(component_a)
     if mol_a is None:
         raise ValueError("Invalid component A SMILES")
@@ -102,6 +125,10 @@ def filter_candidates(component_a: str, candidates: Iterable[CandidateProposal])
             continue
         if canonical_candidate in seen_smiles:
             continue
+        if failing_scaffolds:
+            sc = murcko_scaffold_smiles(canonical_candidate)
+            if sc and sc in failing_scaffolds:
+                continue
         seen_smiles.add(canonical_candidate)
         filtered.append(proposal)
     return filtered

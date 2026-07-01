@@ -109,6 +109,9 @@ def _top_k_stable(prev: list[LigandScreenResult], curr: list[LigandScreenResult]
     return prev_smiles == curr_smiles
 
 
+_LOG_K_SUCCESS_THRESHOLD = 4.0  # minimum log_k considered "good binding"
+
+
 def run_metal_binding_screen(
     metal_ion: str,
     n: int = 20,
@@ -119,6 +122,10 @@ def run_metal_binding_screen(
     binding_pH: float = 7.0,
 ) -> MetalBindingScreenOutcome:
     from ..chemistry.claim_grounding import ground_coordination as _ground_coord
+    from ..chemistry_filter import murcko_scaffold_smiles as _scaffold
+    from ..analogue_expansion import generate_analogues
+    from collections import Counter
+
     seen_smiles: set[str] = set()
     all_reviews: list[CandidateReview] = []
     all_brainstorm: list[CandidateBrainstorm] = []
@@ -127,15 +134,55 @@ def run_metal_binding_screen(
     cumulative_results: list[LigandScreenResult] = []
     prev_cycle_results: list[LigandScreenResult] = []
 
+    # Cross-cycle tracking for Features 1, 3, 4
+    family_hit_scores: dict[str, list[float]] = {}  # family → [log_k] for successes
+    family_fail_ledger: Counter[str] = Counter()
+    scaffold_counts: dict[str, dict] = {}           # scaffold_smi → {"hit": int, "fail": int}
+
     for cycle in range(1, n_cycles + 1):
+        # Compute saturation + failing scaffolds for LLM context and proposal filter
+        failing_scaffolds: set[str] = set()
+        saturated_families: set[str] = set()
+        if cycle > 1:
+            failing_scaffolds = {
+                sc for sc, counts in scaffold_counts.items()
+                if counts["fail"] >= 3 and counts["hit"] == 0
+            }
+            family_hit_ledger = Counter({fam: len(scores) for fam, scores in family_hit_scores.items()})
+            for fam in set(family_hit_ledger) | set(family_fail_ledger):
+                hits = family_hit_ledger.get(fam, 0)
+                fails = family_fail_ledger.get(fam, 0)
+                total = hits + fails
+                if total >= 3 and hits / total < 0.3:
+                    saturated_families.add(fam)
+
         proposals: list[CandidateProposal] = []
 
         if cycle == 1 or llm_provider is None:
             heuristic = generate_ligand_candidates(metal_ion, n, constraints)
             proposals.extend(_deduplicate_proposals(heuristic, seen_smiles))
 
+        # Feature 2: generate structural analogues of top prior hits in cycle 2+
+        if cycle > 1 and prev_cycle_results:
+            top_hits = [r for r in prev_cycle_results if r.log_k >= _LOG_K_SUCCESS_THRESHOLD][:2]
+            analogue_proposals: list[CandidateProposal] = []
+            for r in top_hits:
+                for analogue_smi in generate_analogues(r.ligand_smiles, max_n=4):
+                    analogue_proposals.append(CandidateProposal(
+                        smiles=analogue_smi,
+                        rationale=f"analogue of {r.ligand_smiles} (log_K={r.log_k:.2f})",
+                        family="analogue",
+                        source="analogue",
+                        source_id=r.ligand_smiles,
+                    ))
+            proposals.extend(_deduplicate_proposals(analogue_proposals, seen_smiles))
+
         if llm_provider is not None:
-            context = _build_context(metal_ion, prev_cycle_results, cycle)
+            context = _build_context(
+                metal_ion, prev_cycle_results, cycle,
+                family_hit_scores=family_hit_scores if cycle > 1 else None,
+                saturated_families=saturated_families if cycle > 1 else None,
+            )
             try:
                 brainstorms = llm_provider.brainstorm_ligands(metal_ion, constraints, context)
                 all_brainstorm.extend(brainstorms)
@@ -158,6 +205,13 @@ def run_metal_binding_screen(
             except Exception as exc:
                 all_warnings.append(f"LLM brainstorm failed (cycle {cycle}): {exc}")
 
+        # Feature 4: drop proposals whose scaffold consistently fails
+        if failing_scaffolds:
+            proposals = [
+                p for p in proposals
+                if not (sc := _scaffold(p.smiles)) or sc not in failing_scaffolds
+            ]
+
         proposals = proposals[:n]
         if not proposals:
             break
@@ -166,13 +220,29 @@ def run_metal_binding_screen(
         all_warnings.extend(warnings)
 
         if llm_provider is not None:
+            context = _build_context(metal_ion, prev_cycle_results, cycle)
             for r in cycle_results:
-                context = _build_context(metal_ion, prev_cycle_results, cycle)
                 try:
                     review = llm_provider.review_ligand(metal_ion, r.ligand_smiles, context)
                     all_reviews.append(review)
                 except Exception as exc:
                     all_warnings.append(f"LLM review failed for {r.ligand_smiles}: {exc}")
+
+        # Update cross-cycle trackers
+        ligand_family_map = {b.smiles: b.family for b in all_brainstorm}
+        for r in cycle_results:
+            family = ligand_family_map.get(r.ligand_smiles, "")
+            sc = _scaffold(r.ligand_smiles)
+            if r.log_k >= _LOG_K_SUCCESS_THRESHOLD:
+                if family and family not in ("", "unknown", "analogue"):
+                    family_hit_scores.setdefault(family, []).append(r.log_k)
+                if sc:
+                    scaffold_counts.setdefault(sc, {"hit": 0, "fail": 0})["hit"] += 1
+            else:
+                if family and family not in ("", "unknown", "analogue"):
+                    family_fail_ledger[family] += 1
+                if sc:
+                    scaffold_counts.setdefault(sc, {"hit": 0, "fail": 0})["fail"] += 1
 
         # Merge cycle results into cumulative, keeping best log_k per SMILES
         by_smiles = {r.ligand_smiles: r for r in cumulative_results}
@@ -211,10 +281,28 @@ def _build_context(
     metal_ion: str,
     prev_results: list[LigandScreenResult],
     cycle: int,
+    family_hit_scores: dict[str, list[float]] | None = None,
+    saturated_families: set[str] | None = None,
 ) -> str:
     lines = [f"Metal ion: {metal_ion}", f"Cycle: {cycle}"]
     if prev_results:
         lines.append("Top ligands from previous cycle (highest log K first):")
         for r in prev_results[:5]:
             lines.append(f"  - {r.ligand_smiles}: log_K={r.log_k:.2f}, rationale={r.rationale}")
+        # Negative feedback: show poor performers
+        failed = [r for r in prev_results if r.log_k < _LOG_K_SUCCESS_THRESHOLD][:3]
+        if failed:
+            lines.append("Poor-binding ligands from previous cycle (log_K < 4, avoid similar):")
+            for r in failed:
+                lines.append(f"  - {r.ligand_smiles}: log_K={r.log_k:.2f}")
+    if family_hit_scores:
+        items = sorted(family_hit_scores.items(), key=lambda x: -sum(x[1]) / len(x[1]))
+        lines.append("Productive binding families (avg log_K):")
+        for fam, scores in items[:3]:
+            avg = sum(scores) / len(scores)
+            lines.append(f"  - {fam}: {len(scores)} hits, avg log_K={avg:.2f}")
+    if saturated_families:
+        lines.append("Exhausted families (diminishing returns, avoid repeating):")
+        for fam in sorted(saturated_families)[:4]:
+            lines.append(f"  - {fam}")
     return "\n".join(lines)

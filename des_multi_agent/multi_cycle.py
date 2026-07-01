@@ -95,6 +95,9 @@ def run_multi_cycle_search(
     prev_top: frozenset = frozenset()
     last_outcome = None
     accumulated_ledger: Counter[str] = Counter()
+    accumulated_fail_ledger: Counter[str] = Counter()       # family → DES-negative count
+    accumulated_family_scores: dict[str, list[float]] = {} # family → [min_tm_k for DES hits]
+    scaffold_counts: dict[str, dict] = {}                  # scaffold_smi → {"des": int, "fail": int}
     cycle_pattern_memory = prior_pattern_memory
     cycle_lesson_summary = prior_chemistry_lesson_summary
     snapshots: list[CycleSnapshot] = []
@@ -105,6 +108,21 @@ def run_multi_cycle_search(
     accumulated_uncertainty: dict = {} # canonical smiles → MinimumTmUncertainty
 
     for cycle in range(1, n_cycles + 1):
+        # Compute Feature 3 & 4 signals from prior cycles for the LLM and filter.
+        failing_scaffolds: set[str] = set()
+        saturated_families: set[str] = set()
+        if cycle > 1:
+            failing_scaffolds = {
+                sc for sc, counts in scaffold_counts.items()
+                if counts["fail"] >= 3 and counts["des"] == 0
+            }
+            for fam in set(accumulated_ledger) | set(accumulated_fail_ledger):
+                hits = accumulated_ledger.get(fam, 0)
+                fails = accumulated_fail_ledger.get(fam, 0)
+                total = hits + fails
+                if total >= 3 and hits / total < 0.3:
+                    saturated_families.add(fam)
+
         # Pass the full prior result list so the brainstorm context can show both
         # top performers (positive signal) and non-DES failures (negative signal).
         prior_results = last_outcome.results if last_outcome else None
@@ -139,6 +157,9 @@ def run_multi_cycle_search(
             prior_results_by_smiles=accumulated_results,
             prior_uncertainty_by_smiles=accumulated_uncertainty,
             prior_evaluated_smiles=set(accumulated_results.keys()) if accumulated_results else None,
+            prior_family_scores=dict(accumulated_family_scores) if cycle > 1 else None,
+            prior_saturated_families=saturated_families if cycle > 1 else None,
+            prior_failing_scaffolds=failing_scaffolds if cycle > 1 else None,
         )
 
         # Update cross-cycle caches with this cycle's fresh evaluations.
@@ -160,6 +181,30 @@ def run_multi_cycle_search(
             for r in outcome.results if r.is_des
         )
         accumulated_ledger.update(family_ledger)
+
+        # Feature 1: track average min_tm_k per family for DES hits.
+        for r in outcome.results:
+            family = smiles_to_family.get(r.curve.smiles_b, "")
+            if r.is_des and family and family != "unknown":
+                accumulated_family_scores.setdefault(family, []).append(r.min_tm_k)
+
+        # Feature 3: track DES-negative count per family for saturation detection.
+        fail_family_ledger: Counter[str] = Counter(
+            smiles_to_family.get(r.curve.smiles_b, "unknown")
+            for r in outcome.results if not r.is_des
+        )
+        accumulated_fail_ledger.update(fail_family_ledger)
+
+        # Feature 4: track Murcko scaffold success/failure counts.
+        from .chemistry_filter import murcko_scaffold_smiles as _scaffold
+        for r in outcome.results:
+            sc = _scaffold(r.curve.smiles_b)
+            if sc:
+                entry = scaffold_counts.setdefault(sc, {"des": 0, "fail": 0})
+                if r.is_des:
+                    entry["des"] += 1
+                else:
+                    entry["fail"] += 1
 
         top_k = frozenset(
             r.curve.smiles_b for r in outcome.results[:top_k_convergence] if r.is_des

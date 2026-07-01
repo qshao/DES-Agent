@@ -108,6 +108,9 @@ def _build_iterative_context(
     family_ledger: dict[str, int] | None = None,
     diversity_mode: str = "balanced",
     already_evaluated: set[str] | None = None,
+    family_scores: dict[str, list[float]] | None = None,
+    saturated_families: set[str] | None = None,
+    failing_scaffolds: set[str] | None = None,
 ) -> str:
     if not prior_top:
         return base_context
@@ -116,8 +119,6 @@ def _build_iterative_context(
         for r in prior_top[:5]
     )
     ctx = base_context + f"\nPrior cycle top results (bias generation toward these chemical families):\n{lines}"
-    # Negative feedback: show structures that were evaluated but failed to form a DES
-    # so the LLM avoids re-proposing similar molecules.
     failed = [r for r in prior_top if not r.is_des][:4]
     if failed:
         fail_lines = "\n".join(
@@ -128,10 +129,25 @@ def _build_iterative_context(
     ctx += f"\nBrainstorm diversity mode: {diversity_mode}"
     if family_ledger:
         top_families = _build_prior_productive_family_summary(family_ledger, limit=3)
-        fam_lines = "\n".join(f"  - {fam}: {count} DES-positive hits" for fam, count in top_families.items())
-        ctx += f"\nTop productive chemical families:\n{fam_lines}"
-    # Exclusion hint: tell the LLM which SMILES have already been scored so it
-    # does not waste proposal slots re-proposing known candidates.
+        fam_parts: list[str] = []
+        for fam, count in top_families.items():
+            scores = (family_scores or {}).get(fam, [])
+            if scores:
+                avg_tm = sum(scores) / len(scores)
+                fam_parts.append(f"  - {fam}: {count} DES-positive hits, avg min_tm={avg_tm:.1f} K")
+            else:
+                fam_parts.append(f"  - {fam}: {count} DES-positive hits")
+        ctx += "\nTop productive chemical families:\n" + "\n".join(fam_parts)
+    if saturated_families:
+        sat_list = sorted(saturated_families)[:5]
+        ctx += "\nExhausted families (too many failures, avoid repeating):\n" + "\n".join(
+            f"  - {fam}" for fam in sat_list
+        )
+    if failing_scaffolds:
+        sc_list = sorted(failing_scaffolds)[:4]
+        ctx += "\nFailing scaffold cores (consistently non-DES, avoid similar structures):\n" + "\n".join(
+            f"  - {sc}" for sc in sc_list
+        )
     if already_evaluated:
         smiles_list = sorted(already_evaluated)[:20]
         ctx += "\nAlready evaluated — do not re-propose: " + ", ".join(smiles_list)
@@ -465,6 +481,26 @@ def _resolve_des_output_dir(output_dir: str | None, save_run_memory_path: str | 
     return None
 
 
+def _generate_analogue_candidates(prior_cycle_top_results: list | None) -> list[CandidateProposal]:
+    """Feature 2: expand top DES hits from the prior cycle into close structural analogues."""
+    if not prior_cycle_top_results:
+        return []
+    from .analogue_expansion import generate_analogues
+    proposals: list[CandidateProposal] = []
+    top_des = [r for r in prior_cycle_top_results if r.is_des][:2]
+    for r in top_des:
+        seed_smi = r.curve.smiles_b
+        for analogue_smi in generate_analogues(seed_smi, max_n=4):
+            proposals.append(CandidateProposal(
+                smiles=analogue_smi,
+                rationale=f"structural analogue of best DES hit {seed_smi} (min_tm={r.min_tm_k:.1f} K)",
+                family="analogue",
+                source="analogue",
+                source_id=seed_smi,
+            ))
+    return proposals
+
+
 def _load_candidates_file(path: str) -> list[CandidateProposal]:
     """Read one SMILES or molecule name per line from a file; skip blanks and # comments."""
     from .chemistry.name_resolution import resolve_to_smiles
@@ -514,6 +550,9 @@ def run_search_report(
     prior_results_by_smiles: dict | None = None,
     prior_uncertainty_by_smiles: dict | None = None,
     prior_evaluated_smiles: set[str] | None = None,
+    prior_family_scores: dict[str, list[float]] | None = None,
+    prior_saturated_families: set[str] | None = None,
+    prior_failing_scaffolds: set[str] | None = None,
 ):
     # D1 — validate component_a SMILES before any expensive work
     try:
@@ -532,12 +571,16 @@ def run_search_report(
         _progress(1, f"Using {len(file_proposals)} candidate(s) from file: {candidates_file}")
         heuristic_candidates = file_proposals
         discovery_candidates: list[CandidateProposal] = []
+        analogue_candidates: list[CandidateProposal] = []
     else:
         _progress(1, f"Generating candidates for {component_a}...")
         heuristic_candidates = generate_candidates(component_a, n=n, constraints=None)
         discovery_candidates = _build_discovery_candidates(component_a, n, discovery_path, llm_warnings)
+        # Feature 2: adaptive heuristic diversity — expand best prior DES hits.
+        # Only runs in cycle 2+ (when prior_cycle_top_results is populated).
+        analogue_candidates = _generate_analogue_candidates(prior_cycle_top_results)
 
-    candidate_proposals, notes = _merge_candidates(discovery_candidates, heuristic_candidates)
+    candidate_proposals, notes = _merge_candidates(discovery_candidates, heuristic_candidates, analogue_candidates)
     all_dedup_notes.extend(notes)
 
     pattern_cfg = ChemicalPatternMemoryConfig(mode=chemical_pattern_memory_mode, max_examples=pattern_memory_max_examples)
@@ -574,6 +617,9 @@ def run_search_report(
                     family_ledger=prior_family_ledger,
                     diversity_mode=getattr(provider, "diversity_mode", "balanced"),
                     already_evaluated=prior_evaluated_smiles,
+                    family_scores=prior_family_scores,
+                    saturated_families=prior_saturated_families,
+                    failing_scaffolds=prior_failing_scaffolds,
                 )
             llm_candidates = provider.brainstorm_candidates(
                 component_a,
@@ -601,7 +647,8 @@ def run_search_report(
         )
 
     _progress(2, f"Filtering {len(candidate_proposals)} candidate(s)...")
-    filtered = filter_candidates(component_a, candidate_proposals)
+    _filter_kw = {"failing_scaffolds": prior_failing_scaffolds} if prior_failing_scaffolds else {}
+    filtered = filter_candidates(component_a, candidate_proposals, **_filter_kw)
     thresholds = thresholds or DesThresholds(
         absolute_tm_max_k=DEFAULT_ABSOLUTE_TM_MAX_K,
         relative_drop_min=DEFAULT_RELATIVE_DROP_MIN,
