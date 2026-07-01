@@ -107,6 +107,7 @@ def _build_iterative_context(
     prior_top: list,
     family_ledger: dict[str, int] | None = None,
     diversity_mode: str = "balanced",
+    already_evaluated: set[str] | None = None,
 ) -> str:
     if not prior_top:
         return base_context
@@ -115,11 +116,25 @@ def _build_iterative_context(
         for r in prior_top[:5]
     )
     ctx = base_context + f"\nPrior cycle top results (bias generation toward these chemical families):\n{lines}"
+    # Negative feedback: show structures that were evaluated but failed to form a DES
+    # so the LLM avoids re-proposing similar molecules.
+    failed = [r for r in prior_top if not r.is_des][:4]
+    if failed:
+        fail_lines = "\n".join(
+            f"  - {r.curve.smiles_b}: min_tm_k={r.min_tm_k:.1f} K (no eutectic)"
+            for r in failed
+        )
+        ctx += f"\nPrior cycle evaluated but did NOT form DES (avoid similar structures):\n{fail_lines}"
     ctx += f"\nBrainstorm diversity mode: {diversity_mode}"
     if family_ledger:
         top_families = _build_prior_productive_family_summary(family_ledger, limit=3)
         fam_lines = "\n".join(f"  - {fam}: {count} DES-positive hits" for fam, count in top_families.items())
         ctx += f"\nTop productive chemical families:\n{fam_lines}"
+    # Exclusion hint: tell the LLM which SMILES have already been scored so it
+    # does not waste proposal slots re-proposing known candidates.
+    if already_evaluated:
+        smiles_list = sorted(already_evaluated)[:20]
+        ctx += "\nAlready evaluated — do not re-propose: " + ", ".join(smiles_list)
     return ctx
 
 
@@ -498,6 +513,7 @@ def run_search_report(
     pattern_memory_max_examples: int = 3,
     prior_results_by_smiles: dict | None = None,
     prior_uncertainty_by_smiles: dict | None = None,
+    prior_evaluated_smiles: set[str] | None = None,
 ):
     # D1 — validate component_a SMILES before any expensive work
     try:
@@ -557,6 +573,7 @@ def run_search_report(
                     prior_cycle_top_results,
                     family_ledger=prior_family_ledger,
                     diversity_mode=getattr(provider, "diversity_mode", "balanced"),
+                    already_evaluated=prior_evaluated_smiles,
                 )
             llm_candidates = provider.brainstorm_candidates(
                 component_a,

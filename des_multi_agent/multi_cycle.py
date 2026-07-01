@@ -105,7 +105,9 @@ def run_multi_cycle_search(
     accumulated_uncertainty: dict = {} # canonical smiles → MinimumTmUncertainty
 
     for cycle in range(1, n_cycles + 1):
-        prior_results = last_outcome.results[:top_k_convergence] if last_outcome else None
+        # Pass the full prior result list so the brainstorm context can show both
+        # top performers (positive signal) and non-DES failures (negative signal).
+        prior_results = last_outcome.results if last_outcome else None
 
         per_cycle_dir: str | None = None
         if output_dir is not None:
@@ -136,6 +138,7 @@ def run_multi_cycle_search(
             pattern_memory_max_examples=pattern_memory_max_examples,
             prior_results_by_smiles=accumulated_results,
             prior_uncertainty_by_smiles=accumulated_uncertainty,
+            prior_evaluated_smiles=set(accumulated_results.keys()) if accumulated_results else None,
         )
 
         # Update cross-cycle caches with this cycle's fresh evaluations.
