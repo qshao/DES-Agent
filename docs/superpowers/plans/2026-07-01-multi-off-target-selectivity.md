@@ -976,18 +976,14 @@ with:
         )
 ```
 
-In `format_selectivity_des_report`, apply the same header change:
-
-```python
-        f"=== Selectivity-DES Pipeline: {outcome.target_metal} over {outcome.competitor_metal} ===",
-```
-
-becomes:
+**Note:** Task 2 already applied this exact header change to `format_selectivity_des_report` as its own stopgap fix (same reason as Task 1's: the old attribute name broke under Task 2's `SelectivityDesPipelineOutcome.competitor_metal` → `competitor_metals` rename, so Task 2's implementer patched it minimally to keep the suite green — see commit `89ecde2`). The header currently reads:
 
 ```python
         f"=== Selectivity-DES Pipeline: {outcome.target_metal} over "
         f"{', '.join(outcome.competitor_metals)} ===",
 ```
+
+This is already byte-identical for N=1 and correct for N>1 — **no further change needed here.** Do not search for the old single-line/pre-rename form described in earlier drafts of this plan; it no longer exists.
 
 (The `sec1` table in `format_selectivity_des_report` keeps its existing `log_k_competitor`/`delta_log_k` columns unchanged — those already hold the worst-case value automatically via `SelectivityResult`. No breakdown column is added to this pipeline report; it is out of scope for this task since the design does not require it there, and the per-ligand selectivity breakdown is already fully available via the `metal-selectivity` workflow's own report.)
 
