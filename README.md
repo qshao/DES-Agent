@@ -43,8 +43,10 @@ python -m des_multi_agent.cli config set config_path=ml_des_mp/config.yaml
 python -m des_multi_agent.cli config set llm_config=llm.example.yaml   # optional, for LLM mode
 ```
 
-Start with the short tutorial in [`docs/tutorial.md`](/home/qshao/DES-Agent/docs/tutorial.md).
-The quickest launch point is [`examples/README.md`](/home/qshao/DES-Agent/examples/README.md).
+**New to DES-Agent?** Start with [`docs/tutorial-wetlab.md`](docs/tutorial-wetlab.md) — a step-by-step guide written for chemists, covering DES screening, metal-binding prediction, and how to feed experimental results back into the next run.
+
+For the full developer reference with all flags and options, see [`docs/tutorial.md`](docs/tutorial.md).
+The quickest launch point for examples is [`examples/README.md`](examples/README.md).
 
 Offline mock demo, recommended first:
 
