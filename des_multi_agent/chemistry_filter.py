@@ -43,9 +43,12 @@ def filter_candidates(component_a: str, candidates: Iterable[CandidateProposal])
     filtered: list[CandidateProposal] = []
     seen_smiles: set[str] = set()
     for proposal in candidates:
-        if not _is_chemically_plausible(proposal.smiles):
+        mol = Chem.MolFromSmiles(proposal.smiles)
+        if mol is None:
             continue
-        canonical_candidate = canonicalize_smiles(proposal.smiles)
+        if any(atom.GetAtomicNum() not in _ALLOWED_ATOMS for atom in mol.GetAtoms()):
+            continue
+        canonical_candidate = Chem.MolToSmiles(mol, canonical=True)
         if canonical_candidate == canonical_component_a:
             continue
         if canonical_candidate in seen_smiles:

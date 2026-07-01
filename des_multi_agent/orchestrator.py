@@ -605,6 +605,7 @@ def run_search_report(
               + (f" (ensemble, {len(ensemble_checkpoints)} folds)" if ensemble_checkpoints else "") + "...")
     component_a_tp = resolve_melting_point(component_a)
     results = []
+    tm_estimates: dict = {}
     for proposal in filtered:
         component_b_tp = resolve_melting_point(proposal.smiles)
         try:
@@ -638,6 +639,7 @@ def run_search_report(
             t2_source=getattr(component_b_tp, "source", None),
             t2_confidence=getattr(component_b_tp, "confidence", None),
         )
+        tm_estimates[proposal.smiles] = (component_a_tp, component_b_tp)
         results.append(result)
     # H2 — predict viscosity early so it can influence ranking
     viscosity_predictions = _predict_viscosity_predictions(component_a, filtered, viscosity_model_path, llm_warnings)
@@ -655,12 +657,15 @@ def run_search_report(
     uncertainty_by_smiles: dict[str, MinimumTmUncertainty] = {}
     for result in ranked:
         smiles_b = result.curve.smiles_b
+        pre = tm_estimates.get(smiles_b)
         try:
             uncertainty_by_smiles[smiles_b] = estimate_min_tm_uncertainty(
                 component_a,
                 smiles_b,
                 str(checkpoint_path),
                 str(config_path),
+                _est_a=pre[0] if pre else None,
+                _est_b=pre[1] if pre else None,
             )
         except Exception as exc:
             llm_warnings.append(f"Uncertainty estimation failed for {smiles_b}: {exc}")

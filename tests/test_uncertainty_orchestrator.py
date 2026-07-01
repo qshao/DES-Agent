@@ -77,7 +77,7 @@ def test_run_search_report_filters_low_trust_candidates(monkeypatch, tmp_path):
     monkeypatch.setattr(
         orchestrator,
         "estimate_min_tm_uncertainty",
-        lambda component_a, component_b, checkpoint_path, config_path: _uncertainty(component_b, 0.9 if component_b == "OCCO" else 0.2, 1.0),
+        lambda component_a, component_b, checkpoint_path, config_path, **kw: _uncertainty(component_b, 0.9 if component_b == "OCCO" else 0.2, 1.0),
     )
 
     checkpoint_path = tmp_path / "ckpt.pt"
@@ -137,7 +137,7 @@ def test_run_search_report_penalizes_and_reranks_low_trust_candidates(monkeypatc
     monkeypatch.setattr(
         orchestrator,
         "estimate_min_tm_uncertainty",
-        lambda component_a, component_b, checkpoint_path, config_path: _uncertainty(component_b, 0.9 if component_b == "OCCO" else 0.2, 1.0),
+        lambda component_a, component_b, checkpoint_path, config_path, **kw: _uncertainty(component_b, 0.9 if component_b == "OCCO" else 0.2, 1.0),
     )
 
     checkpoint_path = tmp_path / "ckpt.pt"

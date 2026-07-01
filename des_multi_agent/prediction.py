@@ -44,8 +44,11 @@ class EmbedderBundle:
     dim: int
 
 
+_RATIO_GRID_LIST: list[float] = list(DEFAULT_RATIO_GRID)
+
+
 def build_ratio_grid() -> list[float]:
-    return list(DEFAULT_RATIO_GRID)
+    return _RATIO_GRID_LIST
 
 
 # --- Process-level caches -------------------------------------------------
@@ -321,7 +324,6 @@ def predict_curve(
     t1 = torch.tensor([float(t1_k)], device=device)
     t2 = torch.tensor([float(t2_k)], device=device)
 
-    ratios = build_ratio_grid()
     with torch.no_grad():
         # MC-dropout draws one stochastic sample per call; the model is cached
         # and shared, so restore eval mode afterwards to avoid leaking train mode
@@ -330,7 +332,7 @@ def predict_curve(
             _enable_dropout(model)
         try:
             d1, d2, w = model.forward_params(x1, x2)
-            r = torch.tensor(ratios, device=device, dtype=d1.dtype)
+            r = torch.tensor(DEFAULT_RATIO_GRID, device=device, dtype=d1.dtype)
             tm = _predict_Tm_from_params(d1, d2, w, t1, t2, r)
         finally:
             if mc_dropout:
@@ -340,7 +342,7 @@ def predict_curve(
     return CurvePrediction(
         smiles_a=component_a,
         smiles_b=component_b,
-        ratios=ratios,
+        ratios=_RATIO_GRID_LIST,
         tm_pred_k=tm_pred_k,
         t1_k=float(t1_k),
         t2_k=float(t2_k),

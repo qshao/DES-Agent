@@ -6,6 +6,21 @@ from rdkit.Chem import AllChem
 from ..schemas import CandidateProposal
 from .library import DiscoveryLibrary
 
+# Process-level cache: smiles → Morgan FP (radius=2, 2048 bits).
+# Avoids recomputing fingerprints for every library record on each call.
+_FP_CACHE: dict[str, object] = {}
+
+
+def _library_fp(smiles: str):
+    fp = _FP_CACHE.get(smiles)
+    if fp is None:
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            return None
+        fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=2048)
+        _FP_CACHE[smiles] = fp
+    return fp
+
 
 def similarity_search(component_a: str, library: DiscoveryLibrary, limit: int) -> list[CandidateProposal]:
     mol_a = Chem.MolFromSmiles(component_a)
@@ -14,10 +29,9 @@ def similarity_search(component_a: str, library: DiscoveryLibrary, limit: int) -
     fp_a = AllChem.GetMorganFingerprintAsBitVect(mol_a, radius=2, nBits=2048)
     scored: list[tuple[float, CandidateProposal]] = []
     for record in library.candidate_library:
-        mol_b = Chem.MolFromSmiles(record.smiles)
-        if mol_b is None:
+        fp_b = _library_fp(record.smiles)
+        if fp_b is None:
             continue
-        fp_b = AllChem.GetMorganFingerprintAsBitVect(mol_b, radius=2, nBits=2048)
         score = DataStructs.TanimotoSimilarity(fp_a, fp_b)
         scored.append(
             (

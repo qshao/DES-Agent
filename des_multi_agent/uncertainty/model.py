@@ -7,6 +7,7 @@ import torch
 
 from ..prediction import predict_curve
 from ..property_resolution import resolve_melting_point
+from ..schemas import MeltingPointEstimate
 from .schemas import MinimumTmUncertainty
 
 
@@ -43,9 +44,12 @@ def estimate_min_tm_uncertainty(
     component_b: str,
     checkpoint_path: str,
     config_path: str,
+    *,
+    _est_a: MeltingPointEstimate | None = None,
+    _est_b: MeltingPointEstimate | None = None,
 ) -> MinimumTmUncertainty:
-    est_a = resolve_melting_point(component_a)
-    est_b = resolve_melting_point(component_b)
+    est_a = _est_a if _est_a is not None else resolve_melting_point(component_a)
+    est_b = _est_b if _est_b is not None else resolve_melting_point(component_b)
     t1 = est_a.tm_k
     t2 = est_b.tm_k
     # The eutectic prediction can be no more trustworthy than the pure-component
