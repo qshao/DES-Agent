@@ -332,6 +332,10 @@ python -m des_multi_agent.cli \
 
 DES-Agent will first run the standard selectivity screen, then the LLM (or fallback: top 3 by score) nominates candidates for DFT. A startup check confirms the packages are installed before any computation begins — if either is missing you will see a clear error message with the install command.
 
+**DFT now reflects the actual ionization state at pH 7.0, not the drawn neutral structure.** If your ligand has an ionizable group (a carboxylic acid, a phenol, an amine, etc.), DES-Agent computes the DFT properties of the form that actually dominates at pH 7.0 — for example, a carboxylic acid ligand is computed as its deprotonated carboxylate anion, since that's what's really present in solution at that pH. This gives a more physically realistic HOMO energy than assuming every ligand stays neutral. You don't need to do anything differently — this happens automatically whenever `--dft-validate` is on.
+
+**Repeat candidates are cached.** Every DFT result is saved to `artifacts/dft_cache/dft_results.sqlite3`, keyed by the exact ionized structure and method. If the same ligand comes up again — in a later cycle of the same run, or in an entirely separate run — DES-Agent reuses the cached result instead of recomputing it, so multi-cycle screens with overlapping candidates get dramatically faster after the first pass. You never need to manage this cache yourself; if you want to force a clean recomputation (e.g. after updating gpu4pyscf), simply delete the `artifacts/dft_cache/` directory.
+
 **Reading the DFT columns in the report.**
 
 When `--dft-validate` is active, the selectivity table gains two extra columns for nominated candidates:

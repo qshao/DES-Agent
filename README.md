@@ -215,7 +215,7 @@ python -m des_multi_agent.cli --workflow metal-selectivity \
   --stability-constant-model-path artifacts/stability_constants/model.json
 ```
 
-Add `--dft-validate` to refine the top candidates with a B3LYP-D3(BJ)/def2-SVP DFT single-point (requires `gpu4pyscf` and `xtb`). The LLM nominates 1–`--dft-top-n` candidates (default 3); the HOMO energy is used as an HSAB donor-softness proxy to apply a ±0.05 composite-score nudge. DFT failures are non-fatal — the run always completes with rule-based ranking as fallback:
+Add `--dft-validate` to refine the top candidates with a B3LYP-D3(BJ)/def2-SVP DFT single-point (requires `gpu4pyscf` and `xtb`). The LLM nominates 1–`--dft-top-n` candidates (default 3); the HOMO energy is used as an HSAB donor-softness proxy to apply a ±0.05 composite-score nudge. DFT failures are non-fatal — the run always completes with rule-based ranking as fallback. DFT now computes the dominant protonation state at `binding_pH` (default 7.0) rather than always assuming the neutral ligand, and every result is cached in `artifacts/dft_cache/dft_results.sqlite3` keyed on the computed species and method, so repeat candidates across cycles or runs skip recomputation:
 
 ```bash
 python -m des_multi_agent.cli --workflow metal-selectivity \

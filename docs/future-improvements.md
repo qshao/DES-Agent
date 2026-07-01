@@ -65,6 +65,12 @@ This document tracks the next useful extensions for DES-Agent after the current 
     - Report gains `dft_homo_ev` and `dft_donor_chg` columns for nominated candidates; a `DFT validation: B3LYP-D3(BJ)/def2-SVP` block summarises the method and any warnings.
     - Startup dependency check verifies `gpu4pyscf` and `xtb` are available before committing to DFT computation.
 
+17. DFT result caching and pH-aware protonation
+    - **Caching**: `des_multi_agent/chemistry/dft_cache.py`'s `cached_compute_dft_properties` wraps `compute_dft_properties` with a SQLite cache at `artifacts/dft_cache/dft_results.sqlite3`, keyed on `(species_smiles, dft_method)` — never the raw input SMILES, so different SMILES spellings of the same molecule correctly share one entry. Only successful DFT results are cached; a cache-layer failure (corrupt file, I/O error) silently falls back to an uncached direct call. No TTL — same species + same method always gives the same physics.
+    - **pH-aware DFT**: `compute_dft_properties(smiles, pH=None)` gained an optional `pH` parameter. When set, it computes the actual dominant protonation state at that pH (via the existing `chemistry.protonation.dominant_species`) with its real formal charge, instead of always assuming the neutral input — e.g. a carboxylic acid ligand at pH 7.4 is now computed as the deprotonated carboxylate (`charge=-1`), which has a meaningfully different HOMO energy than the neutral acid. `pH=None` (the default for direct calls) preserves the exact prior neutral-species behavior.
+    - The metal-selectivity workflow's DFT stage now threads its existing `binding_pH` parameter (default 7.0, previously only used for coordination-claim grounding) into the DFT call for the first time — this is a deliberate accuracy improvement, not a side effect: any ligand that ionizes at pH 7.0 now gets DFT computed on its physiologically-relevant charged form rather than the drawn-neutral form.
+    - `DFTResult` gained `species_smiles` (the species actually computed), `ph` (the pH used), and `from_cache` (whether this result came from the cache) fields.
+
 ## Next Up
 
 1. Expanded common-names registry
