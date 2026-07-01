@@ -8,6 +8,7 @@ import sys
 from .candidate_generation import generate_candidates
 from .chemical_lesson_summary import ChemistryLessonSummary, ChemistryLessonSummaryConfig, build_chemistry_lesson_summary
 from .chemical_pattern_memory import ChemicalPatternMemory, ChemicalPatternMemoryConfig, apply_pattern_memory_bias, build_pattern_memory, merge_pattern_memories
+from .chemistry.hbond import rank_by_hbond as _rank_by_hbond
 from .chemistry_filter import canonicalize_smiles, filter_candidates
 from .proposal_diversity import ProposalDiversityConfig, apply_proposal_diversity
 from .config import DEFAULT_ABSOLUTE_TM_MAX_K, DEFAULT_RELATIVE_DROP_MIN
@@ -111,6 +112,9 @@ def _build_iterative_context(
     family_scores: dict[str, list[float]] | None = None,
     saturated_families: set[str] | None = None,
     failing_scaffolds: set[str] | None = None,
+    family_ucb_scores: dict[str, float] | None = None,
+    fg_hit_counts: dict[str, int] | None = None,
+    fg_fail_counts: dict[str, int] | None = None,
 ) -> str:
     if not prior_top:
         return base_context
@@ -138,7 +142,21 @@ def _build_iterative_context(
             else:
                 fam_parts.append(f"  - {fam}: {count} DES-positive hits")
         ctx += "\nTop productive chemical families:\n" + "\n".join(fam_parts)
-    if saturated_families:
+    if family_ucb_scores:
+        # Show families ranked by UCB exploration value so LLM can focus effort
+        # on high-value (unexplored or high hit-rate) families.
+        ranked_ucb = sorted(family_ucb_scores.items(), key=lambda x: x[1], reverse=True)
+        explore_worthy = [(f, v) for f, v in ranked_ucb if v >= 0.5][:4]
+        depleted = [(f, v) for f, v in ranked_ucb if v < 0.5][:3]
+        if explore_worthy:
+            ctx += "\nFamilies worth exploring further (high UCB score = promising or under-sampled):\n" + "\n".join(
+                f"  - {fam} (UCB={val:.2f})" for fam, val in explore_worthy
+            )
+        if depleted:
+            ctx += "\nDepleted families (low UCB score = exhausted, avoid repeating):\n" + "\n".join(
+                f"  - {fam} (UCB={val:.2f})" for fam, val in depleted
+            )
+    elif saturated_families:
         sat_list = sorted(saturated_families)[:5]
         ctx += "\nExhausted families (too many failures, avoid repeating):\n" + "\n".join(
             f"  - {fam}" for fam in sat_list
@@ -148,6 +166,27 @@ def _build_iterative_context(
         ctx += "\nFailing scaffold cores (consistently non-DES, avoid similar structures):\n" + "\n".join(
             f"  - {sc}" for sc in sc_list
         )
+    if fg_hit_counts or fg_fail_counts:
+        # Sub-family SAR: functional groups enriched in hits vs. failures.
+        all_fg = set(fg_hit_counts or {}) | set(fg_fail_counts or {})
+        fg_rates: list[tuple[str, float, int]] = []
+        for fg in all_fg:
+            h = (fg_hit_counts or {}).get(fg, 0)
+            f = (fg_fail_counts or {}).get(fg, 0)
+            total = h + f
+            if total >= 2:
+                fg_rates.append((fg, h / total, total))
+        if fg_rates:
+            productive_fg = sorted([(fg, r, n) for fg, r, n in fg_rates if r >= 0.5], key=lambda x: -x[1])[:4]
+            avoid_fg = sorted([(fg, r, n) for fg, r, n in fg_rates if r < 0.5], key=lambda x: x[1])[:3]
+            if productive_fg:
+                ctx += "\nStructural features enriched in DES hits (prefer):\n" + "\n".join(
+                    f"  - {fg}: {r*100:.0f}% hit rate ({n} trials)" for fg, r, n in productive_fg
+                )
+            if avoid_fg:
+                ctx += "\nStructural features enriched in failures (avoid):\n" + "\n".join(
+                    f"  - {fg}: {r*100:.0f}% hit rate ({n} trials)" for fg, r, n in avoid_fg
+                )
     if already_evaluated:
         smiles_list = sorted(already_evaluated)[:20]
         ctx += "\nAlready evaluated — do not re-propose: " + ", ".join(smiles_list)
@@ -351,6 +390,36 @@ def _apply_review_penalties(
     return rank_annotated_results(adjusted)
 
 
+def _apply_hbond_bias(
+    annotated_results: list[AnnotatedResult],
+    component_a: str,
+    *,
+    weight: float = 0.10,
+) -> list[AnnotatedResult]:
+    """Adjust ranking scores by H-bond complementarity with component_a.
+
+    Maps composite_score ∈ [0, 1] to an adjustment ∈ [-weight, +weight] so
+    well-complemented candidates rise and poorly-complemented ones fall.
+    Never raises; returns the input list unchanged on any error.
+    """
+    if not annotated_results:
+        return annotated_results
+    try:
+        smiles_list = [item.result.curve.smiles_b for item in annotated_results]
+        scored = _rank_by_hbond(component_a, smiles_list)
+        adj_by_smiles = {
+            smi: (score.composite_score - 0.5) * 2.0 * weight
+            for smi, score in scored
+        }
+        adjusted = [
+            replace(item, ranking_score=max(0.0, item.ranking_score + adj_by_smiles.get(item.result.curve.smiles_b, 0.0)))
+            for item in annotated_results
+        ]
+        return rank_annotated_results(adjusted)
+    except Exception:
+        return annotated_results
+
+
 def _canonical(smiles: str) -> str:
     """Return canonical SMILES, or the input string if unparseable."""
     try:
@@ -481,16 +550,28 @@ def _resolve_des_output_dir(output_dir: str | None, save_run_memory_path: str | 
     return None
 
 
-def _generate_analogue_candidates(prior_cycle_top_results: list | None) -> list[CandidateProposal]:
-    """Feature 2: expand top DES hits from the prior cycle into close structural analogues."""
+def _generate_analogue_candidates(
+    prior_cycle_top_results: list | None,
+    *,
+    near_miss_window_k: float = 15.0,
+    transform_weights: dict[str, float] | None = None,
+) -> list[CandidateProposal]:
+    """Feature 2: expand top DES hits and near-misses from the prior cycle.
+
+    Near-misses (not DES but min_tm_k within *near_miss_window_k* of the threshold)
+    are often the most informative seeds — one structural modification may push them
+    over the DES boundary.  *transform_weights* (name → Laplace-smoothed hit rate)
+    biases the transform order toward historically productive transforms.
+    """
     if not prior_cycle_top_results:
         return []
     from .analogue_expansion import generate_analogues
     proposals: list[CandidateProposal] = []
+
     top_des = [r for r in prior_cycle_top_results if r.is_des][:2]
     for r in top_des:
         seed_smi = r.curve.smiles_b
-        for analogue_smi in generate_analogues(seed_smi, max_n=4):
+        for analogue_smi in generate_analogues(seed_smi, max_n=4, transform_weights=transform_weights):
             proposals.append(CandidateProposal(
                 smiles=analogue_smi,
                 rationale=f"structural analogue of best DES hit {seed_smi} (min_tm={r.min_tm_k:.1f} K)",
@@ -498,6 +579,28 @@ def _generate_analogue_candidates(prior_cycle_top_results: list | None) -> list[
                 source="analogue",
                 source_id=seed_smi,
             ))
+
+    # Near-miss expansion: candidates just above the DES threshold may cross it with
+    # a small structural change. Use the lowest min_tm_k among non-DES results as the
+    # threshold proxy (works without needing the exact DesThresholds value here).
+    non_des = [r for r in prior_cycle_top_results if not r.is_des]
+    if non_des:
+        best_non_des_tm = min(r.min_tm_k for r in non_des)
+        near_misses = [
+            r for r in non_des
+            if r.min_tm_k <= best_non_des_tm + near_miss_window_k
+        ][:2]
+        for r in near_misses:
+            seed_smi = r.curve.smiles_b
+            for analogue_smi in generate_analogues(seed_smi, max_n=3, transform_weights=transform_weights):
+                proposals.append(CandidateProposal(
+                    smiles=analogue_smi,
+                    rationale=f"near-miss analogue of {seed_smi} (min_tm={r.min_tm_k:.1f} K, just above DES threshold)",
+                    family="analogue",
+                    source="near_miss_analogue",
+                    source_id=seed_smi,
+                ))
+
     return proposals
 
 
@@ -553,6 +656,10 @@ def run_search_report(
     prior_family_scores: dict[str, list[float]] | None = None,
     prior_saturated_families: set[str] | None = None,
     prior_failing_scaffolds: set[str] | None = None,
+    prior_family_ucb_scores: dict[str, float] | None = None,
+    prior_transform_weights: dict[str, float] | None = None,
+    prior_fg_hit_counts: dict[str, int] | None = None,
+    prior_fg_fail_counts: dict[str, int] | None = None,
 ):
     # D1 — validate component_a SMILES before any expensive work
     try:
@@ -565,20 +672,21 @@ def run_search_report(
     llm_warnings: list[str] = []
     all_dedup_notes: list[str] = []
 
-    # D4 — batch file bypasses LLM candidate generation
+    # D4 — batch file bypasses LLM candidate generation, but still allows
+    # analogue expansion of prior hits in cycle 2+ (Feature 2).
     if candidates_file is not None:
         file_proposals = _load_candidates_file(candidates_file)
         _progress(1, f"Using {len(file_proposals)} candidate(s) from file: {candidates_file}")
         heuristic_candidates = file_proposals
         discovery_candidates: list[CandidateProposal] = []
-        analogue_candidates: list[CandidateProposal] = []
+        analogue_candidates = _generate_analogue_candidates(prior_cycle_top_results, transform_weights=prior_transform_weights)
     else:
         _progress(1, f"Generating candidates for {component_a}...")
         heuristic_candidates = generate_candidates(component_a, n=n, constraints=None)
         discovery_candidates = _build_discovery_candidates(component_a, n, discovery_path, llm_warnings)
         # Feature 2: adaptive heuristic diversity — expand best prior DES hits.
         # Only runs in cycle 2+ (when prior_cycle_top_results is populated).
-        analogue_candidates = _generate_analogue_candidates(prior_cycle_top_results)
+        analogue_candidates = _generate_analogue_candidates(prior_cycle_top_results, transform_weights=prior_transform_weights)
 
     candidate_proposals, notes = _merge_candidates(discovery_candidates, heuristic_candidates, analogue_candidates)
     all_dedup_notes.extend(notes)
@@ -620,6 +728,9 @@ def run_search_report(
                     family_scores=prior_family_scores,
                     saturated_families=prior_saturated_families,
                     failing_scaffolds=prior_failing_scaffolds,
+                    family_ucb_scores=prior_family_ucb_scores,
+                    fg_hit_counts=prior_fg_hit_counts,
+                    fg_fail_counts=prior_fg_fail_counts,
                 )
             llm_candidates = provider.brainstorm_candidates(
                 component_a,
@@ -758,6 +869,7 @@ def run_search_report(
             )
     annotated_results = apply_uncertainty_policy(ranked, uncertainty_by_smiles, policy)
     annotated_results = _apply_review_penalties(annotated_results, review_penalties)
+    annotated_results = _apply_hbond_bias(annotated_results, component_a)
     memory_notes: list[str] = list(all_dedup_notes)
     if reuse_run_note is not None:
         memory_notes.insert(0, reuse_run_note)

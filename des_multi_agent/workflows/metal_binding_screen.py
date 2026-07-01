@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import sys
 from dataclasses import dataclass, field
 
@@ -112,6 +113,29 @@ def _top_k_stable(prev: list[LigandScreenResult], curr: list[LigandScreenResult]
 _LOG_K_SUCCESS_THRESHOLD = 4.0  # minimum log_k considered "good binding"
 
 
+def _family_ucb_scores(
+    hit_scores: dict[str, list[float]],
+    fail_counts: "Counter[str]",
+    *,
+    C: float = 1.4,
+) -> dict[str, float]:
+    """UCB1 score per family for metal-binding exploration."""
+    all_families = set(hit_scores) | set(fail_counts)
+    N_total = sum(len(v) for v in hit_scores.values()) + sum(fail_counts.values()) + 1
+    scores: dict[str, float] = {}
+    for fam in all_families:
+        h = len(hit_scores.get(fam, []))
+        f = fail_counts.get(fam, 0)
+        n = h + f
+        if n == 0:
+            scores[fam] = float("inf")
+            continue
+        hit_rate = h / n
+        exploration = C * math.sqrt(math.log(N_total) / n)
+        scores[fam] = hit_rate + exploration
+    return scores
+
+
 def run_metal_binding_screen(
     metal_ion: str,
     n: int = 20,
@@ -123,7 +147,7 @@ def run_metal_binding_screen(
 ) -> MetalBindingScreenOutcome:
     from ..chemistry.claim_grounding import ground_coordination as _ground_coord
     from ..chemistry_filter import murcko_scaffold_smiles as _scaffold
-    from ..analogue_expansion import generate_analogues
+    from ..analogue_expansion import generate_analogues_tagged
     from collections import Counter
 
     seen_smiles: set[str] = set()
@@ -138,6 +162,11 @@ def run_metal_binding_screen(
     family_hit_scores: dict[str, list[float]] = {}  # family → [log_k] for successes
     family_fail_ledger: Counter[str] = Counter()
     scaffold_counts: dict[str, dict] = {}           # scaffold_smi → {"hit": int, "fail": int}
+    # Enhancement 4: per-transform hit/fail counts for adaptive selection
+    transform_hit_counts: Counter[str] = Counter()
+    transform_fail_counts: Counter[str] = Counter()
+    # smiles → transform_name for analogues generated this run
+    analogue_transform_map: dict[str, str] = {}
 
     for cycle in range(1, n_cycles + 1):
         # Compute saturation + failing scaffolds for LLM context and proposal filter
@@ -148,13 +177,11 @@ def run_metal_binding_screen(
                 sc for sc, counts in scaffold_counts.items()
                 if counts["fail"] >= 3 and counts["hit"] == 0
             }
-            family_hit_ledger = Counter({fam: len(scores) for fam, scores in family_hit_scores.items()})
-            for fam in set(family_hit_ledger) | set(family_fail_ledger):
-                hits = family_hit_ledger.get(fam, 0)
-                fails = family_fail_ledger.get(fam, 0)
-                total = hits + fails
-                if total >= 3 and hits / total < 0.3:
-                    saturated_families.add(fam)
+            ucb = _family_ucb_scores(family_hit_scores, family_fail_ledger)
+            saturated_families = {
+                fam for fam, score in ucb.items()
+                if score < 0.5 and (len(family_hit_scores.get(fam, [])) + family_fail_ledger.get(fam, 0)) >= 5
+            }
 
         proposals: list[CandidateProposal] = []
 
@@ -162,17 +189,42 @@ def run_metal_binding_screen(
             heuristic = generate_ligand_candidates(metal_ion, n, constraints)
             proposals.extend(_deduplicate_proposals(heuristic, seen_smiles))
 
-        # Feature 2: generate structural analogues of top prior hits in cycle 2+
+        # Feature 2: generate structural analogues of top hits and near-misses in cycle 2+
         if cycle > 1 and prev_cycle_results:
+            # Enhancement 4: bias transforms toward historically productive ones
+            transform_weights: dict[str, float] = {}
+            all_tx = set(transform_hit_counts) | set(transform_fail_counts)
+            for tx in all_tx:
+                h = transform_hit_counts.get(tx, 0)
+                f = transform_fail_counts.get(tx, 0)
+                transform_weights[tx] = (h + 1) / (h + f + 2)  # Laplace smoothed hit rate
+
             top_hits = [r for r in prev_cycle_results if r.log_k >= _LOG_K_SUCCESS_THRESHOLD][:2]
+            non_hits = [r for r in prev_cycle_results if r.log_k < _LOG_K_SUCCESS_THRESHOLD]
+            _near_miss_floor = _LOG_K_SUCCESS_THRESHOLD - 0.5
+            near_misses = sorted(
+                [r for r in non_hits if r.log_k >= _near_miss_floor],
+                key=lambda r: r.log_k, reverse=True,
+            )[:2]
             analogue_proposals: list[CandidateProposal] = []
             for r in top_hits:
-                for analogue_smi in generate_analogues(r.ligand_smiles, max_n=4):
+                for analogue_smi, tx_name in generate_analogues_tagged(r.ligand_smiles, max_n=4, transform_weights=transform_weights):
+                    analogue_transform_map[analogue_smi] = tx_name
                     analogue_proposals.append(CandidateProposal(
                         smiles=analogue_smi,
-                        rationale=f"analogue of {r.ligand_smiles} (log_K={r.log_k:.2f})",
+                        rationale=f"analogue of {r.ligand_smiles} (log_K={r.log_k:.2f}, via {tx_name})",
                         family="analogue",
                         source="analogue",
+                        source_id=r.ligand_smiles,
+                    ))
+            for r in near_misses:
+                for analogue_smi, tx_name in generate_analogues_tagged(r.ligand_smiles, max_n=3, transform_weights=transform_weights):
+                    analogue_transform_map[analogue_smi] = tx_name
+                    analogue_proposals.append(CandidateProposal(
+                        smiles=analogue_smi,
+                        rationale=f"near-miss analogue of {r.ligand_smiles} (log_K={r.log_k:.2f}, via {tx_name})",
+                        family="analogue",
+                        source="near_miss_analogue",
                         source_id=r.ligand_smiles,
                     ))
             proposals.extend(_deduplicate_proposals(analogue_proposals, seen_smiles))
@@ -229,20 +281,33 @@ def run_metal_binding_screen(
                     all_warnings.append(f"LLM review failed for {r.ligand_smiles}: {exc}")
 
         # Update cross-cycle trackers
-        ligand_family_map = {b.smiles: b.family for b in all_brainstorm}
+        def _safe_canon(smi: str) -> str:
+            try:
+                return canonicalize_smiles(smi)
+            except ValueError:
+                return smi
+
+        ligand_family_map = {
+            _safe_canon(b.smiles): b.family for b in all_brainstorm
+        }
         for r in cycle_results:
             family = ligand_family_map.get(r.ligand_smiles, "")
             sc = _scaffold(r.ligand_smiles)
+            tx_name = analogue_transform_map.get(r.ligand_smiles)
             if r.log_k >= _LOG_K_SUCCESS_THRESHOLD:
                 if family and family not in ("", "unknown", "analogue"):
                     family_hit_scores.setdefault(family, []).append(r.log_k)
                 if sc:
                     scaffold_counts.setdefault(sc, {"hit": 0, "fail": 0})["hit"] += 1
+                if tx_name:
+                    transform_hit_counts[tx_name] += 1
             else:
                 if family and family not in ("", "unknown", "analogue"):
                     family_fail_ledger[family] += 1
                 if sc:
                     scaffold_counts.setdefault(sc, {"hit": 0, "fail": 0})["fail"] += 1
+                if tx_name:
+                    transform_fail_counts[tx_name] += 1
 
         # Merge cycle results into cumulative, keeping best log_k per SMILES
         by_smiles = {r.ligand_smiles: r for r in cumulative_results}

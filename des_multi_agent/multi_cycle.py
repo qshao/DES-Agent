@@ -1,6 +1,7 @@
 """H1 + H5 — multi-cycle DES screening with convergence detection."""
 from __future__ import annotations
 
+import math
 import pathlib
 from collections import Counter
 from dataclasses import dataclass, field
@@ -36,6 +37,39 @@ class MultiCycleOutcome:
     converged: bool
     accumulated_family_ledger: dict[str, int] = field(default_factory=dict)  # cross-cycle totals
     trajectory: object = None   # SearchTrajectory | None
+    # Cross-run persistence payload — populated by run_multi_cycle_search
+    accumulated_family_scores: dict[str, list[float]] = field(default_factory=dict)
+    accumulated_family_fail_counts: dict[str, int] = field(default_factory=dict)
+    scaffold_counts: dict[str, dict] = field(default_factory=dict)
+    fg_hit_counts: dict[str, int] = field(default_factory=dict)
+    fg_fail_counts: dict[str, int] = field(default_factory=dict)
+
+
+def _family_ucb_scores(
+    hits: Counter,
+    fails: Counter,
+    *,
+    C: float = 1.4,
+) -> dict[str, float]:
+    """UCB1 exploration score per family.
+
+    Balances exploitation (hit rate) with exploration (uncertainty from low trial count).
+    C=1.4 ≈ sqrt(2), the standard UCB1 constant.
+    """
+    all_families = set(hits) | set(fails)
+    N_total = sum(hits.values()) + sum(fails.values()) + 1  # +1 prevents log(0)
+    scores: dict[str, float] = {}
+    for fam in all_families:
+        h = hits.get(fam, 0)
+        f = fails.get(fam, 0)
+        n = h + f
+        if n == 0:
+            scores[fam] = float("inf")
+            continue
+        hit_rate = h / n
+        exploration = C * math.sqrt(math.log(N_total) / n)
+        scores[fam] = hit_rate + exploration
+    return scores
 
 
 def _des_top_entries(outcome, top_k: int) -> tuple[list[TopEntry], list[str]]:
@@ -97,7 +131,13 @@ def run_multi_cycle_search(
     accumulated_ledger: Counter[str] = Counter()
     accumulated_fail_ledger: Counter[str] = Counter()       # family → DES-negative count
     accumulated_family_scores: dict[str, list[float]] = {} # family → [min_tm_k for DES hits]
-    scaffold_counts: dict[str, dict] = {}                  # scaffold_smi → {"des": int, "fail": int}
+    scaffold_counts: dict[str, dict] = {}                  # scaffold_smi → {"hit": int, "fail": int}
+    # Enhancement 4: per-transform hit/fail for adaptive analogue selection
+    transform_hit_counts: Counter[str] = Counter()
+    transform_fail_counts: Counter[str] = Counter()
+    # Enhancement 5: functional group frequency in hits vs. failures (sub-family SAR)
+    fg_hit_counts: Counter[str] = Counter()   # fg_tag → count in DES-positive results
+    fg_fail_counts: Counter[str] = Counter()  # fg_tag → count in DES-negative results
     cycle_pattern_memory = prior_pattern_memory
     cycle_lesson_summary = prior_chemistry_lesson_summary
     snapshots: list[CycleSnapshot] = []
@@ -111,17 +151,28 @@ def run_multi_cycle_search(
         # Compute Feature 3 & 4 signals from prior cycles for the LLM and filter.
         failing_scaffolds: set[str] = set()
         saturated_families: set[str] = set()
+        family_ucb_scores: dict[str, float] = {}
+        # Enhancement 4: Laplace-smoothed per-transform hit rates for adaptive expansion
+        transform_weights: dict[str, float] = {}
         if cycle > 1:
             failing_scaffolds = {
                 sc for sc, counts in scaffold_counts.items()
-                if counts["fail"] >= 3 and counts["des"] == 0
+                if counts["fail"] >= 3 and counts["hit"] == 0
             }
-            for fam in set(accumulated_ledger) | set(accumulated_fail_ledger):
-                hits = accumulated_ledger.get(fam, 0)
-                fails = accumulated_fail_ledger.get(fam, 0)
-                total = hits + fails
-                if total >= 3 and hits / total < 0.3:
-                    saturated_families.add(fam)
+            # UCB-based saturation: a family is exhausted when it has enough trials
+            # AND its UCB score is below threshold — much less aggressive than a fixed
+            # hit-rate cutoff, since low-trial families retain high exploration value.
+            family_ucb_scores = _family_ucb_scores(accumulated_ledger, accumulated_fail_ledger)
+            saturated_families = {
+                fam for fam, ucb in family_ucb_scores.items()
+                if ucb < 0.5 and (accumulated_ledger.get(fam, 0) + accumulated_fail_ledger.get(fam, 0)) >= 5
+            }
+            # Enhancement 4: compute Laplace-smoothed transform weights for adaptive expansion
+            all_tx = set(transform_hit_counts) | set(transform_fail_counts)
+            transform_weights = {
+                tx: (transform_hit_counts.get(tx, 0) + 1) / (transform_hit_counts.get(tx, 0) + transform_fail_counts.get(tx, 0) + 2)
+                for tx in all_tx
+            }
 
         # Pass the full prior result list so the brainstorm context can show both
         # top performers (positive signal) and non-DES failures (negative signal).
@@ -160,6 +211,10 @@ def run_multi_cycle_search(
             prior_family_scores=dict(accumulated_family_scores) if cycle > 1 else None,
             prior_saturated_families=saturated_families if cycle > 1 else None,
             prior_failing_scaffolds=failing_scaffolds if cycle > 1 else None,
+            prior_family_ucb_scores=family_ucb_scores if cycle > 1 else None,
+            prior_transform_weights=transform_weights if cycle > 1 else None,
+            prior_fg_hit_counts=dict(fg_hit_counts) if cycle > 1 else None,
+            prior_fg_fail_counts=dict(fg_fail_counts) if cycle > 1 else None,
         )
 
         # Update cross-cycle caches with this cycle's fresh evaluations.
@@ -176,22 +231,25 @@ def run_multi_cycle_search(
 
         # H6 — build family ledger: DES-positive hit count per chemical family
         smiles_to_family = {bc.smiles: bc.family for bc in outcome.brainstorm_candidates}
+        _SKIP_FAMILIES = {"", "unknown", "analogue", "heuristic"}
         family_ledger: Counter[str] = Counter(
-            smiles_to_family.get(r.curve.smiles_b, "unknown")
-            for r in outcome.results if r.is_des
+            fam for r in outcome.results if r.is_des
+            for fam in [smiles_to_family.get(r.curve.smiles_b, "")]
+            if fam and fam not in _SKIP_FAMILIES
         )
         accumulated_ledger.update(family_ledger)
 
         # Feature 1: track average min_tm_k per family for DES hits.
         for r in outcome.results:
             family = smiles_to_family.get(r.curve.smiles_b, "")
-            if r.is_des and family and family != "unknown":
+            if r.is_des and family and family not in _SKIP_FAMILIES:
                 accumulated_family_scores.setdefault(family, []).append(r.min_tm_k)
 
         # Feature 3: track DES-negative count per family for saturation detection.
         fail_family_ledger: Counter[str] = Counter(
-            smiles_to_family.get(r.curve.smiles_b, "unknown")
-            for r in outcome.results if not r.is_des
+            fam for r in outcome.results if not r.is_des
+            for fam in [smiles_to_family.get(r.curve.smiles_b, "")]
+            if fam and fam not in _SKIP_FAMILIES
         )
         accumulated_fail_ledger.update(fail_family_ledger)
 
@@ -200,11 +258,51 @@ def run_multi_cycle_search(
         for r in outcome.results:
             sc = _scaffold(r.curve.smiles_b)
             if sc:
-                entry = scaffold_counts.setdefault(sc, {"des": 0, "fail": 0})
+                entry = scaffold_counts.setdefault(sc, {"hit": 0, "fail": 0})
                 if r.is_des:
-                    entry["des"] += 1
+                    entry["hit"] += 1
                 else:
                     entry["fail"] += 1
+
+        # Enhancement 5: track functional group frequencies in hits vs. failures.
+        from .chemistry.claim_grounding import structural_facts as _structural_facts
+        for r in outcome.results:
+            try:
+                facts = _structural_facts(r.curve.smiles_b)
+                for fg_tag in facts.family_features:
+                    if r.is_des:
+                        fg_hit_counts[fg_tag] += 1
+                    else:
+                        fg_fail_counts[fg_tag] += 1
+            except Exception:
+                pass
+
+        # Enhancement 4: track per-transform outcomes using analogue source attribution.
+        # candidate_proposals records source="analogue"/"near_miss_analogue" and rationale
+        # contains "via <transform_name>" from _generate_analogue_candidates.
+        analogue_result_smiles = {
+            r.curve.smiles_b
+            for r in outcome.results
+        }
+        for proposal in outcome.candidate_proposals:
+            if proposal.source not in ("analogue", "near_miss_analogue"):
+                continue
+            if proposal.smiles not in analogue_result_smiles:
+                continue
+            # Extract transform name from rationale: "... (via chain_extend)"
+            import re as _re
+            m = _re.search(r"\(via (\w+)\)", proposal.rationale or "")
+            if not m:
+                continue
+            tx_name = m.group(1)
+            # Find the corresponding result to see if it's a DES hit
+            for r in outcome.results:
+                if r.curve.smiles_b == proposal.smiles:
+                    if r.is_des:
+                        transform_hit_counts[tx_name] += 1
+                    else:
+                        transform_fail_counts[tx_name] += 1
+                    break
 
         top_k = frozenset(
             r.curve.smiles_b for r in outcome.results[:top_k_convergence] if r.is_des
@@ -272,4 +370,9 @@ def run_multi_cycle_search(
         converged=final_converged,
         accumulated_family_ledger=dict(accumulated_ledger),
         trajectory=trajectory,
+        accumulated_family_scores=dict(accumulated_family_scores),
+        accumulated_family_fail_counts=dict(accumulated_fail_ledger),
+        scaffold_counts=dict(scaffold_counts),
+        fg_hit_counts=dict(fg_hit_counts),
+        fg_fail_counts=dict(fg_fail_counts),
     )

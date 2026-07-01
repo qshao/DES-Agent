@@ -332,6 +332,8 @@ def test_pattern_memory_bias_adjusts_ranking(monkeypatch):
         ),
     )
     monkeypatch.setattr(orchestrator, "rank_results", lambda results: results)
+    # Isolate the pattern memory bias test from H-bond ranking adjustments.
+    monkeypatch.setattr(orchestrator, "_apply_hbond_bias", lambda annotated, component_a, **kw: annotated)
 
     outcome = orchestrator.run_search_report(
         component_a="CCO",

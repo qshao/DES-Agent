@@ -23,10 +23,10 @@ from .chemistry_filter import viability_check
 # ---------------------------------------------------------------------------
 
 _TRANSFORM_SMARTS: list[tuple[str, str]] = [
-    # Insert one CH2 into an aliphatic C–C bond (chain homologation)
-    ("[CX4H2:1]-[CX4:2]>>[CX4H2:1]-C-[CX4:2]", "chain_extend"),
-    # Remove one CH2 from an aliphatic chain (chain shortening)
-    ("[CX4:1]-[CX4H2:2]-[CX4:3]>>[CX4:1]-[CX4:3]", "chain_shorten"),
+    # Insert one CH2 into an aliphatic (non-ring) C–C bond (chain homologation)
+    ("[CX4H2;!R:1]-[CX4;!R:2]>>[CX4H2;!R:1]-C-[CX4;!R:2]", "chain_extend"),
+    # Remove one CH2 from a non-ring aliphatic chain (chain shortening)
+    ("[CX4;!R:1]-[CX4H2;!R:2]-[CX4;!R:3]>>[CX4;!R:1]-[CX4;!R:3]", "chain_shorten"),
     # Hydroxyl → primary amine bioisostere (keeps H-bond capacity)
     ("[CX4:1]-[OX2H1:2]>>[CX4:1]-[NH2]", "oh_to_nh2"),
     # Primary amine → hydroxyl bioisostere
@@ -41,25 +41,35 @@ for _smarts, _name in _TRANSFORM_SMARTS:
         _rxn = AllChem.ReactionFromSmarts(_smarts)
         if _rxn is not None:
             _TRANSFORMS.append((_rxn, _name))
-    except Exception:
-        pass
+    except Exception as _exc:
+        import sys as _sys
+        print(f"[analogue_expansion] WARNING: transform {_name!r} failed to compile: {_exc}", file=_sys.stderr)
+
+if len(_TRANSFORMS) < len(_TRANSFORM_SMARTS):
+    import sys as _sys
+    print(
+        f"[analogue_expansion] WARNING: only {len(_TRANSFORMS)}/{len(_TRANSFORM_SMARTS)} transforms loaded",
+        file=_sys.stderr,
+    )
 
 
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 
-def generate_analogues(smiles: str, max_n: int = 5) -> list[str]:
-    """Return up to *max_n* structural analogues of *smiles*.
+def generate_analogues_tagged(
+    smiles: str,
+    max_n: int = 5,
+    transform_weights: dict[str, float] | None = None,
+) -> list[tuple[str, str]]:
+    """Return up to *max_n* (analogue_smiles, transform_name) pairs.
 
-    Each returned SMILES is:
-    - distinct from the input (different canonical SMILES)
-    - distinct from all other returned SMILES
-    - at least 3 heavy atoms
-    - passing viability_check (no reactive groups, reasonable complexity)
+    *transform_weights* maps transform name → weight (higher = tried first).
+    Transforms not in the dict receive weight 1.0.  This lets callers that
+    track per-transform hit rates bias future calls toward productive transforms.
 
-    Never raises; returns an empty list on invalid input or if no valid
-    analogues can be generated.
+    Each analogue SMILES is distinct from the input and all prior results,
+    has ≥3 heavy atoms, and passes viability_check.  Never raises.
     """
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
@@ -69,10 +79,20 @@ def generate_analogues(smiles: str, max_n: int = 5) -> list[str]:
     except Exception:
         return []
 
-    seen: set[str] = {seed_canonical}
-    results: list[str] = []
+    # Re-order transforms by descending weight for adaptive selection.
+    if transform_weights:
+        ordered = sorted(
+            _TRANSFORMS,
+            key=lambda t: transform_weights.get(t[1], 1.0),
+            reverse=True,
+        )
+    else:
+        ordered = list(_TRANSFORMS)
 
-    for rxn, _ in _TRANSFORMS:
+    seen: set[str] = {seed_canonical}
+    results: list[tuple[str, str]] = []
+
+    for rxn, name in ordered:
         if len(results) >= max_n:
             break
         try:
@@ -80,7 +100,6 @@ def generate_analogues(smiles: str, max_n: int = 5) -> list[str]:
         except Exception:
             continue
 
-        # Collect unique valid products across all match positions
         batch: list[str] = []
         for product_tuple in product_sets:
             if not product_tuple:
@@ -98,14 +117,26 @@ def generate_analogues(smiles: str, max_n: int = 5) -> list[str]:
             ok, _ = viability_check(prod)
             if not ok:
                 continue
-            if canon not in seen:
-                seen.add(canon)
-                batch.append(canon)
+            seen.add(canon)
+            batch.append(canon)
 
-        # Sort for determinism, then append up to remaining budget
         for canon in sorted(batch):
             if len(results) >= max_n:
                 break
-            results.append(canon)
+            results.append((canon, name))
 
     return results
+
+
+def generate_analogues(
+    smiles: str,
+    max_n: int = 5,
+    transform_weights: dict[str, float] | None = None,
+) -> list[str]:
+    """Return up to *max_n* structural analogues of *smiles*.
+
+    Convenience wrapper around :func:`generate_analogues_tagged` that drops
+    the transform attribution.  Pass *transform_weights* to bias toward
+    historically productive transforms.
+    """
+    return [smi for smi, _ in generate_analogues_tagged(smiles, max_n, transform_weights)]

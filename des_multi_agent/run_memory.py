@@ -108,12 +108,21 @@ def parse_run_memory(data: Mapping[str, object]) -> RunMemory:
         raise ValueError("n must be an integer or null") from exc
     raw_component_a = data.get("component_a")
     component_a = raw_component_a if isinstance(raw_component_a, str) or raw_component_a is None else str(raw_component_a)
+    def _optional_dict(val: object) -> dict | None:
+        return val if isinstance(val, dict) else None
+
     return RunMemory(
         workflow="des",
         component_a=component_a,
         n=parsed_n,
         labels=labels,
         ranked_candidates=ranked_candidates,
+        accumulated_family_scores=_optional_dict(data.get("accumulated_family_scores")),
+        accumulated_family_hit_counts=_optional_dict(data.get("accumulated_family_hit_counts")),
+        accumulated_family_fail_counts=_optional_dict(data.get("accumulated_family_fail_counts")),
+        scaffold_counts=_optional_dict(data.get("scaffold_counts")),
+        fg_hit_counts=_optional_dict(data.get("fg_hit_counts")),
+        fg_fail_counts=_optional_dict(data.get("fg_fail_counts")),
     )
 
 
@@ -152,6 +161,13 @@ def build_run_memory(
     annotated_results: list[AnnotatedResult],
     candidate_proposals: list[CandidateProposal],
     labels: list[RunLabel] | None = None,
+    *,
+    accumulated_family_scores: dict[str, list[float]] | None = None,
+    accumulated_family_hit_counts: dict[str, int] | None = None,
+    accumulated_family_fail_counts: dict[str, int] | None = None,
+    scaffold_counts: dict[str, dict] | None = None,
+    fg_hit_counts: dict[str, int] | None = None,
+    fg_fail_counts: dict[str, int] | None = None,
 ) -> RunMemory:
     proposal_by_smiles = {proposal.smiles: proposal for proposal in candidate_proposals}
     ranked_candidates: list[RunCandidateSummary] = []
@@ -174,6 +190,12 @@ def build_run_memory(
         n=n,
         labels=list(labels or []),
         ranked_candidates=ranked_candidates,
+        accumulated_family_scores=accumulated_family_scores,
+        accumulated_family_hit_counts=accumulated_family_hit_counts,
+        accumulated_family_fail_counts=accumulated_family_fail_counts,
+        scaffold_counts=scaffold_counts,
+        fg_hit_counts=fg_hit_counts,
+        fg_fail_counts=fg_fail_counts,
     )
 
 
@@ -198,6 +220,23 @@ def build_chemistry_advisor_memory_notes(memory: RunMemory | Sequence[RunMemory]
         if item.ranked_candidates:
             top = ", ".join(candidate.smiles_b for candidate in item.ranked_candidates[:3])
             notes.append(f"Prior top ranked candidates: {top}")
+        # Cross-run family SAR from persisted accumulated signals
+        if item.accumulated_family_scores:
+            items_sorted = sorted(
+                item.accumulated_family_scores.items(),
+                key=lambda kv: sum(kv[1]) / len(kv[1]) if kv[1] else 0,
+            )[:3]
+            parts = [f"{fam} (avg min_tm={sum(s)/len(s):.1f} K, {len(s)} hits)" for fam, s in items_sorted]
+            notes.append("Prior run productive families: " + "; ".join(parts))
+        if item.fg_hit_counts and item.fg_fail_counts:
+            all_fg = set(item.fg_hit_counts) | set(item.fg_fail_counts)
+            productive = sorted(
+                [(fg, item.fg_hit_counts.get(fg, 0), item.fg_fail_counts.get(fg, 0)) for fg in all_fg],
+                key=lambda x: x[1] / (x[1] + x[2] + 1e-9), reverse=True,
+            )[:3]
+            notes.append("Prior run functional group SAR: " + "; ".join(
+                f"{fg} ({h}h/{f}f)" for fg, h, f in productive
+            ))
     return notes
 
 

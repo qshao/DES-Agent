@@ -5,6 +5,7 @@ from typing import Iterable, Sequence
 
 from rdkit import Chem
 from rdkit.Chem import rdMolDescriptors
+from rdkit.Chem.Scaffolds import MurckoScaffold
 
 from .schemas import CandidateProposal
 
@@ -16,7 +17,6 @@ def murcko_scaffold_smiles(smiles: str) -> str | None:
     itself is its own scaffold).  Returns None on any error; never raises.
     """
     try:
-        from rdkit.Chem.Scaffolds import MurckoScaffold
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
             return None

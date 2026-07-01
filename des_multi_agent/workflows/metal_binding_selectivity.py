@@ -368,7 +368,17 @@ def run_metal_selectivity_screen(
                     all_warnings.append(f"LLM review failed for {r.ligand_smiles}: {exc}")
 
         # Update cross-cycle trackers
-        ligand_family_map = {b.smiles: b.family for b in all_brainstorm}
+        from ..chemistry_filter import canonicalize_smiles as _canon_smi
+
+        def _safe_canon(smi: str) -> str:
+            try:
+                return _canon_smi(smi)
+            except ValueError:
+                return smi
+
+        ligand_family_map = {
+            _safe_canon(b.smiles): b.family for b in all_brainstorm
+        }
         for r in cycle_results:
             family = ligand_family_map.get(r.ligand_smiles, "")
             sc = _scaffold(r.ligand_smiles)

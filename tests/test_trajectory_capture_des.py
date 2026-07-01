@@ -37,6 +37,11 @@ class _FakeOutcome:
     llm_warnings: list
     chemical_pattern_memory: object = None
     chemistry_lesson_summary: object = None
+    candidate_proposals: list = None
+
+    def __post_init__(self):
+        if self.candidate_proposals is None:
+            self.candidate_proposals = []
 
 
 def _make_fake(cycle_results):
