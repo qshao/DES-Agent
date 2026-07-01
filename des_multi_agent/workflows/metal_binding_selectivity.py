@@ -345,6 +345,21 @@ def run_metal_selectivity_screen(
                                 )
                         except Exception:
                             pass
+                # Reality gate: drop LLM proposals with no donor atoms or bad structure
+                from ..chemistry.claim_grounding import ground_ligand_reality as _ground_lig
+                _drop_smiles: set[str] = set()
+                for b in brainstorms:
+                    try:
+                        rv = _ground_lig(target_metal, b.smiles)
+                        if rv.disposition == "drop":
+                            _drop_smiles.add(b.smiles)
+                            all_warnings.append(
+                                f"[GROUNDING] Ligand dropped (reality): {b.smiles}: {rv.detail}"
+                            )
+                    except Exception:
+                        pass
+                if _drop_smiles:
+                    proposals = [p for p in proposals if p.smiles not in _drop_smiles]
             except Exception as exc:
                 all_warnings.append(f"LLM brainstorm failed (cycle {cycle}): {exc}")
 

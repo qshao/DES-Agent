@@ -35,6 +35,7 @@ def ligand_brainstorm_prompt(
     max_items: int | None = None,
     families: list | None = None,
     facts_block: str = "",
+    known_ligand_menu: list | None = None,
 ) -> str:
     parts = [
         "Return raw JSON only. Do not use markdown fences or commentary.\n",
@@ -42,6 +43,15 @@ def ligand_brainstorm_prompt(
     ]
     if facts_block:
         parts.append(f"Computed facts:\n{facts_block}\n")
+    if known_ligand_menu:
+        menu_lines = [
+            f"The following molecules are known or predicted to coordinate to {metal_ion}. "
+            "Prefer these or close structural analogues; if you propose others, "
+            "they must contain clear donor groups (N, O, or S atoms available for coordination):\n"
+        ]
+        for e in known_ligand_menu:
+            menu_lines.append(f"  - {e.display_name} [{e.role}]\n")
+        parts.append("".join(menu_lines))
     parts += [
         f"Constraints: {constraints or {}}\n",
         f"Context: {context}\n",
@@ -82,6 +92,7 @@ def ligand_selectivity_brainstorm_prompt(
     max_items: int | None = None,
     families: list | None = None,
     facts_block: str = "",
+    known_ligand_menu: list | None = None,
 ) -> str:
     parts = [
         "Return raw JSON only. Do not use markdown fences or commentary.\n",
@@ -90,6 +101,15 @@ def ligand_selectivity_brainstorm_prompt(
     ]
     if facts_block:
         parts.append(f"Computed facts:\n{facts_block}\n")
+    if known_ligand_menu:
+        menu_lines = [
+            f"The following molecules are known or predicted to coordinate to {target_metal}. "
+            "Use these as anchors; propose analogues tuned for selectivity by exploiting "
+            "HSAB differences, denticity, or donor-atom preferences between the two metals:\n"
+        ]
+        for e in known_ligand_menu:
+            menu_lines.append(f"  - {e.display_name} [{e.role}]\n")
+        parts.append("".join(menu_lines))
     parts += [
         f"Constraints: {constraints or {}}\n",
         f"Context: {context}\n",

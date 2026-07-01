@@ -8,7 +8,7 @@ from urllib.parse import urlencode, urlsplit, urlunsplit, parse_qsl
 from ..evaluation import DesResult
 from ..chemistry.claim_grounding import structural_facts
 from ..chemistry.hbond import hbond_profile
-from ..chemistry.partner_registry import known_partner_menu
+from ..chemistry.partner_registry import known_ligand_menu as _known_ligand_menu, known_partner_menu
 from .client import post_json_chat
 from .parser import parse_candidate_brainstorms, parse_candidate_families, parse_candidate_review, parse_chemistry_assessments, parse_chemistry_next_steps, parse_contradiction_notes, parse_critique_notes, parse_explanation_notes, parse_ligand_families
 from .prompts import candidate_brainstorm_prompt, candidate_review_prompt, chemistry_assessment_prompt, chemistry_next_step_prompt, contradiction_prompt, critique_prompt, explanation_prompt, family_selection_prompt, ligand_brainstorm_prompt, ligand_family_selection_prompt, ligand_review_prompt, ligand_selectivity_brainstorm_prompt
@@ -200,8 +200,10 @@ class BaseLLMProvider(LLMProvider):
             families = self.select_ligand_families(metal_ion, constraints, context)
         except Exception as exc:
             print(f"ligand family selection failed, falling back to single-stage brainstorm: {exc}", file=sys.stderr)
+        ligand_menu = _known_ligand_menu(metal_ion, limit=15)
         raw = self._request(
-            ligand_brainstorm_prompt(metal_ion, constraints, context, self.max_candidates, families)
+            ligand_brainstorm_prompt(metal_ion, constraints, context, self.max_candidates, families,
+                                     known_ligand_menu=ligand_menu or None)
         )
         return parse_candidate_brainstorms(raw)[: self.max_candidates]
 
@@ -224,10 +226,12 @@ class BaseLLMProvider(LLMProvider):
                 f"ligand family selection failed, falling back to single-stage brainstorm: {exc}",
                 file=sys.stderr,
             )
+        ligand_menu = _known_ligand_menu(target_metal, limit=15)
         raw = self._request(
             ligand_selectivity_brainstorm_prompt(
                 target_metal, competitor_metal, constraints, context,
                 self.max_candidates, families,
+                known_ligand_menu=ligand_menu or None,
             )
         )
         return parse_candidate_brainstorms(raw)[: self.max_candidates]

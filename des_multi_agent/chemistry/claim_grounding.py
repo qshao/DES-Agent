@@ -231,6 +231,40 @@ class PartnerVerdict:
             raise ValueError(f"unknown disposition: {self.disposition!r}")
 
 
+def ground_ligand_reality(metal_ion: str, candidate_smiles: str) -> PartnerVerdict:
+    """Deterministically grade a proposed metal ligand for coordination plausibility.
+
+    Order: invalid → drop; known → keep; bad structure → drop;
+    no donor atoms → drop; otherwise keep as novel_plausible.
+    Never raises; on internal error returns a neutral keep.
+    """
+    claim = f"ligand reality: {candidate_smiles} for {metal_ion}"
+    try:
+        mol = Chem.MolFromSmiles(candidate_smiles)
+        if mol is None:
+            return PartnerVerdict(claim, "novel_implausible", "invalid SMILES", 0.0, "drop", candidate_smiles)
+        if is_known(candidate_smiles):
+            return PartnerVerdict(claim, "known", "known/attested compound", 0.0, "keep", candidate_smiles)
+        ok, reason = structural_sanity(candidate_smiles)
+        if not ok:
+            return PartnerVerdict(claim, "novel_implausible", reason, 0.0, "drop", candidate_smiles)
+        from .coordination import coordination_profile
+        prof = coordination_profile(candidate_smiles)
+        if prof.n_donor_atoms == 0:
+            return PartnerVerdict(
+                claim, "novel_implausible",
+                "no donor atoms — cannot coordinate to metal",
+                0.0, "drop", candidate_smiles,
+            )
+        return PartnerVerdict(
+            claim, "novel_plausible",
+            f"novel; donors={prof.n_donor_atoms}, denticity={prof.denticity}",
+            0.0, "keep", candidate_smiles,
+        )
+    except Exception:
+        return PartnerVerdict(claim, "novel_plausible", "ligand reality check skipped (internal error)", 0.0, "keep", candidate_smiles)
+
+
 def ground_partner_reality(component_a: str, candidate_smiles: str) -> PartnerVerdict:
     """Deterministically grade a proposed DES partner against reality.
 

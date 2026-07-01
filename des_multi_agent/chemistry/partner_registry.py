@@ -162,6 +162,56 @@ def _all_menu_entries() -> tuple[MenuEntry, ...]:
     return tuple(entries)
 
 
+def _coord_role_summary(prof) -> str:
+    """Compact coordination description for the ligand menu."""
+    if prof.n_donor_atoms == 0:
+        return "no donors"
+    elems = ",".join(prof.donor_site_elements[:3])
+    if prof.denticity <= 1:
+        return f"monodentate ({elems})"
+    if prof.denticity == 2:
+        return f"bidentate ({elems})"
+    return f"polydentate ({elems})"
+
+
+@lru_cache(maxsize=32)
+def _scored_ligand_entries(metal_ion: str) -> tuple[MenuEntry, ...]:
+    """Registry molecules with ≥1 donor atom, sorted by predicted log K for *metal_ion*.
+
+    Computed once per metal ion and cached. Uses the internal
+    ``_rule_based_log_k_from_profile`` to avoid computing the coordination
+    profile twice.
+    """
+    from .coordination import coordination_profile
+    from .stability_rules import _rule_based_log_k_from_profile
+
+    scored: list[tuple[float, MenuEntry]] = []
+    for e in _all_menu_entries():
+        try:
+            prof = coordination_profile(e.smiles)
+            if prof.n_donor_atoms == 0:
+                continue
+            log_k = _rule_based_log_k_from_profile(metal_ion, prof)
+            role = _coord_role_summary(prof)
+            scored.append((log_k, MenuEntry(e.smiles, e.display_name, role)))
+        except Exception:
+            continue
+    scored.sort(key=lambda t: t[0], reverse=True)
+    return tuple(e for _, e in scored)
+
+
+def known_ligand_menu(metal_ion: str, limit: int = 15) -> list[MenuEntry]:
+    """Top *limit* registry molecules sorted by predicted log K for *metal_ion*.
+
+    Each entry's ``role`` field describes the coordination mode (e.g.
+    ``"bidentate (N,O)"``). Returns an empty list on any error (never raises).
+    """
+    try:
+        return list(_scored_ligand_entries(metal_ion)[:limit])
+    except Exception:
+        return []
+
+
 def known_partner_menu(role: str, limit: int = 30) -> list[MenuEntry]:
     """Menu entries that can serve the wanted partner role `role`.
 
