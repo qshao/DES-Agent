@@ -320,24 +320,61 @@ and can be deprioritised.
 
 ---
 
-## Partner reality anchoring (`chemistry/partner_registry.py` + `ground_partner_reality`)
+## Reality anchoring (`chemistry/partner_registry.py` + grounding functions)
 
-Anchors DES-partner brainstorming to real, attested molecules and grades each
-LLM proposal deterministically.
+Anchors LLM brainstorm proposals to real, attested molecules and grades each
+proposal deterministically. Two variants — DES partners and metal ligands.
+
+### DES partner anchoring
 
 - `partner_registry.known_inchikeys()` / `is_known(smiles)` — membership in the
   curated registry ∪ experimental melting-point dataset (canonical InChIKey).
-- `partner_registry.known_partner_menu(role, limit)` — role-tagged menu
+- `partner_registry.known_partner_menu(role, limit=30)` — role-tagged menu
   (curated entries first, then experimental compounds auto-tagged via
-  `hbond_profile`) injected into the brainstorm prompt for the role
-  complementary to component A.
+  `hbond_profile`) injected into the brainstorm prompt.
 - `partner_registry.structural_sanity(smiles)` — element whitelist
   {H,C,N,O,S,P,F,Cl,Br,I}, MW in (40, 400), no radicals.
 - `claim_grounding.ground_partner_reality(component_a, smiles) -> PartnerVerdict`
-  — the output-side entry point. Contract:
+  — output-side gate. Contract:
   - `known` / `novel_plausible` → keep
   - `novel_implausible` + no complementarity → demote (−0.25)
   - `novel_implausible` + bad structure / invalid → drop
 
-Only LLM-sourced proposals are graded; heuristic/discovery candidates are real
-by construction. Metal-ligand brainstorming is a planned parallel (not yet wired).
+### Metal-ligand anchoring
+
+- `partner_registry.known_ligand_menu(metal_ion, limit=15) -> list[MenuEntry]`
+  — top-`limit` registry molecules with ≥1 donor atom sorted by `rule_based_log_k`
+  for the target metal. Each `MenuEntry.role` is a coordination summary
+  e.g. `"bidentate (N,O)"`. Cached per metal ion via `@lru_cache`. Never raises.
+
+  ```python
+  from des_multi_agent.chemistry.partner_registry import known_ligand_menu
+
+  menu = known_ligand_menu("Cu2+", limit=10)
+  for e in menu:
+      print(e.display_name, e.role)   # e.g. "glycine  bidentate (N,O)"
+  ```
+
+- `claim_grounding.ground_ligand_reality(metal_ion, smiles) -> PartnerVerdict`
+  — output-side gate for metal-binding proposals. Contract:
+  - invalid SMILES → `novel_implausible / drop`
+  - known compound → `known / keep`
+  - `structural_sanity` fails → `novel_implausible / drop`
+  - zero donor atoms → `novel_implausible / drop` (detail: "no donor atoms — cannot coordinate")
+  - otherwise → `novel_plausible / keep`
+
+  ```python
+  from des_multi_agent.chemistry.claim_grounding import ground_ligand_reality
+
+  rv = ground_ligand_reality("Cu2+", "NCC(=O)O")   # glycine
+  # PartnerVerdict(status="known", disposition="keep", ...)
+
+  rv2 = ground_ligand_reality("Cu2+", "c1ccccc1")  # benzene
+  # PartnerVerdict(status="novel_implausible", disposition="drop",
+  #                detail="no donor atoms — cannot coordinate to metal")
+  ```
+
+Both anchoring paths are active in `brainstorm_ligands` / `brainstorm_ligands_selectivity`
+(source injection) and in `metal_binding_screen.py` / `metal_binding_selectivity.py`
+(output reality gate). Dropped proposals emit a `[GROUNDING] Ligand dropped (reality): …`
+warning.
