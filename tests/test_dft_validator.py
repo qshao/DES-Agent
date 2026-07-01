@@ -102,6 +102,119 @@ class TestComputeDFTProperties:
         assert result.donor_charges == []
 
 
+class TestPHAwareDFT:
+    def _mock_mf(self):
+        HARTREE_TO_EV = 27.2114
+        mf = MagicMock()
+        mf.converged = True
+        mo_energies = [-15.0, -12.0, -10.0, -8.5, -5.5, -3.0]
+        mf.mo_energy = [e / HARTREE_TO_EV for e in mo_energies]
+        mf.mulliken_pop.return_value = (None, np.array([-0.3, -0.1, -0.1, -0.3]))
+        return mf
+
+    def test_ph_none_preserves_legacy_behavior(self):
+        mock_mol = MagicMock()
+        mock_mf = self._mock_mf()
+        with patch("des_multi_agent.chemistry.dft_validator._embed_mmff",
+                   return_value=mock_mol), \
+             patch("des_multi_agent.chemistry.dft_validator._xtb_optimize",
+                   return_value=(["N", "C", "C", "N"], np.zeros((4, 3)))), \
+             patch("des_multi_agent.chemistry.dft_validator._run_dft",
+                   return_value=(-8.5, 5.1, [0, 3], mock_mf)):
+            result = compute_dft_properties("NCCN")
+        assert result.success is True
+        assert result.species_smiles is None
+        assert result.ph is None
+
+    def test_ph_aware_deprotonates_carboxylic_acid_at_high_ph(self):
+        mock_mol = MagicMock()
+        mock_mf = self._mock_mf()
+        captured = {}
+
+        def _fake_run_dft(symbols, coords, charge=0):
+            captured["charge"] = charge
+            return (-9.0, 6.0, [0, 1], mock_mf)
+
+        with patch("des_multi_agent.chemistry.dft_validator._embed_mmff",
+                   return_value=mock_mol), \
+             patch("des_multi_agent.chemistry.dft_validator._xtb_optimize",
+                   return_value=(["C", "C", "O", "O"], np.zeros((4, 3)))), \
+             patch("des_multi_agent.chemistry.dft_validator._run_dft",
+                   side_effect=_fake_run_dft):
+            result = compute_dft_properties("CC(=O)O", pH=7.4)
+
+        assert result.success is True
+        assert result.ph == 7.4
+        assert result.species_smiles is not None
+        assert result.species_smiles != "CC(=O)O"   # deprotonated -> different canonical SMILES
+        assert captured["charge"] == -1
+
+    def test_ph_aware_neutral_carboxylic_acid_at_low_ph(self):
+        from rdkit import Chem
+
+        mock_mol = MagicMock()
+        mock_mf = self._mock_mf()
+        captured = {}
+
+        def _fake_run_dft(symbols, coords, charge=0):
+            captured["charge"] = charge
+            return (-10.5, 6.5, [0, 1], mock_mf)
+
+        with patch("des_multi_agent.chemistry.dft_validator._embed_mmff",
+                   return_value=mock_mol), \
+             patch("des_multi_agent.chemistry.dft_validator._xtb_optimize",
+                   return_value=(["C", "C", "O", "O"], np.zeros((4, 3)))), \
+             patch("des_multi_agent.chemistry.dft_validator._run_dft",
+                   side_effect=_fake_run_dft):
+            result = compute_dft_properties("CC(=O)O", pH=2.0)
+
+        assert result.success is True
+        assert result.ph == 2.0
+        assert captured["charge"] == 0
+        # Below the carboxylic acid pKa (~4.2) the species stays neutral —
+        # species_smiles should match the canonical form of the input.
+        assert result.species_smiles == Chem.MolToSmiles(Chem.MolFromSmiles("CC(=O)O"))
+
+    def test_dft_failure_still_records_ph(self):
+        mock_mol = MagicMock()
+        with patch("des_multi_agent.chemistry.dft_validator._embed_mmff",
+                   return_value=mock_mol), \
+             patch("des_multi_agent.chemistry.dft_validator._xtb_optimize",
+                   side_effect=RuntimeError("xtb optimization failed")):
+            result = compute_dft_properties("CC(=O)O", pH=7.4)
+        assert result.success is False
+        assert result.ph == 7.4
+
+
+class TestRunDFTChargeThreading:
+    def test_charge_kwarg_passed_to_gto_mole(self):
+        from des_multi_agent.chemistry import dft_validator
+
+        mock_gto = MagicMock()
+        mock_gto.Mole.return_value = MagicMock()
+
+        mock_mf = MagicMock()
+        mock_mf.converged = True
+        HARTREE_TO_EV = 27.2114
+        mock_mf.mo_energy = [e / HARTREE_TO_EV for e in [-15.0, -12.0, -10.0, -8.5, -5.5]]
+        mock_gpu_dft = MagicMock()
+        mock_gpu_dft.RKS.return_value = mock_mf
+
+        mock_pyscf = MagicMock(gto=mock_gto)
+        mock_gpu4pyscf = MagicMock(dft=mock_gpu_dft)
+
+        with patch.dict("sys.modules", {
+            "pyscf": mock_pyscf,
+            "gpu4pyscf": mock_gpu4pyscf,
+            "gpu4pyscf.dft": mock_gpu_dft,
+        }):
+            dft_validator._run_dft(["C", "C", "N", "N"], np.zeros((4, 3)), charge=-1)
+
+        _, kwargs = mock_gto.Mole.call_args
+        assert kwargs["charge"] == -1
+        assert kwargs["spin"] == 0
+
+
 from des_multi_agent.chemistry.dft_selectivity import dft_selectivity_adjustment
 
 

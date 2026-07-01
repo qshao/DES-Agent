@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 
 _DONOR_SYMBOLS: frozenset[str] = frozenset({"N", "O", "P", "S"})
 _HARTREE_TO_EV: float = 27.2114
+DEFAULT_DFT_METHOD: str = "B3LYP-D3(BJ)/def2-SVP"
 
 
 @dataclass
@@ -20,8 +21,11 @@ class DFTResult:
     homo_lumo_gap_ev: float | None = None
     donor_charges: list[float] = field(default_factory=list)
     geometry_method: str = "xtb"
-    dft_method: str = "B3LYP-D3(BJ)/def2-SVP"
+    dft_method: str = DEFAULT_DFT_METHOD
     error: str | None = None
+    species_smiles: str | None = None
+    ph: float | None = None
+    from_cache: bool = False
 
 
 def _embed_mmff(smiles: str):
@@ -83,7 +87,7 @@ def _xtb_optimize(mol) -> tuple[list[str], "np.ndarray"]:
 
 
 def _run_dft(
-    symbols: list[str], coords_angstrom: "np.ndarray"
+    symbols: list[str], coords_angstrom: "np.ndarray", charge: int = 0
 ) -> tuple[float, float, list[int], object]:
     """Run B3LYP-D3(BJ)/def2-SVP single-point. Returns (homo_ev, gap_ev, donor_indices, mf).
 
@@ -93,7 +97,7 @@ def _run_dft(
     from gpu4pyscf import dft as gpu_dft
 
     atom_list = [(sym, tuple(pos)) for sym, pos in zip(symbols, coords_angstrom)]
-    mol = gto.Mole(atom=atom_list, basis="def2-svp", charge=0, spin=0, verbose=0)
+    mol = gto.Mole(atom=atom_list, basis="def2-svp", charge=charge, spin=0, verbose=0)
     mol.build()
 
     mf = gpu_dft.RKS(mol)
@@ -124,12 +128,28 @@ def _get_donor_charges(mf, donor_indices: list[int]) -> list[float]:
     return [float(atom_charges[i]) for i in donor_indices]
 
 
-def compute_dft_properties(smiles: str) -> DFTResult:
-    """Full pipeline: SMILES -> DFTResult. Never raises."""
+def compute_dft_properties(smiles: str, pH: float | None = None) -> DFTResult:
+    """Full pipeline: SMILES -> DFTResult. Never raises.
+
+    pH=None (default): computes the neutral input SMILES as-is with charge=0 —
+    exact legacy behavior. pH=<float>: computes the dominant protonation state
+    at that pH (chemistry.protonation.dominant_species) with its real net
+    formal charge.
+    """
+    species_smiles = smiles
+    net_charge = 0
+    if pH is not None:
+        from .protonation import dominant_species
+        protonation = dominant_species(smiles, pH)
+        species_smiles = protonation.species_smiles
+        net_charge = protonation.net_charge
+
+    result_species_smiles = species_smiles if pH is not None else None
+
     try:
-        mol = _embed_mmff(smiles)
+        mol = _embed_mmff(species_smiles)
         symbols, coords = _xtb_optimize(mol)
-        homo_ev, gap_ev, donor_indices, mf = _run_dft(symbols, coords)
+        homo_ev, gap_ev, donor_indices, mf = _run_dft(symbols, coords, charge=net_charge)
         donor_charges = _get_donor_charges(mf, donor_indices)
         return DFTResult(
             smiles=smiles,
@@ -137,6 +157,11 @@ def compute_dft_properties(smiles: str) -> DFTResult:
             homo_ev=homo_ev,
             homo_lumo_gap_ev=gap_ev,
             donor_charges=donor_charges,
+            species_smiles=result_species_smiles,
+            ph=pH,
         )
     except Exception as exc:
-        return DFTResult(smiles=smiles, success=False, error=str(exc))
+        return DFTResult(
+            smiles=smiles, success=False, error=str(exc),
+            species_smiles=result_species_smiles, ph=pH,
+        )
