@@ -914,11 +914,11 @@ Expected: `test_report_single_competitor_byte_identical_header` FAILS with `Attr
 
 In `des_multi_agent/reporting.py`, in `format_metal_selectivity_report`:
 
-Replace the header construction:
+**Note:** Task 1 already fixed the header line as a stopgap (it read `outcome.competitor_metal` and broke under Task 1's field rename, so Task 1's implementer patched it minimally to keep the suite green). The header currently reads:
 
 ```python
     header_lines = [
-        f"=== Metal Selectivity Screen: {outcome.target_metal} over {outcome.competitor_metal} ===",
+        f"=== Metal Selectivity Screen: {outcome.target_metal} over {', '.join(outcome.competitor_metals)} ===",
         f"Screened {outcome.n_screened} candidate(s) over {outcome.n_cycles} cycle(s).",
         f"Top ligand: {top_str}",
         "=" * 52,
@@ -927,19 +927,7 @@ Replace the header construction:
     ]
 ```
 
-with:
-
-```python
-    header_lines = [
-        f"=== Metal Selectivity Screen: {outcome.target_metal} over "
-        f"{', '.join(outcome.competitor_metals)} ===",
-        f"Screened {outcome.n_screened} candidate(s) over {outcome.n_cycles} cycle(s).",
-        f"Top ligand: {top_str}",
-        "=" * 52,
-        "",
-        col_header,
-    ]
-```
+This is already byte-identical for N=1 and correct for N>1 — **no further change needed here.** Do not search for the old two-line/pre-rename form described in earlier drafts of this plan; it no longer exists. Proceed directly to the `col_header`/row-building changes below.
 
 Add the breakdown column, only when there is more than one off-target. Replace:
 
