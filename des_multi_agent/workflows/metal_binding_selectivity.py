@@ -248,6 +248,7 @@ def run_metal_selectivity_screen(
     sel_snapshots: list[CycleSnapshot] = []
     sel_prev_labels: list[str] = []
     sel_converged = False
+    cycles_run = 0
 
     # Cross-cycle tracking for Features 1, 3, 4
     family_hit_scores: dict[str, list[float]] = {}  # family → [composite_score] for selective hits
@@ -258,6 +259,7 @@ def run_metal_selectivity_screen(
     analogue_transform_map: dict[str, str] = {}
 
     for cycle in range(1, n_cycles + 1):
+        cycles_run = cycle
         failing_scaffolds: set[str] = set()
         saturated_families: set[str] = set()
         if cycle > 1:
@@ -483,7 +485,7 @@ def run_metal_selectivity_screen(
         headline=f"{target_metal} over {competitor_metal} selectivity",
         metric_label="composite score",
         snapshots=sel_snapshots,
-        total_cycles=len(sel_snapshots),
+        total_cycles=cycles_run,
         converged=sel_converged,
         convergence_reason=(sel_snapshots[-1].convergence_reason if sel_snapshots else ""),
         final_summary=(sel_snapshots[-1].top_entries if sel_snapshots else []),

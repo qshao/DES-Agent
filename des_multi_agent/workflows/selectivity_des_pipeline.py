@@ -223,7 +223,7 @@ def run_selectivity_des_pipeline(
         headline=f"{target_metal} over {competitor_metal} — selectivity-DES",
         metric_label="composite score",
         snapshots=pipe_snapshots,
-        total_cycles=len(pipe_snapshots),
+        total_cycles=outer_cycle_count,
         converged=converged,
         convergence_reason=(pipe_snapshots[-1].convergence_reason if pipe_snapshots else ""),
         final_summary=(pipe_snapshots[-1].top_entries if pipe_snapshots else []),

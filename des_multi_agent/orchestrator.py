@@ -420,6 +420,57 @@ def _apply_hbond_bias(
         return annotated_results
 
 
+def _apply_tanimoto_diversity_penalty(
+    annotated_results: list[AnnotatedResult],
+    prior_results_by_smiles: dict,
+    *,
+    similarity_cutoff: float = 0.70,
+    penalty_scale: float = 0.10,
+) -> list[AnnotatedResult]:
+    """Demote candidates that are too similar to known DES-negative failures.
+
+    For each new candidate, the max Tanimoto similarity to any previously evaluated
+    DES-negative SMILES is computed (Morgan radius-2, 2048 bits). Candidates with
+    similarity >= similarity_cutoff receive a penalty that scales linearly from 0
+    at the cutoff to penalty_scale at similarity=1.0.
+
+    Never raises; returns the input list unchanged on any error.
+    """
+    if not annotated_results or not prior_results_by_smiles:
+        return annotated_results
+    try:
+        from rdkit import Chem
+        from rdkit.Chem import AllChem, DataStructs
+
+        fail_fps = []
+        for smi, res in prior_results_by_smiles.items():
+            if not res.is_des:
+                mol = Chem.MolFromSmiles(smi)
+                if mol is not None:
+                    fail_fps.append(AllChem.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=2048))
+
+        if not fail_fps:
+            return annotated_results
+
+        adjusted = []
+        for item in annotated_results:
+            mol = Chem.MolFromSmiles(item.result.curve.smiles_b)
+            if mol is None:
+                adjusted.append(item)
+                continue
+            fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=2048)
+            sims = DataStructs.BulkTanimotoSimilarity(fp, fail_fps)
+            max_sim = max(sims) if sims else 0.0
+            if max_sim >= similarity_cutoff:
+                penalty = penalty_scale * (max_sim - similarity_cutoff) / (1.0 - similarity_cutoff)
+                adjusted.append(replace(item, ranking_score=max(0.0, item.ranking_score - penalty)))
+            else:
+                adjusted.append(item)
+        return rank_annotated_results(adjusted)
+    except Exception:
+        return annotated_results
+
+
 def _canonical(smiles: str) -> str:
     """Return canonical SMILES, or the input string if unparseable."""
     try:
@@ -870,6 +921,7 @@ def run_search_report(
     annotated_results = apply_uncertainty_policy(ranked, uncertainty_by_smiles, policy)
     annotated_results = _apply_review_penalties(annotated_results, review_penalties)
     annotated_results = _apply_hbond_bias(annotated_results, component_a)
+    annotated_results = _apply_tanimoto_diversity_penalty(annotated_results, prior_results_by_smiles)
     memory_notes: list[str] = list(all_dedup_notes)
     if reuse_run_note is not None:
         memory_notes.insert(0, reuse_run_note)

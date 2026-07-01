@@ -25,7 +25,7 @@ from .reporting import (
     format_report, format_report_csv, format_report_json, format_report_prose,
     format_selectivity_des_report,
 )
-from .trajectory import format_trajectory_console, write_trajectory_artifact
+from .trajectory import format_trajectory_console, write_trajectory_artifact, write_trajectory_json_artifact
 from .workflows.selectivity_des_pipeline import run_selectivity_des_pipeline
 from .summary import build_command_summary, render_command_summary
 from .task_executor import execute_task_request, execute_task_request_detailed
@@ -68,6 +68,10 @@ def _emit_trajectory(traj, output_dir) -> None:
             write_trajectory_artifact(output_dir, traj)
         except OSError as exc:
             print(f"[WARNING] failed to write trajectory.md: {exc}", file=sys.stderr)
+        try:
+            write_trajectory_json_artifact(output_dir, traj)
+        except OSError as exc:
+            print(f"[WARNING] failed to write trajectory.json: {exc}", file=sys.stderr)
 
 
 def _positive_int(value: str) -> int:

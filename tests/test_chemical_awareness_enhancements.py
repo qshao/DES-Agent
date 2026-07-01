@@ -214,6 +214,84 @@ class TestApplyHbondBias:
 
 
 # ---------------------------------------------------------------------------
+# Tanimoto diversity penalty (_apply_tanimoto_diversity_penalty)
+# ---------------------------------------------------------------------------
+
+def _des_neg_result(smiles_b: str) -> DesResult:
+    """Build a DES-negative DesResult for use as a prior failure."""
+    curve = CurvePrediction(
+        smiles_a="CCO", smiles_b=smiles_b, ratios=[0.5], tm_pred_k=[310.0],
+        t1_k=271.0, t2_k=350.0, checkpoint_path="ckpt.pt",
+    )
+    return DesResult(curve=curve, absolute_pass=False, relative_pass=False,
+                     is_des=False, rationale="no", min_tm_k=310.0)
+
+
+class TestApplyTanimotoDiversityPenalty:
+    def test_empty_prior_no_penalty(self):
+        items = [_make_annotated("OCCO", 0.8)]
+        result = orchestrator._apply_tanimoto_diversity_penalty(items, {})
+        assert result[0].ranking_score == 0.8
+
+    def test_none_prior_no_penalty(self):
+        items = [_make_annotated("OCCO", 0.8)]
+        result = orchestrator._apply_tanimoto_diversity_penalty(items, None)
+        assert result[0].ranking_score == 0.8
+
+    def test_identical_smiles_receives_full_penalty(self):
+        # Candidate is identical to a known failure → max similarity = 1.0 → full penalty
+        seed = "OCCO"
+        items = [_make_annotated(seed, 0.8)]
+        prior = {seed: _des_neg_result(seed)}
+        result = orchestrator._apply_tanimoto_diversity_penalty(
+            items, prior, similarity_cutoff=0.70, penalty_scale=0.10
+        )
+        # sim=1.0: penalty = 0.10 * (1.0 - 0.70) / (1.0 - 0.70) = 0.10
+        assert result[0].ranking_score == pytest.approx(0.70, abs=1e-6)
+
+    def test_dissimilar_smiles_no_penalty(self):
+        # OCCO (diol) vs. c1ccccc1 (benzene) — very low Tanimoto similarity
+        items = [_make_annotated("OCCO", 0.8)]
+        prior = {"c1ccccc1": _des_neg_result("c1ccccc1")}
+        result = orchestrator._apply_tanimoto_diversity_penalty(
+            items, prior, similarity_cutoff=0.70, penalty_scale=0.10
+        )
+        assert result[0].ranking_score == pytest.approx(0.8, abs=1e-6)
+
+    def test_only_des_positive_prior_no_penalty(self):
+        # Prior contains a DES hit (is_des=True) — should not be penalized
+        curve = CurvePrediction(
+            smiles_a="CCO", smiles_b="OCCO", ratios=[0.5], tm_pred_k=[240.0],
+            t1_k=271.0, t2_k=300.0, checkpoint_path="ckpt.pt",
+        )
+        des_pos = DesResult(curve=curve, absolute_pass=True, relative_pass=True,
+                            is_des=True, rationale="ok", min_tm_k=240.0)
+        items = [_make_annotated("OCCO", 0.8)]
+        prior = {"OCCO": des_pos}
+        result = orchestrator._apply_tanimoto_diversity_penalty(
+            items, prior, similarity_cutoff=0.70, penalty_scale=0.10
+        )
+        # No failures in prior → no penalty
+        assert result[0].ranking_score == pytest.approx(0.8, abs=1e-6)
+
+    def test_score_never_goes_negative(self):
+        # Very low initial score should be clamped to 0.0, not negative
+        seed = "OCCO"
+        items = [_make_annotated(seed, 0.05)]
+        prior = {seed: _des_neg_result(seed)}
+        result = orchestrator._apply_tanimoto_diversity_penalty(
+            items, prior, similarity_cutoff=0.0, penalty_scale=0.50
+        )
+        assert result[0].ranking_score >= 0.0
+
+    def test_invalid_smiles_falls_back_gracefully(self):
+        items = [_make_annotated("NOT_A_SMILES", 0.7)]
+        prior = {"OCCO": _des_neg_result("OCCO")}
+        result = orchestrator._apply_tanimoto_diversity_penalty(items, prior)
+        assert len(result) == 1
+
+
+# ---------------------------------------------------------------------------
 # E2 — Near-miss analogue expansion (multi_cycle integration smoke test)
 # ---------------------------------------------------------------------------
 

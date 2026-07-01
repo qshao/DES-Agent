@@ -4,7 +4,8 @@ Workflow-agnostic: this module is imported BY workflows, never the reverse.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+import json
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
@@ -147,6 +148,21 @@ def write_trajectory_artifact(output_dir: str | Path, traj: SearchTrajectory) ->
     content = format_trajectory_report(traj)
     with NamedTemporaryFile(
         "w", encoding="utf-8", dir=out_dir, prefix=".trajectory-", suffix=".md", delete=False
+    ) as fh:
+        fh.write(content)
+        staged = Path(fh.name)
+    staged.replace(final_path)
+    return final_path
+
+
+def write_trajectory_json_artifact(output_dir: str | Path, traj: SearchTrajectory) -> Path:
+    """Atomically write trajectory.json into output_dir; return its path."""
+    out_dir = Path(output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    final_path = out_dir / "trajectory.json"
+    content = json.dumps(asdict(traj), indent=2, sort_keys=True)
+    with NamedTemporaryFile(
+        "w", encoding="utf-8", dir=out_dir, prefix=".trajectory-", suffix=".json", delete=False
     ) as fh:
         fh.write(content)
         staged = Path(fh.name)
