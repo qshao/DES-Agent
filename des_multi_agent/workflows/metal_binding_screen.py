@@ -2,15 +2,24 @@ from __future__ import annotations
 
 import math
 import sys
+from collections import Counter
 from dataclasses import dataclass, field
 
 from rdkit import Chem
 
+from ..analogue_expansion import generate_analogues_tagged
 from ..candidate_generation_ligand import generate_ligand_candidates
 from ..chemistry_filter import canonicalize_smiles
 from ..llm.schemas import CandidateBrainstorm, CandidateReview
 from ..predictors.stability_constants import StabilityConstantPrediction, predict_log_k
 from ..schemas import CandidateProposal
+
+
+def _safe_canon(smi: str) -> str:
+    try:
+        return canonicalize_smiles(smi)
+    except ValueError:
+        return smi
 
 
 @dataclass(frozen=True)
@@ -147,8 +156,6 @@ def run_metal_binding_screen(
 ) -> MetalBindingScreenOutcome:
     from ..chemistry.claim_grounding import ground_coordination as _ground_coord
     from ..chemistry_filter import murcko_scaffold_smiles as _scaffold
-    from ..analogue_expansion import generate_analogues_tagged
-    from collections import Counter
 
     seen_smiles: set[str] = set()
     all_reviews: list[CandidateReview] = []
@@ -281,12 +288,6 @@ def run_metal_binding_screen(
                     all_warnings.append(f"LLM review failed for {r.ligand_smiles}: {exc}")
 
         # Update cross-cycle trackers
-        def _safe_canon(smi: str) -> str:
-            try:
-                return canonicalize_smiles(smi)
-            except ValueError:
-                return smi
-
         ligand_family_map = {
             _safe_canon(b.smiles): b.family for b in all_brainstorm
         }

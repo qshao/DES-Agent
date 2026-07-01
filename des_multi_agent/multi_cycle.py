@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import math
 import pathlib
+import re
 from collections import Counter
 from dataclasses import dataclass, field
 
@@ -290,8 +291,7 @@ def run_multi_cycle_search(
             if proposal.smiles not in analogue_result_smiles:
                 continue
             # Extract transform name from rationale: "... (via chain_extend)"
-            import re as _re
-            m = _re.search(r"\(via (\w+)\)", proposal.rationale or "")
+            m = re.search(r"\(via (\w+)\)", proposal.rationale or "")
             if not m:
                 continue
             tx_name = m.group(1)
