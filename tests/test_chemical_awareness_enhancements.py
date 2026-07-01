@@ -78,24 +78,23 @@ class TestFamilyUcbScores:
 # E3 — UCB1 family scoring (metal_binding_screen — different signature)
 # ---------------------------------------------------------------------------
 
-from des_multi_agent.workflows.metal_binding_screen import _family_ucb_scores as _mbscreen_ucb
-
-
 class TestMetalBindingUcbScores:
+    # After unification, metal workflows convert list-of-scores to counts before
+    # calling the shared _family_ucb_scores. These tests mirror that contract.
     def test_empty_inputs(self):
-        assert _mbscreen_ucb({}, Counter()) == {}
+        assert _family_ucb_scores(Counter(), Counter()) == {}
 
     def test_hit_family_ranks_above_fail_family(self):
-        hit_scores = {"aminoacid": [4.5, 5.0], "amine": [4.1]}
+        # aminoacid: 2 hits, 0 fails; thiol: 0 hits, 5 fails
+        hit_counts = Counter({"aminoacid": 2, "amine": 1})
         fail_counts = Counter({"amine": 3, "thiol": 5})
-        scores = _mbscreen_ucb(hit_scores, fail_counts)
+        scores = _family_ucb_scores(hit_counts, fail_counts)
         assert scores["aminoacid"] > scores["thiol"]
 
     def test_inf_for_zero_trials(self):
-        hit_scores = {"newbie": []}
+        hit_counts = Counter({"newbie": 0})
         fail_counts = Counter()
-        scores = _mbscreen_ucb(hit_scores, fail_counts)
-        # zero trials → inf
+        scores = _family_ucb_scores(hit_counts, fail_counts)
         assert scores["newbie"] == float("inf")
 
 
@@ -335,7 +334,6 @@ class TestRunMemoryPersistence:
         data = {
             **self._BASE_DATA,
             "accumulated_family_scores": {"diol": [210.5, 215.0]},
-            "accumulated_family_hit_counts": {"diol": 2},
             "accumulated_family_fail_counts": {"amide": 3},
             "scaffold_counts": {"C1CCCO1": {"hit": 1, "fail": 0}},
             "fg_hit_counts": {"polyol": 4},
@@ -343,7 +341,6 @@ class TestRunMemoryPersistence:
         }
         mem = parse_run_memory(data)
         assert mem.accumulated_family_scores == {"diol": [210.5, 215.0]}
-        assert mem.accumulated_family_hit_counts == {"diol": 2}
         assert mem.accumulated_family_fail_counts == {"amide": 3}
         assert mem.scaffold_counts == {"C1CCCO1": {"hit": 1, "fail": 0}}
         assert mem.fg_hit_counts == {"polyol": 4}

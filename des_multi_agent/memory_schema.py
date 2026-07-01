@@ -29,7 +29,6 @@ class RunMemory:
     ranked_candidates: list[RunCandidateSummary]
     # Cross-run learned signals persisted for reuse on subsequent searches
     accumulated_family_scores: dict[str, list[float]] | None = None  # family → [min_tm_k] for hits
-    accumulated_family_hit_counts: dict[str, int] | None = None      # family → DES-positive count
     accumulated_family_fail_counts: dict[str, int] | None = None     # family → DES-negative count
     scaffold_counts: dict[str, dict] | None = None                   # scaffold_smi → {"hit": int, "fail": int}
     fg_hit_counts: dict[str, int] | None = None                      # fg_tag → count in DES hits

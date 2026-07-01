@@ -175,13 +175,22 @@ def rank_by_hbond(
     Returns a list of (smiles, HBondComplementarity) pairs sorted best-first.
     Invalid SMILES are silently skipped.
     """
+    try:
+        pa = hbond_profile(component_a)
+    except ValueError:
+        return []
     results: list[tuple[str, HBondComplementarity]] = []
     for smiles_b in candidates:
         try:
-            hbc = des_hbond_complementarity(
-                component_a, smiles_b,
-                w_complementarity=w_complementarity,
-                w_capacity=w_capacity,
+            pb = hbond_profile(smiles_b)
+            comp = _complementarity(pa, pb)
+            cap = min((pa.n_hbd + pa.n_hba + pb.n_hbd + pb.n_hba) / _CAPACITY_NORM, 1.0)
+            composite = w_complementarity * comp + w_capacity * cap
+            hbc = HBondComplementarity(
+                smiles_a=component_a, smiles_b=smiles_b,
+                profile_a=pa, profile_b=pb,
+                complementarity_score=comp, capacity_score=cap,
+                composite_score=composite, label=_label(composite),
             )
             results.append((smiles_b, hbc))
         except ValueError:

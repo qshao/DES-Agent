@@ -281,28 +281,22 @@ def run_multi_cycle_search(
         # Enhancement 4: track per-transform outcomes using analogue source attribution.
         # candidate_proposals records source="analogue"/"near_miss_analogue" and rationale
         # contains "via <transform_name>" from _generate_analogue_candidates.
-        analogue_result_smiles = {
-            r.curve.smiles_b
-            for r in outcome.results
-        }
+        result_by_smiles = {r.curve.smiles_b: r for r in outcome.results}
         for proposal in outcome.candidate_proposals:
             if proposal.source not in ("analogue", "near_miss_analogue"):
                 continue
-            if proposal.smiles not in analogue_result_smiles:
+            if proposal.smiles not in result_by_smiles:
                 continue
             # Extract transform name from rationale: "... (via chain_extend)"
             m = re.search(r"\(via (\w+)\)", proposal.rationale or "")
             if not m:
                 continue
             tx_name = m.group(1)
-            # Find the corresponding result to see if it's a DES hit
-            for r in outcome.results:
-                if r.curve.smiles_b == proposal.smiles:
-                    if r.is_des:
-                        transform_hit_counts[tx_name] += 1
-                    else:
-                        transform_fail_counts[tx_name] += 1
-                    break
+            r = result_by_smiles[proposal.smiles]
+            if r.is_des:
+                transform_hit_counts[tx_name] += 1
+            else:
+                transform_fail_counts[tx_name] += 1
 
         top_k = frozenset(
             r.curve.smiles_b for r in outcome.results[:top_k_convergence] if r.is_des

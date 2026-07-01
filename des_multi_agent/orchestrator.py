@@ -565,16 +565,16 @@ def _generate_analogue_candidates(
     """
     if not prior_cycle_top_results:
         return []
-    from .analogue_expansion import generate_analogues
+    from .analogue_expansion import generate_analogues_tagged
     proposals: list[CandidateProposal] = []
 
     top_des = [r for r in prior_cycle_top_results if r.is_des][:2]
     for r in top_des:
         seed_smi = r.curve.smiles_b
-        for analogue_smi in generate_analogues(seed_smi, max_n=4, transform_weights=transform_weights):
+        for analogue_smi, tx_name in generate_analogues_tagged(seed_smi, max_n=4, transform_weights=transform_weights):
             proposals.append(CandidateProposal(
                 smiles=analogue_smi,
-                rationale=f"structural analogue of best DES hit {seed_smi} (min_tm={r.min_tm_k:.1f} K)",
+                rationale=f"structural analogue of best DES hit {seed_smi} (min_tm={r.min_tm_k:.1f} K, via {tx_name})",
                 family="analogue",
                 source="analogue",
                 source_id=seed_smi,
@@ -586,16 +586,16 @@ def _generate_analogue_candidates(
     non_des = [r for r in prior_cycle_top_results if not r.is_des]
     if non_des:
         best_non_des_tm = min(r.min_tm_k for r in non_des)
-        near_misses = [
-            r for r in non_des
-            if r.min_tm_k <= best_non_des_tm + near_miss_window_k
-        ][:2]
+        near_misses = sorted(
+            [r for r in non_des if r.min_tm_k <= best_non_des_tm + near_miss_window_k],
+            key=lambda r: r.min_tm_k,
+        )[:2]
         for r in near_misses:
             seed_smi = r.curve.smiles_b
-            for analogue_smi in generate_analogues(seed_smi, max_n=3, transform_weights=transform_weights):
+            for analogue_smi, tx_name in generate_analogues_tagged(seed_smi, max_n=3, transform_weights=transform_weights):
                 proposals.append(CandidateProposal(
                     smiles=analogue_smi,
-                    rationale=f"near-miss analogue of {seed_smi} (min_tm={r.min_tm_k:.1f} K, just above DES threshold)",
+                    rationale=f"near-miss analogue of {seed_smi} (min_tm={r.min_tm_k:.1f} K, just above DES threshold, via {tx_name})",
                     family="analogue",
                     source="near_miss_analogue",
                     source_id=seed_smi,
