@@ -496,6 +496,8 @@ def run_search_report(
     prior_chemistry_lesson_summary: ChemistryLessonSummary | None = None,
     chemical_pattern_memory_mode: str = "adaptive",
     pattern_memory_max_examples: int = 3,
+    prior_results_by_smiles: dict | None = None,
+    prior_uncertainty_by_smiles: dict | None = None,
 ):
     # D1 — validate component_a SMILES before any expensive work
     try:
@@ -607,6 +609,13 @@ def run_search_report(
     results = []
     tm_estimates: dict = {}
     for proposal in filtered:
+        try:
+            canonical_b = canonicalize_smiles(proposal.smiles)
+        except ValueError:
+            canonical_b = proposal.smiles
+        if prior_results_by_smiles and canonical_b in prior_results_by_smiles:
+            results.append(prior_results_by_smiles[canonical_b])
+            continue
         component_b_tp = resolve_melting_point(proposal.smiles)
         try:
             if ensemble_checkpoints:
@@ -657,6 +666,13 @@ def run_search_report(
     uncertainty_by_smiles: dict[str, MinimumTmUncertainty] = {}
     for result in ranked:
         smiles_b = result.curve.smiles_b
+        try:
+            canonical_b = canonicalize_smiles(smiles_b)
+        except ValueError:
+            canonical_b = smiles_b
+        if prior_uncertainty_by_smiles and canonical_b in prior_uncertainty_by_smiles:
+            uncertainty_by_smiles[smiles_b] = prior_uncertainty_by_smiles[canonical_b]
+            continue
         pre = tm_estimates.get(smiles_b)
         try:
             uncertainty_by_smiles[smiles_b] = estimate_min_tm_uncertainty(

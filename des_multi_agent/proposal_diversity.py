@@ -7,7 +7,6 @@ from typing import Mapping, Sequence
 from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem
 
-from .chemistry_filter import canonicalize_smiles
 from .schemas import CandidateProposal
 
 
@@ -79,11 +78,36 @@ class ProposalDiversityResult:
     suggested_families: list[str] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
 
-def _fingerprint_from_smiles(smiles: str):
+_FP_CACHE: dict[str, object] = {}
+
+
+def _canonical_and_fp(smiles: str) -> tuple[str, object]:
+    """Return (canonical_smiles, morgan_fp) with at most one mol parse.
+
+    The fingerprint is keyed by the *canonical* SMILES so hits from
+    different input representations of the same compound share the entry.
+    """
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
         raise ValueError(f"Invalid SMILES: {smiles}")
-    return AllChem.GetMorganFingerprintAsBitVect(mol, radius=1, nBits=2048)
+    canonical = Chem.MolToSmiles(mol, canonical=True)
+    fp = _FP_CACHE.get(canonical)
+    if fp is None:
+        fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius=1, nBits=2048)
+        _FP_CACHE[canonical] = fp
+    return canonical, fp
+
+
+def _fingerprint_from_smiles(smiles: str):
+    """Return the cached Morgan FP for an already-canonical SMILES string."""
+    fp = _FP_CACHE.get(smiles)
+    if fp is None:
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            raise ValueError(f"Invalid SMILES: {smiles}")
+        fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius=1, nBits=2048)
+        _FP_CACHE[smiles] = fp
+    return fp
 
 
 def _similarity(fp_a, fp_b) -> float:
@@ -136,7 +160,10 @@ def apply_proposal_diversity(
     config: ProposalDiversityConfig | None = None,
 ) -> ProposalDiversityResult:
     effective_config = config or ProposalDiversityConfig()
-    canonical_component_a = canonicalize_smiles(component_a)
+    mol_a = Chem.MolFromSmiles(component_a)
+    if mol_a is None:
+        raise ValueError(f"Invalid component_a SMILES: {component_a}")
+    canonical_component_a = Chem.MolToSmiles(mol_a, canonical=True)
     accepted: list[CandidateProposal] = []
     suppressed: list[CandidateProposal] = []
     notes: list[str] = []
@@ -158,7 +185,7 @@ def apply_proposal_diversity(
             continue
 
         try:
-            canonical = canonicalize_smiles(smiles)
+            canonical, candidate_fp = _canonical_and_fp(smiles)
         except ValueError:
             suppressed.append(proposal)
             notes.append(f"Suppressed invalid proposal SMILES: {smiles}")
@@ -177,14 +204,11 @@ def apply_proposal_diversity(
             continue
 
         if effective_config.deduplicate_near and accepted_fingerprints:
-            candidate_fp = _fingerprint_from_smiles(canonical)
             if any(_similarity(candidate_fp, existing_fp) >= effective_config.max_similarity for existing_fp in accepted_fingerprints):
                 suppressed.append(proposal)
                 suppressed_families.add(family)
                 notes.append(f"Suppressed near-duplicate proposal: {smiles}")
                 continue
-        else:
-            candidate_fp = None
 
         if effective_config.per_family_budget is not None and family:
             if accepted_family_counts[family] >= effective_config.per_family_budget:
@@ -197,8 +221,6 @@ def apply_proposal_diversity(
         accepted_canonical.add(canonical)
         accepted_family_counts[family] += 1
         if effective_config.deduplicate_near:
-            if candidate_fp is None:
-                candidate_fp = _fingerprint_from_smiles(canonical)
             accepted_fingerprints.append(candidate_fp)
 
     suggested_families = []

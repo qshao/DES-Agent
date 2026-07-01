@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 
 from .chemical_lesson_summary import ChemistryLessonSummary
 from .chemical_pattern_memory import ChemicalPatternMemory
+from .chemistry_filter import canonicalize_smiles
 from .orchestrator import run_search_report
 from .reporting import _confidence_label
 from .schemas import DesThresholds
@@ -98,6 +99,10 @@ def run_multi_cycle_search(
     cycle_lesson_summary = prior_chemistry_lesson_summary
     snapshots: list[CycleSnapshot] = []
     prev_labels: list[str] = []
+    # Cross-cycle caches: skip re-running predictions and uncertainty estimation
+    # for SMILES already evaluated in a prior cycle (predictions are deterministic).
+    accumulated_results: dict = {}     # canonical smiles → DesResult
+    accumulated_uncertainty: dict = {} # canonical smiles → MinimumTmUncertainty
 
     for cycle in range(1, n_cycles + 1):
         prior_results = last_outcome.results[:top_k_convergence] if last_outcome else None
@@ -129,7 +134,21 @@ def run_multi_cycle_search(
             prior_chemistry_lesson_summary=cycle_lesson_summary,
             chemical_pattern_memory_mode=chemical_pattern_memory_mode,
             pattern_memory_max_examples=pattern_memory_max_examples,
+            prior_results_by_smiles=accumulated_results,
+            prior_uncertainty_by_smiles=accumulated_uncertainty,
         )
+
+        # Update cross-cycle caches with this cycle's fresh evaluations.
+        for r in outcome.results:
+            try:
+                accumulated_results[canonicalize_smiles(r.curve.smiles_b)] = r
+            except ValueError:
+                pass
+        for item in outcome.annotated_results:
+            try:
+                accumulated_uncertainty[canonicalize_smiles(item.result.curve.smiles_b)] = item.uncertainty
+            except ValueError:
+                pass
 
         # H6 — build family ledger: DES-positive hit count per chemical family
         smiles_to_family = {bc.smiles: bc.family for bc in outcome.brainstorm_candidates}
