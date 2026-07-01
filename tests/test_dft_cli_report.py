@@ -13,7 +13,7 @@ def _make_outcome(dft_results: dict | None = None) -> SelectivityScreenOutcome:
         delta_log_k=1.5, composite_score=0.85, source="test", source_id="", rationale="good",
     )
     return SelectivityScreenOutcome(
-        target_metal="Cu2+", competitor_metal="Zn2+",
+        target_metal="Cu2+", competitor_metals=["Zn2+"],
         results=[r], n_screened=1, n_cycles=1,
         dft_results=dft_results or {},
     )
@@ -60,7 +60,7 @@ class TestReportWithDFT:
                         homo_lumo_gap_ev=5.0, donor_charges=[-0.3])
         outcome = _make_outcome({"NCCN": dft})
         outcome = SelectivityScreenOutcome(
-            target_metal="Cu2+", competitor_metal="Zn2+",
+            target_metal="Cu2+", competitor_metals=["Zn2+"],
             results=[outcome.results[0], r2], n_screened=2, n_cycles=1,
             dft_results={"NCCN": dft},
         )

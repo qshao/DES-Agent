@@ -554,7 +554,7 @@ def format_metal_selectivity_report(outcome) -> str:
     col_header += " | source | rationale"
 
     header_lines = [
-        f"=== Metal Selectivity Screen: {outcome.target_metal} over {outcome.competitor_metal} ===",
+        f"=== Metal Selectivity Screen: {outcome.target_metal} over {', '.join(outcome.competitor_metals)} ===",
         f"Screened {outcome.n_screened} candidate(s) over {outcome.n_cycles} cycle(s).",
         f"Top ligand: {top_str}",
         "=" * 52,

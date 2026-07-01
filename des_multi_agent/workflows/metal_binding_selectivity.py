@@ -24,6 +24,21 @@ def _safe_canon(smi: str) -> str:
         return smi
 
 
+def _normalize_competitor_metals(competitor_metal: str | list[str]) -> list[str]:
+    """Normalize a bare metal string or list of metals into a de-duplicated,
+    order-preserving list. Raises ValueError if the result would be empty."""
+    raw = [competitor_metal] if isinstance(competitor_metal, str) else list(competitor_metal)
+    seen: set[str] = set()
+    out: list[str] = []
+    for m in raw:
+        if m not in seen:
+            seen.add(m)
+            out.append(m)
+    if not out:
+        raise ValueError("competitor_metal must contain at least one metal ion")
+    return out
+
+
 @dataclass(frozen=True)
 class SelectivityResult:
     """One ligand screened in a metal selectivity run.
@@ -32,6 +47,10 @@ class SelectivityResult:
     ``stability_rule_weight == 0`` (the default). When the blend is enabled
     (``stability_rule_weight > 0``), they store the ML + rule-based blended
     value rather than the raw ML output.
+
+    ``log_k_competitor``/``delta_log_k`` always hold the WORST-CASE off-target's
+    value (the one keeping the ligand from being clean) — for a single off-target
+    this is that off-target's value, unchanged from prior behavior.
     """
 
     ligand_smiles: str
@@ -42,12 +61,14 @@ class SelectivityResult:
     source: str
     source_id: str
     rationale: str
+    log_k_competitors: dict[str, float] = field(default_factory=dict)
+    worst_competitor_metal: str = ""
 
 
 @dataclass
 class SelectivityScreenOutcome:
     target_metal: str
-    competitor_metal: str
+    competitor_metals: list[str]
     results: list[SelectivityResult]
     n_screened: int
     n_cycles: int
@@ -106,7 +127,7 @@ def _llm_proposals_from_brainstorm(
 
 def _score_proposal_pair(
     target_metal: str,
-    competitor_metal: str,
+    competitor_metals: list[str],
     proposal: CandidateProposal,
     model_path,
     w_affinity: float,
@@ -118,15 +139,16 @@ def _score_proposal_pair(
         pred_target = predict_log_k(
             target_metal, proposal.smiles, model_path=model_path, allow_fallback=True
         )
-        pred_competitor = predict_log_k(
-            competitor_metal, proposal.smiles, model_path=model_path, allow_fallback=True
-        )
+        pred_competitors = {
+            metal: predict_log_k(metal, proposal.smiles, model_path=model_path, allow_fallback=True)
+            for metal in competitor_metals
+        }
     except Exception as exc:
         warnings.append(f"Prediction failed for {proposal.smiles}: {exc}")
         return None, warnings
 
     val_target = pred_target.value
-    val_competitor = pred_competitor.value
+    val_competitors = {metal: pred.value for metal, pred in pred_competitors.items()}
     # Blend in the rule-based (Irving-Williams + HSAB + chelate) log K so the
     # metal *difference* reflects real coordination chemistry rather than the
     # heuristic model's near-uniform output.
@@ -135,25 +157,31 @@ def _score_proposal_pair(
             from ..chemistry.stability_rules import rule_based_log_k
 
             rt = rule_based_log_k(target_metal, proposal.smiles)
-            rc = rule_based_log_k(competitor_metal, proposal.smiles)
             w = stability_rule_weight
             val_target = (1.0 - w) * val_target + w * rt
-            val_competitor = (1.0 - w) * val_competitor + w * rc
+            for metal in list(val_competitors):
+                rc = rule_based_log_k(metal, proposal.smiles)
+                val_competitors[metal] = (1.0 - w) * val_competitors[metal] + w * rc
         except Exception as exc:
             warnings.append(f"stability-rule blend failed for {proposal.smiles}: {exc}")
 
+    worst_metal = max(val_competitors, key=val_competitors.get)
+    worst_val = val_competitors[worst_metal]
+
     delta_log_k, composite_score = _compute_composite(
-        val_target, val_competitor, w_affinity, w_selectivity
+        val_target, worst_val, w_affinity, w_selectivity
     )
     return SelectivityResult(
         ligand_smiles=proposal.smiles,
         log_k_target=val_target,
-        log_k_competitor=val_competitor,
+        log_k_competitor=worst_val,
         delta_log_k=delta_log_k,
         composite_score=composite_score,
         source=proposal.source,
         source_id=proposal.source_id,
         rationale=proposal.rationale,
+        log_k_competitors=val_competitors,
+        worst_competitor_metal=worst_metal,
     ), warnings
 
 
@@ -167,7 +195,7 @@ def _top_k_stable(
 
 def _build_selectivity_context(
     target_metal: str,
-    competitor_metal: str,
+    competitor_metal: str | list[str],
     prev_results: list[SelectivityResult],
     cycle: int,
     w_affinity: float,
@@ -177,9 +205,14 @@ def _build_selectivity_context(
     family_hit_scores: dict[str, list[float]] | None = None,
     saturated_families: set[str] | None = None,
 ) -> str:
+    metals = [competitor_metal] if isinstance(competitor_metal, str) else list(competitor_metal)
+    competitor_line = (
+        f"Competitor metal: {metals[0]}" if len(metals) == 1
+        else f"Off-target metals: {', '.join(metals)}"
+    )
     lines = [
         f"Target metal: {target_metal}",
-        f"Competitor metal: {competitor_metal}",
+        competitor_line,
         f"Selectivity weight: {w_selectivity} | Affinity weight: {w_affinity}",
         f"Cycle: {cycle}",
     ]
@@ -188,7 +221,7 @@ def _build_selectivity_context(
         for r in prev_results[:5]:
             lines.append(
                 f"  - {r.ligand_smiles}: log_K({target_metal})={r.log_k_target:.2f}, "
-                f"log_K({competitor_metal})={r.log_k_competitor:.2f}, "
+                f"log_K({r.worst_competitor_metal})={r.log_k_competitor:.2f}, "
                 f"ΔlogK={r.delta_log_k:.2f}, score={r.composite_score:.2f}"
             )
         failed = [r for r in prev_results if r.delta_log_k <= 0][:3]
@@ -240,6 +273,8 @@ def run_metal_selectivity_screen(
 ) -> SelectivityScreenOutcome:
     from ..chemistry.claim_grounding import ground_coordination as _ground_coord
     from ..chemistry_filter import murcko_scaffold_smiles as _scaffold
+
+    competitor_metals = _normalize_competitor_metals(competitor_metal)
 
     seen_smiles: set[str] = set()
     all_reviews: list[CandidateReview] = []
@@ -325,7 +360,7 @@ def run_metal_selectivity_screen(
 
         if llm_provider is not None:
             context = _build_selectivity_context(
-                target_metal, competitor_metal, prev_cycle_results, cycle, w_affinity, w_selectivity,
+                target_metal, competitor_metals, prev_cycle_results, cycle, w_affinity, w_selectivity,
                 des_compatible_hints=des_compatible_hints,
                 des_incompatible_hints=des_incompatible_hints,
                 family_hit_scores=family_hit_scores if cycle > 1 else None,
@@ -333,7 +368,7 @@ def run_metal_selectivity_screen(
             )
             try:
                 brainstorms = llm_provider.brainstorm_ligands_selectivity(
-                    target_metal, competitor_metal, constraints, context
+                    target_metal, competitor_metals, constraints, context
                 )
                 all_brainstorm.extend(brainstorms)
                 llm_proposals = _llm_proposals_from_brainstorm(brainstorms)
@@ -368,7 +403,7 @@ def run_metal_selectivity_screen(
         for proposal in proposals:
             try:
                 result, warnings = _score_proposal_pair(
-                    target_metal, competitor_metal, proposal, model_path, w_affinity, w_selectivity,
+                    target_metal, competitor_metals, proposal, model_path, w_affinity, w_selectivity,
                     stability_rule_weight=stability_rule_weight,
                 )
             except Exception as exc:
@@ -385,7 +420,7 @@ def run_metal_selectivity_screen(
             if r.source != "llm":
                 continue
             try:
-                v = _ground_sel(target_metal, competitor_metal, r.ligand_smiles, "target_selective")
+                v = _ground_sel(target_metal, r.worst_competitor_metal, r.ligand_smiles, "target_selective")
                 _sel_verdicts.append(v)
                 if v.status == "contradicted":
                     all_warnings.append(
@@ -397,7 +432,7 @@ def run_metal_selectivity_screen(
 
         if llm_provider is not None:
             context = _build_selectivity_context(
-                target_metal, competitor_metal, prev_cycle_results, cycle, w_affinity, w_selectivity,
+                target_metal, competitor_metals, prev_cycle_results, cycle, w_affinity, w_selectivity,
                 des_compatible_hints=des_compatible_hints,
                 des_incompatible_hints=des_incompatible_hints,
             )
@@ -496,7 +531,7 @@ def run_metal_selectivity_screen(
         if llm_provider is not None and hasattr(llm_provider, "nominate_for_dft"):
             try:
                 nominated_smiles = llm_provider.nominate_for_dft(
-                    top_k_pool, target_metal, competitor_metal, dft_top_n
+                    top_k_pool, target_metal, competitor_metals, dft_top_n
                 )
             except Exception as exc:
                 all_warnings.append(
@@ -523,7 +558,7 @@ def run_metal_selectivity_screen(
             for r in cumulative_results:
                 dft_res = dft_results_map.get(r.ligand_smiles)
                 if dft_res and dft_res.success:
-                    adj = _dft_adj(dft_res, target_metal, competitor_metal)
+                    adj = _dft_adj(dft_res, target_metal, r.worst_competitor_metal)
                     r = _dc.replace(r, composite_score=r.composite_score + adj)
                 updated.append(r)
             cumulative_results = sorted(updated, key=lambda r: r.composite_score, reverse=True)
@@ -531,7 +566,7 @@ def run_metal_selectivity_screen(
 
     sel_trajectory = SearchTrajectory(
         workflow="metal-selectivity",
-        headline=f"{target_metal} over {competitor_metal} selectivity",
+        headline=f"{target_metal} over {', '.join(competitor_metals)} selectivity",
         metric_label="composite score",
         snapshots=sel_snapshots,
         total_cycles=cycles_run,
@@ -541,7 +576,7 @@ def run_metal_selectivity_screen(
     )
     return SelectivityScreenOutcome(
         target_metal=target_metal,
-        competitor_metal=competitor_metal,
+        competitor_metals=competitor_metals,
         results=cumulative_results,
         n_screened=len(seen_smiles),
         n_cycles=n_cycles,

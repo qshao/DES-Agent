@@ -30,7 +30,7 @@ class TestSelectivityScreenOutcomeHasDFTField:
     def test_dft_results_field_exists_and_defaults_empty(self):
         outcome = SelectivityScreenOutcome(
             target_metal="Cu2+",
-            competitor_metal="Zn2+",
+            competitor_metals=["Zn2+"],
             results=[],
             n_screened=0,
             n_cycles=1,

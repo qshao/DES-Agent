@@ -19,7 +19,7 @@ def test_pipeline_trajectory_field_present_and_typed(monkeypatch):
     )
 
     monkeypatch.setattr(pipe, "run_metal_selectivity_screen", lambda **kw: SelectivityScreenOutcome(
-        target_metal="Cu2+", competitor_metal="Zn2+", results=[lig], n_screened=1, n_cycles=1,
+        target_metal="Cu2+", competitor_metals=["Zn2+"], results=[lig], n_screened=1, n_cycles=1,
     ))
     monkeypatch.setattr(pipe, "_bridge_filter", lambda results, mindelta, topn, warnings: [lig])
 
@@ -60,7 +60,7 @@ def test_pipeline_trajectory_snapshot_has_correct_hits(monkeypatch):
     shortlisted = [lig_compatible, lig_incompatible]
 
     monkeypatch.setattr(pipe, "run_metal_selectivity_screen", lambda **kw: SelectivityScreenOutcome(
-        target_metal="Cu2+", competitor_metal="Zn2+", results=shortlisted, n_screened=2, n_cycles=1,
+        target_metal="Cu2+", competitor_metals=["Zn2+"], results=shortlisted, n_screened=2, n_cycles=1,
     ))
     monkeypatch.setattr(pipe, "_bridge_filter", lambda results, mindelta, topn, warnings: shortlisted)
 
@@ -109,7 +109,7 @@ def test_pipeline_trajectory_convergence_detected(monkeypatch):
     )
 
     monkeypatch.setattr(pipe, "run_metal_selectivity_screen", lambda **kw: SelectivityScreenOutcome(
-        target_metal="Cu2+", competitor_metal="Zn2+", results=[lig], n_screened=1, n_cycles=1,
+        target_metal="Cu2+", competitor_metals=["Zn2+"], results=[lig], n_screened=1, n_cycles=1,
     ))
     monkeypatch.setattr(pipe, "_bridge_filter", lambda results, mindelta, topn, warnings: [lig])
 

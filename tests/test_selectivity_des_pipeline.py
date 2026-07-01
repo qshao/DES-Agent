@@ -30,7 +30,7 @@ def _sel_result(smiles: str, delta: float = 1.0, score: float = 5.0) -> Selectiv
 def _sel_outcome(smiles_list: list[str]) -> SelectivityScreenOutcome:
     return SelectivityScreenOutcome(
         target_metal="Cu2+",
-        competitor_metal="Zn2+",
+        competitor_metals=["Zn2+"],
         results=[_sel_result(s) for s in smiles_list],
         n_screened=len(smiles_list),
         n_cycles=1,

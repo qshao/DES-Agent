@@ -220,7 +220,7 @@ class BaseLLMProvider(LLMProvider):
     def brainstorm_ligands_selectivity(
         self,
         target_metal: str,
-        competitor_metal: str,
+        competitor_metal: str | list[str],
         constraints: dict | None,
         context: str,
     ) -> list[CandidateBrainstorm]:
@@ -246,7 +246,7 @@ class BaseLLMProvider(LLMProvider):
         self,
         candidates: list,
         target_metal: str,
-        competitor_metal: str,
+        competitor_metal: str | list[str],
         top_n: int = 3,
     ) -> list[str]:
         """Return SMILES of candidates nominated for DFT validation.

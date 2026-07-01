@@ -2,15 +2,19 @@
 from __future__ import annotations
 
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from des_multi_agent.workflows.metal_binding_selectivity import (
     SelectivityResult,
     SelectivityScreenOutcome,
+    _build_selectivity_context,
+    _normalize_competitor_metals,
+    _score_proposal_pair,
     _top_k_stable,
     run_metal_selectivity_screen,
 )
 from des_multi_agent.llm.schemas import CandidateBrainstorm, CandidateReview
+from des_multi_agent.schemas import CandidateProposal
 
 
 # ---------------------------------------------------------------------------
@@ -84,7 +88,7 @@ def test_run_screen_no_llm_returns_outcome():
     outcome = run_metal_selectivity_screen("Cu2+", "Zn2+", n=5, n_cycles=1)
     assert isinstance(outcome, SelectivityScreenOutcome)
     assert outcome.target_metal == "Cu2+"
-    assert outcome.competitor_metal == "Zn2+"
+    assert outcome.competitor_metals == ["Zn2+"]
     assert len(outcome.results) > 0
     assert outcome.llm_brainstorm == []
     assert outcome.llm_candidate_reviews == []
@@ -228,7 +232,7 @@ def test_format_metal_selectivity_report_contains_headers():
 def test_format_metal_selectivity_report_no_results():
     from des_multi_agent.reporting import format_metal_selectivity_report
     outcome = SelectivityScreenOutcome(
-        target_metal="Cu2+", competitor_metal="Zn2+",
+        target_metal="Cu2+", competitor_metals=["Zn2+"],
         results=[], n_screened=0, n_cycles=1,
     )
     report = format_metal_selectivity_report(outcome)
@@ -246,7 +250,7 @@ def test_cli_metal_selectivity_routes_correctly(monkeypatch, capsys):
     import des_multi_agent.workflows.metal_binding_selectivity as sel_module
 
     fake_outcome = SelectivityScreenOutcome(
-        target_metal="Cu2+", competitor_metal="Zn2+",
+        target_metal="Cu2+", competitor_metals=["Zn2+"],
         results=[], n_screened=5, n_cycles=1,
     )
     monkeypatch.setattr(sel_module, "run_metal_selectivity_screen", lambda **kw: fake_outcome)
@@ -330,7 +334,7 @@ def test_stability_rule_weight_zero_runs():
 def test_run_metal_selectivity_screen_claim_verdicts_is_list():
     """claim_verdicts field exists and is a list on SelectivityScreenOutcome."""
     outcome = SelectivityScreenOutcome(
-        target_metal="Cu2+", competitor_metal="Zn2+", results=[], n_screened=0, n_cycles=1
+        target_metal="Cu2+", competitor_metals=["Zn2+"], results=[], n_screened=0, n_cycles=1
     )
     assert isinstance(outcome.claim_verdicts, list)
 
@@ -352,3 +356,128 @@ def test_selectivity_grounding_skips_heuristic_proposals():
     assert len(outcome.claim_verdicts) == 0
     # No false-positive [GROUNDING] warnings either.
     assert not any("[GROUNDING]" in w for w in outcome.warnings)
+
+
+# ---------------------------------------------------------------------------
+# _normalize_competitor_metals
+# ---------------------------------------------------------------------------
+
+def test_normalize_competitor_metals_string_wraps_in_list():
+    assert _normalize_competitor_metals("Zn2+") == ["Zn2+"]
+
+
+def test_normalize_competitor_metals_dedups_preserving_order():
+    assert _normalize_competitor_metals(["Zn2+", "Fe3+", "Zn2+"]) == ["Zn2+", "Fe3+"]
+
+
+def test_normalize_competitor_metals_empty_raises_value_error():
+    with pytest.raises(ValueError, match="at least one metal ion"):
+        _normalize_competitor_metals([])
+
+
+# ---------------------------------------------------------------------------
+# _score_proposal_pair — multi-off-target scoring
+# ---------------------------------------------------------------------------
+
+def _fake_predict(metal_values: dict) -> callable:
+    def _predict(metal, smiles, model_path=None, allow_fallback=True):
+        return MagicMock(value=metal_values[metal])
+    return _predict
+
+
+def test_score_proposal_pair_single_competitor_matches_old_behavior():
+    proposal = CandidateProposal(smiles="NCCN", rationale="r", family="f",
+                                  source="heuristic", source_id="s")
+    with patch(
+        "des_multi_agent.workflows.metal_binding_selectivity.predict_log_k",
+        side_effect=_fake_predict({"Cu2+": 10.0, "Zn2+": 6.0}),
+    ):
+        result, warnings = _score_proposal_pair(
+            "Cu2+", ["Zn2+"], proposal, None, w_affinity=0.5, w_selectivity=0.5,
+        )
+    assert warnings == []
+    assert result.log_k_competitors == {"Zn2+": 6.0}
+    assert result.worst_competitor_metal == "Zn2+"
+    assert result.log_k_competitor == 6.0
+    assert abs(result.delta_log_k - 4.0) < 1e-9
+
+
+def test_score_proposal_pair_worst_case_among_multiple_off_targets():
+    proposal = CandidateProposal(smiles="NCCN", rationale="r", family="f",
+                                  source="heuristic", source_id="s")
+    with patch(
+        "des_multi_agent.workflows.metal_binding_selectivity.predict_log_k",
+        side_effect=_fake_predict({"Cu2+": 10.0, "Zn2+": 6.0, "Fe3+": 9.0}),
+    ):
+        result, warnings = _score_proposal_pair(
+            "Cu2+", ["Zn2+", "Fe3+"], proposal, None, w_affinity=0.5, w_selectivity=0.5,
+        )
+    assert result.log_k_competitors == {"Zn2+": 6.0, "Fe3+": 9.0}
+    assert result.worst_competitor_metal == "Fe3+"      # Fe3+ has the higher log K -> it's the bottleneck
+    assert result.log_k_competitor == 9.0
+    assert abs(result.delta_log_k - 1.0) < 1e-9          # 10.0 - 9.0
+
+
+def test_score_proposal_pair_drops_candidate_on_any_prediction_failure():
+    proposal = CandidateProposal(smiles="NCCN", rationale="r", family="f",
+                                  source="heuristic", source_id="s")
+
+    def _predict(metal, smiles, model_path=None, allow_fallback=True):
+        if metal == "Fe3+":
+            raise RuntimeError("model unavailable")
+        return MagicMock(value=10.0)
+
+    with patch(
+        "des_multi_agent.workflows.metal_binding_selectivity.predict_log_k",
+        side_effect=_predict,
+    ):
+        result, warnings = _score_proposal_pair(
+            "Cu2+", ["Zn2+", "Fe3+"], proposal, None, w_affinity=0.5, w_selectivity=0.5,
+        )
+    assert result is None
+    assert len(warnings) == 1
+
+
+# ---------------------------------------------------------------------------
+# _build_selectivity_context — text generalization
+# ---------------------------------------------------------------------------
+
+def test_build_selectivity_context_single_competitor_byte_identical():
+    ctx = _build_selectivity_context("Cu2+", "Zn2+", [], 1, 0.5, 0.5)
+    assert "Competitor metal: Zn2+" in ctx
+    assert "Off-target" not in ctx
+
+
+def test_build_selectivity_context_multi_competitor_text():
+    ctx = _build_selectivity_context("Cu2+", ["Zn2+", "Fe3+"], [], 1, 0.5, 0.5)
+    assert "Off-target metals: Zn2+, Fe3+" in ctx
+    assert "Competitor metal:" not in ctx
+
+
+def test_build_selectivity_context_per_candidate_line_uses_worst_competitor():
+    r = SelectivityResult(
+        ligand_smiles="NCCN", log_k_target=10.0, log_k_competitor=9.0,
+        delta_log_k=1.0, composite_score=5.5, source="heuristic", source_id="s",
+        rationale="r", log_k_competitors={"Zn2+": 6.0, "Fe3+": 9.0},
+        worst_competitor_metal="Fe3+",
+    )
+    ctx = _build_selectivity_context("Cu2+", ["Zn2+", "Fe3+"], [r], 1, 0.5, 0.5)
+    assert "log_K(Fe3+)=9.00" in ctx
+
+
+# ---------------------------------------------------------------------------
+# run_metal_selectivity_screen — accepts a list end to end
+# ---------------------------------------------------------------------------
+
+def test_run_metal_selectivity_screen_accepts_list_competitor():
+    with patch(
+        "des_multi_agent.workflows.metal_binding_selectivity.predict_log_k",
+        side_effect=_fake_predict({"Cu2+": 10.0, "Zn2+": 6.0, "Fe3+": 8.0}),
+    ):
+        outcome = run_metal_selectivity_screen(
+            target_metal="Cu2+", competitor_metal=["Zn2+", "Fe3+"], n=3,
+            model_path=None, llm_provider=None, n_cycles=1,
+        )
+    assert outcome.competitor_metals == ["Zn2+", "Fe3+"]
+    assert all(r.log_k_competitors for r in outcome.results)
+    assert all(r.worst_competitor_metal == "Fe3+" for r in outcome.results)

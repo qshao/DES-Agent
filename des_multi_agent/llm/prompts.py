@@ -86,7 +86,7 @@ def ligand_review_prompt(metal_ion: str, ligand_smiles: str, context: str) -> st
 
 def ligand_selectivity_brainstorm_prompt(
     target_metal: str,
-    competitor_metal: str,
+    competitor_metal: str | list[str],
     constraints: dict | None,
     context: str,
     max_items: int | None = None,
@@ -94,10 +94,11 @@ def ligand_selectivity_brainstorm_prompt(
     facts_block: str = "",
     known_ligand_menu: list | None = None,
 ) -> str:
+    metals = [competitor_metal] if isinstance(competitor_metal, str) else list(competitor_metal)
     parts = [
         "Return raw JSON only. Do not use markdown fences or commentary.\n",
         f"Return a JSON array of candidate ligand SMILES designed for HIGH SELECTIVITY "
-        f"for {target_metal} over {competitor_metal}.\n",
+        f"for {target_metal} over {', '.join(metals)}.\n",
     ]
     if facts_block:
         parts.append(f"Computed facts:\n{facts_block}\n")
@@ -341,10 +342,15 @@ def chemistry_next_step_prompt(
 def dft_nomination_prompt(
     candidates: list,
     target_metal: str,
-    competitor_metal: str,
+    competitor_metal: str | list[str],
     top_n: int = 3,
 ) -> str:
     """Prompt asking the LLM to nominate candidates for DFT validation."""
+    metals = [competitor_metal] if isinstance(competitor_metal, str) else list(competitor_metal)
+    competitor_line = (
+        f"Competitor: {metals[0]}." if len(metals) == 1
+        else f"Off-target metals: {', '.join(metals)}."
+    )
     rows = []
     for i, r in enumerate(candidates, 1):
         rows.append(
@@ -353,7 +359,7 @@ def dft_nomination_prompt(
     table = "\n".join(rows)
     return (
         f"You are helping prioritize ligands for DFT validation.\n"
-        f"Target metal: {target_metal}. Competitor: {competitor_metal}.\n\n"
+        f"Target metal: {target_metal}. {competitor_line}\n\n"
         f"Top candidates by predicted selectivity (ΔlogK):\n{table}\n\n"
         f"Select 1–{top_n} candidates most worth DFT validation. Prefer:\n"
         f"- Ligands where HSAB ambiguity makes the rule-based prediction uncertain\n"
