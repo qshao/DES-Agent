@@ -58,13 +58,13 @@ Four additions that anchor metal-binding LLM proposals to real chemistry, mirror
 **`ground_ligand_reality` (`claim_grounding.py`)**
 Output-side gate returning a `PartnerVerdict`: invalid SMILES → `drop`; known compound → `keep` (status=`known`); `structural_sanity` failure → `drop`; zero donor atoms → `drop`; otherwise `keep` (status=`novel_plausible`). Never raises; exceptions fall back to `novel_plausible/keep`.
 
-**Reality gate in metal workflows (`metal_binding_screen.py`, `metal_binding_selectivity.py`)**
-After each LLM brainstorm, `ground_ligand_reality` is called for every LLM-sourced proposal. Proposals with `disposition=drop` are removed from the candidate list; a `[GROUNDING] Ligand dropped (reality): …` warning is appended to `all_warnings`.
+**Reality gate in metal workflows (`workflows/_metal_helpers.py`, `metal_binding_screen.py`, `metal_binding_selectivity.py`)**
+After each LLM brainstorm, `_apply_ligand_reality_gate(metal_ion, brainstorms, proposals, all_warnings)` (defined in `_metal_helpers.py`, shared by both workflow files) calls `ground_ligand_reality` for every LLM-sourced proposal. Proposals with `disposition=drop` are removed; a `[GROUNDING] Ligand dropped (reality): …` warning is emitted. The drop set is built from canonical SMILES (via `canonicalize_smiles`) so the filter matches the canonicalized forms already stored in `proposals` by `_deduplicate_proposals`.
 
 ## Diversity & Accuracy Improvements (2026-07)
 
 **Tanimoto diversity penalty (`orchestrator.py`)**
-`_apply_tanimoto_diversity_penalty` runs after `_apply_hbond_bias` each cycle. It builds Morgan fingerprints (radius=2, 2048-bit) for all DES-negative prior evaluations and computes max Tanimoto similarity for each new annotated result. When max similarity ≥ 0.70, a penalty of `0.10 × (max_sim − 0.70) / 0.30` is subtracted from `ranking_score` (clamped to 0.0). DES-positive prior results are never included in the fingerprint reference set.
+`_apply_tanimoto_diversity_penalty` runs after `_apply_hbond_bias` each cycle. It computes max Tanimoto similarity (Morgan radius-2, 2048-bit) between each new candidate and the set of DES-negative prior evaluations, subtracting a scaled penalty (`0.10 × (max_sim − 0.70) / 0.30`) when similarity ≥ 0.70. DES-positive prior results are never penalised. Fingerprints for previously seen SMILES are cached in a module-level `_FAIL_FP_CACHE` dict so each SMILES is parsed and fingerprinted at most once per process, keeping per-cycle overhead O(new failures) rather than O(all failures).
 
 **JSON trajectory export (`trajectory.py`, `cli.py`)**
 `write_trajectory_json_artifact(output_dir, traj)` writes `trajectory.json` alongside `trajectory.md` using an atomic `NamedTemporaryFile` → `Path.replace` write. Content is `json.dumps(dataclasses.asdict(traj), indent=2, sort_keys=True)`. The CLI calls it in `_emit_trajectory()` with an `OSError` fallback that prints a warning to stderr rather than failing the run.

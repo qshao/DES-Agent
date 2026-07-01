@@ -50,7 +50,11 @@ This document tracks the next useful extensions for DES-Agent after the current 
     - `write_trajectory_json_artifact` in `trajectory.py` writes `trajectory.json` alongside `trajectory.md` using an atomic `NamedTemporaryFile` + `Path.replace` write. Called automatically by the CLI when `--output-dir` is set.
 
 14. Tanimoto diversity penalty
-    - `_apply_tanimoto_diversity_penalty` in `orchestrator.py` computes Morgan fingerprint (radius=2, 2048-bit) similarity of each new proposal to all DES-negative prior evaluations and subtracts a scaled `ranking_score` penalty when max similarity ≥ 0.70. DES-positive prior results are never penalized.
+    - `_apply_tanimoto_diversity_penalty` in `orchestrator.py` computes Morgan fingerprint (radius=2, 2048-bit) similarity of each new proposal to all DES-negative prior evaluations and subtracts a scaled `ranking_score` penalty when max similarity ≥ 0.70. DES-positive prior results are never penalized. Fingerprints are cached in `_FAIL_FP_CACHE` (module-level dict) so per-cycle cost is O(new failures).
+
+15. Code-review bug fixes
+    - **Reality gate SMILES mismatch**: `_apply_ligand_reality_gate` now canonicalizes `b.smiles` before building the drop set, so non-canonical LLM output is correctly filtered against the canonical SMILES stored in `proposals` by `_deduplicate_proposals`.
+    - **Reality gate extraction**: the 15-line gate block was copy-pasted in both metal workflow files; extracted into a shared `_apply_ligand_reality_gate` helper in `workflows/_metal_helpers.py`.
 
 ## Next Up
 
