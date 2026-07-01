@@ -536,6 +536,9 @@ def format_selectivity_des_report(outcome: "SelectivityDesPipelineOutcome") -> s
 def format_metal_selectivity_report(outcome) -> str:
     """Render a ranked-candidate report for a SelectivityScreenOutcome."""
     results = outcome.results
+    dft_results = getattr(outcome, "dft_results", {})
+    has_dft = bool(dft_results)
+
     top = results[0] if results else None
     if top:
         top_str = (
@@ -544,22 +547,40 @@ def format_metal_selectivity_report(outcome) -> str:
         )
     else:
         top_str = "none"
+
+    col_header = "ligand | log_k_target | log_k_competitor | delta_log_k | score"
+    if has_dft:
+        col_header += " | dft_homo_ev | dft_donor_chg"
+    col_header += " | source | rationale"
+
     header_lines = [
         f"=== Metal Selectivity Screen: {outcome.target_metal} over {outcome.competitor_metal} ===",
         f"Screened {outcome.n_screened} candidate(s) over {outcome.n_cycles} cycle(s).",
         f"Top ligand: {top_str}",
         "=" * 52,
         "",
-        "ligand | log_k_target | log_k_competitor | delta_log_k | score | source | rationale",
+        col_header,
     ]
+
     rows = []
     for r in results:
         src = f"source={r.source}"
         if r.source_id:
             src += f"; id={r.source_id}"
+        dft_cols = ""
+        if has_dft:
+            dr = dft_results.get(r.ligand_smiles)
+            if dr and dr.success:
+                mean_chg = (
+                    sum(dr.donor_charges) / len(dr.donor_charges)
+                    if dr.donor_charges else float("nan")
+                )
+                dft_cols = f" | {dr.homo_ev:.2f} | {mean_chg:.3f}"
+            else:
+                dft_cols = " | — | —"
         rows.append(
             f"{r.ligand_smiles} | {r.log_k_target:.2f} | {r.log_k_competitor:.2f} | "
-            f"{r.delta_log_k:.2f} | {r.composite_score:.2f} | {src} | {r.rationale}"
+            f"{r.delta_log_k:.2f} | {r.composite_score:.2f}{dft_cols} | {src} | {r.rationale}"
         )
 
     review_lines: list[str] = []
@@ -580,6 +601,23 @@ def format_metal_selectivity_report(outcome) -> str:
         for b in outcome.llm_brainstorm:
             brainstorm_lines.append(f"{b.smiles} | {b.family} | {b.rationale}")
 
+    dft_lines: list[str] = []
+    if has_dft:
+        dft_lines.append("")
+        dft_lines.append("DFT validation: B3LYP-D3(BJ)/def2-SVP, free ligand, gas phase")
+        for smi, dr in dft_results.items():
+            if dr.success:
+                mean_chg = (
+                    sum(dr.donor_charges) / len(dr.donor_charges)
+                    if dr.donor_charges else float("nan")
+                )
+                dft_lines.append(
+                    f"  {smi}: HOMO={dr.homo_ev:.2f} eV, "
+                    f"gap={dr.homo_lumo_gap_ev:.2f} eV, mean_donor_chg={mean_chg:.3f}"
+                )
+            else:
+                dft_lines.append(f"  {smi}: FAILED — {dr.error}")
+
     warning_lines: list[str] = []
     if outcome.warnings:
         warning_lines.append("")
@@ -587,4 +625,4 @@ def format_metal_selectivity_report(outcome) -> str:
         for w in outcome.warnings:
             warning_lines.append(f"- {w}")
 
-    return "\n".join(header_lines + rows + review_lines + brainstorm_lines + warning_lines)
+    return "\n".join(header_lines + rows + review_lines + brainstorm_lines + dft_lines + warning_lines)

@@ -182,6 +182,20 @@ def build_parser():
     parser.add_argument("--selectivity-weight", type=_unit_float, default=0.5, dest="selectivity_weight",
                         help="Weight for delta log K in composite selectivity score (default 0.5)")
     parser.add_argument(
+        "--dft-validate",
+        action="store_true",
+        default=False,
+        help="Enable DFT validation of top candidates via gpu4pyscf B3LYP-D3(BJ)/def2-SVP "
+             "(requires gpu4pyscf and xtb binary; metal-selectivity workflow only)",
+    )
+    parser.add_argument(
+        "--dft-top-n",
+        type=int,
+        default=3,
+        dest="dft_top_n",
+        help="Number of candidates to submit for DFT validation (default: 3)",
+    )
+    parser.add_argument(
         "--n-des-candidates",
         type=_positive_int,
         default=20,
@@ -752,6 +766,22 @@ def main(argv=None):
                 "metal-selectivity workflow requires --target-metal-ion and --competitor-metal-ion. "
                 "Example: --target-metal-ion Cu2+ --competitor-metal-ion Zn2+"
             )
+        # Startup dep check — only when DFT is requested
+        if getattr(args, "dft_validate", False):
+            try:
+                import gpu4pyscf  # noqa: F401
+            except ImportError:
+                parser.error(
+                    "--dft-validate requires 'gpu4pyscf'. Install with: pip install gpu4pyscf"
+                )
+            import subprocess as _sp
+            try:
+                _sp.run(["xtb", "--version"], capture_output=True, timeout=5, check=True)
+            except (FileNotFoundError, _sp.CalledProcessError, _sp.TimeoutExpired):
+                parser.error(
+                    "--dft-validate requires the 'xtb' binary. "
+                    "Install from: https://github.com/grimme-lab/xtb/releases"
+                )
         from .llm.factory import build_llm_provider as _build_llm_provider
         llm_provider_sel = _build_llm_provider(llm_cfg) if llm_cfg is not None else None
         sel_outcome = run_metal_selectivity_screen(
@@ -763,6 +793,8 @@ def main(argv=None):
             n_cycles=getattr(args, "n_cycles", 1),
             w_affinity=args.affinity_weight,
             w_selectivity=args.selectivity_weight,
+            dft_validate=getattr(args, "dft_validate", False),
+            dft_top_n=getattr(args, "dft_top_n", 3),
         )
         print(format_metal_selectivity_report(sel_outcome))
         _print_summary("metal-selectivity", sel_outcome)
