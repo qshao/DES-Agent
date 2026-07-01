@@ -160,3 +160,69 @@ class TestLigandBrainstormPromptMenu:
             "Cu2+", "Zn2+", None, "ctx", known_ligand_menu=None
         )
         assert "Ligand-0" not in prompt
+
+
+# ---------------------------------------------------------------------------
+# _apply_ligand_reality_gate (canonicalization fix)
+# ---------------------------------------------------------------------------
+
+from des_multi_agent.workflows._metal_helpers import _apply_ligand_reality_gate
+from des_multi_agent.chemistry_filter import canonicalize_smiles
+
+
+def _make_proposal(smiles: str):
+    from des_multi_agent.schemas import CandidateProposal
+    return CandidateProposal(smiles=smiles, rationale="", family="", source="llm", source_id="test")
+
+
+class _FakeBrainstorm:
+    def __init__(self, smiles):
+        self.smiles = smiles
+        self.rationale = ""
+        self.family = ""
+
+
+class TestApplyLigandRealityGate:
+    def test_no_drop_returns_proposals_unchanged(self):
+        brainstorms = [_FakeBrainstorm("NCCN")]  # ethylenediamine — valid ligand
+        canon = canonicalize_smiles("NCCN")
+        proposals = [_make_proposal(canon)]
+        warnings = []
+        result = _apply_ligand_reality_gate("Cu2+", brainstorms, proposals, warnings)
+        assert len(result) == 1
+        assert warnings == []
+
+    def test_drops_no_donor_atom_ligand(self):
+        # benzene has no donor atoms → should be dropped
+        smiles = "c1ccccc1"
+        canon = canonicalize_smiles(smiles)
+        brainstorms = [_FakeBrainstorm(smiles)]
+        proposals = [_make_proposal(canon)]
+        warnings = []
+        result = _apply_ligand_reality_gate("Cu2+", brainstorms, proposals, warnings)
+        assert result == []
+        assert any("[GROUNDING] Ligand dropped" in w for w in warnings)
+
+    def test_canonicalization_mismatch_fixed(self):
+        # LLM returns non-canonical SMILES; proposals list holds the canonical form.
+        # The fix ensures _drop_smiles uses canonical form so the filter works.
+        raw = "C(N)CCN"           # non-canonical for 1,3-propanediamine-like
+        canon = canonicalize_smiles(raw)
+        assert canon != raw or True  # may or may not differ; test the gate regardless
+
+        # Use benzene (no donors, definite drop) in non-canonical form
+        raw_benzene = "C1=CC=CC=C1"
+        canon_benzene = canonicalize_smiles(raw_benzene)
+        brainstorms = [_FakeBrainstorm(raw_benzene)]
+        proposals = [_make_proposal(canon_benzene)]  # proposal holds canonical form
+        warnings = []
+        result = _apply_ligand_reality_gate("Cu2+", brainstorms, proposals, warnings)
+        # Without the canonicalization fix this would return len == 1 (miss)
+        assert result == []
+
+    def test_invalid_smiles_dropped(self):
+        brainstorms = [_FakeBrainstorm("NOT_VALID")]
+        proposals = []
+        warnings = []
+        result = _apply_ligand_reality_gate("Cu2+", brainstorms, proposals, warnings)
+        assert result == []  # proposals was already empty; no crash

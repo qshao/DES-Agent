@@ -420,6 +420,9 @@ def _apply_hbond_bias(
         return annotated_results
 
 
+_FAIL_FP_CACHE: dict[str, object] = {}  # smi → Morgan fingerprint; persists across cycles
+
+
 def _apply_tanimoto_diversity_penalty(
     annotated_results: list[AnnotatedResult],
     prior_results_by_smiles: dict,
@@ -445,9 +448,14 @@ def _apply_tanimoto_diversity_penalty(
         fail_fps = []
         for smi, res in prior_results_by_smiles.items():
             if not res.is_des:
-                mol = Chem.MolFromSmiles(smi)
-                if mol is not None:
-                    fail_fps.append(AllChem.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=2048))
+                fp = _FAIL_FP_CACHE.get(smi)
+                if fp is None:
+                    mol = Chem.MolFromSmiles(smi)
+                    if mol is not None:
+                        fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=2048)
+                        _FAIL_FP_CACHE[smi] = fp
+                if fp is not None:
+                    fail_fps.append(fp)
 
         if not fail_fps:
             return annotated_results
