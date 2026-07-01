@@ -79,3 +79,25 @@ class TestCacheFileCreation:
                    return_value=_success("NCCN")):
             cached_compute_dft_properties("NCCN", pH=7.0, cache_path=cache_path)
         assert cache_path.exists()
+
+
+class TestCacheHitReflectsCurrentCaller:
+    def test_cache_hit_updates_smiles_and_ph_to_current_call(self, tmp_path):
+        """Two spellings of same molecule share cache entry, but smiles/pH
+        reflect the current caller, not the original writer."""
+        cache_path = tmp_path / "dft.sqlite3"
+        # First call with "CC(=O)O", second call with "OC(C)=O" (same molecule, different spelling)
+        with patch("des_multi_agent.chemistry.dft_cache.compute_dft_properties",
+                   return_value=_success("CC(=O)O")) as mock_compute:
+            r1 = cached_compute_dft_properties("CC(=O)O", pH=7.4, cache_path=cache_path)
+            r2 = cached_compute_dft_properties("OC(C)=O", pH=7.4, cache_path=cache_path)
+
+        assert mock_compute.call_count == 1  # both share cache entry
+        assert r1.from_cache is False
+        assert r2.from_cache is True
+        # r1's smiles reflects its own input
+        assert r1.smiles == "CC(=O)O"
+        # r2's smiles reflects ITS OWN input, not the original writer's
+        assert r2.smiles == "OC(C)=O"
+        # But the species_smiles (cache key) should remain canonical
+        assert r2.species_smiles == r1.species_smiles

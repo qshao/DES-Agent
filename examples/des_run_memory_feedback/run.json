@@ -1,0 +1,278 @@
+{
+  "brainstorm_candidates": [],
+  "candidate_proposals": [
+    {
+      "family": "alcohol",
+      "rationale": "hydrogen-bond donor candidate from a small rule-based family",
+      "reference_note": "",
+      "similarity_score": null,
+      "smiles": "O",
+      "source": "heuristic",
+      "source_id": "rule-based-family-library"
+    },
+    {
+      "family": "diol",
+      "rationale": "hydrogen-bond donor candidate from a small rule-based family",
+      "reference_note": "",
+      "similarity_score": null,
+      "smiles": "OCCO",
+      "source": "heuristic",
+      "source_id": "rule-based-family-library"
+    },
+    {
+      "family": "polyol",
+      "rationale": "hydrogen-bond donor candidate from a small rule-based family",
+      "reference_note": "",
+      "similarity_score": null,
+      "smiles": "OCC(O)CO",
+      "source": "heuristic",
+      "source_id": "rule-based-family-library"
+    },
+    {
+      "family": "amide",
+      "rationale": "hydrogen-bond acceptor candidate from a small rule-based family",
+      "reference_note": "",
+      "similarity_score": null,
+      "smiles": "CC(=O)N",
+      "source": "heuristic",
+      "source_id": "rule-based-family-library"
+    },
+    {
+      "family": "carboxylic acid",
+      "rationale": "hydrogen-bond donor candidate from a small rule-based family",
+      "reference_note": "",
+      "similarity_score": null,
+      "smiles": "CC(=O)O",
+      "source": "heuristic",
+      "source_id": "rule-based-family-library"
+    }
+  ],
+  "candidate_reviews": [],
+  "checkpoint_path": "/home/qshao/DES-Agent/ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt",
+  "chemistry_lesson_summary": {
+    "avoid_patterns": {},
+    "confidence": "medium",
+    "cycle_summary": [
+      "Productive patterns: amide (1), diol (1), carboxylic acid (1).",
+      "Representative examples: CC(=O)N, OCCO, CC(=O)O."
+    ],
+    "next_steps": [
+      "Stay near the productive families and probe close analogs first."
+    ],
+    "notes": [
+      "Representative good examples: CC(=O)N, OCCO, CC(=O)O.",
+      "Stay near the productive families and probe close analogs first.",
+      "Productive patterns: amide (1), diol (1), carboxylic acid (1).",
+      "Representative examples: CC(=O)N, OCCO, CC(=O)O."
+    ],
+    "productive_patterns": {
+      "alcohol": 1,
+      "amide": 1,
+      "carboxylic acid": 1,
+      "diol": 1,
+      "polyol": 1
+    },
+    "representative_examples": [
+      "CC(=O)N",
+      "OCCO",
+      "CC(=O)O"
+    ],
+    "run_summary": [
+      "Representative good examples: CC(=O)N, OCCO, CC(=O)O.",
+      "Stay near the productive families and probe close analogs first.",
+      "Productive patterns: amide (1), diol (1), carboxylic acid (1).",
+      "Representative examples: CC(=O)N, OCCO, CC(=O)O."
+    ],
+    "warnings": []
+  },
+  "component_a": "CCO",
+  "config_path": "/home/qshao/DES-Agent/ml_des_mp/config.yaml",
+  "contradiction_notes": [],
+  "critique_notes": [],
+  "explanation_notes": [],
+  "memory_notes": [
+    "Chemical pattern memory favored productive families: amide, diol, carboxylic acid.",
+    "Wrote run memory to /home/qshao/DES-Agent/examples/des_run_memory_feedback/run.memory.json."
+  ],
+  "n": 5,
+  "results": [
+    {
+      "absolute_pass": true,
+      "is_des": true,
+      "min_tm_k": 238.92388916015625,
+      "rank": 1,
+      "ranking_score": 0.862481438969631,
+      "rationale": "min Tm=238.92 K, absolute<= 260.00 K, relative_drop=0.119",
+      "reference_note": "",
+      "relative_pass": true,
+      "similarity_score": null,
+      "smiles_a": "CCO",
+      "smiles_b": "CC(=O)N",
+      "source": "heuristic",
+      "source_id": "rule-based-family-library",
+      "trust_score": 0.862481438969631,
+      "uncertainty": {
+        "checkpoint_path": "/home/qshao/DES-Agent/ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt",
+        "component_a": "CCO",
+        "component_b": "CC(=O)N",
+        "config_path": "/home/qshao/DES-Agent/ml_des_mp/config.yaml",
+        "explanation": "Repeated minimum-Tm predictions were 244.84, 244.46, 243.67. Std=0.49 K, trust=0.95, flag=low. Input Tm confidence=0.35 (heuristic/experimental); spread-trust=0.95.",
+        "max_tm_k": 244.84197998046875,
+        "mean_tm_k": 244.32632446289062,
+        "min_tm_k": 243.6727752685547,
+        "repeated_values": [
+          244.84197998046875,
+          244.46421813964844,
+          243.6727752685547
+        ],
+        "std_tm_k": 0.4871830006324472,
+        "trust_score": 0.9535449128137587,
+        "uncertainty_flag": "low"
+      },
+      "uncertainty_flag": "low"
+    },
+    {
+      "absolute_pass": true,
+      "is_des": true,
+      "min_tm_k": 201.74786376953125,
+      "rank": 2,
+      "ranking_score": 0.8164113359053253,
+      "rationale": "min Tm=201.75 K, absolute<= 260.00 K, relative_drop=0.226",
+      "reference_note": "",
+      "relative_pass": true,
+      "similarity_score": null,
+      "smiles_a": "CCO",
+      "smiles_b": "OCCO",
+      "source": "heuristic",
+      "source_id": "rule-based-family-library",
+      "trust_score": 0.8164113359053253,
+      "uncertainty": {
+        "checkpoint_path": "/home/qshao/DES-Agent/ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt",
+        "component_a": "CCO",
+        "component_b": "OCCO",
+        "config_path": "/home/qshao/DES-Agent/ml_des_mp/config.yaml",
+        "explanation": "Repeated minimum-Tm predictions were 203.51, 206.61, 205.20. Std=1.26 K, trust=0.89, flag=low. Input Tm confidence=0.35 (heuristic/experimental); spread-trust=0.89.",
+        "max_tm_k": 206.6051025390625,
+        "mean_tm_k": 205.1063486735026,
+        "min_tm_k": 203.51173400878906,
+        "repeated_values": [
+          203.51173400878906,
+          206.6051025390625,
+          205.20220947265625
+        ],
+        "std_tm_k": 1.264680245656926,
+        "trust_score": 0.8877304798647506,
+        "uncertainty_flag": "low"
+      },
+      "uncertainty_flag": "low"
+    },
+    {
+      "absolute_pass": true,
+      "is_des": true,
+      "min_tm_k": 239.5615692138672,
+      "rank": 3,
+      "ranking_score": 0.7375208801346508,
+      "rationale": "min Tm=239.56 K, absolute<= 260.00 K, relative_drop=0.117",
+      "reference_note": "",
+      "relative_pass": true,
+      "similarity_score": null,
+      "smiles_a": "CCO",
+      "smiles_b": "CC(=O)O",
+      "source": "heuristic",
+      "source_id": "rule-based-family-library",
+      "trust_score": 0.7375208801346508,
+      "uncertainty": {
+        "checkpoint_path": "/home/qshao/DES-Agent/ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt",
+        "component_a": "CCO",
+        "component_b": "CC(=O)O",
+        "config_path": "/home/qshao/DES-Agent/ml_des_mp/config.yaml",
+        "explanation": "Repeated minimum-Tm predictions were 243.47, 236.54, 238.62. Std=2.90 K, trust=0.78, flag=medium. Input Tm confidence=0.35 (heuristic/experimental); spread-trust=0.78.",
+        "max_tm_k": 243.46522521972656,
+        "mean_tm_k": 239.54033915201822,
+        "min_tm_k": 236.53616333007812,
+        "repeated_values": [
+          243.46522521972656,
+          236.53616333007812,
+          238.61962890625
+        ],
+        "std_tm_k": 2.902729196823975,
+        "trust_score": 0.775029828763787,
+        "uncertainty_flag": "medium"
+      },
+      "uncertainty_flag": "medium"
+    },
+    {
+      "absolute_pass": true,
+      "is_des": true,
+      "min_tm_k": 221.20411682128906,
+      "rank": 4,
+      "ranking_score": 0.7331836244461999,
+      "rationale": "min Tm=221.20 K, absolute<= 260.00 K, relative_drop=0.184",
+      "reference_note": "",
+      "relative_pass": true,
+      "similarity_score": null,
+      "smiles_a": "CCO",
+      "smiles_b": "OCC(O)CO",
+      "source": "heuristic",
+      "source_id": "rule-based-family-library",
+      "trust_score": 0.7331836244461999,
+      "uncertainty": {
+        "checkpoint_path": "/home/qshao/DES-Agent/ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt",
+        "component_a": "CCO",
+        "component_b": "OCC(O)CO",
+        "config_path": "/home/qshao/DES-Agent/ml_des_mp/config.yaml",
+        "explanation": "Repeated minimum-Tm predictions were 216.98, 215.21, 222.28. Std=3.01 K, trust=0.77, flag=medium. Input Tm confidence=0.35 (heuristic/experimental); spread-trust=0.77.",
+        "max_tm_k": 222.28350830078125,
+        "mean_tm_k": 218.15572102864584,
+        "min_tm_k": 215.20779418945312,
+        "repeated_values": [
+          216.97586059570312,
+          215.20779418945312,
+          222.28350830078125
+        ],
+        "std_tm_k": 3.0067131031775998,
+        "trust_score": 0.768833749208857,
+        "uncertainty_flag": "medium"
+      },
+      "uncertainty_flag": "medium"
+    },
+    {
+      "absolute_pass": true,
+      "is_des": true,
+      "min_tm_k": 225.27220153808594,
+      "rank": 5,
+      "ranking_score": 0.6866620852620762,
+      "rationale": "min Tm=225.27 K, absolute<= 260.00 K, relative_drop=0.118",
+      "reference_note": "",
+      "relative_pass": true,
+      "similarity_score": null,
+      "smiles_a": "CCO",
+      "smiles_b": "O",
+      "source": "heuristic",
+      "source_id": "rule-based-family-library",
+      "trust_score": 0.6866620852620762,
+      "uncertainty": {
+        "checkpoint_path": "/home/qshao/DES-Agent/ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt",
+        "component_a": "CCO",
+        "component_b": "O",
+        "config_path": "/home/qshao/DES-Agent/ml_des_mp/config.yaml",
+        "explanation": "Repeated minimum-Tm predictions were 228.33, 223.35, 225.75. Std=2.03 K, trust=0.83, flag=medium. Input Tm confidence=0.35 (heuristic/heuristic); spread-trust=0.83.",
+        "max_tm_k": 228.3286895751953,
+        "mean_tm_k": 225.80703735351562,
+        "min_tm_k": 223.34637451171875,
+        "repeated_values": [
+          228.3286895751953,
+          223.34637451171875,
+          225.7460479736328
+        ],
+        "std_tm_k": 2.034478741804271,
+        "trust_score": 0.8309458360886803,
+        "uncertainty_flag": "medium"
+      },
+      "uncertainty_flag": "medium"
+    }
+  ],
+  "viscosity_predictions": [],
+  "warnings": [],
+  "workflow": "des"
+}

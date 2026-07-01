@@ -86,6 +86,8 @@ def cached_compute_dft_properties(
         cached = _load_cached(conn, species_smiles, dft_method)
         if cached is not None:
             cached.from_cache = True
+            cached.smiles = smiles
+            cached.ph = pH
             return cached
     except Exception:
         pass
