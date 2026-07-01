@@ -56,6 +56,7 @@ class SelectivityScreenOutcome:
     warnings: list[str] = field(default_factory=list)
     claim_verdicts: list[object] = field(default_factory=list)
     trajectory: object = None   # SearchTrajectory | None
+    dft_results: dict = field(default_factory=dict)   # dict[str, DFTResult]
 
 
 def _compute_composite(log_k_target: float, log_k_competitor: float,
@@ -234,6 +235,8 @@ def run_metal_selectivity_screen(
     des_incompatible_hints: list[str] | None = None,
     stability_rule_weight: float = 0.0,
     binding_pH: float = 7.0,
+    dft_validate: bool = False,
+    dft_top_n: int = 3,
 ) -> SelectivityScreenOutcome:
     from ..chemistry.claim_grounding import ground_coordination as _ground_coord
     from ..chemistry_filter import murcko_scaffold_smiles as _scaffold
@@ -482,6 +485,50 @@ def run_metal_selectivity_screen(
 
         prev_cycle_results = list(cumulative_results)
 
+    # --- Optional DFT validation stage (post-loop) ---
+    dft_results_map: dict = {}
+    if dft_validate and cumulative_results:
+        from ..chemistry.dft_validator import compute_dft_properties as _dft
+        from ..chemistry.dft_selectivity import dft_selectivity_adjustment as _dft_adj
+        from ..llm.base import nominate_for_dft_fallback as _dft_fallback
+
+        top_k_pool = cumulative_results[: min(dft_top_n * 2, len(cumulative_results))]
+        if llm_provider is not None and hasattr(llm_provider, "nominate_for_dft"):
+            try:
+                nominated_smiles = llm_provider.nominate_for_dft(
+                    top_k_pool, target_metal, competitor_metal, dft_top_n
+                )
+            except Exception as exc:
+                all_warnings.append(
+                    f"[DFT] LLM nomination failed, using top-{dft_top_n} by score: {exc}"
+                )
+                nominated_smiles = _dft_fallback(top_k_pool, dft_top_n)
+        else:
+            nominated_smiles = _dft_fallback(top_k_pool, dft_top_n)
+
+        for smi in nominated_smiles:
+            res = _dft(smi)
+            dft_results_map[smi] = res
+            if not res.success:
+                all_warnings.append(f"[DFT] Warning: skipping {smi[:40]!r} — {res.error}")
+
+        successful = [r for r in dft_results_map.values() if r.success]
+        if nominated_smiles and not successful:
+            all_warnings.append(
+                "[DFT] Warning: all DFT computations failed — rule-based ranking used"
+            )
+        elif successful:
+            import dataclasses as _dc
+            updated = []
+            for r in cumulative_results:
+                dft_res = dft_results_map.get(r.ligand_smiles)
+                if dft_res and dft_res.success:
+                    adj = _dft_adj(dft_res, target_metal, competitor_metal)
+                    r = _dc.replace(r, composite_score=r.composite_score + adj)
+                updated.append(r)
+            cumulative_results = sorted(updated, key=lambda r: r.composite_score, reverse=True)
+    # --- End DFT stage ---
+
     sel_trajectory = SearchTrajectory(
         workflow="metal-selectivity",
         headline=f"{target_metal} over {competitor_metal} selectivity",
@@ -503,4 +550,5 @@ def run_metal_selectivity_screen(
         warnings=all_warnings,
         claim_verdicts=all_sel_verdicts + all_coord_verdicts,
         trajectory=sel_trajectory,
+        dft_results=dft_results_map,
     )
