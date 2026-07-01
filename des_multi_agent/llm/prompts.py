@@ -337,3 +337,28 @@ def chemistry_next_step_prompt(
     parts.append("Each item must contain mode, summary, and rationale.")
     return "".join(parts)
 
+
+def dft_nomination_prompt(
+    candidates: list,
+    target_metal: str,
+    competitor_metal: str,
+    top_n: int = 3,
+) -> str:
+    """Prompt asking the LLM to nominate candidates for DFT validation."""
+    rows = []
+    for i, r in enumerate(candidates, 1):
+        rows.append(
+            f"  {i}. {r.ligand_smiles}  ΔlogK={r.delta_log_k:.2f}  score={r.composite_score:.2f}"
+        )
+    table = "\n".join(rows)
+    return (
+        f"You are helping prioritize ligands for DFT validation.\n"
+        f"Target metal: {target_metal}. Competitor: {competitor_metal}.\n\n"
+        f"Top candidates by predicted selectivity (ΔlogK):\n{table}\n\n"
+        f"Select 1–{top_n} candidates most worth DFT validation. Prefer:\n"
+        f"- Ligands where HSAB ambiguity makes the rule-based prediction uncertain\n"
+        f"- Borderline ΔlogK values (small positive) where DFT tiebreaking matters most\n"
+        f"- Structurally diverse nominations over similar analogues\n\n"
+        f'Return ONLY a JSON list of SMILES strings. Example: ["SMILES1", "SMILES2"]\n'
+    )
+

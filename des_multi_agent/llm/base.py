@@ -19,6 +19,12 @@ from .specs import RequestProfile
 from .transport import RequestTransport
 
 
+def nominate_for_dft_fallback(candidates: list, top_n: int) -> list[str]:
+    """Return top-top_n SMILES by composite_score when no LLM is available."""
+    sorted_cands = sorted(candidates, key=lambda r: r.composite_score, reverse=True)
+    return [r.ligand_smiles for r in sorted_cands[:top_n]]
+
+
 def _complementary_role(role: str) -> str:
     """Partner role that complements a component with the given H-bond role."""
     if role == "HBA":
@@ -235,6 +241,34 @@ class BaseLLMProvider(LLMProvider):
             )
         )
         return parse_candidate_brainstorms(raw)[: self.max_candidates]
+
+    def nominate_for_dft(
+        self,
+        candidates: list,
+        target_metal: str,
+        competitor_metal: str,
+        top_n: int = 3,
+    ) -> list[str]:
+        """Return SMILES of candidates nominated for DFT validation.
+
+        Parses the LLM's JSON list response; falls back to top-N by composite_score
+        on any parse failure.
+        """
+        import json
+        from .prompts import dft_nomination_prompt
+
+        valid_smiles = {r.ligand_smiles for r in candidates}
+        raw = self._request(dft_nomination_prompt(candidates, target_metal, competitor_metal, top_n))
+        try:
+            nominated = json.loads(raw.strip())
+            if not isinstance(nominated, list):
+                raise ValueError("response is not a JSON list")
+            filtered = [s for s in nominated if isinstance(s, str) and s in valid_smiles]
+            if filtered:
+                return filtered[:top_n]
+        except Exception:
+            pass
+        return nominate_for_dft_fallback(candidates, top_n)
 
     def request_url(self, api_key: str | None) -> str:
         suffix = self.request_profile.path_template.format(model_name=self.model_name)
