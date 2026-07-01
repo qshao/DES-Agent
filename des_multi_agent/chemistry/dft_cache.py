@@ -37,7 +37,11 @@ def _resolve_cache_path(cache_path: str | Path | None) -> Path:
 def _connect(path: Path) -> sqlite3.Connection:
     path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(str(path), timeout=5.0)
-    conn.execute(_SCHEMA)
+    try:
+        conn.execute(_SCHEMA)
+    except Exception:
+        conn.close()
+        raise
     return conn
 
 
