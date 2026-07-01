@@ -39,25 +39,26 @@ This document tracks the next useful extensions for DES-Agent after the current 
     - **Functional-group SAR tracking**: `StructuralFacts.family_features` tags are accumulated as hit/fail counters and injected into brainstorm prompts as sub-family SAR ("prefer polyol, avoid ester").
     - **Cross-run persistence**: accumulated family scores, scaffold counts, and FG SAR are serialised into `RunMemory` and surfaced as memory notes at the start of the next run on the same `component_a`.
 
+11. Metal-ligand brainstorm anchoring (source injection + output reality gate)
+    - Source-side: `known_ligand_menu(metal_ion, limit=15)` in `partner_registry.py` pulls all registry molecules with ≥1 donor atom, scores each via `rule_based_log_k`, and returns the top-N sorted by predicted log K (cached per metal ion). Injected into `ligand_brainstorm_prompt` and `ligand_selectivity_brainstorm_prompt` as a ranked anchor list with coordination summaries (e.g. "bidentate (N,O)").
+    - Output-side: `ground_ligand_reality(metal_ion, smiles)` in `claim_grounding.py` returns a `PartnerVerdict`; drops proposals with invalid SMILES, zero donor atoms, or structural sanity failures. Applied in both `metal_binding_screen.py` and `metal_binding_selectivity.py`; dropped proposals emit `[GROUNDING]` warnings.
+
+12. `total_cycles` accuracy
+    - `SearchTrajectory.total_cycles` previously counted successful snapshots rather than cycles actually run. Fixed in `metal_binding_selectivity.py` and `selectivity_des_pipeline.py` by tracking a dedicated iteration counter.
+
+13. JSON trajectory export
+    - `write_trajectory_json_artifact` in `trajectory.py` writes `trajectory.json` alongside `trajectory.md` using an atomic `NamedTemporaryFile` + `Path.replace` write. Called automatically by the CLI when `--output-dir` is set.
+
+14. Tanimoto diversity penalty
+    - `_apply_tanimoto_diversity_penalty` in `orchestrator.py` computes Morgan fingerprint (radius=2, 2048-bit) similarity of each new proposal to all DES-negative prior evaluations and subtracts a scaled `ranking_score` penalty when max similarity ≥ 0.70. DES-positive prior results are never penalized.
+
 ## Next Up
 
-1. Metal-ligand brainstorm anchoring
-   - Same pattern as DES partner reality anchoring, applied to the metal-binding workflow's `brainstorm_ligands` step. Separate spec/plan; explicitly deferred from the DES partner work.
-
-2. Expanded common-names registry
+1. Expanded common-names registry
    - Add more entries to `artifacts/molecule_names/common_names.json`, especially pharmaceutical actives used as DES component A candidates.
 
-3. JSON trajectory export
-   - A machine-readable sibling of `trajectory.md` (e.g. `trajectory.json`) for dashboard or downstream analysis use. The `SearchTrajectory` dataclass is already serialisable; the writer is the only addition needed.
+2. Legacy final-report table cleanup
+   - The dense pipe-table blocks in `reporting.py` predate the trajectory feature. Restructuring them to match the cleaner trajectory-style narrative is a separate, higher-churn effort.
 
-4. Legacy final-report table cleanup
-   - The dense pipe-table blocks in `reporting.py` predate the trajectory feature. Restructuring them to match the cleaner trajectory-style narrative is a separate, higher-churn effort deferred from the trajectory work.
-
-5. `total_cycles` accuracy under best-effort capture failure (metal workflows)
-   - In `metal_binding_selectivity.py` and `selectivity_des_pipeline.py`, `SearchTrajectory.total_cycles` counts successful snapshots rather than cycles actually run. If a snapshot build fails (rare), the header line under-reports. Fix: track a separate `cycles_run` counter in those two workflows.
-
-6. Pharmacophore-based candidate clustering
+3. Pharmacophore-based candidate clustering
    - Replace Murcko scaffold (topology-only) with pharmacophore feature clustering (HBD/HBA positions, aromaticity, charge). More meaningful for DES since two different scaffolds with matching H-bond geometry can both form eutectics. Requires new 3D-feature infrastructure.
-
-7. Tanimoto diversity penalty for evaluated failures
-   - Compute Morgan fingerprint similarity of new proposals to already-evaluated failures and apply a small deprioritization penalty to proposals that are too structurally similar to known-bad candidates. The `prior_evaluated_smiles` set is already passed; fingerprint coverage tracking is the remaining addition.
