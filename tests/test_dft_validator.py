@@ -215,6 +215,51 @@ class TestRunDFTChargeThreading:
         assert kwargs["spin"] == 0
 
 
+class TestXtbOptimizeChargeThreading:
+    def test_charge_passed_to_xtb_command(self, tmp_path, monkeypatch):
+        from des_multi_agent.chemistry import dft_validator
+
+        mock_mol = MagicMock()
+        mock_mol.GetConformer.return_value.GetPositions.return_value = np.zeros((2, 3))
+        mock_mol.GetAtoms.return_value = [MagicMock(GetSymbol=lambda: "C"), MagicMock(GetSymbol=lambda: "O")]
+
+        captured = {}
+
+        def _fake_run(cmd, cwd, capture_output, text, timeout):
+            captured["cmd"] = cmd
+            opt_xyz = f"{cwd}/xtbopt.xyz"
+            with open(opt_xyz, "w") as fh:
+                fh.write("2\nopt\nC 0.0 0.0 0.0\nO 1.0 0.0 0.0\n")
+            return MagicMock(returncode=0, stderr="")
+
+        with patch("subprocess.run", side_effect=_fake_run):
+            dft_validator._xtb_optimize(mock_mol, charge=-1)
+
+        assert "--chrg" in captured["cmd"]
+        assert captured["cmd"][captured["cmd"].index("--chrg") + 1] == "-1"
+
+    def test_default_charge_is_zero(self, tmp_path, monkeypatch):
+        from des_multi_agent.chemistry import dft_validator
+
+        mock_mol = MagicMock()
+        mock_mol.GetConformer.return_value.GetPositions.return_value = np.zeros((2, 3))
+        mock_mol.GetAtoms.return_value = [MagicMock(GetSymbol=lambda: "C"), MagicMock(GetSymbol=lambda: "O")]
+
+        captured = {}
+
+        def _fake_run(cmd, cwd, capture_output, text, timeout):
+            captured["cmd"] = cmd
+            opt_xyz = f"{cwd}/xtbopt.xyz"
+            with open(opt_xyz, "w") as fh:
+                fh.write("2\nopt\nC 0.0 0.0 0.0\nO 1.0 0.0 0.0\n")
+            return MagicMock(returncode=0, stderr="")
+
+        with patch("subprocess.run", side_effect=_fake_run):
+            dft_validator._xtb_optimize(mock_mol)
+
+        assert captured["cmd"][captured["cmd"].index("--chrg") + 1] == "0"
+
+
 from des_multi_agent.chemistry.dft_selectivity import dft_selectivity_adjustment
 
 

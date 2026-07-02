@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
+import pytest
+
 from des_multi_agent.chemistry.dft_cache import cached_compute_dft_properties
 from des_multi_agent.chemistry.dft_validator import DFTResult
 
@@ -79,6 +81,27 @@ class TestCacheFileCreation:
                    return_value=_success("NCCN")):
             cached_compute_dft_properties("NCCN", pH=7.0, cache_path=cache_path)
         assert cache_path.exists()
+
+
+class TestUnsupportedDftMethodRejected:
+    def test_non_default_dft_method_raises_instead_of_mislabeling_cache(self, tmp_path):
+        """compute_dft_properties has no method-selection knob — it always runs
+        B3LYP-D3(BJ)/def2-SVP. Silently caching a result under a different
+        dft_method key would mislabel it. Fail loud instead."""
+        cache_path = tmp_path / "dft.sqlite3"
+        with patch("des_multi_agent.chemistry.dft_cache.compute_dft_properties",
+                   return_value=_success("NCCN")):
+            with pytest.raises(ValueError, match="dft_method"):
+                cached_compute_dft_properties(
+                    "NCCN", pH=7.0, dft_method="PBE0/def2-TZVP", cache_path=cache_path
+                )
+
+    def test_default_dft_method_still_works(self, tmp_path):
+        cache_path = tmp_path / "dft.sqlite3"
+        with patch("des_multi_agent.chemistry.dft_cache.compute_dft_properties",
+                   return_value=_success("NCCN")):
+            result = cached_compute_dft_properties("NCCN", pH=7.0, cache_path=cache_path)
+        assert result.success is True
 
 
 class TestCacheHitReflectsCurrentCaller:

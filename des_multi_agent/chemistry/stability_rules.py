@@ -39,6 +39,11 @@ def _metal_softness(metal_ion: str) -> float:
     return float(_METAL_IDENTITY.get(metal_ion.strip(), (0, 0, 0, 0.0))[3])
 
 
+def metal_softness(metal_ion: str) -> float:
+    """Public accessor for a metal's HSAB softness in [0, 1] (0=hard, 1=soft)."""
+    return _metal_softness(metal_ion)
+
+
 def hsab_match(metal_ion: str, ligand_smiles: str) -> float:
     """0..1 HSAB compatibility: 1 when metal and donor softness coincide.
 

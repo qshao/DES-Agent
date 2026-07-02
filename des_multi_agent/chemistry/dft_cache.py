@@ -1,8 +1,9 @@
 """SQLite-backed cache for DFT results, keyed by (species_smiles, dft_method).
 
 Entry point: cached_compute_dft_properties(smiles, pH=7.0, dft_method=..., cache_path=None).
-Never raises — any cache-layer failure falls back to an uncached compute_dft_properties call.
-Only success=True results are cached.
+Any cache-layer failure falls back to an uncached compute_dft_properties call.
+Only success=True results are cached. Raises ValueError for a dft_method other
+than DEFAULT_DFT_METHOD — no method-selection support exists downstream yet.
 """
 from __future__ import annotations
 
@@ -72,7 +73,18 @@ def cached_compute_dft_properties(
     dft_method: str = DEFAULT_DFT_METHOD,
     cache_path: str | Path | None = None,
 ) -> DFTResult:
-    """Cache-aware wrapper around compute_dft_properties. Never raises."""
+    """Cache-aware wrapper around compute_dft_properties.
+
+    Never raises, except ValueError for an unsupported ``dft_method``:
+    compute_dft_properties always runs B3LYP-D3(BJ)/def2-SVP, so caching a
+    result under any other method label would silently mislabel it.
+    """
+    if dft_method != DEFAULT_DFT_METHOD:
+        raise ValueError(
+            f"dft_method={dft_method!r} is not supported — compute_dft_properties "
+            f"always computes {DEFAULT_DFT_METHOD!r}"
+        )
+
     try:
         species_smiles = dominant_species(smiles, pH).species_smiles
     except Exception:

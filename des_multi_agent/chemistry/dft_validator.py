@@ -45,8 +45,13 @@ def _embed_mmff(smiles: str):
     return mol
 
 
-def _xtb_optimize(mol) -> tuple[list[str], "np.ndarray"]:
+def _xtb_optimize(mol, charge: int = 0) -> tuple[list[str], "np.ndarray"]:
     """RDKit Mol -> xTB GFN2-optimized geometry via xtb subprocess.
+
+    ``charge`` is the net formal charge of the species being optimized (0 for
+    the neutral legacy path; the pH-derived net charge for the pH-aware path).
+    xtb defaults to charge=0 with no ``--chrg`` flag, which would silently
+    optimize a charged species as if it were neutral.
 
     Returns (atom_symbols, coords_angstrom). Raises RuntimeError on failure.
     """
@@ -68,7 +73,7 @@ def _xtb_optimize(mol) -> tuple[list[str], "np.ndarray"]:
         with open(xyz_in, "w") as fh:
             fh.write("\n".join(xyz_lines))
         proc = subprocess.run(
-            ["xtb", xyz_in, "--opt", "--gfn", "2", "--silent"],
+            ["xtb", xyz_in, "--opt", "--gfn", "2", "--chrg", str(charge), "--silent"],
             cwd=tmpdir, capture_output=True, text=True, timeout=120,
         )
         opt_xyz = os.path.join(tmpdir, "xtbopt.xyz")
@@ -148,7 +153,7 @@ def compute_dft_properties(smiles: str, pH: float | None = None) -> DFTResult:
 
     try:
         mol = _embed_mmff(species_smiles)
-        symbols, coords = _xtb_optimize(mol)
+        symbols, coords = _xtb_optimize(mol, charge=net_charge)
         homo_ev, gap_ev, donor_indices, mf = _run_dft(symbols, coords, charge=net_charge)
         donor_charges = _get_donor_charges(mf, donor_indices)
         return DFTResult(

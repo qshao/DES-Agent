@@ -35,10 +35,10 @@ def dft_selectivity_adjustment(
     if not dft_result.success or dft_result.homo_ev is None:
         return 0.0
 
-    from ..chemistry.stability_rules import _metal_softness
+    from ..chemistry.stability_rules import metal_softness
 
-    s_target = _metal_softness(target_metal)
-    s_comp = _metal_softness(competitor_metal)
+    s_target = metal_softness(target_metal)
+    s_comp = metal_softness(competitor_metal)
 
     if s_target == s_comp:
         return 0.0
