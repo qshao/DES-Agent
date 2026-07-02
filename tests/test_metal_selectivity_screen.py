@@ -438,6 +438,36 @@ def test_score_proposal_pair_drops_candidate_on_any_prediction_failure():
     assert len(warnings) == 1
 
 
+def test_score_proposal_pair_stability_blend_all_or_nothing_on_partial_failure():
+    """If rule_based_log_k fails for ANY metal (target or any competitor), NONE of the
+    values should be blended -- val_target and every competitor stay raw ML values."""
+    proposal = CandidateProposal(smiles="NCCN", rationale="r", family="f",
+                                  source="heuristic", source_id="s")
+
+    def _fake_rule_based(metal, smiles):
+        if metal == "Fe3+":
+            raise ValueError("no rule data for this metal")
+        return 99.0  # a value clearly different from the raw ML value, to detect blending
+
+    with patch(
+        "des_multi_agent.workflows.metal_binding_selectivity.predict_log_k",
+        side_effect=_fake_predict({"Cu2+": 10.0, "Zn2+": 6.0, "Fe3+": 8.0}),
+    ), patch(
+        "des_multi_agent.chemistry.stability_rules.rule_based_log_k",
+        side_effect=_fake_rule_based,
+    ):
+        result, warnings = _score_proposal_pair(
+            "Cu2+", ["Zn2+", "Fe3+"], proposal, None, w_affinity=0.5, w_selectivity=0.5,
+            stability_rule_weight=0.5,
+        )
+
+    # target and Zn2+ succeeded, but Fe3+ raised -- NOTHING should be blended
+    assert result.log_k_target == 10.0          # raw ML value, not blended with 99.0
+    assert result.log_k_competitors == {"Zn2+": 6.0, "Fe3+": 8.0}  # both raw, not blended
+    assert len(warnings) == 1
+    assert "blend failed" in warnings[0]
+
+
 # ---------------------------------------------------------------------------
 # _build_selectivity_context — text generalization
 # ---------------------------------------------------------------------------

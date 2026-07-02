@@ -157,10 +157,12 @@ def _score_proposal_pair(
             from ..chemistry.stability_rules import rule_based_log_k
 
             rt = rule_based_log_k(target_metal, proposal.smiles)
+            rc_by_metal = {
+                metal: rule_based_log_k(metal, proposal.smiles) for metal in val_competitors
+            }
             w = stability_rule_weight
             val_target = (1.0 - w) * val_target + w * rt
-            for metal in list(val_competitors):
-                rc = rule_based_log_k(metal, proposal.smiles)
+            for metal, rc in rc_by_metal.items():
                 val_competitors[metal] = (1.0 - w) * val_competitors[metal] + w * rc
         except Exception as exc:
             warnings.append(f"stability-rule blend failed for {proposal.smiles}: {exc}")

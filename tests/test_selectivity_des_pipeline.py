@@ -457,3 +457,28 @@ def test_run_selectivity_des_pipeline_accepts_list_competitor(monkeypatch):
 
     assert captured["competitor_metal"] == ["Zn2+", "Fe3+"]
     assert outcome.competitor_metals == ["Zn2+", "Fe3+"]
+
+
+def test_run_selectivity_des_pipeline_dedups_competitor_metals(monkeypatch):
+    import des_multi_agent.workflows.selectivity_des_pipeline as pipe
+
+    def _fake_screen(**kwargs):
+        return SelectivityScreenOutcome(
+            target_metal=kwargs["target_metal"],
+            competitor_metals=["Zn2+", "Fe3+"],
+            results=[],
+            n_screened=0,
+            n_cycles=1,
+        )
+
+    monkeypatch.setattr(pipe, "run_metal_selectivity_screen", _fake_screen)
+
+    outcome = pipe.run_selectivity_des_pipeline(
+        target_metal="Cu2+",
+        competitor_metal=["Zn2+", "Zn2+", "Fe3+"],
+        checkpoint_path="ckpt.pt",
+        n_outer_cycles=1,
+    )
+
+    assert outcome.competitor_metals == ["Zn2+", "Fe3+"]
+    assert "Zn2+, Zn2+" not in outcome.trajectory.headline

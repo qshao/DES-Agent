@@ -8,6 +8,7 @@ import inspect
 from unittest.mock import patch, MagicMock
 
 from des_multi_agent.chemistry.dft_validator import DFTResult
+from des_multi_agent.schemas import CandidateProposal
 from des_multi_agent.workflows.metal_binding_selectivity import (
     SelectivityScreenOutcome,
     run_metal_selectivity_screen,
@@ -125,3 +126,65 @@ class TestDFTStageWiring:
 
         assert captured_ph, "expected cached_compute_dft_properties to be called"
         assert all(ph == 5.5 for ph in captured_ph)
+
+
+def _proposal(smi: str) -> CandidateProposal:
+    return CandidateProposal(smiles=smi, rationale="x", family="amine", source="heuristic", source_id="")
+
+
+def test_dft_adjustment_uses_each_candidates_own_worst_competitor(monkeypatch):
+    """Two candidates with DIFFERENT limiting off-targets must each get their DFT
+    adjustment computed against their OWN worst_competitor_metal, not a single
+    outcome-wide value."""
+    from des_multi_agent.workflows import metal_binding_selectivity as mbs
+
+    monkeypatch.setattr(
+        mbs, "generate_ligand_candidates",
+        lambda metal, n, constraints: [_proposal("NCCN"), _proposal("NCCO")],
+    )
+
+    # NCCN's worst off-target is Zn2+ (9.0 > 2.0); NCCO's worst off-target is Fe3+ (9.0 > 2.0).
+    _values = {
+        "NCCN": {"Cu2+": 10.0, "Zn2+": 9.0, "Fe3+": 2.0},
+        "NCCO": {"Cu2+": 10.0, "Zn2+": 2.0, "Fe3+": 9.0},
+    }
+
+    def _fake_log_k(metal, smiles, model_path=None, allow_fallback=True):
+        return MagicMock(value=_values[smiles][metal])
+
+    captured_competitors = []
+
+    def _fake_dft_adj(dft_result, target_metal, competitor_metal):
+        captured_competitors.append(competitor_metal)
+        return 0.01
+
+    with (
+        patch(
+            "des_multi_agent.workflows.metal_binding_selectivity.predict_log_k",
+            side_effect=_fake_log_k,
+        ),
+        patch(
+            "des_multi_agent.chemistry.dft_cache.cached_compute_dft_properties",
+            side_effect=lambda smi, pH=None, **kwargs: DFTResult(
+                smiles=smi, success=True, homo_ev=-8.5, homo_lumo_gap_ev=5.1,
+                donor_charges=[-0.3, -0.3],
+            ),
+        ),
+        patch(
+            "des_multi_agent.chemistry.dft_selectivity.dft_selectivity_adjustment",
+            side_effect=_fake_dft_adj,
+        ),
+    ):
+        run_metal_selectivity_screen(
+            target_metal="Cu2+",
+            competitor_metal=["Zn2+", "Fe3+"],
+            n=2,
+            model_path=None,
+            llm_provider=None,
+            n_cycles=1,
+            dft_validate=True,
+            dft_top_n=2,
+        )
+
+    assert len(captured_competitors) == 2
+    assert set(captured_competitors) == {"Zn2+", "Fe3+"}

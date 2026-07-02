@@ -9,6 +9,7 @@ from ..trajectory import CycleSnapshot, SearchTrajectory, TopEntry, shortlist_de
 from .metal_binding_selectivity import (
     SelectivityResult,
     SelectivityScreenOutcome,
+    _normalize_competitor_metals,
     run_metal_selectivity_screen,
 )
 
@@ -31,10 +32,6 @@ class SelectivityDesPipelineOutcome:
     converged: bool
     warnings: list[str] = field(default_factory=list)
     trajectory: object = None   # SearchTrajectory | None
-
-
-def _as_list(competitor_metal: str | list[str]) -> list[str]:
-    return [competitor_metal] if isinstance(competitor_metal, str) else list(competitor_metal)
 
 
 def _bridge_filter(
@@ -224,7 +221,7 @@ def run_selectivity_des_pipeline(
 
     pipe_trajectory = SearchTrajectory(
         workflow="selectivity-des",
-        headline=f"{target_metal} over {', '.join(_as_list(competitor_metal))} — selectivity-DES",
+        headline=f"{target_metal} over {', '.join(_normalize_competitor_metals(competitor_metal))} — selectivity-DES",
         metric_label="composite score",
         snapshots=pipe_snapshots,
         total_cycles=outer_cycle_count,
@@ -234,7 +231,7 @@ def run_selectivity_des_pipeline(
     )
     return SelectivityDesPipelineOutcome(
         target_metal=target_metal,
-        competitor_metals=_as_list(competitor_metal),
+        competitor_metals=_normalize_competitor_metals(competitor_metal),
         selectivity_outcome=final_selectivity_outcome,
         ligand_des_results=final_ligand_des_results,
         n_outer_cycles_run=outer_cycle_count,
