@@ -549,7 +549,10 @@ def format_metal_selectivity_report(outcome) -> str:
     else:
         top_str = "none"
 
+    has_multi_competitor = len(outcome.competitor_metals) > 1
     col_header = "ligand | log_k_target | log_k_competitor | delta_log_k | score"
+    if has_multi_competitor:
+        col_header += " | off_target_breakdown"
     if has_dft:
         col_header += " | dft_homo_ev | dft_donor_chg"
     col_header += " | source | rationale"
@@ -579,9 +582,17 @@ def format_metal_selectivity_report(outcome) -> str:
                 dft_cols = f" | {dr.homo_ev:.2f} | {mean_chg:.3f}"
             else:
                 dft_cols = " | — | —"
+        breakdown_col = ""
+        if has_multi_competitor:
+            parts = [
+                f"{metal}={val:.2f}" + ("*" if metal == r.worst_competitor_metal else "")
+                for metal, val in r.log_k_competitors.items()
+            ]
+            breakdown_col = f" | {', '.join(parts)}"
         rows.append(
             f"{r.ligand_smiles} | {r.log_k_target:.2f} | {r.log_k_competitor:.2f} | "
-            f"{r.delta_log_k:.2f} | {r.composite_score:.2f}{dft_cols} | {src} | {r.rationale}"
+            f"{r.delta_log_k:.2f} | {r.composite_score:.2f}{breakdown_col}{dft_cols} | "
+            f"{src} | {r.rationale}"
         )
 
     review_lines: list[str] = []
