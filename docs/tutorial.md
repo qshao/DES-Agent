@@ -842,6 +842,10 @@ The predictor gives the best selectivity signal when both ions are in the explic
 python -m des_multi_agent.cli supported-metals
 ```
 
+**Multiple off-target metals.** `--competitor-metal-ion` also accepts a comma-separated list (`Zn2+,Fe3+,Ni2+`). Ranking becomes worst-case — a ligand only ranks well if it beats *every* off-target, not just one. A single metal (no comma) behaves exactly as before.
+
+**DFT refinement.** Add `--dft-validate --dft-top-n 3` to refine the top candidates with a B3LYP-D3(BJ)/def2-SVP DFT single-point (requires `gpu4pyscf` and `xtb`; see [tutorial-wetlab.md](tutorial-wetlab.md#optional-dft-refinement-with---dft-validate) for the wet-lab-oriented explanation of what it computes and when it's worth the extra runtime). Results are cached in `artifacts/dft_cache/dft_results.sqlite3` and computed at `binding_pH` (default 7.0) rather than assuming the neutral ligand.
+
 See [examples/metal_selectivity_standalone/](../examples/metal_selectivity_standalone) and [examples/ni2_co2_selectivity/](../examples/ni2_co2_selectivity).
 
 ## 15. Selectivity-DES Pipeline
