@@ -291,6 +291,126 @@ def test_selectivity_des_cli_forwards_pattern_memory_cfg(monkeypatch, tmp_path, 
     assert captured["pattern_memory_max_examples"] == 6
 
 
+def test_metal_selectivity_cli_splits_comma_separated_competitor_metals(monkeypatch):
+    from des_multi_agent.workflows.metal_binding_selectivity import SelectivityScreenOutcome
+
+    captured = {}
+
+    def fake_run_metal_selectivity_screen(**kwargs):
+        captured.update(kwargs)
+        return SelectivityScreenOutcome(
+            target_metal=kwargs["target_metal"],
+            competitor_metals=["Zn2+", "Fe3+"],
+            results=[],
+            n_screened=0,
+            n_cycles=1,
+        )
+
+    monkeypatch.setattr(cli_module, "run_metal_selectivity_screen", fake_run_metal_selectivity_screen)
+    monkeypatch.setattr(cli_module, "format_metal_selectivity_report", lambda *args, **kwargs: "REPORT")
+
+    cli_module.main([
+        "--workflow",
+        "metal-selectivity",
+        "--target-metal-ion",
+        "Cu2+",
+        "--competitor-metal-ion",
+        "Zn2+,Fe3+",
+    ])
+
+    assert captured["competitor_metal"] == ["Zn2+", "Fe3+"]
+
+
+def test_metal_selectivity_cli_single_competitor_metal_becomes_one_element_list(monkeypatch):
+    from des_multi_agent.workflows.metal_binding_selectivity import SelectivityScreenOutcome
+
+    captured = {}
+
+    def fake_run_metal_selectivity_screen(**kwargs):
+        captured.update(kwargs)
+        return SelectivityScreenOutcome(
+            target_metal=kwargs["target_metal"],
+            competitor_metals=["Zn2+"],
+            results=[],
+            n_screened=0,
+            n_cycles=1,
+        )
+
+    monkeypatch.setattr(cli_module, "run_metal_selectivity_screen", fake_run_metal_selectivity_screen)
+    monkeypatch.setattr(cli_module, "format_metal_selectivity_report", lambda *args, **kwargs: "REPORT")
+
+    cli_module.main([
+        "--workflow",
+        "metal-selectivity",
+        "--target-metal-ion",
+        "Cu2+",
+        "--competitor-metal-ion",
+        "Zn2+",
+    ])
+
+    assert captured["competitor_metal"] == ["Zn2+"]
+
+
+def test_selectivity_des_cli_splits_comma_separated_competitor_metals(monkeypatch, tmp_path):
+    checkpoint_path = tmp_path / "ckpt.pt"
+    checkpoint_path.write_text("ckpt", encoding="utf-8")
+    config_path = tmp_path / "config.yaml"
+    config_path.write_text("device: cpu\n", encoding="utf-8")
+    captured = {}
+
+    def fake_run_selectivity_des_pipeline(**kwargs):
+        captured.update(kwargs)
+        return SimpleNamespace(selectivity_outcome=None, ligand_des_results=[], n_outer_cycles_run=1, converged=False, warnings=[])
+
+    monkeypatch.setattr(cli_module, "run_selectivity_des_pipeline", fake_run_selectivity_des_pipeline)
+    monkeypatch.setattr(cli_module, "format_selectivity_des_report", lambda *args, **kwargs: "SELECTIVITY DES REPORT")
+
+    cli_module.main([
+        "--workflow",
+        "selectivity-des",
+        "--target-metal-ion",
+        "Cu2+",
+        "--competitor-metal-ion",
+        "Zn2+,Fe3+",
+        "--checkpoint-path",
+        str(checkpoint_path),
+        "--config-path",
+        str(config_path),
+    ])
+
+    assert captured["competitor_metal"] == ["Zn2+", "Fe3+"]
+
+
+def test_selectivity_des_cli_single_competitor_metal_becomes_one_element_list(monkeypatch, tmp_path):
+    checkpoint_path = tmp_path / "ckpt.pt"
+    checkpoint_path.write_text("ckpt", encoding="utf-8")
+    config_path = tmp_path / "config.yaml"
+    config_path.write_text("device: cpu\n", encoding="utf-8")
+    captured = {}
+
+    def fake_run_selectivity_des_pipeline(**kwargs):
+        captured.update(kwargs)
+        return SimpleNamespace(selectivity_outcome=None, ligand_des_results=[], n_outer_cycles_run=1, converged=False, warnings=[])
+
+    monkeypatch.setattr(cli_module, "run_selectivity_des_pipeline", fake_run_selectivity_des_pipeline)
+    monkeypatch.setattr(cli_module, "format_selectivity_des_report", lambda *args, **kwargs: "SELECTIVITY DES REPORT")
+
+    cli_module.main([
+        "--workflow",
+        "selectivity-des",
+        "--target-metal-ion",
+        "Cu2+",
+        "--competitor-metal-ion",
+        "Zn2+",
+        "--checkpoint-path",
+        str(checkpoint_path),
+        "--config-path",
+        str(config_path),
+    ])
+
+    assert captured["competitor_metal"] == ["Zn2+"]
+
+
 def test_cli_parser_accepts_output_dir():
     parser = build_parser()
     args = parser.parse_args([

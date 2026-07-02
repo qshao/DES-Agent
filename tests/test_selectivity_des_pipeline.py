@@ -344,7 +344,7 @@ def test_cli_selectivity_des_routes_to_pipeline(tmp_path):
     mock_run.assert_called_once()
     kwargs = mock_run.call_args[1]
     assert kwargs["target_metal"] == "Cu2+"
-    assert kwargs["competitor_metal"] == "Zn2+"
+    assert kwargs["competitor_metal"] == ["Zn2+"]
     assert kwargs["n_des_candidates"] == 20
     assert kwargs["n_des_cycles"] == 3
     assert kwargs["n_outer_cycles"] == 2

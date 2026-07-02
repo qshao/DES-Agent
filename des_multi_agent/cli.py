@@ -729,10 +729,11 @@ def main(argv=None):
                 absolute_tm_max_k=abs_tm_sel if abs_tm_sel is not None else base_sel.absolute_tm_max_k,
                 relative_drop_min=rel_drop_sel if rel_drop_sel is not None else base_sel.relative_drop_min,
             )
+        competitor_metals = [m.strip() for m in args.competitor_metal_ion.split(",") if m.strip()]
         try:
             pipeline_outcome = run_selectivity_des_pipeline(
                 target_metal=args.target_metal_ion,
-                competitor_metal=args.competitor_metal_ion,
+                competitor_metal=competitor_metals,
                 checkpoint_path=str(checkpoint_path),
                 config_path=str(config_path),
                 n_ligands=args.n,
@@ -784,9 +785,10 @@ def main(argv=None):
                 )
         from .llm.factory import build_llm_provider as _build_llm_provider
         llm_provider_sel = _build_llm_provider(llm_cfg) if llm_cfg is not None else None
+        competitor_metals = [m.strip() for m in args.competitor_metal_ion.split(",") if m.strip()]
         sel_outcome = run_metal_selectivity_screen(
             target_metal=args.target_metal_ion,
-            competitor_metal=args.competitor_metal_ion,
+            competitor_metal=competitor_metals,
             n=getattr(args, "n", 20),
             model_path=args.stability_constant_model_path,
             llm_provider=llm_provider_sel,
