@@ -79,6 +79,11 @@ This document tracks the next useful extensions for DES-Agent after the current 
     - A candidate is dropped entirely (not partially scored) if any single off-target's log K prediction fails. Duplicate off-targets in the input are de-duplicated, order-preserving; an empty off-target list raises `ValueError`.
     - The report gains an `off_target_breakdown` column (only when more than one off-target is given) showing every off-target's log K per candidate, e.g. `Zn2+=10.20, Fe3+=11.80*` — the asterisk marks the limiting metal. A single off-target produces byte-identical report output, CLI behavior, and LLM prompt text to before this feature.
 
+19. Code-review fixes for DFT validation/caching
+    - **xtb geometry charge**: `_xtb_optimize` ignored the pH-derived net formal charge — xtb defaulted to charge=0 while the subsequent DFT single-point correctly used the pH-aware charge, so charged (ionized) species were geometry-optimized as if neutral before an internally inconsistent charged single-point. `_xtb_optimize(mol, charge=...)` now passes `--chrg` to xtb so geometry and single-point agree.
+    - **`dft_method` mislabeling**: `cached_compute_dft_properties` accepted a `dft_method` argument used only as the SQLite cache-key label — `compute_dft_properties` has no method-selection support and always runs B3LYP-D3(BJ)/def2-SVP, so a non-default `dft_method` would have silently cached a B3LYP result under the wrong method's key. It now raises `ValueError` for any `dft_method` other than `DEFAULT_DFT_METHOD` instead of corrupting the cache.
+    - **Private cross-module import**: `dft_selectivity.py` reached into `stability_rules.py`'s private `_metal_softness`. Added a public `metal_softness()` accessor (matching the existing `irving_williams_offset` pattern) and switched the import.
+
 ## Next Up
 
 1. Expanded common-names registry
