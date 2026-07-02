@@ -288,6 +288,33 @@ python -m des_multi_agent.cli supported-metals
 
 Ions not on that list still get a predicted value via the fallback model path, but selectivity predictions between two unsupported ions are less reliable.
 
+### Screening against multiple off-target metals at once
+
+Real separations rarely involve just two metals. If your target metal (say Cu²⁺) needs to be selective over several competing ions at once (Zn²⁺, Fe³⁺, Ni²⁺ — a typical hydrometallurgical mixture), pass them all comma-separated to `--competitor-metal-ion`:
+
+```bash
+python -m des_multi_agent.cli \
+  --workflow metal-selectivity \
+  --target-metal-ion "Cu2+" \
+  --competitor-metal-ion "Zn2+,Fe3+,Ni2+" \
+  --n 15 \
+  --output-dir runs/cu_multi_offtarget
+```
+
+**How ranking changes.** With one competitor, `delta_log_k = log_k_target − log_k_competitor` was the whole story. With several off-targets, DES-Agent ranks by the **worst case**: `delta_log_k = log_k_target − (the highest log K among all your off-targets)`. A ligand only scores well if it beats *every* off-target, not just some of them — a ligand that binds Cu²⁺ well but grabs Fe³⁺ just as tightly is not usable for a clean separation, even if it is excellent against Zn²⁺ and Ni²⁺ individually.
+
+**Reading the extra column.** With multiple off-targets, the report gains an `off_target_breakdown` column showing every off-target's predicted log K for that candidate, with an asterisk marking the limiting (worst-case) one:
+
+```
+ligand    | log_k_target | log_k_competitor | delta_log_k | score | off_target_breakdown
+NCCN      | 10.50        | 9.10             | 1.40        | 0.89  | Zn2+=6.20, Fe3+=9.10*, Ni2+=7.80
+NCC(=O)O  | 9.80          | 8.30            | 1.50        | 0.81  | Zn2+=8.30*, Fe3+=7.90, Ni2+=6.40
+```
+
+For the first row, Fe³⁺ (marked with `*`) is the bottleneck — that ligand's real-world usable selectivity is against Fe³⁺, not Zn²⁺ or Ni²⁺, even though those numbers look good individually. This tells you exactly which competing metal to focus on if you want to improve the ligand further (e.g. by increasing HSAB hardness mismatch specifically against Fe³⁺).
+
+A single metal with no comma (`--competitor-metal-ion "Zn2+"`) behaves exactly as in Section 8's example above — no extra column, same report format.
+
 ### Optional: DFT refinement with `--dft-validate`
 
 The rule-based selectivity ranking uses predicted log K values and HSAB hard/soft classification. For borderline cases — where two candidates have similar ΔlogK or the HSAB assignment is ambiguous — you can add a quantum-chemistry check that looks directly at the ligand's electron structure.

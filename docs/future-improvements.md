@@ -71,6 +71,14 @@ This document tracks the next useful extensions for DES-Agent after the current 
     - The metal-selectivity workflow's DFT stage now threads its existing `binding_pH` parameter (default 7.0, previously only used for coordination-claim grounding) into the DFT call for the first time — this is a deliberate accuracy improvement, not a side effect: any ligand that ionizes at pH 7.0 now gets DFT computed on its physiologically-relevant charged form rather than the drawn-neutral form.
     - `DFTResult` gained `species_smiles` (the species actually computed), `ph` (the pH used), and `from_cache` (whether this result came from the cache) fields.
 
+18. Multi-off-target metal selectivity
+    - `--competitor-metal-ion` accepts a comma-separated list of off-target metals (`Zn2+,Fe3+,Ni2+`), not just a single competitor. `run_metal_selectivity_screen`'s (and `run_selectivity_des_pipeline`'s) `competitor_metal` parameter widens to `str | list[str]` — never renamed, so every existing single-competitor call site keeps working unchanged.
+    - Ranking is worst-case: `delta_log_k = log_k_target − max(log_k of all off-targets)`. A ligand only ranks well if it beats every off-target simultaneously, not just one — the practical question a wet-lab chemist actually asks when several other metals are present in a mixture.
+    - `SelectivityResult` gained `log_k_competitors: dict[str, float]` (full per-metal breakdown) and `worst_competitor_metal: str` (which off-target is the limiting one for that candidate). `log_k_competitor`/`delta_log_k` keep their existing names but always hold the worst-case value.
+    - DFT tiebreaking and selectivity grounding now compute against each candidate's own `worst_competitor_metal` rather than a single outcome-wide competitor — different candidates can have different limiting off-targets, and the tiebreak/grounding logic follows whichever metal is actually the bottleneck for that specific ligand.
+    - A candidate is dropped entirely (not partially scored) if any single off-target's log K prediction fails. Duplicate off-targets in the input are de-duplicated, order-preserving; an empty off-target list raises `ValueError`.
+    - The report gains an `off_target_breakdown` column (only when more than one off-target is given) showing every off-target's log K per candidate, e.g. `Zn2+=10.20, Fe3+=11.80*` — the asterisk marks the limiting metal. A single off-target produces byte-identical report output, CLI behavior, and LLM prompt text to before this feature.
+
 ## Next Up
 
 1. Expanded common-names registry

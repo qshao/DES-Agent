@@ -215,6 +215,15 @@ python -m des_multi_agent.cli --workflow metal-selectivity \
   --stability-constant-model-path artifacts/stability_constants/model.json
 ```
 
+`--competitor-metal-ion` also accepts a comma-separated list of multiple off-target metals (`Zn2+,Fe3+,Ni2+`). Ranking becomes worst-case: a ligand only ranks well if it beats *every* off-target, not just one (`delta_log_k = log_k_target − max(log_k of all off-targets)`). The report gains an `off_target_breakdown` column showing every off-target's predicted log K per candidate, with an asterisk marking the limiting (worst-case) metal for that row. A single metal (no comma) behaves exactly as before:
+
+```bash
+python -m des_multi_agent.cli --workflow metal-selectivity \
+  --target-metal-ion Cu2+ \
+  --competitor-metal-ion "Zn2+,Fe3+,Ni2+" \
+  --n 20 --stability-constant-model-path artifacts/stability_constants/model.json
+```
+
 Add `--dft-validate` to refine the top candidates with a B3LYP-D3(BJ)/def2-SVP DFT single-point (requires `gpu4pyscf` and `xtb`). The LLM nominates 1–`--dft-top-n` candidates (default 3); the HOMO energy is used as an HSAB donor-softness proxy to apply a ±0.05 composite-score nudge. DFT failures are non-fatal — the run always completes with rule-based ranking as fallback. DFT now computes the dominant protonation state at `binding_pH` (default 7.0) rather than always assuming the neutral ligand, and every result is cached in `artifacts/dft_cache/dft_results.sqlite3` keyed on the computed species and method, so repeat candidates across cycles or runs skip recomputation:
 
 ```bash
