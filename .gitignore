@@ -5,7 +5,8 @@ __pycache__/
 *.png
 *.npz
 *.pt
-ml_des_mp/runs/
+ml_des_mp/runs/*
+!ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt
 ml_des_mp/Melting_temperature_appended_35il_03082026.csv
 .cache/
 record
