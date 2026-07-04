@@ -4,6 +4,7 @@ from des_multi_agent.llm.gemini_provider import GeminiProvider
 from des_multi_agent.llm.custom_http_provider import CustomHTTPProvider
 from des_multi_agent.llm.nemotron_provider import NemotronProvider
 from des_multi_agent.llm.qwen_provider import QwenProvider
+from des_multi_agent.llm.vllm_provider import VLLMProvider
 
 
 def test_ollama_provider_exposes_request_profile():
@@ -82,3 +83,11 @@ def test_qwen_provider_payload_disables_thinking():
     payload = provider.build_payload("Reply with just OK")
     assert payload["think"] is False
     assert payload["stream"] is False
+
+
+def test_vllm_provider_exposes_request_profile():
+    assert VLLMProvider.request_profile.name == "vLLM"
+    assert VLLMProvider.request_profile.path_template == "/chat/completions"
+    assert VLLMProvider.request_profile.payload_style == "openai"
+    assert VLLMProvider.request_profile.api_key_in_header is True
+    assert VLLMProvider.request_profile.api_key_in_query is False
