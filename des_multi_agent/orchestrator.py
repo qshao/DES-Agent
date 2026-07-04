@@ -12,6 +12,7 @@ from .chemistry.hbond import rank_by_hbond as _rank_by_hbond
 from .chemistry_filter import canonicalize_smiles, filter_candidates
 from .proposal_diversity import ProposalDiversityConfig, apply_proposal_diversity
 from .config import DEFAULT_ABSOLUTE_TM_MAX_K, DEFAULT_RELATIVE_DROP_MIN
+from .concurrency import run_concurrent
 from .discovery import load_discovery_library, literature_lookup, merge_discovery_candidates, similarity_search
 from .exporting import export_des_run_bundle
 from .reporting import format_report
@@ -341,12 +342,13 @@ def _review_top_candidates(
 ) -> tuple[list[CandidateReview], dict[str, CandidateReview]]:
     review_notes: list[CandidateReview] = []
     review_by_smiles: dict[str, CandidateReview] = {}
-    for proposal in candidate_proposals[: max(0, top_n)]:
-        try:
-            review = provider.review_candidate(component_a, proposal.smiles, context)
-        except Exception as exc:
-            llm_warnings.append(f"LLM candidate review failed for {proposal.smiles}: {exc}")
+    top_proposals = candidate_proposals[: max(0, top_n)]
+    results = run_concurrent(top_proposals, lambda p: provider.review_candidate(component_a, p.smiles, context))
+    for proposal, res in zip(top_proposals, results):
+        if res.error is not None:
+            llm_warnings.append(f"LLM candidate review failed for {proposal.smiles}: {res.error}")
             continue
+        review = res.value
         if review.smiles != proposal.smiles:
             llm_warnings.append(f"LLM candidate review returned wrong SMILES for {proposal.smiles}")
             continue

@@ -576,6 +576,37 @@ def test_review_top_candidates_ignores_wrong_smiles():
     assert warnings and "wrong SMILES" in warnings[0]
 
 
+def test_review_top_candidates_runs_calls_concurrently():
+    import threading
+
+    n_candidates = 3
+    barrier = threading.Barrier(n_candidates, timeout=2.0)
+
+    class BarrierProvider:
+        def review_candidate(self, component_a, candidate_smiles, context):
+            barrier.wait()  # blocks until n_candidates calls are simultaneously waiting
+            return CandidateReview(
+                smiles=candidate_smiles,
+                decision="keep",
+                confidence=0.9,
+                rationale="ok",
+                notes=[],
+            )
+
+    proposals = [
+        CandidateProposal(smiles=f"C{i}", rationale="demo", family="alcohol", source="heuristic", source_id="rule")
+        for i in range(n_candidates)
+    ]
+    warnings = []
+
+    reviews, review_map = orchestrator._review_top_candidates(
+        BarrierProvider(), "CCO", proposals, "context", n_candidates, warnings,
+    )
+
+    assert len(reviews) == n_candidates
+    assert set(review_map.keys()) == {f"C{i}" for i in range(n_candidates)}
+
+
 def test_build_prior_productive_family_summary_limits_to_top_counts():
     from des_multi_agent.orchestrator import _build_prior_productive_family_summary
 
