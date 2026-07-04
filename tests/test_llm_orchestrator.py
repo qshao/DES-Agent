@@ -678,17 +678,80 @@ def test_llm_advisor_sections_are_collected(monkeypatch):
     assert "LLM chemistry advisor:" in outcome.report_text
 
 
-def test_chemistry_advisor_loop_runs_calls_concurrently():
-    import threading
+def test_run_search_report_survives_non_iterable_advisor_response(monkeypatch):
+    class _BadAdvisorLLM(_FakeLLM):
+        def assess_candidate_chemistry(self, candidate_smiles, context, memory_notes=None):
+            return None  # a misbehaving provider that doesn't honor the list[ChemistryAssessment] contract
 
-    from des_multi_agent.concurrency import run_concurrent
+    monkeypatch.setattr(orchestrator, "build_llm_provider", lambda cfg, request_fn=None: _BadAdvisorLLM())
+    monkeypatch.setattr(
+        orchestrator,
+        "generate_candidates",
+        lambda component_a, n, constraints=None: [CandidateProposal(smiles="O", rationale="baseline", family="alcohol")],
+    )
+    monkeypatch.setattr(orchestrator, "filter_candidates", lambda component_a, candidates: candidates)
+    monkeypatch.setattr(
+        orchestrator,
+        "resolve_melting_point",
+        lambda component, override_k=None: MeltingPointEstimate(
+            component=component,
+            tm_k=300.0,
+            source="heuristic",
+            confidence=0.5,
+        ),
+    )
+    monkeypatch.setattr(
+        orchestrator,
+        "predict_curve",
+        lambda *args, **kwargs: CurvePrediction(
+            smiles_a="CCO",
+            smiles_b="O",
+            ratios=[0.1],
+            tm_pred_k=[250.0],
+            t1_k=300.0,
+            t2_k=300.0,
+            checkpoint_path="ckpt.pt",
+        ),
+    )
+    monkeypatch.setattr(
+        orchestrator,
+        "classify_des",
+        lambda curve, thresholds: DesResult(
+            curve=curve,
+            absolute_pass=True,
+            relative_pass=True,
+            is_des=True,
+            rationale="ok",
+            min_tm_k=250.0,
+        ),
+    )
+    monkeypatch.setattr(orchestrator, "rank_results", lambda results: results)
+
+    outcome = orchestrator.run_search_report(
+        component_a="CCO",
+        n=1,
+        checkpoint_path="ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt",
+        llm_cfg={
+            "enabled": True,
+            "provider": "ollama",
+            "model_name": "llama3.1",
+            "api_base_url": "http://localhost:11434",
+        },
+    )
+
+    assert outcome.advisor_assessments == []
+    assert any("chemistry assessment failed" in w for w in outcome.llm_warnings)
+
+
+def test_chemistry_advisor_loop_runs_calls_concurrently(monkeypatch):
+    import threading
 
     n_items = 3
     barrier = threading.Barrier(n_items, timeout=2.0)
 
-    class BarrierAssessProvider:
-        def assess_candidate_chemistry(self, candidate_smiles, context, memory_notes):
-            barrier.wait()
+    class BarrierAssessProvider(_FakeLLM):
+        def assess_candidate_chemistry(self, candidate_smiles, context, memory_notes=None):
+            barrier.wait()  # blocks until n_items calls are simultaneously waiting
             return [
                 ChemistryAssessment(
                     smiles=candidate_smiles,
@@ -698,34 +761,53 @@ def test_chemistry_advisor_loop_runs_calls_concurrently():
                 )
             ]
 
-    def _annotated(smiles: str) -> AnnotatedResult:
-        curve = CurvePrediction(
-            smiles_a="CCO", smiles_b=smiles, ratios=[0.1], tm_pred_k=[250.0],
-            t1_k=300.0, t2_k=300.0, checkpoint_path="ckpt.pt",
-        )
-        result = DesResult(curve=curve, absolute_pass=True, relative_pass=True, is_des=True, rationale="ok", min_tm_k=250.0)
-        uncertainty = MinimumTmUncertainty(
-            component_a="CCO", component_b=smiles, repeated_values=(250.0,), mean_tm_k=250.0,
-            std_tm_k=0.0, min_tm_k=250.0, max_tm_k=250.0, trust_score=0.9, uncertainty_flag="low",
-            explanation="demo", checkpoint_path="ckpt.pt", config_path="cfg.yaml",
-        )
-        return AnnotatedResult(result=result, uncertainty=uncertainty, trust_score=0.9, ranking_score=0.9)
-
-    annotated_results = [_annotated(f"C{i}") for i in range(n_items)]
-    llm_warnings: list[str] = []
-    provider = BarrierAssessProvider()
-    advisor_items = annotated_results[: min(5, len(annotated_results))]
-
-    results = run_concurrent(
-        advisor_items,
-        lambda item: provider.assess_candidate_chemistry(item.result.curve.smiles_b, "context", []),
+    monkeypatch.setattr(orchestrator, "build_llm_provider", lambda cfg, request_fn=None: BarrierAssessProvider())
+    monkeypatch.setattr(
+        orchestrator,
+        "generate_candidates",
+        lambda component_a, n, constraints=None: [
+            CandidateProposal(smiles=s, rationale="demo", family="alcohol")
+            for s in ("O", "N", "CO")
+        ],
     )
-    advisor_assessments: list[ChemistryAssessment] = []
-    for item, res in zip(advisor_items, results):
-        if res.error is not None:
-            llm_warnings.append(f"LLM chemistry assessment failed for {item.result.curve.smiles_b}: {res.error}")
-            continue
-        advisor_assessments.extend(res.value)
+    monkeypatch.setattr(orchestrator, "filter_candidates", lambda component_a, candidates: candidates)
+    monkeypatch.setattr(
+        orchestrator,
+        "resolve_melting_point",
+        lambda component, override_k=None: MeltingPointEstimate(
+            component=component, tm_k=300.0, source="heuristic", confidence=0.5,
+        ),
+    )
+    monkeypatch.setattr(
+        orchestrator,
+        "predict_curve",
+        lambda smiles_a, smiles_b, *args, **kwargs: CurvePrediction(
+            smiles_a=smiles_a, smiles_b=smiles_b, ratios=[0.1], tm_pred_k=[250.0],
+            t1_k=300.0, t2_k=300.0, checkpoint_path="ckpt.pt",
+        ),
+    )
+    monkeypatch.setattr(
+        orchestrator,
+        "classify_des",
+        lambda curve, thresholds: DesResult(
+            curve=curve, absolute_pass=True, relative_pass=True, is_des=True, rationale="ok", min_tm_k=250.0,
+        ),
+    )
+    monkeypatch.setattr(orchestrator, "rank_results", lambda results: results)
 
-    assert len(advisor_assessments) == n_items
-    assert llm_warnings == []
+    outcome = orchestrator.run_search_report(
+        component_a="CCO",
+        n=n_items,
+        checkpoint_path="ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt",
+        llm_cfg={
+            "enabled": True,
+            "provider": "ollama",
+            "model_name": "llama3.1",
+            "api_base_url": "http://localhost:11434",
+        },
+    )
+
+    # If the real advisor loop in run_search_report ever reverts to sequential
+    # execution, only 1 of the 3 calls would ever be waiting on the barrier at
+    # once, and it would time out (BrokenBarrierError) instead of reaching here.
+    assert len(outcome.advisor_assessments) == n_items

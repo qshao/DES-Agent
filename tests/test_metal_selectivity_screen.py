@@ -519,40 +519,34 @@ def test_run_metal_selectivity_screen_accepts_list_competitor():
 
 def test_metal_selectivity_llm_reviews_run_concurrently():
     import threading
+    import time
 
-    from des_multi_agent.concurrency import run_concurrent
-    from des_multi_agent.workflows.metal_binding_selectivity import SelectivityResult
+    active = {"count": 0, "max": 0}
+    lock = threading.Lock()
 
-    n_ligands = 3
-    barrier = threading.Barrier(n_ligands, timeout=2.0)
+    class ConcurrencyTrackingProvider:
+        def brainstorm_ligands_selectivity(self, target_metal, competitor_metals, constraints, context):
+            return [
+                CandidateBrainstorm(smiles=s, rationale="demo", family="test")
+                for s in ("NCC(=O)O", "NCCN", "c1ccncc1")
+            ]
 
-    class BarrierProvider:
         def review_ligand(self, metal_ion, ligand_smiles, context):
-            barrier.wait()
+            with lock:
+                active["count"] += 1
+                active["max"] = max(active["max"], active["count"])
+            time.sleep(0.05)
+            with lock:
+                active["count"] -= 1
             return CandidateReview(
                 smiles=ligand_smiles, decision="keep", confidence=0.9, rationale="ok", notes=[],
             )
 
-    def _cycle_result(smiles: str) -> SelectivityResult:
-        return SelectivityResult(
-            ligand_smiles=smiles, log_k_target=8.0, log_k_competitor=6.0,
-            delta_log_k=2.0, composite_score=0.8, source="heuristic",
-            source_id="rule", rationale="demo",
-        )
+    outcome = run_metal_selectivity_screen(
+        "Ni2+", "Cu2+", n=10, llm_provider=ConcurrencyTrackingProvider(), n_cycles=1,
+    )
 
-    cycle_results = [_cycle_result(f"C{i}") for i in range(n_ligands)]
-    llm_provider = BarrierProvider()
-    context = "context"
-    target_metal = "Ni2+"
-    all_reviews: list[CandidateReview] = []
-    all_warnings: list[str] = []
-
-    review_results = run_concurrent(cycle_results, lambda r: llm_provider.review_ligand(target_metal, r.ligand_smiles, context))
-    for r, res in zip(cycle_results, review_results):
-        if res.error is not None:
-            all_warnings.append(f"LLM review failed for {r.ligand_smiles}: {res.error}")
-            continue
-        all_reviews.append(res.value)
-
-    assert len(all_reviews) == n_ligands
-    assert all_warnings == []
+    # If the real review_ligand loop in run_metal_selectivity_screen ever
+    # reverts to sequential execution, active["max"] would never exceed 1.
+    assert active["max"] >= 2
+    assert len(outcome.results) > 0

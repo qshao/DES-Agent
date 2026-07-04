@@ -1082,7 +1082,10 @@ def run_search_report(
             if res.error is not None:
                 llm_warnings.append(f"LLM chemistry assessment failed for {item.result.curve.smiles_b}: {res.error}")
                 continue
-            advisor_assessments.extend(res.value)
+            try:
+                advisor_assessments.extend(res.value)
+            except Exception as exc:
+                llm_warnings.append(f"LLM chemistry assessment failed for {item.result.curve.smiles_b}: {exc}")
         try:
             advisor_next_steps = provider.suggest_next_steps(advisor_context, advisor_memory_notes)
         except Exception as exc:
