@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Mapping
 
 
-_ALLOWED_PROVIDERS = {"disabled", "none", "off", "ollama", "openai", "gemini", "custom_http"}
+_ALLOWED_PROVIDERS = {"disabled", "none", "off", "ollama", "openai", "gemini", "custom_http", "vllm"}
 _ALLOWED_DIVERSITY_MODES = {"explore", "balanced", "exploit"}
 _SUPPORTED_OLLAMA_MODEL_PREFIXES = ("gemma4:12b", "nemotron-3-nano", "qwen3.6")
 
@@ -114,5 +114,14 @@ class LLMConfig:
                 missing.append("api_base_url")
             if missing:
                 raise ValueError("Custom HTTP LLM config requires " + ", ".join(missing))
+            return
+        if provider == "vllm":
+            missing = []
+            if not self.model_name:
+                missing.append("model_name")
+            if not self.api_base_url:
+                missing.append("api_base_url")
+            if missing:
+                raise ValueError("vLLM LLM config requires " + ", ".join(missing))
             return
         raise ValueError(f"Unsupported llm.provider: {self.provider}")

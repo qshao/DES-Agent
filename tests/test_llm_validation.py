@@ -117,3 +117,19 @@ llm:
     assert cfg.provider == "ollama"
     assert cfg.model_name == "qwen3.6"
     assert cfg.api_base_url == "http://localhost:11434"
+
+
+def test_vllm_config_requires_model_and_base_url():
+    cfg = LLMConfig(enabled=True, provider="vllm")
+    with pytest.raises(ValueError, match="model_name|api_base_url"):
+        cfg.validate()
+
+
+def test_vllm_config_accepts_any_model_name():
+    cfg = LLMConfig(
+        enabled=True,
+        provider="vllm",
+        model_name="mistral-7b-instruct",
+        api_base_url="http://localhost:8000/v1",
+    )
+    cfg.validate()  # must not raise — no allow-list for vllm model names
