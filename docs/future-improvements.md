@@ -107,3 +107,7 @@ This document tracks the next useful extensions for DES-Agent after the current 
 
 3. Pharmacophore-based candidate clustering
    - Replace Murcko scaffold (topology-only) with pharmacophore feature clustering (HBD/HBA positions, aromaticity, charge). More meaningful for DES since two different scaffolds with matching H-bond geometry can both form eutectics. Requires new 3D-feature infrastructure.
+
+4. TensorRT-LLM backend (considered, not adopted)
+   - NVIDIA's own inference engine would likely have the best native support for Blackwell-class GPUs (including the GB10 devkit item 21's benchmark ran on), since NVIDIA validates it against their own silicon — plausibly avoiding the immature FP8/MoE kernel issues vLLM hit there.
+   - Not pursued: TensorRT-LLM requires compiling a model-and-GPU-specific engine ahead of time rather than pointing at HF weights directly, which trades away the flexible, swap-models-on-the-fly deployment this project wants to keep. `vllm`/`ollama`/`custom_http` all keep that flexibility; a compile-ahead backend would be a deliberate tradeoff to revisit only if raw throughput becomes a hard requirement.
