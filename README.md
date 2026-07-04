@@ -118,6 +118,15 @@ Optional Ollama LLM run (Gemma, Nemotron, or Qwen via `model_name`). The LLM rev
 python -m examples.demo_des_search --component-a "ethanol" --n 20 --llm-config llm.example.yaml
 ```
 
+Optional vLLM run — an alternative local backend to Ollama for the same open-source models (Gemma, Nemotron, Qwen), using vLLM's continuous batching for faster throughput on multi-candidate cycles. Requires `pip install vllm` and a CUDA-capable GPU (vLLM has no documented CPU-serving path here). Start the server as its own long-lived process before running DES-Agent, the same way Ollama already runs as an external service:
+
+```bash
+vllm serve Qwen/Qwen3-14B-Instruct --port 8000
+python -m examples.demo_des_search --component-a "ethanol" --n 20 --llm-config llm.vllm_example.yaml
+```
+
+`doctor --check llm --llm-config llm.vllm_example.yaml` verifies the vLLM server is reachable before a real run.
+
 Multi-cycle iterative screening — top hits from each cycle seed the next; stops when top-K converges. Pass `--output-dir` to also write a `trajectory.md` with the full cycle-by-cycle narrative:
 
 ```bash

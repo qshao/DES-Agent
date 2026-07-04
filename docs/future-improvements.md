@@ -84,6 +84,11 @@ This document tracks the next useful extensions for DES-Agent after the current 
     - **`dft_method` mislabeling**: `cached_compute_dft_properties` accepted a `dft_method` argument used only as the SQLite cache-key label — `compute_dft_properties` has no method-selection support and always runs B3LYP-D3(BJ)/def2-SVP, so a non-default `dft_method` would have silently cached a B3LYP result under the wrong method's key. It now raises `ValueError` for any `dft_method` other than `DEFAULT_DFT_METHOD` instead of corrupting the cache.
     - **Private cross-module import**: `dft_selectivity.py` reached into `stability_rules.py`'s private `_metal_softness`. Added a public `metal_softness()` accessor (matching the existing `irving_williams_offset` pattern) and switched the import.
 
+20. vLLM LLM backend
+    - `--llm-config` now also accepts `provider: vllm`, a new `VLLMProvider` alongside the existing `ollama`/`openai`/`gemini`/`custom_http` backends — none of which are changed or deprecated. Reuses the existing `payload_style="openai"` request/response format since vLLM's OpenAI-compatible server (`vllm serve <model>`) speaks the same wire format as `OpenAIProvider`/`CustomHTTPProvider`.
+    - No `model_name` allow-list (unlike `ollama`'s `_SUPPORTED_OLLAMA_MODEL_PREFIXES`) since a vLLM server process commits to exactly one model at launch; the config's `model_name` is just a label for whichever model the operator already started. `api_key_env` is optional, matching how local unauthenticated servers are already handled for `custom_http`.
+    - See `llm.vllm_example.yaml` for a ready-to-edit config, and the README's "Optional vLLM run" section for the `vllm serve` launch command and GPU prerequisites.
+
 ## Next Up
 
 1. Expanded common-names registry
