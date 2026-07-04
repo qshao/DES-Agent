@@ -1088,6 +1088,8 @@ python -m des_multi_agent.cli doctor --check llm --llm-config llm.example.yaml
 
 Also confirm the requested `model_name` exists in your local Ollama installation.
 
+The connectivity check treats an HTTP error response (404, 401, 405, ...) as *reachable* — it means the server responded, just not to a bare `GET` on its base URL. This matters for OpenAI-compatible backends (`vllm`, `openai`, `custom_http`), whose `api_base_url` has no route at the bare path and would otherwise always look "down" even when healthy. Only a true connection failure (refused, timed out, DNS error) produces a `not reachable` warning.
+
 ### Output Directory Confusion
 
 Use `--output-dir runs/run_001` for DES runs, then inspect with:
