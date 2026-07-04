@@ -676,3 +676,56 @@ def test_llm_advisor_sections_are_collected(monkeypatch):
     assert any(step.mode == "conservative" for step in outcome.advisor_next_steps)
     assert any(step.mode == "exploratory" for step in outcome.advisor_next_steps)
     assert "LLM chemistry advisor:" in outcome.report_text
+
+
+def test_chemistry_advisor_loop_runs_calls_concurrently():
+    import threading
+
+    from des_multi_agent.concurrency import run_concurrent
+
+    n_items = 3
+    barrier = threading.Barrier(n_items, timeout=2.0)
+
+    class BarrierAssessProvider:
+        def assess_candidate_chemistry(self, candidate_smiles, context, memory_notes):
+            barrier.wait()
+            return [
+                ChemistryAssessment(
+                    smiles=candidate_smiles,
+                    decision="stable",
+                    confidence=0.8,
+                    rationale="ok",
+                )
+            ]
+
+    def _annotated(smiles: str) -> AnnotatedResult:
+        curve = CurvePrediction(
+            smiles_a="CCO", smiles_b=smiles, ratios=[0.1], tm_pred_k=[250.0],
+            t1_k=300.0, t2_k=300.0, checkpoint_path="ckpt.pt",
+        )
+        result = DesResult(curve=curve, absolute_pass=True, relative_pass=True, is_des=True, rationale="ok", min_tm_k=250.0)
+        uncertainty = MinimumTmUncertainty(
+            component_a="CCO", component_b=smiles, repeated_values=(250.0,), mean_tm_k=250.0,
+            std_tm_k=0.0, min_tm_k=250.0, max_tm_k=250.0, trust_score=0.9, uncertainty_flag="low",
+            explanation="demo", checkpoint_path="ckpt.pt", config_path="cfg.yaml",
+        )
+        return AnnotatedResult(result=result, uncertainty=uncertainty, trust_score=0.9, ranking_score=0.9)
+
+    annotated_results = [_annotated(f"C{i}") for i in range(n_items)]
+    llm_warnings: list[str] = []
+    provider = BarrierAssessProvider()
+    advisor_items = annotated_results[: min(5, len(annotated_results))]
+
+    results = run_concurrent(
+        advisor_items,
+        lambda item: provider.assess_candidate_chemistry(item.result.curve.smiles_b, "context", []),
+    )
+    advisor_assessments: list[ChemistryAssessment] = []
+    for item, res in zip(advisor_items, results):
+        if res.error is not None:
+            llm_warnings.append(f"LLM chemistry assessment failed for {item.result.curve.smiles_b}: {res.error}")
+            continue
+        advisor_assessments.extend(res.value)
+
+    assert len(advisor_assessments) == n_items
+    assert llm_warnings == []

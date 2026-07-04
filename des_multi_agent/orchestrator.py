@@ -1073,13 +1073,16 @@ def run_search_report(
     advisor_next_steps: list[ChemistryNextStep] = []
     if provider is not None and annotated_results:
         advisor_context = _build_chemistry_advisor_context(review_context, annotated_results, advisor_memory_notes)
-        for item in annotated_results[: min(5, len(annotated_results))]:
-            try:
-                advisor_assessments.extend(
-                    provider.assess_candidate_chemistry(item.result.curve.smiles_b, advisor_context, advisor_memory_notes)
-                )
-            except Exception as exc:
-                llm_warnings.append(f"LLM chemistry assessment failed for {item.result.curve.smiles_b}: {exc}")
+        advisor_items = annotated_results[: min(5, len(annotated_results))]
+        advisor_results = run_concurrent(
+            advisor_items,
+            lambda item: provider.assess_candidate_chemistry(item.result.curve.smiles_b, advisor_context, advisor_memory_notes),
+        )
+        for item, res in zip(advisor_items, advisor_results):
+            if res.error is not None:
+                llm_warnings.append(f"LLM chemistry assessment failed for {item.result.curve.smiles_b}: {res.error}")
+                continue
+            advisor_assessments.extend(res.value)
         try:
             advisor_next_steps = provider.suggest_next_steps(advisor_context, advisor_memory_notes)
         except Exception as exc:
