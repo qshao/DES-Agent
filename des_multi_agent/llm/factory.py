@@ -11,6 +11,7 @@ from .local_provider import OllamaProvider
 from .nemotron_provider import NemotronProvider
 from .provider import LLMProvider
 from .qwen_provider import QwenProvider
+from .vllm_provider import VLLMProvider
 
 
 def _normalize_provider_name(name: str) -> str:
@@ -81,6 +82,20 @@ def build_llm_provider(cfg: Mapping[str, object] | LLMConfig | None, request_fn=
         return CustomHTTPProvider(
             model_name=str(llm_cfg.model_name or ""),
             api_base_url=str(llm_cfg.api_base_url or ""),
+            api_key_env=llm_cfg.api_key_env,
+            max_candidates=llm_cfg.max_candidates,
+            max_tokens=llm_cfg.max_tokens,
+            temperature=llm_cfg.temperature,
+            timeout_seconds=llm_cfg.timeout_seconds,
+            diversity_mode=llm_cfg.diversity_mode,
+            max_families=llm_cfg.max_families,
+            family_bias_strength=llm_cfg.family_bias_strength,
+            request_fn=request_impl,
+        )
+    if provider == "vllm":
+        return VLLMProvider(
+            model_name=str(llm_cfg.model_name or ""),
+            api_base_url=str(llm_cfg.api_base_url or "http://localhost:8000/v1"),
             api_key_env=llm_cfg.api_key_env,
             max_candidates=llm_cfg.max_candidates,
             max_tokens=llm_cfg.max_tokens,

@@ -152,3 +152,29 @@ def test_provider_exposes_chemistry_advisor_methods():
     )
     assert hasattr(provider, "assess_candidate_chemistry")
     assert hasattr(provider, "suggest_next_steps")
+
+
+def test_provider_vllm_returns_vllm_provider():
+    provider = build_llm_provider(
+        {
+            "enabled": True,
+            "provider": "vllm",
+            "model_name": "Qwen/Qwen3-14B-Instruct",
+            "api_base_url": "http://localhost:8000/v1",
+        },
+        request_fn=lambda *args, **kwargs: '{"choices":[{"message":{"content":"[]"}}]}',
+    )
+    assert provider.__class__.__name__ == "VLLMProvider"
+
+
+def test_provider_vllm_does_not_require_api_key_env():
+    provider = build_llm_provider(
+        {
+            "enabled": True,
+            "provider": "vllm",
+            "model_name": "Qwen/Qwen3-14B-Instruct",
+            "api_base_url": "http://localhost:8000/v1",
+        },
+        request_fn=lambda *args, **kwargs: '{"choices":[{"message":{"content":"[]"}}]}',
+    )
+    assert provider.api_key_env is None
