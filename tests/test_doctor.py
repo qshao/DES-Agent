@@ -198,3 +198,58 @@ def test_doctor_config_check_warns_for_unknown_keys_and_missing_paths(monkeypatc
     messages = "\n".join(issue.message for issue in result.warnings)
     assert "unknown key" in messages
     assert "checkpoint_path path does not exist" in messages
+
+
+def test_doctor_llm_check_treats_http_error_response_as_reachable(monkeypatch, tmp_path: Path):
+    import urllib.error
+    import urllib.request
+
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    _write_healthy_repo(repo_root)
+
+    def fake_urlopen(url, timeout=None):
+        raise urllib.error.HTTPError(url, 404, "Not Found", hdrs=None, fp=None)
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
+    result = run_doctor(
+        repo_root,
+        optional_checks=("llm",),
+        llm_cfg={
+            "enabled": True,
+            "provider": "vllm",
+            "model_name": "Qwen/Qwen2.5-0.5B-Instruct",
+            "api_base_url": "http://localhost:8000/v1",
+        },
+    )
+
+    assert not any(issue.message.startswith("[llm]") for issue in result.warnings)
+
+
+def test_doctor_llm_check_warns_on_true_connection_failure(monkeypatch, tmp_path: Path):
+    import urllib.error
+    import urllib.request
+
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    _write_healthy_repo(repo_root)
+
+    def fake_urlopen(url, timeout=None):
+        raise urllib.error.URLError("Connection refused")
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
+    result = run_doctor(
+        repo_root,
+        optional_checks=("llm",),
+        llm_cfg={
+            "enabled": True,
+            "provider": "vllm",
+            "model_name": "Qwen/Qwen2.5-0.5B-Instruct",
+            "api_base_url": "http://localhost:8000/v1",
+        },
+    )
+
+    messages = "\n".join(issue.message for issue in result.warnings)
+    assert "[llm] provider at 'http://localhost:8000/v1' is not reachable" in messages

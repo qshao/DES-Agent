@@ -145,9 +145,17 @@ def _check_llm_connectivity(llm_cfg, warnings: list[DoctorIssue]) -> None:
     if not api_base_url:
         _add_issue(warnings, "warning", "[llm] provider has no api_base_url — cannot check connectivity")
         return
+    from urllib import error as urllib_error
     from urllib import request as urllib_request
     try:
         urllib_request.urlopen(api_base_url, timeout=5.0).close()
+    except urllib_error.HTTPError:
+        # An HTTP error status (404, 401, 405, ...) means the server responded —
+        # it exists and is reachable, it just doesn't like a bare GET on this
+        # exact path. This is normal for OpenAI-compatible servers (vLLM, the
+        # real OpenAI API, custom_http endpoints), whose base URL has no
+        # handler for plain GET.
+        return
     except Exception as exc:
         _add_issue(warnings, "warning", f"[llm] provider at {api_base_url!r} is not reachable: {exc}")
 
