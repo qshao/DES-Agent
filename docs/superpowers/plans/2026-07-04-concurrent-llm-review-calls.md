@@ -305,7 +305,7 @@ def test_chemistry_advisor_loop_runs_calls_concurrently():
             return [
                 ChemistryAssessment(
                     smiles=candidate_smiles,
-                    assessment="stable",
+                    decision="stable",
                     confidence=0.8,
                     rationale="ok",
                 )
