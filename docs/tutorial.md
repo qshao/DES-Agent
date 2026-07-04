@@ -540,7 +540,7 @@ LLM mode is optional. Configure it with an LLM YAML file. `llm.example.yaml` is 
 - `llm.ni_co_qwen36.yaml` — Qwen 3.6 variant
 - `llm.ni_co_nemotron.yaml` — Nemotron 3 Nano variant
 
-Four providers are supported. Choose one and fill in its required fields:
+Five providers are supported. Choose one and fill in its required fields:
 
 **Ollama (local)** — requires `api_base_url`; supported models: `gemma4:12b`, `nemotron-3-nano:latest`, `qwen3.6`:
 
@@ -572,7 +572,7 @@ llm:
   api_key_env: GEMINI_API_KEY
 ```
 
-**Custom HTTP** — any OpenAI-compatible endpoint (LM Studio, vLLM, etc.); requires `api_base_url`:
+**Custom HTTP** — any OpenAI-compatible endpoint (LM Studio, etc.); requires `api_base_url`:
 
 ```yaml
 llm:
@@ -580,6 +580,16 @@ llm:
   provider: custom_http
   model_name: my-local-model
   api_base_url: http://localhost:8080
+```
+
+**vLLM** — an alternative local backend to Ollama for the same open-source models, using vLLM's continuous batching for faster throughput on multi-candidate cycles; requires `api_base_url` pointing at a running `vllm serve` instance:
+
+```yaml
+llm:
+  enabled: true
+  provider: vllm
+  model_name: Qwen/Qwen3-14B-Instruct
+  api_base_url: http://localhost:8000/v1
 ```
 
 All optional fields with their defaults:
