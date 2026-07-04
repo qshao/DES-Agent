@@ -12,7 +12,7 @@ from des_multi_agent.llm.prompts import (
     ligand_family_selection_prompt,
     ligand_review_prompt,
 )
-from des_multi_agent.llm.schemas import CandidateBrainstorm, LigandFamily
+from des_multi_agent.llm.schemas import CandidateBrainstorm, CandidateReview, LigandFamily
 from des_multi_agent.workflows.metal_binding_screen import (
     LigandScreenResult,
     MetalBindingScreenOutcome,
@@ -293,3 +293,47 @@ def test_run_metal_binding_screen_claim_verdicts_populated_with_llm():
     outcome = run_metal_binding_screen("Cu2+", n=3, llm_provider=mock_llm, n_cycles=1)
     assert isinstance(outcome.claim_verdicts, list)
     assert len(outcome.claim_verdicts) >= 1
+
+
+def test_metal_screen_llm_reviews_run_concurrently():
+    import threading
+
+    from des_multi_agent.concurrency import run_concurrent
+    from des_multi_agent.predictors.stability_constants import StabilityConstantPrediction
+    from des_multi_agent.workflows.metal_binding_screen import LigandScreenResult
+
+    n_ligands = 3
+    barrier = threading.Barrier(n_ligands, timeout=2.0)
+
+    class BarrierProvider:
+        def review_ligand(self, metal_ion, ligand_smiles, context):
+            barrier.wait()
+            return CandidateReview(
+                smiles=ligand_smiles, decision="keep", confidence=0.9, rationale="ok", notes=[],
+            )
+
+    def _cycle_result(smiles: str) -> LigandScreenResult:
+        prediction = StabilityConstantPrediction(
+            task="log_k", value=8.0, units="log_k", model_name="heuristic",
+            source="heuristic", warnings=(), metadata={}, metal_ion="Cu2+", ligand=smiles,
+        )
+        return LigandScreenResult(
+            metal_ion="Cu2+", ligand_smiles=smiles, prediction=prediction,
+            log_k=8.0, source="heuristic", source_id="rule", rationale="demo",
+        )
+
+    cycle_results = [_cycle_result(f"C{i}") for i in range(n_ligands)]
+    llm_provider = BarrierProvider()
+    context = "context"
+    all_reviews: list[CandidateReview] = []
+    all_warnings: list[str] = []
+
+    review_results = run_concurrent(cycle_results, lambda r: llm_provider.review_ligand("Cu2+", r.ligand_smiles, context))
+    for r, res in zip(cycle_results, review_results):
+        if res.error is not None:
+            all_warnings.append(f"LLM review failed for {r.ligand_smiles}: {res.error}")
+            continue
+        all_reviews.append(res.value)
+
+    assert len(all_reviews) == n_ligands
+    assert all_warnings == []
