@@ -127,6 +127,8 @@ python -m examples.demo_des_search --component-a "ethanol" --n 20 --llm-config l
 
 `doctor --check llm --llm-config llm.vllm_example.yaml` verifies the vLLM server is reachable before a real run.
 
+The bare `vllm serve <model> --port 8000` command above is all that's needed on standard datacenter GPUs (A100, H100, H200) — vLLM's FP8/MoE kernels target Hopper/Ampere as primary hardware. The extra flags in [future-improvements.md](docs/future-improvements.md) item 21 (`--moe-backend triton`, `--linear-backend triton`, `VLLM_DEEP_GEMM_WARMUP=skip`) were workarounds for one specific devkit's (NVIDIA GB10, Blackwell aarch64) immature kernel support and should not be needed elsewhere.
+
 Multi-cycle iterative screening — top hits from each cycle seed the next; stops when top-K converges. Pass `--output-dir` to also write a `trajectory.md` with the full cycle-by-cycle narrative:
 
 ```bash
