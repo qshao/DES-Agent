@@ -10,6 +10,7 @@ from ..analogue_expansion import generate_analogues_tagged
 from ..candidate_generation_ligand import generate_ligand_candidates
 from ..chemistry_filter import canonicalize_smiles
 from ._metal_helpers import _apply_ligand_reality_gate
+from ..concurrency import run_concurrent
 from ..llm.schemas import CandidateBrainstorm, CandidateReview
 from ..multi_cycle import _family_ucb_scores
 from ..predictors.stability_constants import predict_log_k
@@ -438,12 +439,12 @@ def run_metal_selectivity_screen(
                 des_compatible_hints=des_compatible_hints,
                 des_incompatible_hints=des_incompatible_hints,
             )
-            for r in cycle_results:
-                try:
-                    review = llm_provider.review_ligand(target_metal, r.ligand_smiles, context)
-                    all_reviews.append(review)
-                except Exception as exc:
-                    all_warnings.append(f"LLM review failed for {r.ligand_smiles}: {exc}")
+            review_results = run_concurrent(cycle_results, lambda r: llm_provider.review_ligand(target_metal, r.ligand_smiles, context))
+            for r, res in zip(cycle_results, review_results):
+                if res.error is not None:
+                    all_warnings.append(f"LLM review failed for {r.ligand_smiles}: {res.error}")
+                    continue
+                all_reviews.append(res.value)
 
         # Update cross-cycle trackers
         ligand_family_map = {

@@ -511,3 +511,48 @@ def test_run_metal_selectivity_screen_accepts_list_competitor():
     assert outcome.competitor_metals == ["Zn2+", "Fe3+"]
     assert all(r.log_k_competitors for r in outcome.results)
     assert all(r.worst_competitor_metal == "Fe3+" for r in outcome.results)
+
+
+# ---------------------------------------------------------------------------
+# LLM candidate review — run_concurrent pattern
+# ---------------------------------------------------------------------------
+
+def test_metal_selectivity_llm_reviews_run_concurrently():
+    import threading
+
+    from des_multi_agent.concurrency import run_concurrent
+    from des_multi_agent.workflows.metal_binding_selectivity import SelectivityResult
+
+    n_ligands = 3
+    barrier = threading.Barrier(n_ligands, timeout=2.0)
+
+    class BarrierProvider:
+        def review_ligand(self, metal_ion, ligand_smiles, context):
+            barrier.wait()
+            return CandidateReview(
+                smiles=ligand_smiles, decision="keep", confidence=0.9, rationale="ok", notes=[],
+            )
+
+    def _cycle_result(smiles: str) -> SelectivityResult:
+        return SelectivityResult(
+            ligand_smiles=smiles, log_k_target=8.0, log_k_competitor=6.0,
+            delta_log_k=2.0, composite_score=0.8, source="heuristic",
+            source_id="rule", rationale="demo",
+        )
+
+    cycle_results = [_cycle_result(f"C{i}") for i in range(n_ligands)]
+    llm_provider = BarrierProvider()
+    context = "context"
+    target_metal = "Ni2+"
+    all_reviews: list[CandidateReview] = []
+    all_warnings: list[str] = []
+
+    review_results = run_concurrent(cycle_results, lambda r: llm_provider.review_ligand(target_metal, r.ligand_smiles, context))
+    for r, res in zip(cycle_results, review_results):
+        if res.error is not None:
+            all_warnings.append(f"LLM review failed for {r.ligand_smiles}: {res.error}")
+            continue
+        all_reviews.append(res.value)
+
+    assert len(all_reviews) == n_ligands
+    assert all_warnings == []
