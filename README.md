@@ -31,7 +31,7 @@ List the metal ions with explicit stability-model identity features:
 python -m des_multi_agent.cli supported-metals
 ```
 
-If you want extra setup checks such as `doctor --check config`, add `--check` for the paths you care about most. `doctor --check llm --llm-config llm.example.yaml` also probes the configured local LLM service:
+If you want extra setup checks such as `doctor --check config`, add `--check` for the paths you care about most. `doctor --check llm --llm-config llm.example.yaml` also probes the configured local LLM service — an HTTP error response (404, 401, ...) still counts as reachable, since it means the server responded; only a true connection failure warns:
 
 ```bash
 python -m des_multi_agent.cli doctor --check checkpoint --check discovery --check artifacts --check config
