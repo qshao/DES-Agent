@@ -90,6 +90,29 @@ client-side default-substitution fallback that `plain_language_gemma4_12b/run_ex
 `plain_language_metal_binding_gemma4_12b/run_example.py` already implement
 (`_normalize_router_job`).
 
+### Addendum to Finding 2 — repeated testing shows this is a frequent, reproducible failure, not a rare fluke
+
+A separate manual pass ran `task_router` and `task_execute` several times back to back (outside
+this report's single-sample capture) to check whether the above was a one-off. Results: `task_router`
+failed 4 of 6 fresh attempts with the same "missing required fields" error, one attempt returned an
+unwarranted `needs_clarification` asking the user to spell out the checkpoint/config path the CLI
+already defaults, and one attempt hung past a 3-minute timeout; `task_execute` failed 5 of 5
+attempts. So this isn't rare sampling variance at the margins — with the current prompt and
+`qwen3.6`, the default (no explicit `--llm-config`) routing path fails more often than it succeeds.
+
+The root cause is confirmed, not inferred: calling `build_default_router_provider().route_request(...)`
+directly and printing the raw response before parsing shows `qwen3.6` invents its own natural field
+names instead of the CLI's actual ones — e.g. `"target_molecule": "ethanol"` instead of
+`"component_a": "CCO"`. `parse_router_response`'s field filter (`{key: value for key, value in
+job_data.items() if key in allowed_fields}`) silently drops any key that isn't an exact
+`RouterJob` field name, so an invented key just disappears rather than erroring loudly, and the
+subsequent required-fields check then fails. `ROUTER_SYSTEM_PROMPT`
+(`des_multi_agent/task_router_prompts.py`) only says *"Use existing CLI field names for job
+fields"* without ever listing them — a fine instruction for a model that already has the DES-Agent
+CLI schema memorized, and an unreliable one otherwise. This raises the "Follow-up candidate" above
+from a nice-to-have to a real reliability gap worth prioritizing: the fix (enumerate the field names
+in the prompt) is a small, low-risk prompt change.
+
 ## Finding 3 — Occasional benign LLM JSON-parse hiccups
 
 Across the gemma4:12b, nemotron-3-nano, and qwen3.6 runs, a small number of calls (brainstorm,
