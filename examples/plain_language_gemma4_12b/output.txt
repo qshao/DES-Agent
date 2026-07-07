@@ -22,47 +22,88 @@ Normalized DES job:
 {"clarifying_questions": [], "job": {"checkpoint_path": "/home/qshao/DES-Agent/ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt", "component_a": "CCO", "config_path": "/home/qshao/DES-Agent/ml_des_mp/config.yaml", "discovery_path": null, "ligand_smiles": null, "llm_config": "/home/qshao/DES-Agent/examples/plain_language_gemma4_12b/llm.gemma4_12b.yaml", "metal_ion": null, "n": 5, "stability_constant_model_path": null, "viscosity_model_path": null}, "needs_clarification": false, "workflow": "des"}
 
 Proposal diversity settings: mode=balanced, max_similarity=0.82, per_family_budget=2
-
 DES report:
-smiles_b | is_des | min_tm_k | source | trust | mean_tm_k | spread_k | std_k | uncertainty_flag | rationale
-OCCO | True | 208.69 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=208.69 K | spread=208.69-208.69 K | std=0.00 K | flag=low | min Tm=208.69 K, absolute<= 260.00 K, relative_drop=0.230
-O=CC(=O)NC(=O)O | True | 215.09 | source=llm; id=brainstorm | trust=0.80 | mean=215.09 K | spread=215.09-215.09 K | std=0.00 K | flag=low | min Tm=215.09 K, absolute<= 260.00 K, relative_drop=0.207
-CC(=O)N | True | 222.77 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=222.77 K | spread=222.77-222.77 K | std=0.00 K | flag=low | min Tm=222.77 K, absolute<= 260.00 K, relative_drop=0.179
-OCC(O)CO | True | 223.28 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=223.28 K | spread=223.28-223.28 K | std=0.00 K | flag=low | min Tm=223.28 K, absolute<= 260.00 K, relative_drop=0.177
-O | True | 225.27 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=225.27 K | spread=225.27-225.27 K | std=0.00 K | flag=low | min Tm=225.27 K, absolute<= 260.00 K, relative_drop=0.118
-O=CC(=O)O | True | 227.03 | source=llm; id=brainstorm | trust=0.80 | mean=227.03 K | spread=227.03-227.03 K | std=0.00 K | flag=low | min Tm=227.03 K, absolute<= 260.00 K, relative_drop=0.163
-CC(=O)O | True | 236.03 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=236.03 K | spread=236.03-236.03 K | std=0.00 K | flag=low | min Tm=236.03 K, absolute<= 260.00 K, relative_drop=0.130
+=== DES Search: ethanol (CCO) ===
+Screened 6 candidate(s). 1 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
+Top candidate: ethylene glycol (OCCO) — min Tm 155.5 K (Δ12.1%) | moderate-high confidence
+=================================
+
+Chemistry lessons:
+productive patterns: diol (1)
+avoid patterns: amide (1), carboxylic acid (1), polyol (1), Phenols (1), Carboxylic Acids (1)
+cycle summary:
+- Productive patterns: diol (1).
+- Avoid patterns: amide (1), carboxylic acid (1), polyol (1).
+- Representative examples: OCCO, CC(=O)N, CC(=O)O.
+run summary:
+- Representative good examples: OCCO.
+- Representative bad examples: CC(=O)N, CC(=O)O, OCC(O)CO.
+- Stay near the productive families and probe close analogs first.
+- Try adjacent chemistry away from the repeated failure families.
+- Some supporting results were low-trust; treat the lesson cautiously.
+- Evidence is mixed; keep the next cycle balanced.
+- Productive patterns: diol (1).
+- Avoid patterns: amide (1), carboxylic acid (1), polyol (1).
+- Representative examples: OCCO, CC(=O)N, CC(=O)O.
+next steps:
+- Stay near the productive families and probe close analogs first.
+- Try adjacent chemistry away from the repeated failure families.
+warnings:
+- Some supporting results were low-trust; treat the lesson cautiously.
+- Evidence is mixed; keep the next cycle balanced.
+
+compound | is_des | min_tm_k | eutectic_x_b | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
+ethylene glycol (OCCO) | True | 155.49 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.74 | mean=160.79 K | spread=155.73-165.61 K | std=4.04 K | moderate-high confidence | min Tm=155.49 K, absolute<= 260.00 K, relative_drop=0.121
+acetamide (CC(=O)N) | False | 168.39 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.94 | mean=173.00 K | spread=172.85-173.09 K | std=0.11 K | high confidence | min Tm=168.39 K, absolute<= 260.00 K, relative_drop=0.048
+acetic acid (CC(=O)O) | False | 171.54 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.86 | mean=172.13 K | spread=170.93-173.97 K | std=1.32 K | high confidence | min Tm=171.54 K, absolute<= 260.00 K, relative_drop=0.031
+glycerol (OCC(O)CO) | False | 167.57 | 0.90 | source=heuristic; id=rule-based-family-library | trust=0.87 | mean=168.35 K | spread=166.70-169.78 K | std=1.27 K | high confidence | min Tm=167.57 K, absolute<= 260.00 K, relative_drop=0.053
+CC(=O)Nc1ccc(O)cc1 | False | 167.50 | 0.90 | source=llm; id=brainstorm | trust=0.79 | mean=170.18 K | spread=168.03-174.22 K | std=2.86 K | moderate-high confidence | min Tm=167.50 K, absolute<= 260.00 K, relative_drop=0.053
+malonic acid (OC(=O)CC(=O)O) | False | 232.97 | 0.90 | source=llm; id=brainstorm | trust=0.47 | mean=233.01 K | spread=217.86-241.02 K | std=10.72 K | low confidence — consider experimental verification | min Tm=232.97 K, absolute<= 260.00 K, relative_drop=-0.316
+
+Physical sanity — non-physical eutectic (predicted Tm above both pure components):
+- malonic acid (OC(=O)CC(=O)O): min Tm 233.0 K > min(T1,T2)=177.0 K — treat prediction with caution
+
+Melting-point inputs:
+component | Tm_K | source | confidence
+ethanol (CCO) | 176.96 | qspr | 0.67
+ethylene glycol (OCCO) | 260.60 | experimental | 0.95
+acetamide (CC(=O)N) | 354.06 | experimental | 0.95
+acetic acid (CC(=O)O) | 289.85 | experimental | 0.95
+glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
+CC(=O)Nc1ccc(O)cc1 | 443.00 | experimental | 0.95
+malonic acid (OC(=O)CC(=O)O) | 407.46 | experimental | 0.95
 
 LLM candidate reviews:
-OCCO | keep | confidence=1.00 | The candidate OCCO is a direct match for the requested component CCO (ethanol) or its closely related isomer/derivative in this context. | Candidate matches target structure.
-OCC(O)CO | keep | confidence=0.95 | The candidate OCC(O)CO is a valid chemical structure and matches the core scaffold of Component A (CCO). | Candidate is chemically stable.
-CC(=O)N | keep | confidence=0.95 | The candidate CC(=O)N (acetamide) is a valid chemical structure and matches the core functional group requirements for an amide-based scaffold. | Valid organic compound; Stable structure
-CC(=O)O | keep | confidence=0.95 | The candidate CC(=O)O is a valid chemical structure for the component CCO (acetic acid). The transformation from CCO to CC(=O)O represents a standard representation of the acetic acid functional group. | Matches target chemistry; Standard representation
+O | reject | confidence=1.00 | The candidate 'O' is a single oxygen atom and does not constitute a chemically viable functional group or ligand fragment for the CCO component. | Insufficient complexity for chemical synthesis.
+OCCO | keep | confidence=0.95 | The candidate OCCO matches the structural requirements for a polyol with two donor oxygen atoms and a denticity of 2, consistent with the computed features for component CCO. | Matches all specified chemical properties.
+OCC(O)CO | keep | confidence=0.95 | The candidate OCC(O)CO matches the required features: it is a polyol with 3 donor atoms (oxygen), has a denticity of 3, and exhibits amphoteric behavior as expected for a polyhydroxy compound. | Matches all computed facts for component CCO.
+CC(=O)N | keep | confidence=0.95 | The candidate CC(=O)N contains both an amide group and an amine-like nitrogen atom (amide nitrogen), matching the features 'amide' and 'amine'. It also possesses one oxygen and one nitrogen donor atom with a denticity of 2. | Matches all computed facts for Component A.
+CC(=O)O | keep | confidence=0.95 | The candidate CC(=O)O matches the computed features for Component A (HBD=1, HBA=1, amphoteric, carboxylic acid group). | Matches all specified chemical properties.
 
 LLM brainstorm:
-CC(=O)O | Carboxylic Acids | Acetic acid is a classic short-chain carboxylic acid often paired with CCO to form low-viscosity DES.
-O=CC(=O)O | Carboxylic Acids | Acetic acid provides strong hydrogen bonding sites to interact with the hydroxyl group of ethanol.
-O=CC(=O)NC(=O)O | Dicarboxylic Acids | Oxalic acid is a common organic acid used in DES systems for its high polarity and hydrogen bonding capacity.
-O=CC(=O)O | Carboxylic Acids | Acetic acid serves as a primary candidate due to its widespread use in industrial solvent systems with alcohols.
-O=CC(=O)O | Carboxylic Acids | Selected based on high compatibility and established experimental data for ethanol-based DES mixtures.
+OC(=O)CC(=O)O | Carboxylic Acids | Malonic acid is a carboxylic acid that provides strong hydrogen bonding and potential for salt bridge formation with the CCO motif.
+NC(=O)C | Amides | Acetamide provides a stable amide linkage for directional hydrogen bonding, common in peptide-mimetic interactions.
+NC(=O)NH2 | Ureas | Urea offers a bidentate hydrogen bonding motif to bridge interaction points with the CCO scaffold.
+CC(=O)Nc1ccc(O)cc1 | Phenols | Paracetamol (Acetaminophen) is proposed as a novel phenol-containing amide to provide both aromatic and hydroxyl interactions.
+NC(=O)NS(=O)2Cc1ccc(=cc1)Nc2ccc(cc2)S(=O)(=O)N | Sulfonamides | Sulfamethoxazole is proposed to provide distinct sulfonamide geometry and electronic properties for structural diversity.
 
 LLM explanations:
-OCCO | Candidate with the lowest melting point among the top results. | min Tm=208.69 K, absolute<= 260.00 K, relative_drop=0.230
-O=CC(=O)NC(=O)O | Candidate with a low melting point and significant relative drop. | min Tm=215.09 K, absolute<= 260.00 K, relative_drop=0.207
-CC(=O)N | Candidate with a moderate melting point. | min Tm=222.77 K, absolute<= 260.00 K, relative_drop=0.179
-OCC(O)CO | Candidate with a melting point slightly above 223K. | min Tm=223.28 K, absolute<= 260.00 K, relative_drop=0.177
-O | Candidate with a melting point of approximately 225K. | min Tm=225.27 K, absolute<= 260.00 K, relative_drop=0.118
-O=CC(=O)O | Candidate with a melting point of approximately 227K. | min Tm=227.03 K, absolute<= 260.00 K, relative_drop=0.163
-CC(=O)O | Candidate with the highest melting point among the top results. | min Tm=236.03 K, absolute<= 260.00 K, relative_drop=0.130
+OCC(=O)O | Candidate identified as a DES based on melting point criteria. | is_des=True, min_tm_k=155.49, rationale=min Tm=155.49 K, absolute<= 260.00 K, relative_drop=0.121
+CC(=O)N | Candidate failed DES criteria. | is_des=False, min_tm_k=168.39, rationale=min Tm=168.39 K, absolute<= 260.00 K, relative_drop=0.048
+CC(=O)O | Candidate failed DES criteria. | is_des=False, min_tm_k=171.54, rationale=min Tm=171.54 K, absolute<= 260.00 K, relative_drop=0.031
+OCC(O)CO | Candidate failed DES criteria. | is_des=False, min_tm_k=167.57, rationale=min Tm=167.57 K, absolute<= 260.00 K, relative_drop=0.053
+CC(=O)Nc1ccc(O)cc1 | Candidate failed DES criteria. | is_des=False, min_tm_k=167.50, rationale=min Tm=167.50 K, absolute<= 260.00 K, relative_drop=0.053
+OC(=O)CC(=O)O | Candidate failed DES criteria. | is_des=False, min_tm_k=232.97, rationale=min Tm=232.97 K, absolute<= 260.00 K, relative_drop=-0.316
 
 LLM critique:
-OCC(O)CO | High stability with a melting point of 223.28 K. | Low relative drop (0.177) suggests moderate structural integrity.
-CC(=O)O | Strongest candidate with the highest melting point of 236.03 K. | None; highest stability among ranked candidates.
-O=CC(=O)O | Robust candidate with a melting point of 227.03 K. | Slightly lower stability compared to acetic acid derivative.
-O | Stable candidate with a melting point of 225.27 K. | Minimal relative drop (0.118) indicates high structural consistency.
-CC(=O)N | Solid candidate with a melting point of 222.77 K. | Moderate stability profile.
-O=CC(=O)NC(=O)O | Acceptable candidate with a melting point of 215.09 K. | Lower melting point compared to top-ranked candidates.
-OCCO | Lowest ranked candidate with a melting point of 208.69 K. | Highest relative drop (0.230) indicates lower stability compared to others.
+CCO | High priority candidate. | Only candidate meeting the DES criteria; however, it has the highest relative drop (0.121) among valid candidates.
+CC(=O)N | Rejected. | Failed is_des check; melting point exceeds acceptable threshold for this specific classification.
+CC(=O)O | Rejected. | Failed is_des check; melting point too high.
+OCC(O)CO | Rejected. | Failed is_des check; melting point too high.
+CC(=O)Nc1ccc(O)cc1 | Rejected. | Failed is_des check; melting point too high.
+OC(=O)CC(=O)O | Rejected. | Failed is_des check; significantly higher melting point than other candidates.
 
-Warnings:
-- LLM candidate review returned wrong SMILES for O
+Run memory:
+- Deduplicated candidate: NC(=O)C collapsed to CC(=O)N (same compound from multiple sources)
+- Chemical pattern memory favored productive families: diol.
+- Chemical pattern memory penalized caution families: amide, carboxylic acid, polyol.

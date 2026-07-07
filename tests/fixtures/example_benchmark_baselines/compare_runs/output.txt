@@ -16,6 +16,10 @@ ethylene glycol (OCCO) | 260.60 | experimental | 0.95
 glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
 water (O) | 255.36 | heuristic | 0.35
 
+Grounding verdicts:
+- ✓ verified | DES plausibility of 'CCO' + 'OCCO'
+- ✓ verified | DES plausibility of 'CCO' + 'OCC(O)CO'
+
 Run memory:
 - Chemical pattern memory favored productive families: diol, polyol, alcohol.
 - Wrote run memory to /tmp/des_compare_run_a.json.
@@ -48,6 +52,12 @@ acetic acid (CC(=O)O) | 289.85 | experimental | 0.95
 glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
 water (O) | 255.36 | heuristic | 0.35
 
+Grounding verdicts:
+- ✓ verified | DES plausibility of 'CCO' + 'CC(=O)N'
+- ✓ verified | DES plausibility of 'CCO' + 'OCCO'
+- ✓ verified | DES plausibility of 'CCO' + 'CC(=O)O'
+- ✓ verified | DES plausibility of 'CCO' + 'OCC(O)CO'
+
 Run memory:
 - Chemical pattern memory favored productive families: amide, diol, carboxylic acid.
 - Wrote run memory to /tmp/des_compare_run_b.json.
@@ -59,6 +69,8 @@ summary:
 - exports written: yes
 
 === COMPARE ===
+/home/qshao/miniconda3/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.1) or chardet (7.4.3)/charset_normalizer (3.4.4) doesn't match a supported version!
+  warnings.warn(
 compare-runs: des
 left: /tmp/des_compare_run_a.json
 right: /tmp/des_compare_run_b.json

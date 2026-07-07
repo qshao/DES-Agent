@@ -27,6 +27,12 @@ CCO | OCC(O)CO | 16.08 | mPa*s | DESignSolvents | artifact
 CCO | CC(=O)N | 12.69 | mPa*s | DESignSolvents | artifact
 CCO | CC(=O)O | 12.36 | mPa*s | DESignSolvents | artifact
 
+Grounding verdicts:
+- ✓ verified | DES plausibility of 'CCO' + 'CC(=O)N'
+- ✓ verified | DES plausibility of 'CCO' + 'OCCO'
+- ✓ verified | DES plausibility of 'CCO' + 'CC(=O)O'
+- ✓ verified | DES plausibility of 'CCO' + 'OCC(O)CO'
+
 Run memory:
 - Chemical pattern memory favored productive families: amide, diol, carboxylic acid.
 summary:

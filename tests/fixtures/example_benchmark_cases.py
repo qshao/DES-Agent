@@ -8,6 +8,8 @@ BASELINE_ROOT = Path(__file__).resolve().parent / "example_benchmark_baselines"
 WARNING_MARKERS = (
     "DeprecationWarning: torch_geometric.distributed",
     "DeprecationWarning: `torch.jit.script` is deprecated.",
+    "RequestsDependencyWarning: urllib3",
+    "warnings.warn(",
 )
 
 

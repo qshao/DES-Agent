@@ -1,6 +1,4 @@
 === Selectivity-DES Pipeline: Ni2+ over Co2+ ===
-Proposal diversity settings: mode=balanced, max_similarity=0.82, per_family_budget=2
-
 Outer cycles run: 2 | Converged: no
 Shortlisted ligands: 5 | DES-compatible: 5
 ====================================================
@@ -8,158 +6,198 @@ Shortlisted ligands: 5 | DES-compatible: 5
 --- Section 1: Selectivity Results ---
 
 ligand | log_k_target | log_k_competitor | delta_log_k | score | des_compatible
-N[C@@H](C(=O)O)C(=O)NC(=O)O | 15.72 | 15.64 | 0.08 | 6.34 | yes
-O=CNCC(=O)NC(=O)NC(=O)O | 15.58 | 15.50 | 0.08 | 6.28 | yes
-O=C(O)NC(=O)CNC(=O)c1ccccn1 | 15.29 | 15.21 | 0.08 | 6.16 | yes
-O=C(O)CNCC(=O)NC(=O)O | 15.13 | 15.05 | 0.08 | 6.10 | yes
-NC(=O)NC(CNC=O)C(=O)O | 15.09 | 15.01 | 0.08 | 6.09 | yes
+CC(CN)C[C@H](N)C(=O)NCC(=O)O | 15.34 | 15.26 | 0.08 | 6.18 | yes
+O=C(O)C[C@H](NC(=O)O)C(=O)O | 15.15 | 15.07 | 0.08 | 6.11 | yes
+CC(CCO)C[C@H](N)C(=O)NCC(=O)O | 15.11 | 15.03 | 0.08 | 6.09 | yes
+CC(CO)CC[C@H](N)C(=O)NCC(=O)O | 15.11 | 15.03 | 0.08 | 6.09 | yes
+CC(CO)C[C@H](N)C(=O)NCC(=O)O | 15.08 | 15.00 | 0.08 | 6.08 | yes
+CC(CO)[C@H](N)C(=O)NCC(=O)O | 15.05 | 14.97 | 0.08 | 6.07 | no
 O=C(O)CN(CC(=O)O)CC(=O)O | 14.86 | 14.78 | 0.08 | 5.99 | no
-C.O=CNCC(NC(=O)O)C(=O)O | 14.83 | 14.75 | 0.08 | 5.98 | no
-O=CNCC(NC(=O)O)C(=O)O | 14.81 | 14.73 | 0.08 | 5.97 | no
-O=C(O)NCC(=O)NC(=O)O | 14.74 | 14.66 | 0.08 | 5.94 | no
-C.COC(=O)NC(CNC=O)C(=O)O | 14.42 | 14.34 | 0.08 | 5.81 | no
-COC(=O)NC(CNC=O)C(=O)O | 14.40 | 14.32 | 0.08 | 5.81 | no
-O=CNNC(=O)NC(=O)O | 14.34 | 14.26 | 0.08 | 5.79 | no
-CC(C(N)=O)C(=O)NC(=O)O | 14.19 | 14.11 | 0.08 | 5.72 | no
-O=CNCC(C(=O)O)C(=O)O | 13.94 | 13.86 | 0.08 | 5.62 | no
-Nc1ccc(N)c(C(=O)O)c1 | 13.85 | 13.77 | 0.08 | 5.59 | no
-O=CNC(=O)NCC(=O)O | 13.53 | 13.45 | 0.08 | 5.46 | no
-O=C(O)Nc1ccc(C(=O)O)cc1 | 13.46 | 13.38 | 0.08 | 5.43 | no
-CC(=O)N(CC(=O)O)CC(=O)O | 13.29 | 13.21 | 0.08 | 5.36 | no
-O=C(O)CNC(=O)c1ccccn1 | 13.23 | 13.15 | 0.08 | 5.34 | no
-CC(=O)N(C(=O)O)C(=O)O | 13.15 | 13.07 | 0.08 | 5.31 | no
-O=CN(C(=O)O)C(=O)O | 13.12 | 13.04 | 0.08 | 5.30 | no
+Nc1ccc(S(=O)(=O)Nc2nccs2)cc1 | 14.76 | 14.68 | 0.08 | 5.95 | no
+Nc1ccc(S(=O)(=S)Nc2nccs2)cc1 | 13.98 | 13.90 | 0.08 | 5.64 | no
+NNC(=O)c1ccc(O)cc1 | 13.24 | 13.16 | 0.08 | 5.34 | no
 O=C(O)CNCC(=O)O | 13.07 | 12.99 | 0.08 | 5.28 | no
-CC(=O)C(C(=O)O)C(=O)O | 13.04 | 12.96 | 0.08 | 5.26 | no
-NC(=O)c1ccc(C(=O)O)cc1 | 12.89 | 12.81 | 0.08 | 5.21 | no
-O=C(O)CNC(=O)O | 12.68 | 12.60 | 0.08 | 5.12 | no
-NC(=O)NNC=O | 12.57 | 12.49 | 0.08 | 5.08 | no
-CC(C(N)=O)C(N)=O | 12.41 | 12.33 | 0.08 | 5.01 | no
-O=C(O)CNC(=O)c1ccccc1 | 12.31 | 12.23 | 0.08 | 4.97 | no
-NC(=O)c1ccc(N)cc1 | 12.30 | 12.22 | 0.08 | 4.97 | no
-O=CNNC(=O)O | 12.29 | 12.21 | 0.08 | 4.96 | no
-O=C(O)C(=O)Nc1ccccc1 | 12.26 | 12.18 | 0.08 | 4.95 | no
-NC(=O)CNC=O | 11.75 | 11.67 | 0.08 | 4.75 | no
+O=C(Nc1ccccc1)C(O)=Nc1ccccc1 | 12.86 | 12.78 | 0.08 | 5.19 | no
+NC1=CCC=NC=C1N | 11.92 | 11.84 | 0.08 | 4.82 | no
+NC(=O)CNC(=O)C(F)(F)F | 11.90 | 11.82 | 0.08 | 4.81 | no
 O=C(O)c1ccccc1O | 11.75 | 11.67 | 0.08 | 4.75 | no
-O=C(Nc1ccccc1)c1ccccn1 | 11.58 | 11.50 | 0.08 | 4.68 | no
-NC(=O)c1ccccn1 | 11.39 | 11.31 | 0.08 | 4.61 | no
+O=C(N=Nc1ccccc1)c1ccccc1 | 11.29 | 11.21 | 0.08 | 4.56 | no
 NCC(=O)O | 11.23 | 11.15 | 0.08 | 4.54 | no
 Oc1ccccc1O | 10.89 | 10.81 | 0.08 | 4.41 | no
 Oc1cccc2ncccc12 | 10.87 | 10.79 | 0.08 | 4.40 | no
 c1cnc2ccc3ncccc3c2c1 | 10.84 | 10.76 | 0.08 | 4.39 | no
+CC(C)NCC(=O)O | 10.70 | 10.62 | 0.08 | 4.33 | no
 CC(=O)NO | 10.58 | 10.50 | 0.08 | 4.28 | no
+Nc1ccccn1 | 10.52 | 10.44 | 0.08 | 4.25 | no
 c1ccc(-c2ccccn2)nc1 | 10.45 | 10.37 | 0.08 | 4.23 | no
-CC(N)=O | 9.66 | 9.58 | 0.08 | 3.91 | no
+C1CCNCCNCC1 | 9.77 | 9.69 | 0.08 | 3.96 | no
 CC(=O)CC(C)=O | 9.39 | 9.31 | 0.08 | 3.80 | no
+c1ccncc1 | 8.68 | 8.60 | 0.08 | 3.52 | no
+CCNCC | 8.26 | 8.18 | 0.08 | 3.35 | no
 
 --- Section 2: DES Partners ---
 
-Ligand: N[C@@H](C(=O)O)C(=O)NC(=O)O  (score=6.34, ΔlogK=0.08) — DES-compatible: YES
-  partner | min_tm_k | eutectic_ratio | rationale
-  C(C(=O)O)NC(=O)OC | 208.1 | 0.30 | min Tm=208.13 K, absolute<= 350.00 K, relative_drop=0.355
-  CC(C)(C)N[C@@H](C(=O)O)C(=O)NC(=O)OC | 224.3 | 0.60 | min Tm=224.33 K, absolute<= 350.00 K, relative_drop=0.357
-  C(C(=O)O)NC(=O)NCC(=O)OC | 226.2 | 0.50 | min Tm=226.16 K, absolute<= 350.00 K, relative_drop=0.352
-  C(C(=O)O)NC(=O)NCC(=O)N | 233.3 | 0.50 | min Tm=233.34 K, absolute<= 350.00 K, relative_drop=0.332
-  C[N+](C)(C)CCO.[Cl-] | 234.4 | 0.30 | min Tm=234.37 K, absolute<= 350.00 K, relative_drop=0.255
-  CC(C)(C)NC(=O)NCC(=O)O | 234.9 | 0.60 | min Tm=234.90 K, absolute<= 350.00 K, relative_drop=0.315
-  CC(C)(C)N[C@@H](C(=O)O)C(=O)NC(=O)OC.[Cl-] | 244.2 | 0.60 | min Tm=244.21 K, absolute<= 350.00 K, relative_drop=0.300
-  CC(C)(C)N[C@@H](C(=O)O)C(=O)NC(=O)OC.[Br-] | 246.7 | 0.60 | min Tm=246.69 K, absolute<= 350.00 K, relative_drop=0.293
-  CC(C)(C)N[C@@H](C(=O)O)C(=O)NC(=O)OC.[I-] | 247.2 | 0.50 | min Tm=247.22 K, absolute<= 350.00 K, relative_drop=0.292
-  C[N+](C)(C)C.[Cl-] | 261.3 | 0.20 | min Tm=261.28 K, absolute<= 350.00 K, relative_drop=0.111
-  OC[C@H](O)[C@H](O)CO | 264.8 | 0.40 | min Tm=264.76 K, absolute<= 350.00 K, relative_drop=0.192
-  CC(C)(C)N[C@@H](C(=O)O)C(=O)NC(=O)N | 269.0 | 0.60 | min Tm=269.02 K, absolute<= 350.00 K, relative_drop=0.229
-  CC(C)(C)N[C@@H](C(=O)O)C(=O)NC(=O)O | 274.2 | 0.60 | min Tm=274.20 K, absolute<= 350.00 K, relative_drop=0.214
-  O | 251.1 | 0.10 | min Tm=251.11 K, absolute<= 350.00 K, relative_drop=0.017
-  CN | 261.6 | 0.10 | min Tm=261.64 K, absolute<= 350.00 K, relative_drop=0.015
-  OCCO | 263.2 | 0.40 | min Tm=263.22 K, absolute<= 350.00 K, relative_drop=0.080
-  CC(=O)O | 268.1 | 0.10 | min Tm=268.09 K, absolute<= 350.00 K, relative_drop=0.038
+Ligand: CC(CN)C[C@H](N)C(=O)NCC(=O)O  (score=6.18, ΔlogK=0.08) — DES-compatible: YES
+  partner | min_tm_k | eutectic_ratio | tm_src | rationale
+  OC[C@H](O)[C@H](O)CO | 328.9 | 0.20 | experimental (0.95) | min Tm=328.94 K, absolute<= 350.00 K, relative_drop=0.167
+  NC[C@@H](O)[C@@H](O)CO | 326.8 | 0.20 | qspr (0.70) | min Tm=326.77 K, absolute<= 350.00 K, relative_drop=0.175
+  NC[C@@H](O)[C@@H](O)CCO | 335.7 | 0.20 | qspr (0.74) | min Tm=335.70 K, absolute<= 350.00 K, relative_drop=0.127
+  NCC[C@@H](O)[C@@H](O)CO | 330.8 | 0.20 | qspr (0.74) | min Tm=330.80 K, absolute<= 350.00 K, relative_drop=0.139
+  O=C(O)C[C@H](N)C(=O)O | 349.3 | 0.50 | experimental (0.95) | min Tm=349.31 K, absolute<= 350.00 K, relative_drop=0.301
+  OCC[C@@H](O)[C@@H](O)CO | 313.5 | 0.20 | qspr (0.81) | min Tm=313.51 K, absolute<= 350.00 K, relative_drop=0.158
+  O=C(O)C[C@H](N)CC(=O)NCC(=O)O | 431.3 | 0.50 | qspr (0.57) | min Tm=431.35 K, absolute<= 350.00 K, relative_drop=0.121
+  NC(=S)C[C@H](N)CC(=O)O | 423.1 | 0.40 | qspr (0.43) | min Tm=423.13 K, absolute<= 350.00 K, relative_drop=0.154
+  NC(=O)C[C@H](N)CC(=O)O | 373.3 | 0.40 | qspr (0.70) | min Tm=373.30 K, absolute<= 350.00 K, relative_drop=0.253
+  NC(=O)C[C@H](N)CC(=O)N | 384.4 | 0.20 | qspr (0.57) | min Tm=384.37 K, absolute<= 350.00 K, relative_drop=0.186
+  CC(O)CO | 262.4 | 0.10 | experimental (0.95) | min Tm=262.43 K, absolute<= 350.00 K, relative_drop=-0.107
+  O=C(O)C[C@H](N)CC(=O)O | 365.1 | 0.50 | qspr (0.57) | min Tm=365.14 K, absolute<= 350.00 K, relative_drop=0.252
+  OCC(O)CO | 267.0 | 0.10 | experimental (0.95) | min Tm=267.05 K, absolute<= 350.00 K, relative_drop=0.083
+  OCCO | 298.2 | 0.10 | experimental (0.95) | min Tm=298.17 K, absolute<= 350.00 K, relative_drop=-0.144
+  CC(N)CCO | 297.9 | 0.10 | qspr (0.68) | min Tm=297.89 K, absolute<= 350.00 K, relative_drop=0.061
+  NC[C@@H](N)[C@@H](O)CO | 353.1 | 0.30 | qspr (0.57) | min Tm=353.15 K, absolute<= 350.00 K, relative_drop=0.185
+  CC(O)CCCO | 282.7 | 0.10 | qspr (0.70) | min Tm=282.67 K, absolute<= 350.00 K, relative_drop=-0.024
+  CC(=O)NCCO | 330.7 | 0.10 | qspr (0.64) | min Tm=330.65 K, absolute<= 350.00 K, relative_drop=0.074
+  O=C1NC(=O)NC1 | 403.7 | 0.20 | qspr (0.40) | min Tm=403.71 K, absolute<= 350.00 K, relative_drop=0.125
+  CC(=O)O | 341.9 | 0.10 | experimental (0.95) | min Tm=341.94 K, absolute<= 350.00 K, relative_drop=-0.180
+  OCCCO | 316.0 | 0.10 | qspr (0.61) | min Tm=315.96 K, absolute<= 350.00 K, relative_drop=-0.077
+  O=C1CCCN1 | 381.8 | 0.10 | qspr (0.81) | min Tm=381.81 K, absolute<= 350.00 K, relative_drop=-0.178
+  CS(=O)(=O)C | 251.0 | 0.10 | qspr (0.40) | min Tm=251.00 K, absolute<= 350.00 K, relative_drop=0.060
 
-Ligand: O=CNCC(=O)NC(=O)NC(=O)O  (score=6.28, ΔlogK=0.08) — DES-compatible: YES
-  partner | min_tm_k | eutectic_ratio | rationale
-  CCO | 202.8 | 0.40 | min Tm=202.85 K, absolute<= 350.00 K, relative_drop=0.252
-  OC[C@H](O)[C@H](O)CO | 203.6 | 0.50 | min Tm=203.62 K, absolute<= 350.00 K, relative_drop=0.379
-  CCN(C)C | 209.3 | 0.40 | min Tm=209.26 K, absolute<= 350.00 K, relative_drop=0.252
-  CC(N)C | 209.5 | 0.40 | min Tm=209.50 K, absolute<= 350.00 K, relative_drop=0.245
-  O=C(O)N | 213.9 | 0.30 | min Tm=213.90 K, absolute<= 350.00 K, relative_drop=0.246
-  C[N+](C)(C)C.[Cl-] | 220.6 | 0.30 | min Tm=220.57 K, absolute<= 350.00 K, relative_drop=0.250
-  O | 227.6 | 0.20 | min Tm=227.56 K, absolute<= 350.00 K, relative_drop=0.109
-  CC#N | 237.4 | 0.20 | min Tm=237.43 K, absolute<= 350.00 K, relative_drop=0.110
-  C[N+](C)(C)CCO.[Cl-] | 240.4 | 0.30 | min Tm=240.39 K, absolute<= 350.00 K, relative_drop=0.236
-  OCCO | 179.5 | 0.40 | min Tm=179.49 K, absolute<= 350.00 K, relative_drop=0.373
-  OCCCO | 180.1 | 0.40 | min Tm=180.13 K, absolute<= 350.00 K, relative_drop=0.383
-  CS(=O)C | 180.2 | 0.30 | min Tm=180.22 K, absolute<= 350.00 K, relative_drop=0.346
-  CC(=O)NCCO | 192.9 | 0.40 | min Tm=192.87 K, absolute<= 350.00 K, relative_drop=0.371
-  OC1=CC=CC=N1 | 212.2 | 0.40 | min Tm=212.23 K, absolute<= 350.00 K, relative_drop=0.300
-  CS(=O)(=O)C | 218.9 | 0.30 | min Tm=218.90 K, absolute<= 350.00 K, relative_drop=0.233
-  CC(=O)N | 221.0 | 0.30 | min Tm=220.97 K, absolute<= 350.00 K, relative_drop=0.212
-  CCOCC | 221.5 | 0.30 | min Tm=221.53 K, absolute<= 350.00 K, relative_drop=0.206
-  CN | 224.5 | 0.30 | min Tm=224.52 K, absolute<= 350.00 K, relative_drop=0.154
-  COCCO | 229.6 | 0.40 | min Tm=229.56 K, absolute<= 350.00 K, relative_drop=0.203
-  O=C1CCCN1 | 248.1 | 0.20 | min Tm=248.12 K, absolute<= 350.00 K, relative_drop=0.165
+Ligand: O=C(O)C[C@H](NC(=O)O)C(=O)O  (score=6.11, ΔlogK=0.08) — DES-compatible: YES
+  partner | min_tm_k | eutectic_ratio | tm_src | rationale
+  NC(C(=O)[C@H](N)CO)C(=O)O | 334.6 | 0.60 | qspr (0.63) | min Tm=334.59 K, absolute<= 350.00 K, relative_drop=0.289
+  O=C(O)C1CC(=O)C1 | 343.9 | 0.20 | qspr (0.45) | min Tm=343.87 K, absolute<= 350.00 K, relative_drop=0.136
+  CC(=O)[C@H](N)CCCO | 283.5 | 0.30 | qspr (0.71) | min Tm=283.51 K, absolute<= 350.00 K, relative_drop=0.224
+  NC(C(=O)O)C(=O)[C@H](N)CCCO | 330.2 | 0.50 | qspr (0.69) | min Tm=330.19 K, absolute<= 350.00 K, relative_drop=0.298
+  CC(=O)[C@H](O)CN | 305.5 | 0.20 | qspr (0.70) | min Tm=305.52 K, absolute<= 350.00 K, relative_drop=0.143
+  CC(=O)[C@H](N)CCN | 290.1 | 0.20 | qspr (0.47) | min Tm=290.13 K, absolute<= 350.00 K, relative_drop=0.222
+  NC(C(=O)O)C(=O)[C@H](O)CCO | 311.5 | 0.50 | qspr (0.76) | min Tm=311.50 K, absolute<= 350.00 K, relative_drop=0.299
+  N[C@@H](CCO)CO | 323.9 | 0.20 | qspr (0.71) | min Tm=323.90 K, absolute<= 350.00 K, relative_drop=0.106
+  O=C(O)N[C@H](CC)CO | 319.4 | 0.30 | qspr (0.57) | min Tm=319.41 K, absolute<= 350.00 K, relative_drop=0.204
+  CC(=O)[C@H](N)CO | 301.5 | 0.20 | qspr (0.68) | min Tm=301.46 K, absolute<= 350.00 K, relative_drop=0.171
+  NCC[C@@H](N)C(=O)C(N)C(=O)O | 335.2 | 0.50 | qspr (0.58) | min Tm=335.22 K, absolute<= 350.00 K, relative_drop=0.288
+  O=C(O)C1CCCCC1 | 285.6 | 0.10 | experimental (0.95) | min Tm=285.59 K, absolute<= 350.00 K, relative_drop=0.046
+  CC(C)(C)O | 309.3 | 0.10 | qspr (0.42) | min Tm=309.30 K, absolute<= 350.00 K, relative_drop=0.008
+  CC(=O)[C@H](O)CCO | 301.5 | 0.10 | qspr (0.59) | min Tm=301.46 K, absolute<= 350.00 K, relative_drop=0.096
+  C1=CC(=O)NC(=O)N1 | 399.7 | 0.40 | qspr (0.53) | min Tm=399.74 K, absolute<= 350.00 K, relative_drop=0.151
+  CC(C)(C)CO | 347.5 | 0.10 | qspr (0.52) | min Tm=347.49 K, absolute<= 350.00 K, relative_drop=0.019
+  C1=CC=C(C=C1)N | 334.5 | 0.10 | qspr (0.52) | min Tm=334.54 K, absolute<= 350.00 K, relative_drop=0.070
+  C1=CC(=O)N[C@H](CO)C(=O)N1 | 399.4 | 0.40 | qspr (0.62) | min Tm=399.44 K, absolute<= 350.00 K, relative_drop=0.151
+  C1=CC=C(C=C1)O | 337.4 | 0.10 | experimental (0.95) | min Tm=337.38 K, absolute<= 350.00 K, relative_drop=-0.074
+  C(C)(C)CO | 404.1 | 0.10 | qspr (0.59) | min Tm=404.11 K, absolute<= 350.00 K, relative_drop=-0.102
+  N[C@@H](CC)CO | 310.3 | 0.20 | qspr (0.67) | min Tm=310.33 K, absolute<= 350.00 K, relative_drop=0.081
+  CC(O)CCN | 279.3 | 0.10 | qspr (0.63) | min Tm=279.26 K, absolute<= 350.00 K, relative_drop=-0.022
+  CC(N)CN | 310.4 | 0.10 | qspr (0.61) | min Tm=310.45 K, absolute<= 350.00 K, relative_drop=0.055
+  OC[C@H](O)[C@H](O)CO | 355.9 | 0.20 | experimental (0.95) | min Tm=355.91 K, absolute<= 350.00 K, relative_drop=0.098
+  CCOCCO | 287.0 | 0.10 | qspr (0.74) | min Tm=286.95 K, absolute<= 350.00 K, relative_drop=-0.452
+  CC(=O)O | 354.4 | 0.10 | experimental (0.95) | min Tm=354.38 K, absolute<= 350.00 K, relative_drop=-0.223
+  CS(=O)(=O)C | 313.0 | 0.10 | qspr (0.40) | min Tm=313.03 K, absolute<= 350.00 K, relative_drop=-0.172
+  CC(O)CO | 310.0 | 0.10 | experimental (0.95) | min Tm=309.98 K, absolute<= 350.00 K, relative_drop=-0.307
+  O=C1CCCN1 | 343.0 | 0.10 | qspr (0.81) | min Tm=343.01 K, absolute<= 350.00 K, relative_drop=-0.058
+  OCC(O)CO | 320.1 | 0.10 | experimental (0.95) | min Tm=320.14 K, absolute<= 350.00 K, relative_drop=-0.099
+  CS(=O)C | 325.7 | 0.10 | qspr (0.50) | min Tm=325.71 K, absolute<= 350.00 K, relative_drop=-0.291
+  OC1=CC=CC=N1 | 327.4 | 0.10 | qspr (0.52) | min Tm=327.37 K, absolute<= 350.00 K, relative_drop=-0.052
 
-Ligand: O=C(O)NC(=O)CNC(=O)c1ccccn1  (score=6.16, ΔlogK=0.08) — DES-compatible: YES
-  partner | min_tm_k | eutectic_ratio | rationale
-  O=C(O)NCC(N)=O | 232.3 | 0.30 | min Tm=232.29 K, absolute<= 350.00 K, relative_drop=0.273
-  c1ccncn1 | 236.6 | 0.30 | min Tm=236.64 K, absolute<= 350.00 K, relative_drop=0.194
-  CC(=O)NC(C)(C) | 241.6 | 0.30 | min Tm=241.64 K, absolute<= 350.00 K, relative_drop=0.189
-  C#CC(=O)NC(C)(C) | 243.1 | 0.30 | min Tm=243.06 K, absolute<= 350.00 K, relative_drop=0.205
-  c1ccccc1N | 246.8 | 0.20 | min Tm=246.78 K, absolute<= 350.00 K, relative_drop=0.178
-  c1ccnc2c(c1)ccc2 | 257.9 | 0.40 | min Tm=257.91 K, absolute<= 350.00 K, relative_drop=0.193
-  OC[C@H](O)[C@H](O)CO | 263.8 | 0.30 | min Tm=263.79 K, absolute<= 350.00 K, relative_drop=0.195
-  C[N+](C)(C)CCO.[Cl-] | 274.4 | 0.20 | min Tm=274.40 K, absolute<= 350.00 K, relative_drop=0.128
-  OCCO | 235.2 | 0.20 | min Tm=235.22 K, absolute<= 350.00 K, relative_drop=0.178
-  OC1=CC=CC=N1 | 266.6 | 0.20 | min Tm=266.60 K, absolute<= 350.00 K, relative_drop=0.121
-  O=C1NC(=O)NC1 | 279.9 | 0.20 | min Tm=279.89 K, absolute<= 350.00 K, relative_drop=0.104
-  C[N+](C)(C)C.[Cl-] | 276.8 | 0.10 | min Tm=276.84 K, absolute<= 350.00 K, relative_drop=0.058
-  CN | 265.4 | 0.10 | min Tm=265.37 K, absolute<= 350.00 K, relative_drop=0.001
+Ligand: CC(CCO)C[C@H](N)C(=O)NCC(=O)O  (score=6.09, ΔlogK=0.08) — DES-compatible: YES
+  partner | min_tm_k | eutectic_ratio | tm_src | rationale
+  NC[C@@H](O)[C@@H](O)CCO | 335.4 | 0.20 | qspr (0.74) | min Tm=335.43 K, absolute<= 350.00 K, relative_drop=0.127
+  OCCC[C@@H](O)[C@@H](O)CO | 314.8 | 0.20 | qspr (0.81) | min Tm=314.80 K, absolute<= 350.00 K, relative_drop=0.127
+  NCC[C@@H](O)[C@@H](O)CO | 335.8 | 0.20 | qspr (0.74) | min Tm=335.83 K, absolute<= 350.00 K, relative_drop=0.125
+  OCC[C@@H](O)[C@@H](O)CCO | 317.9 | 0.20 | qspr (0.77) | min Tm=317.94 K, absolute<= 350.00 K, relative_drop=0.125
+  NC[C@@H](O)[C@@H](O)CO | 330.9 | 0.30 | qspr (0.70) | min Tm=330.89 K, absolute<= 350.00 K, relative_drop=0.164
+  OC[C@H](O)[C@H](O)CO | 330.6 | 0.30 | experimental (0.95) | min Tm=330.61 K, absolute<= 350.00 K, relative_drop=0.162
+  O=C(O)NCC(=O) | 308.7 | 0.20 | qspr (0.55) | min Tm=308.74 K, absolute<= 350.00 K, relative_drop=0.163
+  NC[C@@H](N)[C@@H](O)CO | 350.1 | 0.30 | qspr (0.57) | min Tm=350.06 K, absolute<= 350.00 K, relative_drop=0.192
+  CC(=O)NCC1C=CC(=O)NC1 | 368.8 | 0.30 | qspr (0.66) | min Tm=368.82 K, absolute<= 350.00 K, relative_drop=0.144
+  OCC(O)CO | 276.5 | 0.10 | experimental (0.95) | min Tm=276.53 K, absolute<= 350.00 K, relative_drop=0.050
+  CC(=O)N[CH3] | 325.9 | 0.10 | qspr (0.53) | min Tm=325.88 K, absolute<= 350.00 K, relative_drop=-0.076
+  OCCO | 279.6 | 0.10 | experimental (0.95) | min Tm=279.59 K, absolute<= 350.00 K, relative_drop=-0.073
+  C[N+](C)(C)C.[Cl-] | 397.4 | 0.50 | experimental (0.95) | min Tm=397.37 K, absolute<= 350.00 K, relative_drop=0.107
+  CC(=O)NCCO | 327.7 | 0.20 | qspr (0.64) | min Tm=327.66 K, absolute<= 350.00 K, relative_drop=0.082
+  CS(=O)(=O)C | 252.0 | 0.10 | qspr (0.40) | min Tm=251.99 K, absolute<= 350.00 K, relative_drop=0.056
+  CS(=O)C | 305.4 | 0.10 | qspr (0.50) | min Tm=305.40 K, absolute<= 350.00 K, relative_drop=-0.211
+  CCOCC | 297.2 | 0.10 | qspr (0.78) | min Tm=297.21 K, absolute<= 350.00 K, relative_drop=-0.902
 
-Ligand: O=C(O)CNCC(=O)NC(=O)O  (score=6.10, ΔlogK=0.08) — DES-compatible: YES
-  partner | min_tm_k | eutectic_ratio | rationale
-  CC(C)(C)C(=O)N[C@H](C)C(=O)O | 200.7 | 0.40 | min Tm=200.72 K, absolute<= 350.00 K, relative_drop=0.407
-  CC(=O)N[C@H](C)C(=O)O | 212.4 | 0.30 | min Tm=212.40 K, absolute<= 350.00 K, relative_drop=0.336
-  CC(=O)N[C@H](C)C(=O)OC(C)(C) | 243.2 | 0.30 | min Tm=243.17 K, absolute<= 350.00 K, relative_drop=0.278
-  CC(=O)N[C@H](C)CO | 249.2 | 0.20 | min Tm=249.17 K, absolute<= 350.00 K, relative_drop=0.203
-  CC(=O)N[C@H](C)C(=O)OC(C)(C)CC | 250.3 | 0.30 | min Tm=250.26 K, absolute<= 350.00 K, relative_drop=0.282
-  CC(=O)N[C@H](C)C(=O)OC(C) | 251.0 | 0.30 | min Tm=250.96 K, absolute<= 350.00 K, relative_drop=0.241
-  CC(=O)N[C@H](C)C(=O)OC(C)(C)C | 253.0 | 0.30 | min Tm=252.99 K, absolute<= 350.00 K, relative_drop=0.262
-  CC(=O)N[C@H](C)C(=O)OC(C)(C)CCC | 253.7 | 0.30 | min Tm=253.70 K, absolute<= 350.00 K, relative_drop=0.285
-  CC(=O)N[C@H](C)C(=O)OC(C)(C)CCCC | 258.1 | 0.30 | min Tm=258.06 K, absolute<= 350.00 K, relative_drop=0.273
-  CC(=O)N[C@H](C)CN | 258.4 | 0.20 | min Tm=258.37 K, absolute<= 350.00 K, relative_drop=0.175
-  OC[C@H](O)[C@H](O)CO | 258.8 | 0.30 | min Tm=258.82 K, absolute<= 350.00 K, relative_drop=0.210
-  CC(=O)N[C@H](C)C(=O)CN | 261.0 | 0.20 | min Tm=261.02 K, absolute<= 350.00 K, relative_drop=0.209
-  CC(=O)N[C@H](C)C(=O)OC(C)(C)CCCCC | 262.3 | 0.40 | min Tm=262.30 K, absolute<= 350.00 K, relative_drop=0.261
-  CC(=O)N[C@H](C)C(=O)OC(C)(C)CCCCCC | 263.0 | 0.40 | min Tm=262.96 K, absolute<= 350.00 K, relative_drop=0.259
-  CC(=O)N[C@H](C)C(=O)OC | 267.1 | 0.20 | min Tm=267.08 K, absolute<= 350.00 K, relative_drop=0.178
-  CC(C)(C)C(=O)N[C@H](C)CO | 275.5 | 0.40 | min Tm=275.52 K, absolute<= 350.00 K, relative_drop=0.167
-  CC(=O)N[C@H](C)C(=O)OC(C)(C)CCCCCCC | 275.8 | 0.40 | min Tm=275.83 K, absolute<= 350.00 K, relative_drop=0.223
-  CC(=O)N[C@H](C)C(=O)OC(C)(C)CCCCCCCC | 293.6 | 0.50 | min Tm=293.64 K, absolute<= 350.00 K, relative_drop=0.172
-  OCCCO | 242.7 | 0.20 | min Tm=242.73 K, absolute<= 350.00 K, relative_drop=0.169
-  OCCO | 249.9 | 0.30 | min Tm=249.93 K, absolute<= 350.00 K, relative_drop=0.126
-  CC(=O)NCCO | 251.0 | 0.20 | min Tm=251.01 K, absolute<= 350.00 K, relative_drop=0.182
-  OC1=CC=CC=N1 | 269.8 | 0.20 | min Tm=269.76 K, absolute<= 350.00 K, relative_drop=0.110
-  C[N+](C)(C)C.[Cl-] | 279.2 | 0.10 | min Tm=279.22 K, absolute<= 350.00 K, relative_drop=0.050
-  C[N+](C)(C)CCO.[Cl-] | 288.1 | 0.10 | min Tm=288.12 K, absolute<= 350.00 K, relative_drop=0.085
-  CS(=O)C | 255.6 | 0.10 | min Tm=255.63 K, absolute<= 350.00 K, relative_drop=0.072
-  CN | 257.6 | 0.10 | min Tm=257.61 K, absolute<= 350.00 K, relative_drop=0.030
+Ligand: CC(CO)CC[C@H](N)C(=O)NCC(=O)O  (score=6.09, ΔlogK=0.08) — DES-compatible: YES
+  partner | min_tm_k | eutectic_ratio | tm_src | rationale
+  NC[C@@H](N)[C@@H](O)CO | 349.6 | 0.30 | qspr (0.57) | min Tm=349.58 K, absolute<= 350.00 K, relative_drop=0.193
+  NC[C@@H](O)[C@@H](O)CCO | 335.2 | 0.20 | qspr (0.74) | min Tm=335.16 K, absolute<= 350.00 K, relative_drop=0.128
+  NC(=O)N | 326.7 | 0.20 | experimental (0.95) | min Tm=326.74 K, absolute<= 350.00 K, relative_drop=0.195
+  NCC[C@@H](O)[C@@H](O)CO | 334.3 | 0.20 | qspr (0.74) | min Tm=334.26 K, absolute<= 350.00 K, relative_drop=0.130
+  [C@H](N)([CH3])CO | 312.1 | 0.20 | qspr (0.40) | min Tm=312.11 K, absolute<= 350.00 K, relative_drop=0.122
+  OC[C@H](O)[C@H](O)CO | 331.5 | 0.30 | experimental (0.95) | min Tm=331.46 K, absolute<= 350.00 K, relative_drop=0.160
+  [C@H](N)([CH3])CC(=O)N | 330.5 | 0.20 | qspr (0.42) | min Tm=330.53 K, absolute<= 350.00 K, relative_drop=0.115
+  [C@@H](N)([CH3])CC(=O)O | 347.8 | 0.50 | qspr (0.53) | min Tm=347.78 K, absolute<= 350.00 K, relative_drop=0.219
+  CC(=O)N | 334.4 | 0.10 | experimental (0.95) | min Tm=334.43 K, absolute<= 350.00 K, relative_drop=0.055
+  NC(=O)NCC(=O)[NH2] | 382.4 | 0.40 | qspr (0.60) | min Tm=382.44 K, absolute<= 350.00 K, relative_drop=0.141
+  OCC(O)CO | 274.9 | 0.10 | experimental (0.95) | min Tm=274.91 K, absolute<= 350.00 K, relative_drop=0.056
+  CC(=O)NCCO | 328.0 | 0.20 | qspr (0.64) | min Tm=327.99 K, absolute<= 350.00 K, relative_drop=0.082
+  OCCO | 277.9 | 0.10 | experimental (0.95) | min Tm=277.94 K, absolute<= 350.00 K, relative_drop=-0.067
+  O=C1CCCN1 | 356.4 | 0.10 | qspr (0.81) | min Tm=356.43 K, absolute<= 350.00 K, relative_drop=-0.100
+  O=C1NC(=O)NC1 | 377.3 | 0.30 | qspr (0.40) | min Tm=377.29 K, absolute<= 350.00 K, relative_drop=0.153
+  CS(=O)(=O)C | 251.1 | 0.10 | qspr (0.40) | min Tm=251.08 K, absolute<= 350.00 K, relative_drop=0.060
+  CCOCC | 286.0 | 0.10 | qspr (0.78) | min Tm=286.01 K, absolute<= 350.00 K, relative_drop=-0.830
+  CS(=O)C | 306.8 | 0.10 | qspr (0.50) | min Tm=306.79 K, absolute<= 350.00 K, relative_drop=-0.216
+  OC1=CC=CC=N1 | 319.7 | 0.10 | qspr (0.52) | min Tm=319.68 K, absolute<= 350.00 K, relative_drop=-0.028
 
-Ligand: NC(=O)NC(CNC=O)C(=O)O  (score=6.09, ΔlogK=0.08) — DES-compatible: YES
-  partner | min_tm_k | eutectic_ratio | rationale
-  CN[C@H](C)C(=O)NCC(=O)[NH2] | 214.5 | 0.40 | min Tm=214.55 K, absolute<= 350.00 K, relative_drop=0.374
-  CC(=O)N[C@H](C)C(=O)O | 222.2 | 0.40 | min Tm=222.24 K, absolute<= 350.00 K, relative_drop=0.306
-  CC(=O)N[C@H](C)CO | 228.7 | 0.30 | min Tm=228.66 K, absolute<= 350.00 K, relative_drop=0.269
-  [C@H](N[C@@H](C)C(=O)O)C(=O)O | 255.9 | 0.50 | min Tm=255.89 K, absolute<= 350.00 K, relative_drop=0.232
-  OC[C@H](O)[C@H](O)CO | 272.8 | 0.40 | min Tm=272.83 K, absolute<= 350.00 K, relative_drop=0.167
-  C[N+](C)(C)CCO.[Cl-] | 281.7 | 0.20 | min Tm=281.68 K, absolute<= 350.00 K, relative_drop=0.105
-  OCCCO | 252.5 | 0.20 | min Tm=252.49 K, absolute<= 350.00 K, relative_drop=0.135
-  C[N+](C)(C)C.[Cl-] | 276.4 | 0.10 | min Tm=276.36 K, absolute<= 350.00 K, relative_drop=0.060
-  O | 278.7 | 0.10 | min Tm=278.69 K, absolute<= 350.00 K, relative_drop=-0.091
-  OCCO | 257.6 | 0.30 | min Tm=257.61 K, absolute<= 350.00 K, relative_drop=0.099
-  CN | 265.2 | 0.10 | min Tm=265.20 K, absolute<= 350.00 K, relative_drop=0.001
-  O=C1CCCN1 | 275.1 | 0.10 | min Tm=275.12 K, absolute<= 350.00 K, relative_drop=0.074
-  O=C1NC(=O)NC1 | 291.3 | 0.10 | min Tm=291.29 K, absolute<= 350.00 K, relative_drop=0.067
+Ligand: CC(CO)C[C@H](N)C(=O)NCC(=O)O  (score=6.08, ΔlogK=0.08) — DES-compatible: YES
+  partner | min_tm_k | eutectic_ratio | tm_src | rationale
+  OCCC[C@@H](O)[C@@H](O)CO | 315.5 | 0.20 | qspr (0.81) | min Tm=315.52 K, absolute<= 350.00 K, relative_drop=0.125
+  OCC[C@@H](O)[C@@H](O)CCO | 317.9 | 0.20 | qspr (0.77) | min Tm=317.91 K, absolute<= 350.00 K, relative_drop=0.125
+  CC(O)C(O)CO | 322.4 | 0.20 | qspr (0.69) | min Tm=322.44 K, absolute<= 350.00 K, relative_drop=0.127
+  NC[C@@H](O)[C@@H](O)CCO | 334.9 | 0.20 | qspr (0.74) | min Tm=334.93 K, absolute<= 350.00 K, relative_drop=0.129
+  NC[C@@H](N)[C@@H](O)CO | 348.7 | 0.30 | qspr (0.57) | min Tm=348.65 K, absolute<= 350.00 K, relative_drop=0.195
+  NCC[C@@H](O)[C@@H](O)CO | 334.2 | 0.20 | qspr (0.74) | min Tm=334.16 K, absolute<= 350.00 K, relative_drop=0.130
+  O=C(O)NCC(N)CO | 304.3 | 0.30 | qspr (0.40) | min Tm=304.25 K, absolute<= 350.00 K, relative_drop=0.326
+  NC(=O)NCC(O)CO | 327.0 | 0.20 | qspr (0.72) | min Tm=327.00 K, absolute<= 350.00 K, relative_drop=0.176
+  O=C(O)CC(C)CO | 300.2 | 0.20 | qspr (0.66) | min Tm=300.18 K, absolute<= 350.00 K, relative_drop=0.193
+  OC[C@H](O)[C@H](O)CO | 336.9 | 0.20 | experimental (0.95) | min Tm=336.90 K, absolute<= 350.00 K, relative_drop=0.146
+  NC(C)(C)C(=O)CC(O) | 266.2 | 0.30 | qspr (0.60) | min Tm=266.16 K, absolute<= 350.00 K, relative_drop=0.304
+  O=C(O)NCC(O)CO | 297.2 | 0.30 | qspr (0.43) | min Tm=297.18 K, absolute<= 350.00 K, relative_drop=0.289
+  CC(O)COC(=O)NCC(O) | 247.0 | 0.30 | qspr (0.69) | min Tm=247.03 K, absolute<= 350.00 K, relative_drop=0.334
+  CC(O)COC(=O)N | 245.7 | 0.30 | qspr (0.62) | min Tm=245.66 K, absolute<= 350.00 K, relative_drop=0.276
+  NC(=O)C(C)(C)CO | 317.7 | 0.30 | qspr (0.49) | min Tm=317.69 K, absolute<= 350.00 K, relative_drop=0.161
+  NC(C)(C)C(=O)N | 310.7 | 0.50 | qspr (0.43) | min Tm=310.70 K, absolute<= 350.00 K, relative_drop=0.196
+  NC(C)(C)C(=O)OC(C)(C)C | 170.7 | 0.50 | qspr (0.70) | min Tm=170.73 K, absolute<= 350.00 K, relative_drop=0.508
+  NC(C)(C)C(=O)O | 239.3 | 0.50 | qspr (0.61) | min Tm=239.34 K, absolute<= 350.00 K, relative_drop=0.470
+  O=C(O)C(C)(C)CO | 231.0 | 0.40 | qspr (0.55) | min Tm=230.96 K, absolute<= 350.00 K, relative_drop=0.378
+  O=C(O)C1CCCCC1 | 305.6 | 0.10 | experimental (0.95) | min Tm=305.62 K, absolute<= 350.00 K, relative_drop=-0.021
+  C(C)(C)OC(=O)O | 411.6 | 0.10 | qspr (0.61) | min Tm=411.60 K, absolute<= 350.00 K, relative_drop=-0.109
+  CC(O)C(=O)N | 307.9 | 0.10 | qspr (0.64) | min Tm=307.93 K, absolute<= 350.00 K, relative_drop=0.081
+  CC(O)CO | 280.7 | 0.10 | experimental (0.95) | min Tm=280.71 K, absolute<= 350.00 K, relative_drop=-0.184
+  OCC(O)CO | 291.9 | 0.10 | experimental (0.95) | min Tm=291.88 K, absolute<= 350.00 K, relative_drop=-0.002
+  C(C)(C)NC(=O)C(C)(C)C | 351.5 | 0.10 | qspr (0.58) | min Tm=351.48 K, absolute<= 350.00 K, relative_drop=-0.106
+  NC(=O)NCC(N)C(=O)O | 365.6 | 0.50 | qspr (0.48) | min Tm=365.55 K, absolute<= 350.00 K, relative_drop=0.191
+  CC(=O)[CH](N)C(=O)O | 363.0 | 0.30 | qspr (0.75) | min Tm=362.95 K, absolute<= 350.00 K, relative_drop=0.176
+  OCCO | 298.7 | 0.10 | experimental (0.95) | min Tm=298.69 K, absolute<= 350.00 K, relative_drop=-0.146
+  CC(=O)NCCO | 327.0 | 0.20 | qspr (0.64) | min Tm=326.96 K, absolute<= 350.00 K, relative_drop=0.084
+  CCOCC | 299.4 | 0.10 | qspr (0.78) | min Tm=299.45 K, absolute<= 350.00 K, relative_drop=-0.916
+  OCCCO | 324.8 | 0.10 | qspr (0.61) | min Tm=324.84 K, absolute<= 350.00 K, relative_drop=-0.107
+  CS(=O)C | 323.7 | 0.10 | qspr (0.50) | min Tm=323.74 K, absolute<= 350.00 K, relative_drop=-0.283
+  COCCO | 295.5 | 0.10 | qspr (0.79) | min Tm=295.46 K, absolute<= 350.00 K, relative_drop=-0.444
+  CS(=O)(=O)C | 263.2 | 0.10 | qspr (0.40) | min Tm=263.21 K, absolute<= 350.00 K, relative_drop=0.014
 
 Warnings:
+- [GROUNDING] Coordination contradicted for Nc1ccc(S(=O)(=O)Nc2nccs2)cc1: Claimed denticity 1 but structure has 6 coordinating site(s)
+- [GROUNDING] Coordination contradicted for CC(C(=O)N)C(=O)N: Claimed denticity 2 but structure has 4 coordinating site(s)
+- [GROUNDING] Coordination contradicted for C1OC(CO)COC1O: Claimed denticity 6 but structure has 3 coordinating site(s)
+- [GROUNDING] Coordination contradicted for N[C@@H](C(=O)NCC(=O)O)[C@H]1N=C(N)NC(=O)c2ccccc21: Claimed denticity 3 but structure has 5 coordinating site(s)
 - Bridge filter found 0 ligands above min_delta_log_k=0.3; using top-5 unconditionally.
+- [GROUNDING] Coordination contradicted for C1=NC=C(C(=CC1)N)N: Claimed denticity 3 but structure has 1 coordinating site(s)
+- [GROUNDING] Coordination contradicted for N[C@@H](CC(C)CO)C(=O)NCC(=O)O: Claimed donor 'P' not present in structure
+- [GROUNDING] Coordination contradicted for N[C@@H](CC(C)CO)C(=O)NCC(=O)O: Claimed donor 'P' not present in structure
+- [GROUNDING] Coordination contradicted for CC(C)NCC(=O)O: Claimed donor 'P' not present in structure
+- [GROUNDING] Coordination contradicted for O=C(C(F)(F)F)NCC(=O)N: Claimed denticity 3 but structure has 7 coordinating site(s)
+- [GROUNDING] Coordination contradicted for Nc1ccc(S(=O)(=O)Nc2nccs2)cc1: Claimed denticity 2 but structure has 6 coordinating site(s)
+- [GROUNDING] Coordination contradicted for O=C(O)N[C@@H](CC(=O)O)C(=O)O: Claimed denticity 2 but structure has 4 coordinating site(s)
+- [GROUNDING] Coordination contradicted for CC(C)NCC(=O)O: Claimed donor 'P' not present in structure
+- [GROUNDING] Coordination contradicted for O=C(C(F)(F)F)NCC(=O)N: Claimed denticity 3 but structure has 7 coordinating site(s)
+- [GROUNDING] Coordination contradicted for Nc1ccc(S(=O)(=O)Nc2nccs2)cc1: Claimed denticity 2 but structure has 6 coordinating site(s)
+- [GROUNDING] Coordination contradicted for O=C(O)N[C@@H](CC(=O)O)C(=O)O: Claimed denticity 2 but structure has 4 coordinating site(s)
+- [GROUNDING] Coordination contradicted for CC(C)NCC(=O)O: Claimed donor 'P' not present in structure
+- [GROUNDING] Coordination contradicted for O=C(C(F)(F)F)NCC(=O)N: Claimed denticity 3 but structure has 7 coordinating site(s)
+- [GROUNDING] Coordination contradicted for Nc1ccc(S(=S)(=O)Nc2nccs2)cc1: Claimed denticity 2 but structure has 7 coordinating site(s)
+- [GROUNDING] Coordination contradicted for O=C(O)N[C@@H](CC(=O)O)C(=O)O: Claimed denticity 2 but structure has 4 coordinating site(s)
 - Bridge filter found 0 ligands above min_delta_log_k=0.3; using top-5 unconditionally.
 summary:
 - command: selectivity-des

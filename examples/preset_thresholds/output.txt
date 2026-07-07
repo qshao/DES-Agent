@@ -20,6 +20,12 @@ acetamide (CC(=O)N) | 354.06 | experimental | 0.95
 acetic acid (CC(=O)O) | 289.85 | experimental | 0.95
 water (O) | 255.36 | heuristic | 0.35
 
+Grounding verdicts:
+- ✓ verified | DES plausibility of 'CCO' + 'OCCO'
+- ✓ verified | DES plausibility of 'CCO' + 'OCC(O)CO'
+- ✓ verified | DES plausibility of 'CCO' + 'CC(=O)N'
+- ✓ verified | DES plausibility of 'CCO' + 'CC(=O)O'
+
 Run memory:
 - Chemical pattern memory favored productive families: diol, polyol.
 - Chemical pattern memory penalized caution families: amide, carboxylic acid, alcohol.
@@ -51,6 +57,12 @@ ethylene glycol (OCCO) | 260.60 | experimental | 0.95
 acetic acid (CC(=O)O) | 289.85 | experimental | 0.95
 glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
 water (O) | 255.36 | heuristic | 0.35
+
+Grounding verdicts:
+- ✓ verified | DES plausibility of 'CCO' + 'CC(=O)N'
+- ✓ verified | DES plausibility of 'CCO' + 'OCCO'
+- ✓ verified | DES plausibility of 'CCO' + 'CC(=O)O'
+- ✓ verified | DES plausibility of 'CCO' + 'OCC(O)CO'
 
 Run memory:
 - Chemical pattern memory favored productive families: amide, diol, carboxylic acid.

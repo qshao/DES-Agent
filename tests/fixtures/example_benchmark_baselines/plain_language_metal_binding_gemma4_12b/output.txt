@@ -8,11 +8,9 @@ Raw Gemma router output:
   "needs_clarification": false,
   "clarifying_questions": [],
   "job": {
-    "model": "Gemma 4-12B",
-    "provider": "Ollama",
     "metal_ion": "Cu2+",
     "ligand_smiles": "NCCN",
-    "use_bundled_model": true
+    "model": "bundled local stability model"
   }
 }
 ```
@@ -22,4 +20,4 @@ Normalized metal-binding job:
 
 Metal-binding report:
 metal_ion | ligand_smiles | value | units | model | source
-Cu2+ | NCCN | 9.89 | log K | stabilityconstant-ml-models | artifact
+Cu2+ | NCCN | 10.77 | log K | stabilityconstant-ml-models | artifact

@@ -5,22 +5,28 @@ Top candidate: acetic acid (CC(=O)O) — min Tm 232.0 K (Δ14.4%) | high confide
 
 compound | is_des | min_tm_k | eutectic_x_b | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
 acetic acid (CC(=O)O) | True | 232.02 | 0.30 | source=heuristic; id=rule-based-family-library | trust=0.85 | mean=230.30 K | spread=229.55-231.34 K | std=0.76 K | high confidence | min Tm=232.02 K, absolute<= 260.00 K, relative_drop=0.144 | ensemble_folds=10 ens_std=9.64 K
-ethylene glycol (OCCO) | True | 210.59 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.73 | mean=207.56 K | spread=204.18-211.78 K | std=3.16 K | moderate-high confidence | min Tm=210.59 K, absolute<= 260.00 K, relative_drop=0.192 | ensemble_folds=10 ens_std=9.85 K
-water (O) | True | 222.40 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.72 | mean=228.57 K | spread=227.52-230.63 K | std=1.45 K | high confidence | min Tm=222.40 K, absolute<= 260.00 K, relative_drop=0.129 | ensemble_folds=10 ens_std=5.73 K
 acetamide (CC(=O)N) | True | 239.60 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.71 | mean=225.70 K | spread=222.86-230.93 K | std=3.70 K | moderate-high confidence | min Tm=239.60 K, absolute<= 260.00 K, relative_drop=0.116 | ensemble_folds=10 ens_std=3.41 K
+ethylene glycol (OCCO) | True | 210.59 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.73 | mean=207.56 K | spread=204.18-211.78 K | std=3.16 K | moderate-high confidence | min Tm=210.59 K, absolute<= 260.00 K, relative_drop=0.192 | ensemble_folds=10 ens_std=9.85 K
 glycerol (OCC(O)CO) | True | 229.74 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.70 | mean=231.17 K | spread=226.22-235.56 K | std=3.83 K | moderate-high confidence | min Tm=229.74 K, absolute<= 260.00 K, relative_drop=0.153 | ensemble_folds=10 ens_std=6.70 K
+water (O) | True | 222.40 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.72 | mean=228.57 K | spread=227.52-230.63 K | std=1.45 K | high confidence | min Tm=222.40 K, absolute<= 260.00 K, relative_drop=0.129 | ensemble_folds=10 ens_std=5.73 K
 
 Melting-point inputs:
 component | Tm_K | source | confidence
 ethanol (CCO) | 271.19 | heuristic | 0.35
 acetic acid (CC(=O)O) | 289.85 | experimental | 0.95
-ethylene glycol (OCCO) | 260.60 | experimental | 0.95
-water (O) | 255.36 | heuristic | 0.35
 acetamide (CC(=O)N) | 354.06 | experimental | 0.95
+ethylene glycol (OCCO) | 260.60 | experimental | 0.95
 glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
+water (O) | 255.36 | heuristic | 0.35
+
+Grounding verdicts:
+- ✓ verified | DES plausibility of 'CCO' + 'CC(=O)O'
+- ✓ verified | DES plausibility of 'CCO' + 'CC(=O)N'
+- ✓ verified | DES plausibility of 'CCO' + 'OCCO'
+- ✓ verified | DES plausibility of 'CCO' + 'OCC(O)CO'
 
 Run memory:
-- Chemical pattern memory favored productive families: carboxylic acid, diol, alcohol.
+- Chemical pattern memory favored productive families: carboxylic acid, amide, diol.
 summary:
 - command: des
 - workflow: des

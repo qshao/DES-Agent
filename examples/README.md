@@ -49,7 +49,6 @@ Chemical pattern memory shows up most clearly in `des_run_memory_feedback/` and 
 - [`des_run_memory_feedback/`](./des_run_memory_feedback) for DES run memory
 - [`betaine_des/`](./betaine_des) for a betaine DES search
 - [`betaine_des_gemma4_12b/`](./betaine_des_gemma4_12b) for the betaine search with Ollama Gemma 4-12B
-- Note: this folder stays as the frozen baseline capture; the refreshed chemistry-lesson-summary examples are Gemma 4-12B and lidocaine
 - [`ni2_co2_selectivity/`](./ni2_co2_selectivity) for the Ni2+/Co2+ selectivity-DES example
 - [`metal_selectivity_standalone/`](./metal_selectivity_standalone) for standalone metal selectivity
 - [`preset_thresholds/`](./preset_thresholds) for named DES presets
@@ -84,7 +83,11 @@ The same folders also power the pytest-based example benchmark suite in [`tests/
 > reproduce byte-for-byte. The QSPR layer is not exercised in these captures because
 > `qspr_model.pt` is not committed and its training is GPU-stochastic; it is documented
 > and demonstrated separately. The **LLM-backed** captures (e.g. `gemma4_12b`,
-> `ni_co_selectivity_des*`) predate this feature and were not regenerated.
+> `ni_co_selectivity_des*`) were regenerated against a live Ollama instance (gemma4:12b,
+> nemotron-3-nano, qwen3.6) — see [`docs/example-run-report-2026-07-06.md`](/home/qshao/DES-Agent/docs/example-run-report-2026-07-06.md)
+> for the full re-run report, timings, and findings. LLM-backed outputs are not
+> byte-for-byte reproducible run-to-run (candidate brainstorming and reviews depend on
+> live, temperature>0 model sampling), unlike the deterministic examples above.
 
 The LLM-backed examples also include a model-specific `llm.*.yaml` file. The shared demo entrypoint covers the LLM-enabled DES runs, including the two-stage brainstorm, proposal-diversity controls, chemistry advisor notes, chemical-pattern memory, and the chemistry lesson summary block that now appears in the report. DES runs can also write into a standard flat run directory with `--output-dir runs/run_001`, and run memory can be saved, labeled, and reused to bias later ranking. The run directory (also called a *history directory*) stores `report.txt`, `run.json`, `run.csv`, and `run.manifest.json`. Any chemistry advisor warnings or next-step suggestions are included in the report. Both the chemistry grounding layer and reality-anchored partner proposals are LLM-dependent — they activate automatically whenever `--llm-config` is set, with no additional flags needed.
 

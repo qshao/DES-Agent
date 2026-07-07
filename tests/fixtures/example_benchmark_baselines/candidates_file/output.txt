@@ -1,25 +1,33 @@
 === DES Search: ethanol (CCO) ===
 Screened 6 candidate(s). 6 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
-Top candidate: ethylene glycol (OCCO) — min Tm 201.7 K (Δ22.6%) | high confidence
+Top candidate: acetamide (CC(N)=O) — min Tm 239.5 K (Δ11.7%) | high confidence
 =================================
 
 compound | is_des | min_tm_k | eutectic_x_b | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
-ethylene glycol (OCCO) | True | 201.75 | 0.60 | source=file | trust=0.82 | mean=205.11 K | spread=203.51-206.61 K | std=1.26 K | high confidence | min Tm=201.75 K, absolute<= 260.00 K, relative_drop=0.226
 acetamide (CC(N)=O) | True | 239.52 | 0.50 | source=file | trust=0.81 | mean=240.81 K | spread=239.70-242.76 K | std=1.38 K | high confidence | min Tm=239.52 K, absolute<= 260.00 K, relative_drop=0.117
-glycerol (OCC(O)CO) | True | 221.20 | 0.60 | source=file | trust=0.73 | mean=218.16 K | spread=215.21-222.28 K | std=3.01 K | moderate-high confidence | min Tm=221.20 K, absolute<= 260.00 K, relative_drop=0.184
+ethylene glycol (OCCO) | True | 201.75 | 0.60 | source=file | trust=0.82 | mean=205.11 K | spread=203.51-206.61 K | std=1.26 K | high confidence | min Tm=201.75 K, absolute<= 260.00 K, relative_drop=0.226
 dimethyl sulfoxide (CS(C)=O) | True | 231.40 | 0.30 | source=file | trust=0.70 | mean=234.81 K | spread=233.33-237.40 K | std=1.84 K | high confidence | min Tm=231.40 K, absolute<= 260.00 K, relative_drop=0.147
+glycerol (OCC(O)CO) | True | 221.20 | 0.60 | source=file | trust=0.73 | mean=218.16 K | spread=215.21-222.28 K | std=3.01 K | moderate-high confidence | min Tm=221.20 K, absolute<= 260.00 K, relative_drop=0.184
 CN(C)C=O | True | 207.73 | 0.40 | source=file | trust=0.60 | mean=208.45 K | spread=204.47-214.09 K | std=4.10 K | moderate confidence — consider experimental verification | min Tm=207.73 K, absolute<= 260.00 K, relative_drop=0.234
 O=C1CCCN1 | True | 220.63 | 0.30 | source=file | trust=0.58 | mean=216.12 K | spread=210.75-222.51 K | std=4.85 K | moderate confidence — consider experimental verification | min Tm=220.63 K, absolute<= 260.00 K, relative_drop=0.186
 
 Melting-point inputs:
 component | Tm_K | source | confidence
 ethanol (CCO) | 271.19 | heuristic | 0.35
-ethylene glycol (OCCO) | 260.60 | experimental | 0.95
 acetamide (CC(N)=O) | 354.06 | experimental | 0.95
-glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
+ethylene glycol (OCCO) | 260.60 | experimental | 0.95
 dimethyl sulfoxide (CS(C)=O) | 275.54 | heuristic | 0.35
+glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
 CN(C)C=O | 282.74 | heuristic | 0.35
 O=C1CCCN1 | 296.98 | heuristic | 0.35
+
+Grounding verdicts:
+- ✓ verified | DES plausibility of 'CCO' + 'CC(N)=O'
+- ✓ verified | DES plausibility of 'CCO' + 'OCCO'
+- ✓ verified | DES plausibility of 'CCO' + 'CS(C)=O'
+- ✓ verified | DES plausibility of 'CCO' + 'OCC(O)CO'
+- ✓ verified | DES plausibility of 'CCO' + 'CN(C)C=O'
+- ✓ verified | DES plausibility of 'CCO' + 'O=C1CCCN1'
 
 Run memory:
 - Chemical pattern memory favored productive families: unknown.

@@ -1,103 +1,206 @@
 === DES Search: betaine (C[N+](C)(C)CC(=O)[O-]) ===
-Screened 10 candidate(s). 10 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
-Top candidate: O[CH2]CC(=O)O — min Tm 186.9 K (Δ37.6%) | high confidence
+Screened 18 candidate(s). 9 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
+Top candidate: OCC(O)CC — min Tm 320.9 K (Δ5.2%) | high confidence
 ===================================================
 
-compound | is_des | min_tm_k | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
-O[CH2]CC(=O)O | True | 186.88 | source=llm; id=brainstorm | trust=0.80 | mean=186.88 K | spread=186.88-186.88 K | std=0.00 K | high confidence | min Tm=186.88 K, absolute<= 340.00 K, relative_drop=0.376
-NC(=O)S(=O)(=O)N | True | 204.13 | source=llm; id=brainstorm | trust=0.80 | mean=204.13 K | spread=204.13-204.13 K | std=0.00 K | high confidence | min Tm=204.13 K, absolute<= 340.00 K, relative_drop=0.339
-O[CH2]OCC(=O)O | True | 210.70 | source=llm; id=brainstorm | trust=0.80 | mean=210.70 K | spread=210.70-210.70 K | std=0.00 K | high confidence | min Tm=210.70 K, absolute<= 340.00 K, relative_drop=0.318
-NC(=O)S(=O)(=O)C | True | 213.77 | source=llm; id=brainstorm | trust=0.80 | mean=213.77 K | spread=213.77-213.77 K | std=0.00 K | high confidence | min Tm=213.77 K, absolute<= 340.00 K, relative_drop=0.304
-O[CH2]OCC(=O)N | True | 221.30 | source=llm; id=brainstorm | trust=0.80 | mean=221.30 K | spread=221.30-221.30 K | std=0.00 K | high confidence | min Tm=221.30 K, absolute<= 340.00 K, relative_drop=0.284
-O[CH2]CC(=O)N | True | 241.39 | source=llm; id=brainstorm | trust=0.80 | mean=241.39 K | spread=241.39-241.39 K | std=0.00 K | high confidence | min Tm=241.39 K, absolute<= 340.00 K, relative_drop=0.198
-NC(=O)CC | True | 243.44 | source=llm; id=brainstorm | trust=0.80 | mean=243.44 K | spread=243.44-243.44 K | std=0.00 K | high confidence | min Tm=243.44 K, absolute<= 340.00 K, relative_drop=0.149
-NC(=O)OCC(=O)N | True | 244.96 | source=llm; id=brainstorm | trust=0.80 | mean=244.96 K | spread=244.96-244.96 K | std=0.00 K | high confidence | min Tm=244.96 K, absolute<= 340.00 K, relative_drop=0.207
-NC(=O)C(C)C(=O)N | True | 254.58 | source=llm; id=brainstorm | trust=0.80 | mean=254.58 K | spread=254.58-254.58 K | std=0.00 K | high confidence | min Tm=254.58 K, absolute<= 340.00 K, relative_drop=0.176
-NC(=O)CC(=O)N | True | 256.06 | source=llm; id=brainstorm | trust=0.80 | mean=256.06 K | spread=256.06-256.06 K | std=0.00 K | high confidence | min Tm=256.06 K, absolute<= 340.00 K, relative_drop=0.171
+compound | is_des | min_tm_k | eutectic_x_b | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
+OCC(O)CC | True | 320.90 | 0.20 | source=llm; id=brainstorm | trust=0.89 | mean=321.52 K | spread=320.64-321.96 K | std=0.62 K | high confidence | min Tm=320.90 K, absolute<= 340.00 K, relative_drop=0.052
+glycerol (OCC(O)CO) | True | 267.65 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.75 | mean=275.95 K | spread=268.95-279.97 K | std=4.97 K | moderate-high confidence | min Tm=267.65 K, absolute<= 340.00 K, relative_drop=0.081
+O=S(=NN)C | True | 330.00 | 0.30 | source=llm; id=brainstorm | trust=0.76 | mean=330.69 K | spread=327.23-332.61 K | std=2.45 K | moderate-high confidence | min Tm=330.00 K, absolute<= 340.00 K, relative_drop=0.086
+O=C(NC)OC | True | 288.02 | 0.20 | source=llm; id=brainstorm | trust=0.86 | mean=286.16 K | spread=284.70-287.25 K | std=1.07 K | high confidence | min Tm=288.02 K, absolute<= 340.00 K, relative_drop=0.125
+acetamide (CC(=O)N) | True | 335.35 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.96 | mean=336.08 K | spread=335.64-336.30 K | std=0.31 K | high confidence | min Tm=335.35 K, absolute<= 340.00 K, relative_drop=0.053
+CC(=O)NCCO | True | 325.70 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.86 | mean=325.63 K | spread=324.26-327.41 K | std=1.31 K | high confidence | min Tm=325.70 K, absolute<= 340.00 K, relative_drop=0.088
+OCC(O)CC(=O)N | True | 322.46 | 0.40 | source=llm; id=brainstorm | trust=0.73 | mean=324.68 K | spread=318.90-327.87 K | std=4.09 K | moderate-high confidence | min Tm=322.46 K, absolute<= 340.00 K, relative_drop=0.127
+OCCN(C)CC | True | 311.86 | 0.20 | source=llm; id=brainstorm | trust=0.80 | mean=312.96 K | spread=310.64-314.69 K | std=1.70 K | high confidence | min Tm=311.86 K, absolute<= 340.00 K, relative_drop=0.064
+CS(=O)(=O)C | True | 233.41 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.77 | mean=233.97 K | spread=230.79-236.34 K | std=2.34 K | moderate-high confidence | min Tm=233.41 K, absolute<= 340.00 K, relative_drop=0.126
+CCCC(O)CO | False | 258.41 | 0.20 | source=analogue; id=OCC(O)CC | trust=0.85 | mean=261.89 K | spread=259.36-263.25 K | std=1.79 K | high confidence | min Tm=258.41 K, absolute<= 340.00 K, relative_drop=0.032
+CCNC(=O)N | False | 361.35 | 0.30 | source=llm; id=brainstorm | trust=0.91 | mean=363.97 K | spread=363.66-364.37 K | std=0.30 K | high confidence | min Tm=361.35 K, absolute<= 340.00 K, relative_drop=0.076
+NC(=O)CC | False | 344.56 | 0.20 | source=llm; id=brainstorm | trust=0.88 | mean=345.91 K | spread=343.91-347.13 K | std=1.42 K | high confidence | min Tm=344.56 K, absolute<= 340.00 K, relative_drop=0.089
+CCC(O)CCO | False | 253.94 | 0.20 | source=analogue; id=OCC(O)CC | trust=0.82 | mean=257.78 K | spread=254.84-259.28 K | std=2.08 K | moderate-high confidence | min Tm=253.94 K, absolute<= 340.00 K, relative_drop=0.037
+O=CC(=O)N | False | 331.18 | 0.10 | source=llm; id=brainstorm | trust=0.83 | mean=345.57 K | spread=343.41-347.20 K | std=1.59 K | high confidence | min Tm=331.18 K, absolute<= 340.00 K, relative_drop=-0.098
+O=S(=NN)CC | False | 340.46 | 0.20 | source=llm; id=brainstorm | trust=0.87 | mean=341.37 K | spread=340.97-341.97 K | std=0.43 K | high confidence | min Tm=340.46 K, absolute<= 340.00 K, relative_drop=0.034
+O=C(NC)NC | False | 341.91 | 0.30 | source=llm; id=brainstorm | trust=0.79 | mean=340.76 K | spread=335.85-344.99 K | std=3.76 K | moderate-high confidence | min Tm=341.91 K, absolute<= 340.00 K, relative_drop=0.099
+choline chloride (C[N+](C)(C)CCO.[Cl-]) | False | 445.30 | 0.40 | source=heuristic; id=rule-based-family-library | trust=0.89 | mean=450.37 K | spread=448.52-452.43 K | std=1.60 K | high confidence | min Tm=445.30 K, absolute<= 340.00 K, relative_drop=0.213
+CCN(C)C | False | 337.81 | 0.10 | source=llm; id=brainstorm | trust=0.68 | mean=345.08 K | spread=338.63-348.32 K | std=4.56 K | moderate confidence — consider experimental verification | min Tm=337.81 K, absolute<= 340.00 K, relative_drop=-0.821
+
+Physical sanity — non-physical eutectic (predicted Tm above both pure components):
+- O=CC(=O)N: min Tm 331.2 K > min(T1,T2)=301.7 K — treat prediction with caution
+- CCN(C)C: min Tm 337.8 K > min(T1,T2)=185.5 K — treat prediction with caution
+
+Melting-point inputs:
+component | Tm_K | source | confidence
+betaine (C[N+](C)(C)CC(=O)[O-]) | 566.00 | experimental | 0.95
+OCC(O)CC | 338.36 | qspr | 0.59
+glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
+O=S(=NN)C | 360.94 | qspr | 0.40
+O=C(NC)OC | 329.19 | qspr | 0.54
+acetamide (CC(=O)N) | 354.06 | experimental | 0.95
+CC(=O)NCCO | 357.10 | qspr | 0.64
+OCC(O)CC(=O)N | 369.30 | qspr | 0.63
+OCCN(C)CC | 333.18 | qspr | 0.43
+CS(=O)(=O)C | 266.99 | qspr | 0.40
+CCCC(O)CO | 266.85 | qspr | 0.75
+CCNC(=O)N | 391.28 | qspr | 0.60
+NC(=O)CC | 378.20 | qspr | 0.80
+CCC(O)CCO | 263.77 | qspr | 0.66
+O=CC(=O)N | 301.74 | qspr | 0.54
+O=S(=NN)CC | 352.53 | qspr | 0.40
+O=C(NC)NC | 379.40 | experimental | 0.95
+choline chloride (C[N+](C)(C)CCO.[Cl-]) | 578.15 | experimental | 0.95
+CCN(C)C | 185.48 | qspr | 0.40
 
 LLM candidate reviews:
-O | reject | confidence=1.00 | The candidate 'O' is a single oxygen atom and does not represent a valid chemical compound or a relevant derivative of the starting material C[N+](C)(C)CC(=O)[O-]. | Candidate is too simple/incomplete.
-OCCO | reject | confidence=1.00 | The candidate 'OCCO' (ethylene glycol) does not contain the quaternary ammonium group or the specific alkyl chain structure defined in Component A (C[N+](C)(C)CC(=O)[O-]). It is a completely different chemical species. | Structure mismatch with target component.
-OCC(O)CO | reject | confidence=1.00 | The candidate 'OCC(O)CO' (glycerol) does not contain the quaternary ammonium group or the carboxylate functional group present in Component A ('C[N+](C)(C)CC(=O)[O-]'). The chemical structures are fundamentally different. | Candidate lacks essential structural motifs of the target component.
-CC(=O)N | reject | confidence=1.00 | The candidate 'CC(=O)N' (acetamide) does not contain the quaternary ammonium group or the specific alkyl chain structure required by Component A (C[N+](C)(C)CC(=O)[O-]). It is a significantly smaller and structurally different molecule. | Candidate lacks the quaternary nitrogen and carboxylate group.
-CC(=O)O | reject | confidence=1.00 | The candidate 'CC(=O)O' (acetic acid) is a significantly smaller fragment and does not contain the quaternary ammonium group or the specific alkyl chain structure defined in Component A: C[N+](C)(C)CC(=O)[O-]. | Candidate lacks the nitrogen atom and associated substituents.
-CN | reject | confidence=1.00 | The candidate 'CN' (dimethylamine fragment) does not match the structure of Component A 'C[N+](C)(C)CC(=O)[O-]', which represents a quaternary ammonium group with an acetate side chain. | Candidate is too small and lacks the required functional groups.
-C[N+](C)(C)C.[Cl-] | reject | confidence=0.95 | The candidate is a chloride salt of a quaternary ammonium cation (trimethylammonium), whereas the target component A is a carboxylate salt of a quaternary ammonium cation (trimethylammonium acetate). The functional group -CC(=O)[O-] is missing in the candidate. | Mismatch in functional groups: carboxylate vs. chloride.
-C[N+](C)(C)CCO.[Cl-] | reject | confidence=0.95 | The candidate is a salt of ethanolamine (ethanolammonium), whereas the target component A is a carboxylate salt of dimethylamine (dimethylaminopropionate). The functional groups do not match; specifically, the candidate lacks the carboxylate group (-COO-) and contains an alcohol group instead. | Structural mismatch in functional groups; Candidate is a different chemical species
-NC(=O)N | reject | confidence=1.00 | The candidate 'NC(=O)N' (urea) is structurally unrelated to the target component 'C[N+](C)(C)CC(=O)[O-]' (a quaternary ammonium carboxylate). The candidate lacks the alkyl chain, the quaternary nitrogen center, and the specific functional group arrangement of the target. | Candidate does not match chemical scaffold or functionality.
-OC[C@H](O)[C@H](O)CO | reject | confidence=1.00 | The candidate SMILES 'OC[C@H](O)[C@H](O)CO' represents glycerol, which does not contain the quaternary ammonium group or the carboxylate functional group present in Component A (C[N+](C)(C)CC(=O)[O-]). | Structural mismatch with target component.
-OCCCO | reject | confidence=1.00 | The candidate 'OCCCO' (glycerol) does not contain the quaternary ammonium group or the carboxylate functional group present in Component A (C[N+](C)(C)CC(=O)[O-]). It is structurally unrelated to the target component. | Candidate lacks essential functional groups of the parent structure.
-COCCO | reject | confidence=1.00 | The candidate 'COCCO' does not match the chemical structure of Component A (C[N+](C)(C)CC(=O)[O-]). The target component is a quaternary ammonium carboxylate (betaine-like), whereas COCCO represents a simple dihydroxyacetone or similar small organic chain lacking the nitrogen atom and formal charges. | Structure mismatch; Missing quaternary ammonium group
-O=C1CCCN1 | reject | confidence=0.95 | The candidate 'O=C1CCCN1' (1-azetidinone) does not match the chemical structure of Component A 'C[N+](C)(C)CC(=O)[O-]' (a quaternary ammonium carboxylate). The core scaffold and functional groups are entirely different. | Candidate is a cyclic amide, while target is an ionic quaternary ammonium salt.
-O=C1NC(=O)NC1 | reject | confidence=0.98 | The candidate 'O=C1NC(=O)NC1' (urea) does not contain the quaternary ammonium group or the specific alkyl chain structure present in Component A ('C[N+](C)(C)CC(=O)[O-]', which represents a quaternary ammonium carboxylate). | Structure mismatch with target functional groups.
-CS(=O)C | reject | confidence=1.00 | The candidate 'CS(=O)C' (methanesulfinyl methane/dimethyl sulfide sulfoxide derivative) does not share the core structural features of Component A. Component A is a quaternary ammonium salt with a specific alkyl chain and carboxylate group (C[N+](C)(C)CC(=O)[O-]), whereas the candidate lacks the nitrogen atom, the quaternary center, and the carboxylic acid functionality. | Structural mismatch between target scaffold and candidate.
-CS(=O)(=O)C | reject | confidence=1.00 | The candidate 'CS(=O)(=O)C' (methanesulfonate) is structurally unrelated to the target component 'C[N+](C)(C)CC(=O)[O-]' (a quaternary ammonium carboxylate). The candidate lacks the nitrogen atom and the alkyl chain structure of the target. | Candidate does not match structural features of Component A.
-OC1=CC=CC=N1 | reject | confidence=0.95 | The candidate 'OC1=CC=CC=CN1' (2-methoxypyridine) is structurally unrelated to the target component 'C[N+](C)(C)CC(=O)[O-]' (a quaternary ammonium carboxylate). The candidate lacks the quaternary ammonium group and the specific alkyl chain structure required. | Candidate does not match the chemical scaffold of Component A.
-CN(C)C=O | reject | confidence=1.00 | The candidate 'CN(C)C=O' (dimethylurea) is structurally distinct from the target component 'C[N+](C)(C)CC(=O)[O-]' (a quaternary ammonium carboxylate). The candidate lacks the alkyl chain and the anionic carboxylate group, and it does not possess the quaternary ammonium center. | Candidate is a simple urea derivative, not a quaternary ammonium salt.
-CCOCC | reject | confidence=1.00 | The candidate 'CCOCC' (diethylene glycol) does not contain the quaternary ammonium group or the carboxylate functional group present in Component A. | Structural mismatch with target moiety
-CC(=O)NCCO | reject | confidence=1.00 | The candidate 'CC(=O)NCCO' (glycinamide) does not match the chemical structure of Component A 'C[N+](C)(C)CC(=O)[O-]' (a quaternary ammonium carboxylate). The candidate lacks the quaternary ammonium group and the carboxylate anion. | Structural mismatch between target and candidate.
+O | reject | confidence=1.00 | The candidate 'O' is a single oxygen atom and does not constitute a valid chemical compound or functional group in the context of Deep Eutectic Solvents (DES). It lacks the necessary molecular structure to form hydrogen bonds or interact as a solvent component. | Single atoms are not viable candidates for DES components.
+OCC(O)CO | keep | confidence=0.92 | The candidate is a polyol (glycerol), which was identified as a productive DES family in previous iterations. It shares the 'polyol' feature with Component A and aligns with the recommended chemical patterns. | Matches productive 'polyol' family; Avoids cautioned 'short diol' or 'urea' structures
+CC(=O)N | deprioritize | confidence=0.90 | The candidate 'CC(=O)N' (acetamide) is a simple amide. While it shares the amide functional group with Component A, it lacks the zwitterionic nature and the specific alkyl chain length/substitution pattern of the original component. Furthermore, chemical memory indicates caution regarding Urea-like structures and certain small amides in this context. | Simple amide structure; Lacks zwitterion character of Component A
+C[N+](C)(C)CCO.[Cl-] | deprioritize | confidence=0.85 | The candidate is a salt of an ammonium cation and a chloride ion. While it contains the quaternary ammonium group present in Component A, the carboxylate group (C=O) has been replaced by a hydroxyl group (-OH). This shifts the chemical class from a carboxylate-based system to a simple ammonium salt, which may lack the specific hydrogen bonding interactions provided by the carbonyl oxygen. | Close structural analog but changes functional group from carboxylate to alcohol; Maintains quaternary ammonium center
+CS(=O)(=O)C | deprioritize | confidence=0.85 | The candidate is a simple sulfonyl species (methanesulfonate type). While Sulfonamides are noted as a productive family in prior predictions, the specific structure CS(=O)(=O)C lacks the hydrogen bonding potential of the primary amine or hydroxyl groups typically associated with high-performing DES components. It is less likely to form strong intermolecular networks compared to polyols or carbamates. | Sulfonamides are productive but this specific small sulfur species is less complex than typical successful candidates.
+OC1=CC=CC=N1 | reject | confidence=0.95 | The candidate 'OC1=CC=CC=N1' (2-hydroxypyridine) is a heterocyclic aromatic compound. Component A is an ionic species (a quaternary ammonium carboxylate). There is no significant structural or functional similarity between the pyrimidine/pyridine-like core of the candidate and the aliphatic ammonium salt structure of Component A. | Candidate lacks the ammonium group and the carboxylate functionality present in Component A.
+CC(=O)NCCO | deprioritize | confidence=0.85 | The candidate is a simple amide (N-methylethanolamide). While it contains an amide group, the chemical memory suggests caution with 'Ureas' and 'short diol' types, and specifically warns against 'NCC(=O)N'. The target component A is a zwitterionic species (betaine-like), whereas this candidate lacks the ionic character and complex substitution of the original. | Amide functionality present but lacks the specific salt/zwitterion characteristics of Component A.
+CCC(O)CCO | deprioritize | confidence=0.85 | The candidate is a simple polyol (1,3-propanediol derivative), which is a productive family for DES formation; however, the specific structure CCC(O)CCO is very similar to 'short diol' structures that were flagged as caution cases in prior predictions. While it may form a DES, its proximity to known problematic patterns suggests lower priority compared to more complex polyols or carbamates. | Similar to short diol caution list; Polyol family is productive but simple structures are risky
+CCCC(O)CO | keep | confidence=0.92 | The candidate is a polyol (specifically a branched diol), which was identified as a productive DES family in prior predictions. It shares structural similarities with the 'polyol' feature and avoids the cautioned 'short diol' or 'urea' motifs. | Matches the 'polyol' productive family; Avoids problematic urea/sulfonamide structures
+O=S(=NN)C | keep | confidence=0.92 | The candidate O=S(=NN)C belongs to the Sulfonamide family, which was identified as a productive DES family in prior predictions. It is specifically listed as a representative good example in both sets of chemical lessons. | Strong alignment with positive historical data for sulfonamides.
+O=S(=NN)CC | deprioritize | confidence=0.85 | The candidate O=S(=NN)CC is explicitly listed as a 'bad example' in the chemical lessons from prior predictions for this specific component. | Explicitly flagged as bad in historical data; Sulfonamide group present but associated with poor performance in previous iterations
+O=C(NC)OC | keep | confidence=0.92 | The candidate is a carbamate (urethane), which was identified as a productive DES family in prior predictions. It shares the amide-like carbonyl functionality with Component A while maintaining a low molecular weight and potential for hydrogen bonding. | Matches 'Carbamates' productive family; Avoids 'Ureas' caution family
+O=C(NC)NC | deprioritize | confidence=0.92 | The chemical lessons explicitly list 'Urea derivatives' and the specific SMILES 'O=C(NC)NC' as examples of families/compounds to be cautious with or avoid due to poor performance in previous iterations. | Explicitly listed as a bad example in chemistry lessons.
+OCC(O)CC | keep | confidence=0.92 | The candidate is a polyol (propylene glycol), which was identified as a productive DES family in prior predictions and matches the 'polyol' feature of Component A. | Matches known productive family: polyol
+O=CC(=O)N | deprioritize | confidence=0.90 | The candidate is a simple urea-like structure (carbamide). While it contains the amide group present in Component A, it lacks the specific quaternary ammonium/zwitterionic character and the alkyl chain length of the target. Furthermore, 'Urea derivatives' are listed as a caution family in prior predictions. | Simple urea is too small compared to the complex zwitterion; Matches amide feature but lacks structural complexity
+NC(=O)CC | deprioritize | confidence=0.85 | The candidate NC(=O)CC (acetamide) is a simple amide. While it shares the 'amide' feature with Component A, it lacks the quaternary ammonium center and the specific branched structure of the target. It is structurally simpler than the complex zwitterionic component. | Candidate is a basic amide; Lacks the quaternary nitrogen functionality of the source
+CCN(C)C | deprioritize | confidence=0.90 | The candidate is a tertiary amine (N,N-dimethylethanamine). While it contains the nitrogen atom present in Component A, it lacks the carboxylate group and the specific alkyl chain length that characterizes the original component's functionality as a potential DES component. | Lacks the carboxylate functional group; Simple amine structure is less likely to form stable DES compared to ionic species or hydrogen-bonding networks
+CCNC(=O)N | deprioritize | confidence=0.92 | The candidate is a urea derivative (N-methylurea). The chemical lessons explicitly state caution with 'Urea derivatives' and list 'NCC(=O)N' as a representative bad example for this specific component context. | Matches the 'caution' family identified in prior predictions.
+OCCN(C)CC | deprioritize | confidence=0.92 | The candidate OCCN(C)CC is a tertiary amine. While it shares the N-alkyl motif with the zwitterionic component A (a betaine), it lacks the anionic carboxylate group and the specific hydrogen bonding network of the original salt. It is less likely to participate in the same cooperative interactions as the target. | Lacks the carboxylate functionality; Simpler amine structure than the zwitterion
+OCC(O)CC(=O)N | deprioritize | confidence=0.85 | The candidate is a primary amide with an adjacent hydroxyl group (glycinamide derivative). While it shares the 'polyol' and 'amide' features of the target component, the chemical memory suggests caution with urea-like structures and specific short-chain amides. It is structurally similar but less likely to exhibit the same complex hydrogen bonding network as the zwitterionic ammonium/carboxylate system in Component A. | Amide group present; Polyol feature present; Potential for H-bonding, but lacks the ionic character of the target.
 
 LLM brainstorm:
-O[CH2]CC(=O)O | Glycols | Glycol with carboxylic acid functionality; high H-bonding potential.
-O[CH2]OCC(=O)O | Glycols | Ethylene glycol derivative providing dual hydroxyl/carbonyl sites.
-NC(=O)CC | Amides | Simple amide providing stable H-bonding network.
-NC(=O)OCC(=O)N | Carbamates | Carbamate linkage providing strong hydrogen bonding sites.
-NC(=O)CC(=O)N | Urea derivatives | Urea derivative with multiple H-bond donor/acceptor sites.
-O[CH2]OCC(=O)N | Carbamates | Carbamate functionality combined with glycolic backbone.
-NC(=O)S(=O)(=O)N | Sulfonamides | Sulfonamide providing strong interaction with quaternary ammonium.
-O[CH2]CC(=O)N | Amides | Amide functionality with adjacent hydroxyl group for coordination.
-O[CH2]OCC(=O)O | Glycols | Glycol derivative providing strong H-bonding and coordination.
-CC(=O)N | Amides | Simple amide to establish stable hydrogen bonding network.
-NC(=O)C(C)C(=O)N | Urea derivatives | Substituted urea for enhanced H-bond donor/acceptor sites.
-O[CH2]OCC(=O)O | Glycols | Glycol with carboxylic acid group to interact with cation.
-NC(=O)S(=O)(=O)C | Sulfonamides | Sulfonamide derivative for robust ionic interactions.
-O[CH2]OCC(=O)N | Carbamates | Carbamate group to stabilize the quaternary ammonium center.
-CC(=O)O | Glycols | Simple carboxylic acid for strong H-bonding with Component A.
-OCCO | Ethers | Ether group providing H-bond acceptor sites to stabilize cation.
-O[CH2]OCC(=O)N | Carbamates | Carbamate structure with hydroxyl for dual interaction.
-NC(=O)CC(=O)N | Urea derivatives | Urea derivative confirmed as DES-positive in previous cycles.
-O[CH2]OCC(=O)O | Glycols | Glycol with carboxylic acid for high H-bonding potential.
-NC(=O)CC(=O)N | Urea derivatives | Urea derivative providing multiple interaction points.
+O=S(=NN)C | Sulfonamides | Sulfonamide; highly productive family with high melting point stability and strong hydrogen bonding potential.
+O=S(=NN)CC | Sulfonamides | Sulfonamide derivative; exploring the boundary of the sulfonamide space while maintaining robust H-bonding.
+O=C(NC)OC | Carbamates | Carbamate; proven successful DES-forming family with balanced HBD and HBA sites.
+O=C(NC)NC | Carbamates | Carbamate derivative; exploring the urea-adjacent carbamate space for potential eutectic formation.
+OCC(O)CC | Polyols | Polyol; historically successful in forming DES with quaternary ammonium salts due to multiple hydroxyl groups.
+OCCC(O)C | Polyols | Polyol; a stable hydroxy-alcohol providing strong hydrogen bonding networks.
+O=CC(=O)N | Amides | Amide; high UCB score suggests promising potential for stabilizing the mixture via dipole-dipole interactions.
+NC(=O)CC | Amides | Amide; explores a slightly longer chain amide to avoid 'short' chain failures while maintaining H-bonding.
+CCN(C)C | Amines | Amine; high UCB score indicates under-sampled but potentially productive chemistry for ionic interactions.
+CCNC(=O)N | Amines | Amine/Amide hybrid; explores the amine space with additional H-bonding sites.
+OCCN(C)CC | Ether-alcohols | Ether-alcohol; explores a variation of polyol space while avoiding simple short diols.
+OCCN(C)CC | Ether-alcohols | Ether-alcohol; provides an ether linkage to modify the hydrogen bonding network compared to pure alcohols.
+O=S(=NN)CC(=O)N | Sulfonamides | Complex Sulfonamide; combines sulfonamide and amide functionalities for enhanced stability.
+O=C(NC)OC | Carbamates | Carbamate with ether linkage; explores the intersection of carbamates and ethers.
+OCC(O)CC(=O)N | Polyols | Polyol-Amide hybrid; combines two productive features to ensure eutectic formation.
+O=S(=NN)C1CCOC1 | Sulfonamides | Sulfonamide with cyclic ether; provides a more rigid structure for potential eutectic stability.
+CC(O)CC(=O)N | Amides | Amide with hydroxy group; combines amide and polyol-like features.
+O=C(NC)OC | Carbamates | Carbamate; selected for its proven ability to form DES with quaternary ammonium salts.
+OCC(O)CC | Polyols | Polyol; a standard high-performing component in the polyol family.
 
 LLM explanations:
-O[CH2]CC(=O)O | Lowest melting point candidate with high relative drop. | min Tm=186.88 K, absolute<= 340.00 K, relative_drop=0.376
-NC(=O)S(=O)(=O)N | Low melting point sulfonamide derivative. | min Tm=204.13 K, absolute<= 340.00 K, relative_drop=0.339
-O[CH2]OCC(=O)O | Low melting point ethylene glycol derivative. | min Tm=210.70 K, absolute<= 340.00 K, relative_drop=0.318
-NC(=O)S(=O)(=O)C | Low melting point sulfonamide derivative. | min Tm=213.77 K, absolute<= 340.00 K, relative_drop=0.304
-O[CH2]OCC(=O)N | Low melting point amino-ether derivative. | min Tm=221.30 K, absolute<= 340.00 K, relative_drop=0.284
-O[CH2]CC(=O)N | Low melting point amide derivative. | min Tm=241.39 K, absolute<= 340.00 K, relative_drop=0.198
-NC(=O)CC | Low melting point acetamide derivative. | min Tm=243.44 K, absolute<= 340.00 K, relative_drop=0.149
-NC(=O)OCC(=O)N | Low melting point ethylene urea derivative. | min Tm=244.96 K, absolute<= 340.00 K, relative_drop=0.207
-NC(=O)C(C)C(=O)N | Low melting point substituted urea derivative. | min Tm=254.58 K, absolute<= 340.00 K, relative_drop=0.176
-NC(=O)CC(=O)N | Low melting point urea derivative. | min Tm=256.06 K, absolute<= 340.00 K, relative_drop=0.171
+OCC(O)CC | Polyol structure with high melting point reduction potential. | is_des=True, min_tm_k=320.90, rationale=min Tm=320.90 K, absolute<= 340.00 K, relative_drop=0.052
+OCC(O)CO | Polyol structure showing significant melting point reduction. | is_des=True, min_tm_k=267.65, rationale=min Tm=267.65 K, absolute<= 340.00 K, relative_drop=0.081
+O=S(=NN)C | Sulfonamide derivative identified as a productive DES family. | is_des=True, min_tm_k=330.00, rationale=min Tm=330.00 K, absolute<= 340.00 K, relative_drop=0.086
+O=C(NC)OC | Carbamate structure identified as a productive DES family. | is_des=True, min_tm_k=288.02, rationale=min Tm=288.02 K, absolute<= 340.00 K, relative_drop=0.125
+CC(=O)N | Simple amide showing melting point reduction. | is_des=True, min_tm_k=335.35, rationale=min Tm=335.35 K, absolute<= 340.00 K, relative_drop=0.053
+CC(=O)NCCO | Amide with an adjacent alcohol group. | is_des=True, min_tm_k=325.70, rationale=min Tm=325.70 K, absolute<= 340.00 K, relative_drop=0.088
+OCC(O)CC(=O)N | Amide with a polyol-like tail. | is_des=True, min_tm_k=322.46, rationale=min Tm=322.46 K, absolute<= 340.00 K, relative_drop=0.127
+OCCN(C)CC | Amine with an ether linkage. | is_des=True, min_tm_k=311.86, rationale=min Tm=311.86 K, absolute<= 340.00 K, relative_drop=0.064
+CS(=O)(=O)C | Sulfonamide derivative with low melting point. | is_des=True, min_tm_k=233.41, rationale=min Tm=233.41 K, absolute<= 340.00 K, relative_drop=0.126
+CCCC(O)CO | Polyol structure that failed to meet DES criteria. | is_des=False, min_tm_k=258.41, rationale=min Tm=258.41 K, absolute<= 340.00 K, relative_drop=0.032
+CCNC(=O)N | Urea derivative identified as a caution family. | is_des=False, min_tm_k=361.35, rationale=min Tm=361.35 K, absolute<= 340.00 K, relative_drop=0.076
+NC(=O)CC | Short amide chain. | is_des=False, min_tm_k=344.56, rationale=min Tm=344.56 K, absolute<= 340.00 K, relative_drop=0.089
+CCC(O)CCO | Short diol structure identified as a caution family. | is_des=False, min_tm_k=253.94, rationale=min Tm=253.94 K, absolute<= 340.00 K, relative_drop=0.037
+O=CC(=O)N | Acid-amide derivative. | is_des=False, min_tm_k=331.18, rationale=min Tm=331.18 K, absolute<= 340.00 K, relative_drop=-0.098
+O=S(=NN)CC | Sulfonamide derivative with extended chain. | is_des=False, min_tm_k=340.46, rationale=min Tm=340.46 K, absolute<= 340.00 K, relative_drop=0.034
+O=C(NC)NC | Urea derivative identified as a caution family. | is_des=False, min_tm_k=341.91, rationale=min Tm=341.91 K, absolute<= 340.00 K, relative_drop=0.099
+C[N+](C)(C)CCO.[Cl-] | Quaternary ammonium salt. | is_des=False, min_tm_k=445.30, rationale=min Tm=445.30 K, absolute<= 340.00 K, relative_drop=0.213
+CCN(C)C | Tertiary amine. | is_des=False, min_tm_k=337.81, rationale=min Tm=337.81 K, absolute<= 340.00 K, relative_drop=-0.821
 
 LLM critique:
-O[CH2]CC(=O)O | High risk of instability due to extremely low melting point. | The very low Tm (186.88 K) suggests a highly volatile or liquid state at room temperature, potentially complicating handling.
-NC(=O)S(=O)(=O)N | Low stability; potential for rapid decomposition. | Melting point of 204.13 K is quite low, indicating a highly reactive or unstable sulfur-based species.
-O[CH2]OCC(=O)O | Marginal stability. | Tm of 210.70 K is still below standard storage conditions, posing risks for shelf-life.
-NC(=O)C(C)C(=O)N | Moderate stability. | Tm of 254.58 K is acceptable but requires controlled storage to prevent degradation.
-NC(=O)CC(=O)N | Good stability. | Tm of 256.06 K provides a safer margin for handling compared to the top candidates.
-NC(=O)OCC(=O)N | Moderate stability. | Tm of 244.96 K is acceptable but lower than the preferred NC(=O)CC(=O)N.
-O[CH2]CC(=O)N | Moderate stability. | Tm of 241.39 K is acceptable but lower than the preferred NC(=O)CC(=O)N.
-NC(=O)CC | Moderate stability. | Tm of 243.44 K is acceptable, though it lacks the additional functional groups for specific interactions.
-NC(=O)C(C)C(=O)N | Good stability. | Tm of 254.58 K is stable, but the branched structure may affect solubility compared to linear analogs.
-NC(=O)S(=O)(=O)C | Moderate stability. | Tm of 213.77 K is relatively low, potentially leading to instability in non-refrigerated environments.
+OCC(O)CC | High potential; belongs to the productive polyol family with a low melting point. | None identified.
+OCC(O)CO | Strong candidate; fits the polyol profile and shows significant relative drop. | None identified.
+O=S(=NN)C | Promising; part of the productive Sulfonamide family. | None identified.
+O=C(NC)OC | Strong candidate; belongs to the productive Carbamate family. | None identified.
+CC(=O)N | Moderate potential; simple amide structure with low melting point. | Potential for high volatility or reactivity.
+CC(=O)NCCO | Good candidate; combines amide and alcohol functionalities. | None identified.
+OCC(O)CC(=O)N | Strong candidate; hybrid structure showing good melting point profile. | None identified.
+OCCN(C)CC | Good candidate; amine functionality with low melting point. | Potential for high basicity/reactivity.
+CS(=O)(=O)C | Strong candidate; sulfur-containing compound with very low melting point. | None identified.
+CCCC(O)CO | Low potential; while it has a low melting point, it lacks the specific functional groups of productive families. | Lack of specific stabilizing interactions.
+CCNC(=O)N | Poor candidate; urea-like structure identified as a caution family. | High melting point and poor DES performance.
+NC(=O)CC | Poor candidate; simple amide with higher melting point. | Insufficient intermolecular interactions for low Tm.
+CCC(O)CCO | Low potential; similar to long-chain diols which are caution families. | Lack of specific functional groups.
+O=CC(=O)N | Poor candidate; acyl halide functionality is likely too reactive. | Chemical instability.
+O=S(=NN)CC | Moderate potential; sulfonamide but with an extra carbon, increasing melting point. | Borderline melting point.
+O=C(NC)NC | Poor candidate; urea derivative identified as a caution family. | High melting point due to hydrogen bonding network.
+C[N+](C)(C)CCO.[Cl-] | Poor candidate; quaternary ammonium salt with very high melting point. | Ionic nature leads to high Tm.
+CCN(C)C | Poor candidate; tertiary amine with higher melting point. | Insufficient hydrogen bonding sites.
 
 Viscosity predictions:
 smiles_a | smiles_b | viscosity | units | model | source
-C[N+](C)(C)CC(=O)[O-] | O[CH2]CC(=O)O | 16.09 | mPa*s | DESignSolvents | artifact
-C[N+](C)(C)CC(=O)[O-] | O[CH2]OCC(=O)O | 17.14 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | OCC(O)CO | 17.29 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | CC(=O)N | 14.00 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | C[N+](C)(C)CCO.[Cl-] | 15.37 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | CS(=O)(=O)C | 13.85 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | CC(=O)NCCO | 16.00 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | CCC(O)CCO | 15.49 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | CCCC(O)CO | 15.49 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | O=S(=NN)C | 15.93 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | O=S(=NN)CC | 16.12 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | O=C(NC)OC | 14.59 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | O=C(NC)NC | 15.05 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | OCC(O)CC | 15.30 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | O=CC(=O)N | 15.38 | mPa*s | DESignSolvents | artifact
 C[N+](C)(C)CC(=O)[O-] | NC(=O)CC | 14.19 | mPa*s | DESignSolvents | artifact
-C[N+](C)(C)CC(=O)[O-] | NC(=O)OCC(=O)N | 18.43 | mPa*s | DESignSolvents | artifact
-C[N+](C)(C)CC(=O)[O-] | NC(=O)CC(=O)N | 17.55 | mPa*s | DESignSolvents | artifact
-C[N+](C)(C)CC(=O)[O-] | O[CH2]OCC(=O)N | 17.42 | mPa*s | DESignSolvents | artifact
-C[N+](C)(C)CC(=O)[O-] | NC(=O)S(=O)(=O)N | 18.63 | mPa*s | DESignSolvents | artifact
-C[N+](C)(C)CC(=O)[O-] | O[CH2]CC(=O)N | 16.36 | mPa*s | DESignSolvents | artifact
-C[N+](C)(C)CC(=O)[O-] | NC(=O)C(C)C(=O)N | 17.67 | mPa*s | DESignSolvents | artifact
-C[N+](C)(C)CC(=O)[O-] | NC(=O)S(=O)(=O)C | 16.81 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | CCN(C)C | 13.02 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | CCNC(=O)N | 15.61 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | OCCN(C)CC | 14.77 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | OCC(O)CC(=O)N | 18.67 | mPa*s | DESignSolvents | artifact
+
+Grounding verdicts:
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'OCC(O)CC'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'OCC(O)CO'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'O=S(=NN)C'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'O=C(NC)OC'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'CC(=O)N'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'CC(=O)NCCO'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'OCC(O)CC(=O)N'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'OCCN(C)CC'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'CCCC(O)CO'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'CCNC(=O)N'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'NC(=O)CC'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'CCC(O)CCO'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'O=CC(=O)N'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'O=S(=NN)CC'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'O=C(NC)NC'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'C[N+](C)(C)CCO.[Cl-]'
+- ◆ novel (plausible) | partner reality: OCC(O)CC
+- ◆ novel (plausible) | partner reality: O=S(=NN)C
+- ◆ novel (plausible) | partner reality: O=C(NC)OC
+- ◆ novel (plausible) | partner reality: OCC(O)CC(=O)N
+- ◆ novel (plausible) | partner reality: OCCN(C)CC
+- ◆ novel (plausible) | partner reality: CCNC(=O)N
+- ◆ novel (plausible) | partner reality: NC(=O)CC
+- ◆ novel (plausible) | partner reality: O=CC(=O)N
+- ◆ novel (plausible) | partner reality: O=S(=NN)CC
+- ✓ known | partner reality: O=C(NC)NC
+- ◆ novel (plausible) | partner reality: CCN(C)C
+
+Run memory:
+- Deduplicated candidate: OCCC(O)C collapsed to CC(O)CCO (same compound from multiple sources)
+- Suppressed family-budget overflow for analogue: CC(O)CO
+- Suppressed family-budget overflow for analogue: CCC(N)CO
+- Suppressed family-budget overflow for analogue: CC(O)CCCO
+- Suppressed family-budget overflow for analogue: CC(N)CCO
+- Suppressed family-budget overflow for analogue: CC(O)CCN
+- Suppressed family-budget overflow for analogue: CC(O)CCO
+- Suppressed family-budget overflow for analogue: CC(N)CO
+- Suppressed family-budget overflow for analogue: CC(O)CN
+- Suppressed family-budget overflow for Sulfonamides: O=S(=NN)CC(=O)N
+- Suppressed family-budget overflow for Sulfonamides: O=S(=NN)C1CCOC1
+- Suppressed family-budget overflow for Amides: CC(O)CC(=O)N
+- Applied chemical pattern memory ranking bias to 14 candidate(s).
+- Chemical pattern memory favored productive families: Polyols, polyol, Sulfonamides.
+- Chemical pattern memory penalized caution families: analogue, Amines, Amides.
 summary:
 - command: des
 - workflow: des
-- ranked candidates: 10
-- reuse memory: no
+- ranked candidates: 18
+- reuse memory: yes
 - exports written: yes

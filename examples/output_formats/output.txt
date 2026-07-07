@@ -20,6 +20,12 @@ acetic acid (CC(=O)O) | 289.85 | experimental | 0.95
 glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
 water (O) | 255.36 | heuristic | 0.35
 
+Grounding verdicts:
+- ✓ verified | DES plausibility of 'CCO' + 'CC(=O)N'
+- ✓ verified | DES plausibility of 'CCO' + 'OCCO'
+- ✓ verified | DES plausibility of 'CCO' + 'CC(=O)O'
+- ✓ verified | DES plausibility of 'CCO' + 'OCC(O)CO'
+
 Run memory:
 - Chemical pattern memory favored productive families: amide, diol, carboxylic acid.
 summary:
@@ -36,7 +42,7 @@ summary:
     "compound": "acetamide (CC(=O)N)",
     "smiles_a": "CCO",
     "is_des": true,
-    "min_tm_k": 238.92388916015625,
+    "min_tm_k": 238.9239044189453,
     "eutectic_ratio_b": 0.5,
     "rationale": "min Tm=238.92 K, absolute<= 260.00 K, relative_drop=0.119",
     "trust_score": 0.862481438969631,

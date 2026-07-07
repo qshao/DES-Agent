@@ -6,4 +6,4 @@ llm:
   max_candidates: 5
   max_tokens: 1024
   temperature: 0.2
-  timeout_seconds: 120.0
+  timeout_seconds: 300.0

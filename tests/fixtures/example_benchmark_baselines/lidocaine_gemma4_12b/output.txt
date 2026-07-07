@@ -1,65 +1,66 @@
 === DES Search: CCN(CC)CC(=O)Nc1c(C)cccc1C ===
-Screened 4 candidate(s). 0 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
-Top candidate: water (O) — min Tm 238.2 K (Δ8.9%) | moderate confidence — consider experimental verification
+Screened 3 candidate(s). 2 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
+Top candidate: urea (NC(=O)N) — min Tm 231.8 K (Δ32.0%) | moderate-high confidence
 ==============================================
 
 Chemistry lessons:
-avoid patterns: alcohol (1), Polyols (1), Sulfonamides (1), Ureas (1)
+productive patterns: Ureas (1), Carboxylic Acids (1)
+avoid patterns: Sulfonamides (1)
 cycle summary:
-- Avoid patterns: alcohol (1), Polyols (1), Sulfonamides (1).
-- Representative examples: O, O=C(O)CC1OOC(=O)C1=O, CC(=O)NS(=O)(=O)C1=CC=C(C=C1)C.
+- Productive patterns: Ureas (1), Carboxylic Acids (1).
+- Avoid patterns: Sulfonamides (1).
+- Representative examples: NC(=O)N, OC(=O)CCCC(=O)O, NS(=O)(=O)NC(=O)O.
 run summary:
-- Representative bad examples: O, O=C(O)CC1OOC(=O)C1=O, CC(=O)NS(=O)(=O)C1=CC=C(C=C1)C.
+- Representative good examples: NC(=O)N, OC(=O)CCCC(=O)O.
+- Representative bad examples: NS(=O)(=O)NC(=O)O.
+- Stay near the productive families and probe close analogs first.
 - Try adjacent chemistry away from the repeated failure families.
-- Some supporting results were low-trust; treat the lesson cautiously.
-- Avoid patterns: alcohol (1), Polyols (1), Sulfonamides (1).
-- Representative examples: O, O=C(O)CC1OOC(=O)C1=O, CC(=O)NS(=O)(=O)C1=CC=C(C=C1)C.
+- Evidence is mixed; keep the next cycle balanced.
+- Productive patterns: Ureas (1), Carboxylic Acids (1).
+- Avoid patterns: Sulfonamides (1).
+- Representative examples: NC(=O)N, OC(=O)CCCC(=O)O, NS(=O)(=O)NC(=O)O.
 next steps:
+- Stay near the productive families and probe close analogs first.
 - Try adjacent chemistry away from the repeated failure families.
 warnings:
-- Some supporting results were low-trust; treat the lesson cautiously.
+- Evidence is mixed; keep the next cycle balanced.
 
 compound | is_des | min_tm_k | eutectic_x_b | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
-water (O) | False | 238.18 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.42 | mean=234.19 K | spread=230.35-236.28 K | std=2.72 K | moderate confidence — consider experimental verification | min Tm=238.18 K, absolute<= 260.00 K, relative_drop=0.089
-O=C(O)CC1OOC(=O)C1=O | False | 272.76 | 0.40 | source=llm; id=brainstorm | trust=0.34 | mean=281.12 K | spread=266.16-289.17 K | std=10.58 K | low confidence — consider experimental verification | min Tm=272.76 K, absolute<= 260.00 K, relative_drop=0.200
-CC(=O)NS(=O)(=O)C1=CC=C(C=C1)C | False | 262.13 | 0.50 | source=llm; id=brainstorm | trust=0.33 | mean=260.39 K | spread=245.64-269.02 K | std=10.48 K | low confidence — consider experimental verification | min Tm=262.13 K, absolute<= 260.00 K, relative_drop=0.232
-NC(=O)NC(=O)N | False | 278.89 | 0.40 | source=llm; id=brainstorm | trust=0.27 | mean=278.10 K | spread=262.87-288.44 K | std=10.99 K | low confidence — consider experimental verification | min Tm=278.89 K, absolute<= 260.00 K, relative_drop=0.183
+urea (NC(=O)N) | True | 231.85 | 0.40 | source=llm; id=brainstorm | trust=0.78 | mean=229.86 K | spread=226.12-235.51 K | std=4.06 K | moderate-high confidence | min Tm=231.85 K, absolute<= 260.00 K, relative_drop=0.320
+glutaric acid (OC(=O)CCCC(=O)O) | True | 245.71 | 0.40 | source=llm; id=brainstorm | trust=0.54 | mean=250.20 K | spread=241.27-260.85 K | std=8.08 K | low confidence — consider experimental verification | min Tm=245.71 K, absolute<= 260.00 K, relative_drop=0.280
+NS(=O)(=O)NC(=O)O | False | 290.46 | 0.50 | source=llm; id=brainstorm | trust=0.72 | mean=289.07 K | spread=285.65-293.89 K | std=3.51 K | moderate-high confidence | min Tm=290.46 K, absolute<= 260.00 K, relative_drop=0.149
 
 Melting-point inputs:
 component | Tm_K | source | confidence
 CCN(CC)CC(=O)Nc1c(C)cccc1C | 341.15 | experimental | 0.95
-water (O) | 261.48 | qspr | 0.40
-O=C(O)CC1OOC(=O)C1=O | 423.46 | qspr | 0.57
-CC(=O)NS(=O)(=O)C1=CC=C(C=C1)C | 474.01 | qspr | 0.56
-NC(=O)NC(=O)N | 491.66 | qspr | 0.40
+urea (NC(=O)N) | 405.85 | experimental | 0.95
+glutaric acid (OC(=O)CCCC(=O)O) | 370.90 | experimental | 0.95
+NS(=O)(=O)NC(=O)O | 460.42 | qspr | 0.40
 
 LLM candidate reviews:
-OCCO | reject | confidence=0.95 | The candidate 'OCCO' (ethylene glycol) is a very simple, small molecule that lacks the structural complexity and specific functional groups present in Component A (a substituted acetanilide derivative). It does not share the core scaffold or chemical characteristics of the target. | Candidate is too structurally dissimilar to the source component.
-OCC(O)CO | reject | confidence=0.98 | The candidate 'OCC(O)CO' (glycerol) is a simple polyol and lacks the structural complexity, nitrogen content, and aromatic ring system present in Component A. | Candidate does not resemble the target scaffold.
-CC(=O)N | reject | confidence=1.00 | The candidate 'CC(=O)N' is a significantly truncated fragment of the original component 'CCN(CC)CC(=O)Nc1c(C)cccc1C'. It removes the tertiary amine group and the entire substituted aromatic ring system, failing to represent the chemical structure of Component A. | Candidate is too short; Missing major structural motifs
-CC(=O)O | reject | confidence=0.95 | The candidate 'CC(=O)O' (acetic acid) is a significantly smaller and simpler fragment compared to the original component 'CCN(CC)CC(=O)Nc1c(C)cccc1C'. It lacks the tertiary amine group, the amide linkage, and the substituted aromatic ring system present in the source structure. | Candidate does not preserve the core scaffold of Component A.
+O | reject | confidence=1.00 | The candidate 'O' is a single oxygen atom and does not represent a meaningful chemical fragment or functional group within the context of the molecule CCN(CC)CC(=O)Nc1c(C)cccc1C. | Fragment is too small/atomic to be a valid structural feature.
+OCCO | reject | confidence=0.95 | The candidate 'OCCO' (ethylene glycol) is a simple polyol and does not share structural similarity or functional relevance with the complex tertiary amine/amide structure of Component A. | Candidate is too chemically distinct from the reference component.
+OCC(O)CO | reject | confidence=0.95 | The candidate 'OCC(O)CO' (glycerol) is a simple polyol and does not share structural similarity or functional overlap with the target component 'CCN(CC)CC(=O)Nc1c(C)cccc1C', which contains an amine, an amide linkage, and an aromatic ring. | Candidate lacks core scaffold features of Component A.
+CC(=O)N | reject | confidence=0.95 | The candidate 'CC(=O)N' (acetamide) is a significantly simplified fragment of the original component 'CCN(CC)CC(=O)Nc1c(C)cccc1C'. It removes the tertiary amine group and the substituted aromatic ring, failing to capture the essential structural features of the parent molecule. | Fragment is too small; Loss of key functional groups (tertiary amine, aromatic ring)
+CC(=O)O | reject | confidence=0.95 | The candidate 'CC(=O)O' (acetic acid) is a simple carboxylic acid and does not represent the structural core or relevant functional fragments of Component A (CCN(CC)CC(=O)Nc1c(C)cccc1C). | Candidate is too small and lacks the amine/aromatic features of the parent molecule.
 
 LLM brainstorm:
-CC(=O)O | Carboxylic Acids | Acetic acid provides a simple carboxylic acid group to form strong hydrogen bonds with the amide NH and tertiary amine of Component A.
-O=C(O)CC1OOC(=O)C1=O | Polyols | Malonic acid derivatives or similar polyols provide multiple hydroxyl groups to stabilize the aromatic ring and amide linkage via extensive H-bonding.
-CC(=O)NS(=O)(=O)C1=CC=C(C=C1)C | Sulfonamides | The sulfonamide group provides a distinct electronic profile and geometry compared to the amide in Component A while maintaining H-bond donor/acceptor sites.
-NC(=O)NC(=O)N | Ureas | Urea provides a rigid, planar hydrogen bonding motif capable of interacting with the aromatic system and amide group of Component A.
-Cc1ncnoc1 | Pyridines | The pyridine ring acts as a strong H-bond acceptor to complement the protonated amine or amide NH groups in Component A.
+OC(=O)CCCC(=O)O | Carboxylic Acids | Succinic acid provides a carboxylic acid group to form strong hydrogen bonds with the tertiary amine and amide groups of Component A.
+NS(=O)(=O)NC(=O)O | Sulfonamides | Sulfonamide provides a distinct geometry and electronic profile compared to the primary amide in Component A while maintaining H-bonding capability.
+OCCOCc(O)C | Polyols | Glycerol introduces multiple hydroxyl groups to create a dense hydrogen bond network, contrasting with the hydrophobic aromatic ring of Component A.
+NC(=O)N | Ureas | Urea provides a stable, highly directional H-bonding motif that interacts effectively with the amide linkage in Component A.
+nc1ccccc1 | Pyridines | Pyridine introduces a basic nitrogen heterocycle to provide a distinct H-bond acceptor site compared to the aliphatic amine of Component A.
 
 LLM explanations:
-O | Candidate is not a DES. | min Tm=238.18 K, absolute<= 260.00 K, relative_drop=0.089
-O=C(O)CC1OOC(=O)C1=O | Candidate is not a DES. | min Tm=272.76 K, absolute<= 260.00 K, relative_drop=0.200
-CC(=O)NS(=O)(=O)C1=CC=C(C=C1)C | Candidate is not a DES. | min Tm=262.13 K, absolute<= 260.00 K, relative_drop=0.232
-NC(=O)NC(=O)N | Candidate is not a DES. | min Tm=278.89 K, absolute<= 260.00 K, relative_drop=0.183
+NC(=O)N | Candidate identified as a DES based on melting point threshold. | min Tm=231.85 K, absolute<= 260.00 K, relative_drop=0.320
+OC(=O)CCCC(=O)O | Candidate identified as a DES based on melting point threshold. | min Tm=245.71 K, absolute<= 260.00 K, relative_drop=0.280
+NS(=O)(=O)NC(=O)O | Candidate rejected as a DES due to high melting point. | min Tm=290.46 K, absolute<= 260.00 K, relative_drop=0.149
 
 LLM critique:
-CCN(CC)CC(=O)Nc1c(C)cccc1C | Failed DES criteria | The melting point (238.18 K) is below the 260.00 K threshold, but it failed the internal logic for DES classification.
-O=C(O)CC1OOC(=O)C1=O | Failed DES criteria | Melting point (272.76 K) exceeds the maximum threshold of 260.00 K.
-CC(=O)NS(=O)(=O)C1=CC=C(C=C1)C | Failed DES criteria | Melting point (262.13 K) exceeds the maximum threshold of 260.00 K.
-NC(=O)NC(=O)N | Failed DES criteria | Melting point (278.89 K) exceeds the maximum threshold of 260.00 K.
-
-Warnings:
-- LLM candidate review returned wrong SMILES for O
+NC(=O)N | Pass | Low melting point is consistent with the desired property; however, the structure is a very simple urea derivative.
+OC(=O)CCCC(=O)O | Pass | Meets thermal criteria; symmetric succinate structure provides expected stability for this range.
+NS(=O)(=O)NC(=O)O | Fail | Melting point exceeds the 260.00 K threshold; sulfonamide group increases thermal stability beyond target limits.
 
 Run memory:
-- Chemical pattern memory penalized caution families: alcohol, Polyols, Sulfonamides.
+- Chemical pattern memory favored productive families: Ureas, Carboxylic Acids.
+- Chemical pattern memory penalized caution families: Sulfonamides.

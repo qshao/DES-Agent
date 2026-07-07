@@ -5,20 +5,20 @@ Top candidate: ethylene glycol (OCCO) — min Tm 155.5 K (Δ12.1%) | moderate-hi
 
 Chemistry lessons:
 productive patterns: diol (1)
-avoid patterns: amide (1), polyol (1), carboxylic acid (1), alcohol (1)
+avoid patterns: amide (1), carboxylic acid (1), polyol (1), alcohol (1)
 cycle summary:
 - Productive patterns: diol (1).
-- Avoid patterns: amide (1), polyol (1), carboxylic acid (1).
-- Representative examples: OCCO, CC(=O)N, OCC(O)CO.
+- Avoid patterns: amide (1), carboxylic acid (1), polyol (1).
+- Representative examples: OCCO, CC(=O)N, CC(=O)O.
 run summary:
 - Representative good examples: OCCO.
-- Representative bad examples: CC(=O)N, OCC(O)CO, CC(=O)O.
+- Representative bad examples: CC(=O)N, CC(=O)O, OCC(O)CO.
 - Stay near the productive families and probe close analogs first.
 - Try adjacent chemistry away from the repeated failure families.
 - Evidence is mixed; keep the next cycle balanced.
 - Productive patterns: diol (1).
-- Avoid patterns: amide (1), polyol (1), carboxylic acid (1).
-- Representative examples: OCCO, CC(=O)N, OCC(O)CO.
+- Avoid patterns: amide (1), carboxylic acid (1), polyol (1).
+- Representative examples: OCCO, CC(=O)N, CC(=O)O.
 next steps:
 - Stay near the productive families and probe close analogs first.
 - Try adjacent chemistry away from the repeated failure families.
@@ -28,8 +28,8 @@ warnings:
 compound | is_des | min_tm_k | eutectic_x_b | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
 ethylene glycol (OCCO) | True | 155.49 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.74 | mean=160.79 K | spread=155.73-165.61 K | std=4.04 K | moderate-high confidence | min Tm=155.49 K, absolute<= 260.00 K, relative_drop=0.121
 acetamide (CC(=O)N) | False | 168.39 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.94 | mean=173.00 K | spread=172.85-173.09 K | std=0.11 K | high confidence | min Tm=168.39 K, absolute<= 260.00 K, relative_drop=0.048
-glycerol (OCC(O)CO) | False | 167.57 | 0.90 | source=heuristic; id=rule-based-family-library | trust=0.87 | mean=168.35 K | spread=166.70-169.78 K | std=1.27 K | high confidence | min Tm=167.57 K, absolute<= 260.00 K, relative_drop=0.053
 acetic acid (CC(=O)O) | False | 171.54 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.86 | mean=172.13 K | spread=170.93-173.97 K | std=1.32 K | high confidence | min Tm=171.54 K, absolute<= 260.00 K, relative_drop=0.031
+glycerol (OCC(O)CO) | False | 167.57 | 0.90 | source=heuristic; id=rule-based-family-library | trust=0.87 | mean=168.35 K | spread=166.70-169.78 K | std=1.27 K | high confidence | min Tm=167.57 K, absolute<= 260.00 K, relative_drop=0.053
 water (O) | False | 165.87 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.74 | mean=166.41 K | spread=163.72-169.10 K | std=2.20 K | moderate-high confidence | min Tm=165.87 K, absolute<= 260.00 K, relative_drop=0.063
 
 Melting-point inputs:
@@ -37,8 +37,8 @@ component | Tm_K | source | confidence
 ethanol (CCO) | 176.96 | qspr | 0.67
 ethylene glycol (OCCO) | 260.60 | experimental | 0.95
 acetamide (CC(=O)N) | 354.06 | experimental | 0.95
-glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
 acetic acid (CC(=O)O) | 289.85 | experimental | 0.95
+glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
 water (O) | 261.48 | qspr | 0.40
 
 Viscosity predictions:
@@ -51,4 +51,4 @@ CCO | CC(=O)O | 12.36 | mPa*s | DESignSolvents | artifact
 
 Run memory:
 - Chemical pattern memory favored productive families: diol.
-- Chemical pattern memory penalized caution families: amide, polyol, carboxylic acid.
+- Chemical pattern memory penalized caution families: amide, carboxylic acid, polyol.

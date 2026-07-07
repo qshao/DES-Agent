@@ -20,6 +20,12 @@ acetic acid (CC(=O)O) | 289.85 | experimental | 0.95
 glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
 water (O) | 255.36 | heuristic | 0.35
 
+Grounding verdicts:
+- ✓ verified | DES plausibility of 'CCO' + 'CC(=O)N'
+- ✓ verified | DES plausibility of 'CCO' + 'OCCO'
+- ✓ verified | DES plausibility of 'CCO' + 'CC(=O)O'
+- ✓ verified | DES plausibility of 'CCO' + 'OCC(O)CO'
+
 Run memory:
 - Chemical pattern memory favored productive families: amide, diol, carboxylic acid.
 summary:
@@ -51,6 +57,12 @@ acetic acid (CC(=O)O) | 289.85 | experimental | 0.95
 glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
 water (O) | 255.36 | heuristic | 0.35
 
+Grounding verdicts:
+- ✓ verified | DES plausibility of 'CCO' + 'CC(=O)N'
+- ✓ verified | DES plausibility of 'CCO' + 'OCCO'
+- ✓ verified | DES plausibility of 'CCO' + 'CC(=O)O'
+- ✓ verified | DES plausibility of 'CCO' + 'OCC(O)CO'
+
 Run memory:
 - Chemical pattern memory favored productive families: amide, diol, carboxylic acid.
 summary:
@@ -61,6 +73,8 @@ summary:
 - exports written: yes
 
 === LEADERBOARD ===
+/home/qshao/miniconda3/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.1) or chardet (7.4.3)/charset_normalizer (3.4.4) doesn't match a supported version!
+  warnings.warn(
 rank | compound | min_tm_k | is_des | trust | uncertainty | runs
 1 | ethylene glycol (OCCO) | 201.75 K | True | 0.82 | low | 2
 2 | glycerol (OCC(O)CO) | 221.20 K | True | 0.73 | medium | 2
@@ -69,6 +83,8 @@ rank | compound | min_tm_k | is_des | trust | uncertainty | runs
 5 | acetic acid (CC(=O)O) | 239.56 K | True | 0.74 | medium | 2
 
 === HISTORY ===
+/home/qshao/miniconda3/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.1) or chardet (7.4.3)/charset_normalizer (3.4.4) doesn't match a supported version!
+  warnings.warn(
 run_name | exported_at_utc | component_a | n_screened | n_des | top_candidate | top_min_tm_k
-run_01 | 2026-06-21T01:31:00.476286Z | CCO | 5 | 5 | OCCO | 201.75 K
-run_02 | 2026-06-21T01:31:04.660375Z | CCO | 5 | 5 | OCCO | 201.75 K
+run_01 | 2026-07-06T10:06:12.488514Z | CCO | 5 | 5 | OCCO | 201.75 K
+run_02 | 2026-07-06T10:06:19.372130Z | CCO | 5 | 5 | OCCO | 201.75 K

@@ -1,5 +1,5 @@
 === DES Search: ethanol (CCO) ===
-Screened 5 candidate(s). 5 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
+Screened 7 candidate(s). 7 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
 Top candidate: acetamide (CC(=O)N) — min Tm 238.9 K (Δ11.9%) | high confidence
 =================================
 
@@ -7,8 +7,10 @@ compound | is_des | min_tm_k | eutectic_x_b | source | trust | mean_tm_k | sprea
 acetamide (CC(=O)N) | True | 238.92 | 0.50 | source=heuristic; id=rule-based-family-library | trust=0.86 | mean=244.33 K | spread=243.67-244.84 K | std=0.49 K | high confidence | min Tm=238.92 K, absolute<= 260.00 K, relative_drop=0.119
 ethylene glycol (OCCO) | True | 201.75 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.82 | mean=205.11 K | spread=203.51-206.61 K | std=1.26 K | high confidence | min Tm=201.75 K, absolute<= 260.00 K, relative_drop=0.226
 acetic acid (CC(=O)O) | True | 239.56 | 0.40 | source=heuristic; id=rule-based-family-library | trust=0.74 | mean=239.54 K | spread=236.54-243.47 K | std=2.90 K | moderate-high confidence | min Tm=239.56 K, absolute<= 260.00 K, relative_drop=0.117
+NCCO | True | 219.53 | 0.60 | source=analogue; id=OCCO | trust=0.75 | mean=223.26 K | spread=220.77-226.92 K | std=2.64 K | moderate-high confidence | min Tm=219.53 K, absolute<= 260.00 K, relative_drop=0.191
 glycerol (OCC(O)CO) | True | 221.20 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.73 | mean=218.16 K | spread=215.21-222.28 K | std=3.01 K | moderate-high confidence | min Tm=221.20 K, absolute<= 260.00 K, relative_drop=0.184
 water (O) | True | 225.27 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.69 | mean=225.81 K | spread=223.35-228.33 K | std=2.03 K | moderate confidence — consider experimental verification | min Tm=225.27 K, absolute<= 260.00 K, relative_drop=0.118
+1,3-propanediol (OCCCO) | True | 200.73 | 0.60 | source=analogue; id=OCCO | trust=0.42 | mean=196.83 K | spread=187.30-202.43 K | std=6.78 K | moderate confidence — consider experimental verification | min Tm=200.73 K, absolute<= 260.00 K, relative_drop=0.260
 
 Melting-point inputs:
 component | Tm_K | source | confidence
@@ -16,15 +18,25 @@ ethanol (CCO) | 271.19 | heuristic | 0.35
 acetamide (CC(=O)N) | 354.06 | experimental | 0.95
 ethylene glycol (OCCO) | 260.60 | experimental | 0.95
 acetic acid (CC(=O)O) | 289.85 | experimental | 0.95
+NCCO | 283.55 | experimental | 0.95
 glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
 water (O) | 255.36 | heuristic | 0.35
+1,3-propanediol (OCCCO) | 292.00 | heuristic | 0.35
+
+Grounding verdicts:
+- ✓ verified | DES plausibility of 'CCO' + 'CC(=O)N'
+- ✓ verified | DES plausibility of 'CCO' + 'OCCO'
+- ✓ verified | DES plausibility of 'CCO' + 'CC(=O)O'
+- ✓ verified | DES plausibility of 'CCO' + 'NCCO'
+- ✓ verified | DES plausibility of 'CCO' + 'OCC(O)CO'
+- ✓ verified | DES plausibility of 'CCO' + 'OCCCO'
 
 Run memory:
-- Applied chemical pattern memory ranking bias to 5 candidate(s).
-- Chemical pattern memory favored productive families: amide, diol, carboxylic acid.
+- Applied chemical pattern memory ranking bias to 7 candidate(s).
+- Chemical pattern memory favored productive families: analogue, amide, diol.
 summary:
 - command: des
 - workflow: des
-- ranked candidates: 5
+- ranked candidates: 7
 - reuse memory: yes
 - exports written: yes

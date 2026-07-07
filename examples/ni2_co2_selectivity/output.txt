@@ -1,11 +1,17 @@
 === Metal Selectivity Screen: Ni2+ over Co2+ ===
-Screened 20 candidate(s) over 3 cycle(s).
-Top ligand: CC(O)(P(=O)(O)O)P(=O)(O)O — score=7.99 (ΔlogK=0.08, logK(Ni2+)=15.90)
+Screened 26 candidate(s) over 3 cycle(s).
+Top ligand: NC(CCC(=O)O)(CC(=O)O)C(=O)O — score=8.14 (ΔlogK=0.08, logK(Ni2+)=16.19)
 ====================================================
 
 ligand | log_k_target | log_k_competitor | delta_log_k | score | source | rationale
+NC(CCC(=O)O)(CC(=O)O)C(=O)O | 16.19 | 16.11 | 0.08 | 8.14 | source=analogue; id=NC(CC(=O)O)(CC(=O)O)C(=O)O | analogue of NC(CC(=O)O)(CC(=O)O)C(=O)O (ΔlogK=0.08, via chain_extend)
+CC(N)(P(=O)(O)O)P(=O)(O)O | 16.16 | 16.08 | 0.08 | 8.12 | source=analogue; id=CC(O)(P(=O)(O)O)P(=O)(O)O | analogue of CC(O)(P(=O)(O)O)P(=O)(O)O (ΔlogK=0.08, via oh_to_nh2)
+NC(CC(=O)O)(CC(=O)O)C(=O)O | 16.16 | 16.08 | 0.08 | 8.12 | source=analogue; id=O=C(O)CC(O)(CC(=O)O)C(=O)O | analogue of O=C(O)CC(O)(CC(=O)O)C(=O)O (ΔlogK=0.08, via oh_to_nh2)
+O=C(O)CCC(O)(CC(=O)O)C(=O)O | 15.93 | 15.85 | 0.08 | 8.01 | source=analogue; id=O=C(O)CC(O)(CC(=O)O)C(=O)O | analogue of O=C(O)CC(O)(CC(=O)O)C(=O)O (ΔlogK=0.08, via chain_extend)
 CC(O)(P(=O)(O)O)P(=O)(O)O | 15.90 | 15.82 | 0.08 | 7.99 | source=heuristic; id=rule-based-ligand-library | phosphonate (bidentate O,O-chelator)
 O=C(O)CC(O)(CC(=O)O)C(=O)O | 15.90 | 15.82 | 0.08 | 7.99 | source=heuristic; id=rule-based-ligand-library | citrate (tridentate O,O,O-chelator)
+CNC(C)(P(=O)(O)O)P(=O)(O)O | 15.57 | 15.49 | 0.08 | 7.82 | source=analogue; id=CC(N)(P(=O)(O)O)P(=O)(O)O | analogue of CC(N)(P(=O)(O)O)P(=O)(O)O (ΔlogK=0.08, via n_methyl)
+CNC(CC(=O)O)(CC(=O)O)C(=O)O | 15.57 | 15.49 | 0.08 | 7.82 | source=analogue; id=NC(CC(=O)O)(CC(=O)O)C(=O)O | analogue of NC(CC(=O)O)(CC(=O)O)C(=O)O (ΔlogK=0.08, via n_methyl)
 O=C(O)CN(CC(=O)O)CC(=O)O | 14.86 | 14.78 | 0.08 | 7.47 | source=heuristic; id=rule-based-ligand-library | nitrilotriacetate (tetradentate N,O,O,O-chelator)
 NC(Cc1c[nH]cn1)C(=O)O | 13.94 | 13.86 | 0.08 | 7.01 | source=heuristic; id=rule-based-ligand-library | histidine-like (bidentate N,N-imidazole donor)
 NCCNCCNCCN | 13.27 | 13.19 | 0.08 | 6.68 | source=heuristic; id=rule-based-ligand-library | triethylenetetramine (hexadentate polyamine)

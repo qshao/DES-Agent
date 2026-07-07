@@ -1,5 +1,5 @@
 smiles_b,is_des,min_tm_k,rank,source,source_id,trust_score,uncertainty_flag
-CC(=O)N,True,238.92388916015625,1,heuristic,rule-based-family-library,0.862481438969631,low
+CC(=O)N,True,238.9239044189453,1,heuristic,rule-based-family-library,0.862481438969631,low
 OCCO,True,201.74786376953125,2,heuristic,rule-based-family-library,0.8164113359053253,low
 CC(=O)O,True,239.5615692138672,3,heuristic,rule-based-family-library,0.7375208801346508,medium
 OCC(O)CO,True,221.20411682128906,4,heuristic,rule-based-family-library,0.7331836244461999,medium

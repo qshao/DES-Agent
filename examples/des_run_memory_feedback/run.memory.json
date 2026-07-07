@@ -1,5 +1,9 @@
 {
+  "accumulated_family_fail_counts": null,
+  "accumulated_family_scores": null,
   "component_a": "CCO",
+  "fg_fail_counts": null,
+  "fg_hit_counts": null,
   "labels": [
     {
       "label": "good",
@@ -13,7 +17,7 @@
   "n": 5,
   "ranked_candidates": [
     {
-      "min_tm_k": 238.92388916015625,
+      "min_tm_k": 238.9239044189453,
       "rank": 1,
       "smiles_b": "CC(=O)N",
       "source": "heuristic",
@@ -58,5 +62,6 @@
       "uncertainty_flag": "medium"
     }
   ],
+  "scaffold_counts": null,
   "workflow": "des"
 }

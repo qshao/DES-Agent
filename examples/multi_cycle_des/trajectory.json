@@ -1,0 +1,175 @@
+{
+  "converged": true,
+  "convergence_reason": "top-5 shortlist identical to previous cycle",
+  "final_summary": [
+    {
+      "label": "acetamide (CC(=O)N)",
+      "metric_name": "min_tm_k",
+      "metric_value": 238.9239044189453,
+      "secondary": "\u039411.9%, high confidence"
+    },
+    {
+      "label": "ethylene glycol (OCCO)",
+      "metric_name": "min_tm_k",
+      "metric_value": 201.74786376953125,
+      "secondary": "\u039422.6%, high confidence"
+    },
+    {
+      "label": "acetic acid (CC(=O)O)",
+      "metric_name": "min_tm_k",
+      "metric_value": 239.5615692138672,
+      "secondary": "\u039411.7%, moderate-high confidence"
+    },
+    {
+      "label": "NCCO",
+      "metric_name": "min_tm_k",
+      "metric_value": 219.5255126953125,
+      "secondary": "\u039419.1%, moderate-high confidence"
+    },
+    {
+      "label": "glycerol (OCC(O)CO)",
+      "metric_name": "min_tm_k",
+      "metric_value": 221.20411682128906,
+      "secondary": "\u039418.4%, moderate-high confidence"
+    }
+  ],
+  "headline": "DES partners for ethanol (CCO)",
+  "metric_label": "min Tm (K)",
+  "snapshots": [
+    {
+      "converged": false,
+      "convergence_reason": "",
+      "cycle": 1,
+      "dropouts": [],
+      "family_ledger": {},
+      "n_hits": 5,
+      "n_screened": 5,
+      "new_entrants": [],
+      "notable_warnings": [],
+      "top_entries": [
+        {
+          "label": "acetamide (CC(=O)N)",
+          "metric_name": "min_tm_k",
+          "metric_value": 238.9239044189453,
+          "secondary": "\u039411.9%, high confidence"
+        },
+        {
+          "label": "ethylene glycol (OCCO)",
+          "metric_name": "min_tm_k",
+          "metric_value": 201.74786376953125,
+          "secondary": "\u039422.6%, high confidence"
+        },
+        {
+          "label": "acetic acid (CC(=O)O)",
+          "metric_name": "min_tm_k",
+          "metric_value": 239.5615692138672,
+          "secondary": "\u039411.7%, moderate-high confidence"
+        },
+        {
+          "label": "glycerol (OCC(O)CO)",
+          "metric_name": "min_tm_k",
+          "metric_value": 221.20411682128906,
+          "secondary": "\u039418.4%, moderate-high confidence"
+        },
+        {
+          "label": "water (O)",
+          "metric_name": "min_tm_k",
+          "metric_value": 225.27220153808594,
+          "secondary": "\u039411.8%, moderate confidence \u2014 consider experimental verification"
+        }
+      ]
+    },
+    {
+      "converged": false,
+      "convergence_reason": "",
+      "cycle": 2,
+      "dropouts": [
+        "water (O)"
+      ],
+      "family_ledger": {},
+      "n_hits": 7,
+      "n_screened": 7,
+      "new_entrants": [
+        "NCCO"
+      ],
+      "notable_warnings": [],
+      "top_entries": [
+        {
+          "label": "acetamide (CC(=O)N)",
+          "metric_name": "min_tm_k",
+          "metric_value": 238.9239044189453,
+          "secondary": "\u039411.9%, high confidence"
+        },
+        {
+          "label": "ethylene glycol (OCCO)",
+          "metric_name": "min_tm_k",
+          "metric_value": 201.74786376953125,
+          "secondary": "\u039422.6%, high confidence"
+        },
+        {
+          "label": "acetic acid (CC(=O)O)",
+          "metric_name": "min_tm_k",
+          "metric_value": 239.5615692138672,
+          "secondary": "\u039411.7%, moderate-high confidence"
+        },
+        {
+          "label": "glycerol (OCC(O)CO)",
+          "metric_name": "min_tm_k",
+          "metric_value": 221.20411682128906,
+          "secondary": "\u039418.4%, moderate-high confidence"
+        },
+        {
+          "label": "NCCO",
+          "metric_name": "min_tm_k",
+          "metric_value": 219.5255126953125,
+          "secondary": "\u039419.1%, moderate-high confidence"
+        }
+      ]
+    },
+    {
+      "converged": true,
+      "convergence_reason": "top-5 shortlist identical to previous cycle",
+      "cycle": 3,
+      "dropouts": [],
+      "family_ledger": {},
+      "n_hits": 7,
+      "n_screened": 7,
+      "new_entrants": [],
+      "notable_warnings": [],
+      "top_entries": [
+        {
+          "label": "acetamide (CC(=O)N)",
+          "metric_name": "min_tm_k",
+          "metric_value": 238.9239044189453,
+          "secondary": "\u039411.9%, high confidence"
+        },
+        {
+          "label": "ethylene glycol (OCCO)",
+          "metric_name": "min_tm_k",
+          "metric_value": 201.74786376953125,
+          "secondary": "\u039422.6%, high confidence"
+        },
+        {
+          "label": "acetic acid (CC(=O)O)",
+          "metric_name": "min_tm_k",
+          "metric_value": 239.5615692138672,
+          "secondary": "\u039411.7%, moderate-high confidence"
+        },
+        {
+          "label": "NCCO",
+          "metric_name": "min_tm_k",
+          "metric_value": 219.5255126953125,
+          "secondary": "\u039419.1%, moderate-high confidence"
+        },
+        {
+          "label": "glycerol (OCC(O)CO)",
+          "metric_name": "min_tm_k",
+          "metric_value": 221.20411682128906,
+          "secondary": "\u039418.4%, moderate-high confidence"
+        }
+      ]
+    }
+  ],
+  "total_cycles": 3,
+  "workflow": "des"
+}
