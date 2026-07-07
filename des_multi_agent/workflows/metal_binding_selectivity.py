@@ -208,7 +208,7 @@ def _build_selectivity_context(
     family_hit_scores: dict[str, list[float]] | None = None,
     saturated_families: set[str] | None = None,
 ) -> str:
-    metals = [competitor_metal] if isinstance(competitor_metal, str) else list(competitor_metal)
+    metals = _normalize_competitor_metals(competitor_metal)
     competitor_line = (
         f"Competitor metal: {metals[0]}" if len(metals) == 1
         else f"Off-target metals: {', '.join(metals)}"
@@ -259,7 +259,7 @@ _SELECTIVITY_SUCCESS_THRESHOLD = 0.0  # delta_log_k > 0 = selective
 
 def run_metal_selectivity_screen(
     target_metal: str,
-    competitor_metal: str,
+    competitor_metal: str | list[str],
     n: int = 20,
     model_path=None,
     llm_provider=None,

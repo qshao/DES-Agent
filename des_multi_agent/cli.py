@@ -54,6 +54,14 @@ def _init_presets() -> None:
 _init_presets()
 
 
+def _parse_competitor_metals(raw: str) -> list[str]:
+    """Split a --competitor-metal-ion value into a list of metal ions.
+
+    Accepts a single metal ("Zn2+") or a comma-separated list ("Zn2+,Fe3+").
+    """
+    return [m.strip() for m in raw.split(",") if m.strip()]
+
+
 def _emit_trajectory(traj, output_dir) -> None:
     """Print the console trajectory summary to stderr and optionally write trajectory.md.
 
@@ -729,7 +737,7 @@ def main(argv=None):
                 absolute_tm_max_k=abs_tm_sel if abs_tm_sel is not None else base_sel.absolute_tm_max_k,
                 relative_drop_min=rel_drop_sel if rel_drop_sel is not None else base_sel.relative_drop_min,
             )
-        competitor_metals = [m.strip() for m in args.competitor_metal_ion.split(",") if m.strip()]
+        competitor_metals = _parse_competitor_metals(args.competitor_metal_ion)
         try:
             pipeline_outcome = run_selectivity_des_pipeline(
                 target_metal=args.target_metal_ion,
@@ -785,19 +793,22 @@ def main(argv=None):
                 )
         from .llm.factory import build_llm_provider as _build_llm_provider
         llm_provider_sel = _build_llm_provider(llm_cfg) if llm_cfg is not None else None
-        competitor_metals = [m.strip() for m in args.competitor_metal_ion.split(",") if m.strip()]
-        sel_outcome = run_metal_selectivity_screen(
-            target_metal=args.target_metal_ion,
-            competitor_metal=competitor_metals,
-            n=getattr(args, "n", 20),
-            model_path=args.stability_constant_model_path,
-            llm_provider=llm_provider_sel,
-            n_cycles=getattr(args, "n_cycles", 1),
-            w_affinity=args.affinity_weight,
-            w_selectivity=args.selectivity_weight,
-            dft_validate=getattr(args, "dft_validate", False),
-            dft_top_n=getattr(args, "dft_top_n", 3),
-        )
+        competitor_metals = _parse_competitor_metals(args.competitor_metal_ion)
+        try:
+            sel_outcome = run_metal_selectivity_screen(
+                target_metal=args.target_metal_ion,
+                competitor_metal=competitor_metals,
+                n=getattr(args, "n", 20),
+                model_path=args.stability_constant_model_path,
+                llm_provider=llm_provider_sel,
+                n_cycles=getattr(args, "n_cycles", 1),
+                w_affinity=args.affinity_weight,
+                w_selectivity=args.selectivity_weight,
+                dft_validate=getattr(args, "dft_validate", False),
+                dft_top_n=getattr(args, "dft_top_n", 3),
+            )
+        except (FileNotFoundError, ValueError) as exc:
+            parser.error(str(exc))
         print(format_metal_selectivity_report(sel_outcome))
         _print_summary("metal-selectivity", sel_outcome)
         _emit_trajectory(getattr(sel_outcome, "trajectory", None), getattr(args, "output_dir", None))

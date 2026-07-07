@@ -5,6 +5,11 @@ from collections.abc import Sequence
 from ..evaluation import DesResult
 
 
+def _as_metal_list(competitor_metal: str | list[str]) -> list[str]:
+    """Normalize a bare metal string or list of metals into a list for prompt rendering."""
+    return [competitor_metal] if isinstance(competitor_metal, str) else list(competitor_metal)
+
+
 # ---------------------------------------------------------------------------
 # Metal-binding ligand prompts
 # ---------------------------------------------------------------------------
@@ -94,7 +99,7 @@ def ligand_selectivity_brainstorm_prompt(
     facts_block: str = "",
     known_ligand_menu: list | None = None,
 ) -> str:
-    metals = [competitor_metal] if isinstance(competitor_metal, str) else list(competitor_metal)
+    metals = _as_metal_list(competitor_metal)
     parts = [
         "Return raw JSON only. Do not use markdown fences or commentary.\n",
         f"Return a JSON array of candidate ligand SMILES designed for HIGH SELECTIVITY "
@@ -346,7 +351,7 @@ def dft_nomination_prompt(
     top_n: int = 3,
 ) -> str:
     """Prompt asking the LLM to nominate candidates for DFT validation."""
-    metals = [competitor_metal] if isinstance(competitor_metal, str) else list(competitor_metal)
+    metals = _as_metal_list(competitor_metal)
     competitor_line = (
         f"Competitor: {metals[0]}." if len(metals) == 1
         else f"Off-target metals: {', '.join(metals)}."

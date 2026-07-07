@@ -351,6 +351,21 @@ def test_metal_selectivity_cli_single_competitor_metal_becomes_one_element_list(
     assert captured["competitor_metal"] == ["Zn2+"]
 
 
+def test_metal_selectivity_cli_blank_competitor_metal_ion_exits_cleanly(monkeypatch):
+    """A comma/whitespace-only --competitor-metal-ion (passes the truthiness check but
+    strips to an empty list) must exit via parser.error, not an uncaught ValueError
+    traceback -- matching the selectivity-des workflow's existing behavior."""
+    with pytest.raises(SystemExit):
+        cli_module.main([
+            "--workflow",
+            "metal-selectivity",
+            "--target-metal-ion",
+            "Cu2+",
+            "--competitor-metal-ion",
+            " , ",
+        ])
+
+
 def test_selectivity_des_cli_splits_comma_separated_competitor_metals(monkeypatch, tmp_path):
     checkpoint_path = tmp_path / "ckpt.pt"
     checkpoint_path.write_text("ckpt", encoding="utf-8")
