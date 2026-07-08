@@ -290,3 +290,70 @@ def test_parse_router_response_rejects_missing_metal_binding_required_field():
     )
     with pytest.raises(ValueError, match="missing required fields for metal-binding"):
         parse_router_response(payload)
+
+
+def test_extract_json_object_strips_think_block():
+    raw = (
+        "<think>\n"
+        "Let me work out the fields.\n"
+        "Draft attempt:\n"
+        "```json\n"
+        "{\"workflow\": \"draft\", \"job\": {}}\n"
+        "```\n"
+        "Actually, let me reconsider and use the real field names.\n"
+        "</think>\n"
+        "\n"
+        "{\"workflow\": \"des\", \"job\": {\"component_a\": \"CCO\"}}"
+    )
+    payload = extract_json_object(raw)
+    assert payload == "{\"workflow\": \"des\", \"job\": {\"component_a\": \"CCO\"}}"
+
+
+def test_extract_json_object_strips_think_block_case_insensitively():
+    raw = "<THINK>draft {\"a\": 1}</THINK>\n{\"workflow\": \"des\"}"
+    payload = extract_json_object(raw)
+    assert payload == "{\"workflow\": \"des\"}"
+
+
+def test_extract_json_object_raises_clear_error_for_unclosed_think_tag():
+    raw = "<think>\nStill reasoning about the fields and never finishing"
+    with pytest.raises(ValueError, match="unclosed <think>"):
+        extract_json_object(raw)
+
+
+def test_extract_json_object_uses_last_think_close_with_multiple_blocks():
+    raw = (
+        "<think>First pass, considering options.</think>"
+        "<think>Wait, reconsidering: draft {\"a\": 1}</think>\n"
+        "{\"workflow\": \"des\"}"
+    )
+    payload = extract_json_object(raw)
+    assert payload == "{\"workflow\": \"des\"}"
+
+
+def test_parse_candidate_brainstorms_handles_think_wrapped_response():
+    raw = (
+        "<think>\n"
+        "Draft candidates: [{\"smiles\": \"X\", \"rationale\": \"draft\", \"family\": \"draft\"}]\n"
+        "</think>\n"
+        "[{\"smiles\": \"OCCO\", \"rationale\": \"diol H-bonding\", \"family\": \"diol\"}]"
+    )
+    result = parse_candidate_brainstorms(raw)
+    assert len(result) == 1
+    assert result[0].smiles == "OCCO"
+    assert result[0].family == "diol"
+
+
+def test_parse_router_response_handles_think_wrapped_payload():
+    raw = (
+        "<think>\n"
+        "Draft: {\"workflow\": \"draft\"}\n"
+        "Let me finalize.\n"
+        "</think>\n"
+        "{\"workflow\":\"des\",\"needs_clarification\":false,\"clarifying_questions\":[],"
+        "\"job\":{\"component_a\":\"CCO\",\"n\":5,\"checkpoint_path\":\"ckpt.pt\",\"config_path\":\"ml_des_mp/config.yaml\"}}"
+    )
+    response = parse_router_response(raw)
+    assert response.workflow == "des"
+    assert response.job is not None
+    assert response.job.component_a == "CCO"

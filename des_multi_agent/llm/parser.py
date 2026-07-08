@@ -25,8 +25,22 @@ def _strip_code_fences(raw: str) -> str:
     return text
 
 
+def _strip_think_blocks(raw: str) -> str:
+    lowered = raw.lower()
+    last_close = lowered.rfind("</think>")
+    if last_close == -1:
+        if "<think>" in lowered:
+            raise ValueError(
+                "LLM response contains an unclosed <think> tag — the response was likely "
+                "truncated before reasoning completed. Consider raising max_tokens."
+            )
+        return raw
+    return raw[last_close + len("</think>"):]
+
+
 def _extract_json_block(raw: str) -> str:
-    text = _strip_code_fences(raw)
+    text = _strip_think_blocks(raw)
+    text = _strip_code_fences(text)
     if text.startswith("[") or text.startswith("{"):
         return text
     match = re.search(r"(\[[\s\S]*\]|\{[\s\S]*\})", text)
