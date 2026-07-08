@@ -239,6 +239,17 @@ def test_parse_router_response_applies_field_aliases():
     assert response.job.config_path == "ml_des_mp/config.yaml"
 
 
+def test_parse_router_response_applies_field_aliases_for_metal_binding():
+    payload = (
+        "{\"workflow\":\"metal-binding\",\"needs_clarification\":false,\"clarifying_questions\":[],"
+        "\"job\":{\"target_metal\":\"Cu2+\",\"target_ligand\":\"NCCN\",\"stability_constant_model_path\":\"model.json\"}}"
+    )
+    response = parse_router_response(payload)
+    assert response.job is not None
+    assert response.job.metal_ion == "Cu2+"
+    assert response.job.ligand_smiles == "NCCN"
+
+
 def test_task_router_prompt_mentions_clarify_state():
     prompt = task_router_prompt("find DES partners for lidocaine")
     assert "workflow=\"clarify\"" in prompt

@@ -90,6 +90,10 @@ client-side default-substitution fallback that `plain_language_gemma4_12b/run_ex
 `plain_language_metal_binding_gemma4_12b/run_example.py` already implement
 (`_normalize_router_job`).
 
+**Update (2026-07-07):** both of these were implemented — see
+`des_multi_agent/router_normalization.py` and
+`docs/superpowers/plans/2026-07-07-router-response-normalization.md`.
+
 ### Addendum to Finding 2 — repeated testing shows this is a frequent, reproducible failure, not a rare fluke
 
 A separate manual pass ran `task_router` and `task_execute` several times back to back (outside

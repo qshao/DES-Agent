@@ -33,6 +33,17 @@ def test_apply_field_aliases_maps_all_known_aliases():
     }
 
 
+def test_apply_field_aliases_maps_metal_binding_aliases():
+    result = apply_field_aliases({
+        "target_metal": "Cu2+",
+        "target_ligand": "NCCN",
+    })
+    assert result == {
+        "metal_ion": "Cu2+",
+        "ligand_smiles": "NCCN",
+    }
+
+
 def test_resolve_path_or_default_returns_existing_path(tmp_path):
     real_file = tmp_path / "config.yaml"
     real_file.write_text("llm: {}")

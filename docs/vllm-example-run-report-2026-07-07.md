@@ -187,6 +187,8 @@ after each run.
    `docs/example-run-report-2026-07-06.md`'s Finding 2): the plain-language example scripts'
    `_normalize_router_job` fallback-value set is too narrow (`{None, "", "default"}`) to catch the
    range of plausible paraphrases a model can produce for "use the default/shipped X."
+   **Update (2026-07-07):** implemented — see `des_multi_agent/router_normalization.py` and
+   `docs/superpowers/plans/2026-07-07-router-response-normalization.md`.
 3. **Nemotron vLLM twin**: would need sourcing a Hugging Face checkpoint for `nemotron-3-nano`
    compatible with vLLM, not attempted here.
 

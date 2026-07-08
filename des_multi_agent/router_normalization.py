@@ -11,6 +11,7 @@ FIELD_ALIASES: dict[str, str] = {
     "target_compound": "component_a",
     "target_substance": "component_a",
     "chemical_formula": "component_a",
+    # NOTE: "smiles" is DES-only — metal-binding ligand SMILES use "ligand_smiles"/"target_ligand"/"ligand" instead.
     "smiles": "component_a",
     # n
     "num_candidates": "n",
@@ -27,10 +28,19 @@ FIELD_ALIASES: dict[str, str] = {
     # stability_constant_model_path
     "stability_model": "stability_constant_model_path",
     "stability_constant_model": "stability_constant_model_path",
+    # metal_ion
+    "target_metal": "metal_ion",
+    "metal": "metal_ion",
+    "ion": "metal_ion",
+    # ligand_smiles
+    "target_ligand": "ligand_smiles",
+    "ligand": "ligand_smiles",
 }
 
 
 def apply_field_aliases(job_data: dict) -> dict:
+    # If a payload has two aliases for the same canonical field, the one earlier in
+    # this dict's insertion order wins (iteration order below is deterministic).
     out = dict(job_data)
     for alias, canonical in FIELD_ALIASES.items():
         if alias in out and canonical not in out:
