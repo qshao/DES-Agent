@@ -1,19 +1,34 @@
 from __future__ import annotations
 
 from .request_normalization import NormalizedRequest
+from .task_router_schema import REQUIRED_FIELDS_BY_WORKFLOW
 
 
-ROUTER_SYSTEM_PROMPT = """You are a task router. Convert the user's request into strict JSON only.
-Use existing CLI field names. If inputs are missing or ambiguous, return clarification questions.
-Support workflows: des, metal-binding. If the workflow is unclear, use workflow="clarify" and ask a workflow question. If clarification is needed, set job to null.
-Do not execute anything."""
+def _field_name_lines() -> str:
+    lines = []
+    for workflow, field_names in REQUIRED_FIELDS_BY_WORKFLOW.items():
+        lines.append(
+            f'For workflow="{workflow}", the job object must use exactly these field names: '
+            + ", ".join(field_names) + "."
+        )
+    return "\n".join(lines)
+
+
+ROUTER_SYSTEM_PROMPT = (
+    "You are a task router. Convert the user's request into strict JSON only.\n"
+    "If inputs are missing or ambiguous, return clarification questions.\n"
+    "Support workflows: des, metal-binding. If the workflow is unclear, use workflow=\"clarify\" and ask a workflow question. If clarification is needed, set job to null.\n"
+    "\n"
+    f"{_field_name_lines()}\n"
+    "Do not invent other field names.\n"
+    "Do not execute anything."
+)
 
 
 def task_router_prompt(request: str, normalized: NormalizedRequest | None = None) -> str:
     prompt = (
         f"{ROUTER_SYSTEM_PROMPT}\n\n"
         "Return a JSON object with keys workflow, needs_clarification, clarifying_questions, and job.\n"
-        "Use existing CLI field names for job fields.\n"
     )
     if normalized is not None:
         prompt += "\nNormalized request hints:\n"

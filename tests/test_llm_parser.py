@@ -245,6 +245,13 @@ def test_task_router_prompt_mentions_clarify_state():
     assert "clarification questions" in prompt.lower() or "clarification" in prompt.lower()
 
 
+def test_task_router_prompt_lists_required_field_names_per_workflow():
+    prompt = task_router_prompt("find DES partners for lidocaine")
+    assert 'workflow="des"' in prompt
+    assert "component_a, n, checkpoint_path, config_path" in prompt
+    assert 'workflow="metal-binding"' in prompt
+    assert "metal_ion, ligand_smiles, stability_constant_model_path" in prompt
+
 
 def test_parse_router_response_rejects_missing_des_required_field():
     payload = (
