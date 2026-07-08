@@ -183,6 +183,8 @@ after each run.
    isolate content after a `</think>` tag (when present) before applying its brace-matching regex,
    or switch to non-greedy/balanced-brace matching that stops at the first complete top-level JSON
    object rather than spanning to the last `}` in the response.
+   **Update (2026-07-08):** implemented — see `des_multi_agent/llm/parser.py`'s
+   `_strip_think_blocks` and `docs/superpowers/plans/2026-07-08-thinking-model-json-extraction.md`.
 2. **Router job field normalization** (Finding 1, echoing the same follow-up in
    `docs/example-run-report-2026-07-06.md`'s Finding 2): the plain-language example scripts'
    `_normalize_router_job` fallback-value set is too narrow (`{None, "", "default"}`) to catch the
