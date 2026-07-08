@@ -58,7 +58,6 @@ def _normalize_router_job(raw_job: dict, request_text: str) -> RouterJob:
     )
     ligand_smiles = (
         raw_job.get("ligand_smiles")
-        or raw_job.get("target_compound")
         or raw_job.get("target_ligand")
         or raw_job.get("ligand")
         or _extract_field(r"ligand[_\s-]*smiles\s*[:=]?\s*([A-Za-z0-9@+\-#=\[\]\(\)\\/]+)", request_text)
