@@ -226,6 +226,19 @@ def test_parse_router_response_ignores_extra_job_fields():
     assert not hasattr(response.job, "model")
 
 
+def test_parse_router_response_applies_field_aliases():
+    payload = (
+        "{\"workflow\":\"des\",\"needs_clarification\":false,\"clarifying_questions\":[],"
+        "\"job\":{\"target_molecule\":\"CCO\",\"num_candidates\":5,\"checkpoint\":\"ckpt.pt\",\"config\":\"ml_des_mp/config.yaml\"}}"
+    )
+    response = parse_router_response(payload)
+    assert response.job is not None
+    assert response.job.component_a == "CCO"
+    assert response.job.n == 5
+    assert response.job.checkpoint_path == "ckpt.pt"
+    assert response.job.config_path == "ml_des_mp/config.yaml"
+
+
 def test_task_router_prompt_mentions_clarify_state():
     prompt = task_router_prompt("find DES partners for lidocaine")
     assert "workflow=\"clarify\"" in prompt

@@ -11,6 +11,7 @@ from .llm.config import LLMConfig
 from .llm.factory import build_llm_provider
 from .llm.parser import extract_json_object
 from .request_normalization import normalize_request_text
+from .router_normalization import apply_field_aliases
 from .task_router_schema import RouterJob, RouterResponse
 
 DEFAULT_ROUTER_LLM_CONFIG = PROJECT_ROOT / "llm.example.yaml"
@@ -59,6 +60,7 @@ def parse_router_response(payload: str) -> RouterResponse:
     clarifying_questions = _normalize_questions(raw.get("clarifying_questions"))
     job_data = raw.get("job")
     if isinstance(job_data, dict):
+        job_data = apply_field_aliases(job_data)
         allowed_fields = {item.name for item in fields(RouterJob)}
         filtered_job_data = {key: value for key, value in job_data.items() if key in allowed_fields}
         try:
