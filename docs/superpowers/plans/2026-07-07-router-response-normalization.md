@@ -477,7 +477,6 @@ def _normalize_router_job(raw_job: dict, request_text: str) -> RouterJob:
     )
     ligand_smiles = (
         raw_job.get("ligand_smiles")
-        or raw_job.get("target_compound")
         or raw_job.get("target_ligand")
         or raw_job.get("ligand")
         or _extract_field(r"ligand[_\s-]*smiles\s*[:=]?\s*([A-Za-z0-9@+\-#=\[\]\(\)\\/]+)", request_text)
@@ -492,7 +491,10 @@ def _normalize_router_job(raw_job: dict, request_text: str) -> RouterJob:
     )
 ```
 
-Add the same import line as Step 1. Note the removal of `or raw_job.get("checkpoint")` from the `stability_value` fallback chain: `FIELD_ALIASES` (Task 1) maps `"checkpoint"` to `checkpoint_path`, not `stability_constant_model_path` — `checkpoint_path` isn't a metal-binding field, so a model that says `"checkpoint": "..."` for a metal-binding job now gets that value routed to a field this script ignores. This is intentional and not a loss of robustness: `resolve_path_or_default` already treats *any* missing/unresolvable `stability_constant_model_path` as "use the default," which is strictly more general than the single-key `"checkpoint"` fallback it replaces.
+Add the same import line as Step 1. Two deliberate fallback removals from the original `_normalize_router_job`, both superseded by the shared module rather than lost:
+
+- `or raw_job.get("checkpoint")` is dropped from the `stability_value` fallback chain: `FIELD_ALIASES` (Task 1) maps `"checkpoint"` to `checkpoint_path`, not `stability_constant_model_path` — `checkpoint_path` isn't a metal-binding field, so a model that says `"checkpoint": "..."` for a metal-binding job now gets that value routed to a field this script ignores. `resolve_path_or_default` already treats *any* missing/unresolvable `stability_constant_model_path` as "use the default," which is strictly more general than the single-key `"checkpoint"` fallback it replaces.
+- `or raw_job.get("target_compound")` is dropped from the `ligand_smiles` fallback chain for the identical reason: `FIELD_ALIASES` also maps `"target_compound"` to `component_a` (a DES-only field, and a well-evidenced alias from the DES plain-language script's own original code — see Task 1's `FIELD_ALIASES`). Since `apply_field_aliases` runs first and pops `target_compound` into `component_a`, `raw_job.get("target_compound")` here would always be `None` post-aliasing — leaving it in would be dead code implying a fallback that can never fire. `ligand_smiles` still has 3 remaining fallback keys plus the regex extraction from the raw request text, so no real coverage is lost.
 
 - [ ] **Step 4: Update `examples/plain_language_metal_binding_gemma4_12b_vllm/run_example.py` identically**
 
