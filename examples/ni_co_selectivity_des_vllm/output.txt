@@ -1,0 +1,121 @@
+=== Selectivity-DES Pipeline: Ni2+ over Co2+ ===
+Outer cycles run: 2 | Converged: no
+Shortlisted ligands: 3 | DES-compatible: 3
+====================================================
+
+--- Section 1: Selectivity Results ---
+
+ligand | log_k_target | log_k_competitor | delta_log_k | score | des_compatible
+Nc1ccc(NS(=O)(=O)c2ccc(NC(=O)C(N)CCCN3CCC3)cc2)cc1 | 18.52 | 18.44 | 0.08 | 7.46 | yes
+Nc1ccc(NS(=O)(=O)c2ccc(NC(=O)C(N)CCN3CCC3)cc2)cc1 | 18.49 | 18.41 | 0.08 | 7.44 | yes
+Nc1ccc(NS(=O)(=O)c2ccc(NC(=O)C(N)CN3CCC3)cc2)cc1 | 18.46 | 18.38 | 0.08 | 7.43 | yes
+Nc1ccc(NS(=O)(=O)c2ccc(NC(=O)C(O)CCN3CCC3)cc2)cc1 | 18.23 | 18.15 | 0.08 | 7.34 | no
+Nc1ccc(NS(=O)(=O)c2ccc(NC(=O)C(O)CN3CCC3)cc2)cc1 | 18.20 | 18.12 | 0.08 | 7.33 | no
+CNC(CCN1CCC1)C(=O)Nc1ccc(S(=O)(=O)Nc2ccc(N)cc2)cc1 | 17.89 | 17.81 | 0.08 | 7.21 | no
+CNC(CN1CCC1)C(=O)Nc1ccc(S(=O)(=O)Nc2ccc(N)cc2)cc1 | 17.87 | 17.79 | 0.08 | 7.19 | no
+NC(CN1CCC1)C(=O)NC1=C(N2CCN(CC(=O)O)CC2)C=C1 | 15.95 | 15.87 | 0.08 | 6.43 | no
+Nc1ccc(Nc2ccc(Nc3ccc(N)cc3)cc2)cc1 | 15.47 | 15.39 | 0.08 | 6.24 | no
+NC(N)=NCCC(N)C(=O)O | 15.32 | 15.24 | 0.08 | 6.18 | no
+O=C(O)CN(CC(=O)O)CC(=O)O | 14.86 | 14.78 | 0.08 | 5.99 | no
+Nc1ccc(NC(=O)C(N)CN2CCC2)cc1 | 14.41 | 14.33 | 0.08 | 5.81 | no
+Nc1ccc(S(=O)(=O)Nc2ccc(S)cc2)cc1 | 14.28 | 14.20 | 0.08 | 5.76 | no
+O=C(O)CNCC(=O)O | 13.07 | 12.99 | 0.08 | 5.28 | no
+O=C(O)c1ccccc1O | 11.75 | 11.67 | 0.08 | 4.75 | no
+CN(C)C(=O)C1=CC=C1NC(=O)C(C1=CC=C1)P(C)C1=CC=C1 | 11.54 | 11.46 | 0.08 | 4.66 | no
+NCC(=O)O | 11.23 | 11.15 | 0.08 | 4.54 | no
+Oc1ccccc1O | 10.89 | 10.81 | 0.08 | 4.41 | no
+Oc1cccc2ncccc12 | 10.87 | 10.79 | 0.08 | 4.40 | no
+c1cnc2ccc3ncccc3c2c1 | 10.84 | 10.76 | 0.08 | 4.39 | no
+CC(=O)NO | 10.58 | 10.50 | 0.08 | 4.28 | no
+c1ccc(-c2ccccn2)nc1 | 10.45 | 10.37 | 0.08 | 4.23 | no
+CC(=O)CC(C)=O | 9.39 | 9.31 | 0.08 | 3.80 | no
+
+--- Section 2: DES Partners ---
+
+Ligand: Nc1ccc(NS(=O)(=O)c2ccc(NC(=O)C(N)CCCN3CCC3)cc2)cc1  (score=7.46, ΔlogK=0.08) — DES-compatible: YES
+  partner | min_tm_k | eutectic_ratio | tm_src | rationale
+  NC(=O)N | 341.9 | 0.20 | experimental (0.95) | min Tm=341.93 K, absolute<= 350.00 K, relative_drop=0.157
+  CC(=O)NCCO | 320.5 | 0.20 | qspr (0.64) | min Tm=320.55 K, absolute<= 350.00 K, relative_drop=0.102
+  NC(=O)C1=CC=C(C=C1)C(=O)O | 332.9 | 0.40 | qspr (0.68) | min Tm=332.86 K, absolute<= 350.00 K, relative_drop=0.339
+  OC[C@H](O)[C@H](O)CO | 306.9 | 0.30 | experimental (0.95) | min Tm=306.90 K, absolute<= 350.00 K, relative_drop=0.222
+  NC(=O)C1=CC=C(C=C1)C(=O)N | 394.4 | 0.40 | qspr (0.67) | min Tm=394.39 K, absolute<= 350.00 K, relative_drop=0.216
+  CC(=O)N | 340.0 | 0.10 | experimental (0.95) | min Tm=339.96 K, absolute<= 350.00 K, relative_drop=0.040
+  O=C1NC(=O)NC1 | 385.8 | 0.30 | qspr (0.40) | min Tm=385.79 K, absolute<= 350.00 K, relative_drop=0.164
+  CS(=O)(=O)C | 251.5 | 0.10 | qspr (0.40) | min Tm=251.53 K, absolute<= 350.00 K, relative_drop=0.058
+  OCC(O)CO | 269.4 | 0.10 | experimental (0.95) | min Tm=269.39 K, absolute<= 350.00 K, relative_drop=0.075
+  O | 336.2 | 0.10 | qspr (0.40) | min Tm=336.15 K, absolute<= 350.00 K, relative_drop=-0.286
+  COCCO | 274.3 | 0.10 | qspr (0.79) | min Tm=274.29 K, absolute<= 350.00 K, relative_drop=-0.341
+  CN | 348.0 | 0.10 | qspr (0.67) | min Tm=347.97 K, absolute<= 350.00 K, relative_drop=-0.984
+  OCCCO | 301.0 | 0.10 | qspr (0.61) | min Tm=300.95 K, absolute<= 350.00 K, relative_drop=-0.026
+  OCCO | 282.0 | 0.10 | experimental (0.95) | min Tm=282.05 K, absolute<= 350.00 K, relative_drop=-0.082
+  CC(=O)O | 324.4 | 0.10 | experimental (0.95) | min Tm=324.38 K, absolute<= 350.00 K, relative_drop=-0.119
+  O=C1CCCN1 | 375.5 | 0.10 | qspr (0.81) | min Tm=375.53 K, absolute<= 350.00 K, relative_drop=-0.159
+
+Ligand: Nc1ccc(NS(=O)(=O)c2ccc(NC(=O)C(N)CCN3CCC3)cc2)cc1  (score=7.44, ΔlogK=0.08) — DES-compatible: YES
+  partner | min_tm_k | eutectic_ratio | tm_src | rationale
+  CC(=O)NCCO | 310.7 | 0.20 | qspr (0.64) | min Tm=310.70 K, absolute<= 350.00 K, relative_drop=0.130
+  CC(=O)C(N)C(=O)O | 339.3 | 0.40 | qspr (0.75) | min Tm=339.34 K, absolute<= 350.00 K, relative_drop=0.229
+  CC(=O)NCCN | 316.0 | 0.20 | qspr (0.69) | min Tm=316.04 K, absolute<= 350.00 K, relative_drop=0.126
+  OC[C@H](O)[C@H](O)CO | 292.3 | 0.30 | experimental (0.95) | min Tm=292.29 K, absolute<= 350.00 K, relative_drop=0.259
+  NC(=O)C1CCCC1 | 380.3 | 0.10 | qspr (0.72) | min Tm=380.28 K, absolute<= 350.00 K, relative_drop=0.041
+  CC(=O)N | 335.8 | 0.10 | experimental (0.95) | min Tm=335.75 K, absolute<= 350.00 K, relative_drop=0.052
+  OC1=CC=CC=N1 | 310.4 | 0.10 | qspr (0.52) | min Tm=310.37 K, absolute<= 350.00 K, relative_drop=0.002
+  CCOCC | 253.2 | 0.10 | qspr (0.78) | min Tm=253.21 K, absolute<= 350.00 K, relative_drop=-0.620
+  CC(=O)O | 317.0 | 0.10 | experimental (0.95) | min Tm=317.02 K, absolute<= 350.00 K, relative_drop=-0.094
+  OCCCO | 287.7 | 0.10 | qspr (0.61) | min Tm=287.67 K, absolute<= 350.00 K, relative_drop=0.020
+  OCCO | 271.3 | 0.10 | experimental (0.95) | min Tm=271.30 K, absolute<= 350.00 K, relative_drop=-0.041
+  COCCO | 265.3 | 0.10 | qspr (0.79) | min Tm=265.27 K, absolute<= 350.00 K, relative_drop=-0.297
+  CN(C)C=O | 337.4 | 0.10 | qspr (0.78) | min Tm=337.39 K, absolute<= 350.00 K, relative_drop=-0.597
+  CS(=O)C | 251.2 | 0.10 | qspr (0.50) | min Tm=251.18 K, absolute<= 350.00 K, relative_drop=0.004
+  O=C1NC(=O)NC1 | 387.1 | 0.30 | qspr (0.40) | min Tm=387.07 K, absolute<= 350.00 K, relative_drop=0.161
+  CS(=O)(=O)C | 245.9 | 0.20 | qspr (0.40) | min Tm=245.94 K, absolute<= 350.00 K, relative_drop=0.079
+  O=C1CCCN1 | 367.4 | 0.10 | qspr (0.81) | min Tm=367.40 K, absolute<= 350.00 K, relative_drop=-0.134
+
+Ligand: Nc1ccc(NS(=O)(=O)c2ccc(NC(=O)C(N)CN3CCC3)cc2)cc1  (score=7.43, ΔlogK=0.08) — DES-compatible: YES
+  partner | min_tm_k | eutectic_ratio | tm_src | rationale
+  CC(=O)NCCO | 313.0 | 0.20 | qspr (0.64) | min Tm=313.01 K, absolute<= 350.00 K, relative_drop=0.123
+  CC(=O)NCCN | 319.3 | 0.20 | qspr (0.69) | min Tm=319.27 K, absolute<= 350.00 K, relative_drop=0.117
+  c1ccc(N=NN=C1)C | 314.0 | 0.30 | qspr (0.40) | min Tm=314.02 K, absolute<= 350.00 K, relative_drop=0.174
+  c1ccc(N=NN=C1)O | 340.6 | 0.30 | qspr (0.40) | min Tm=340.62 K, absolute<= 350.00 K, relative_drop=0.230
+  OC[C@H](O)[C@H](O)CO | 296.0 | 0.30 | experimental (0.95) | min Tm=296.03 K, absolute<= 350.00 K, relative_drop=0.250
+  CC(=O)NC(O)C | 278.4 | 0.30 | qspr (0.60) | min Tm=278.42 K, absolute<= 350.00 K, relative_drop=0.245
+  O=C1CN=CC=C1 | 288.3 | 0.10 | qspr (0.54) | min Tm=288.34 K, absolute<= 350.00 K, relative_drop=0.051
+  O=CC(=O)OC | 374.5 | 0.10 | qspr (0.71) | min Tm=374.48 K, absolute<= 350.00 K, relative_drop=-0.364
+  CC(=O)N | 341.8 | 0.10 | experimental (0.95) | min Tm=341.79 K, absolute<= 350.00 K, relative_drop=0.035
+  CCOCC | 258.1 | 0.10 | qspr (0.78) | min Tm=258.14 K, absolute<= 350.00 K, relative_drop=-0.652
+  CC(=O)O | 326.7 | 0.10 | experimental (0.95) | min Tm=326.73 K, absolute<= 350.00 K, relative_drop=-0.127
+  OCCCO | 289.8 | 0.10 | qspr (0.61) | min Tm=289.79 K, absolute<= 350.00 K, relative_drop=0.012
+  CS(=O)(=O)C | 251.7 | 0.10 | qspr (0.40) | min Tm=251.70 K, absolute<= 350.00 K, relative_drop=0.057
+  OC1=CC=CC=N1 | 319.6 | 0.10 | qspr (0.52) | min Tm=319.61 K, absolute<= 350.00 K, relative_drop=-0.028
+  OCCO | 274.5 | 0.10 | experimental (0.95) | min Tm=274.54 K, absolute<= 350.00 K, relative_drop=-0.053
+  C1CC1N | 358.4 | 0.10 | qspr (0.51) | min Tm=358.43 K, absolute<= 350.00 K, relative_drop=-0.607
+  O=C1NC(=O)NC1 | 400.8 | 0.20 | qspr (0.40) | min Tm=400.77 K, absolute<= 350.00 K, relative_drop=0.131
+  OCC(O)CO | 270.3 | 0.10 | experimental (0.95) | min Tm=270.34 K, absolute<= 350.00 K, relative_drop=0.072
+  O=C1CCCN1 | 374.3 | 0.10 | qspr (0.81) | min Tm=374.34 K, absolute<= 350.00 K, relative_drop=-0.155
+
+Warnings:
+- [GROUNDING] Coordination contradicted for C1=CC=C2C(=C1)N=CN=C2: Claimed donor 'O' not present in structure
+- [GROUNDING] Coordination contradicted for CC1=CC=C2C(=C1)N=CN=C2: Claimed donor 'O' not present in structure
+- [GROUNDING] Coordination contradicted for CC1=CC=C2C(=C1)N=CN=C2: Claimed donor 'O' not present in structure
+- [GROUNDING] Coordination contradicted for CC1=CC=C2C(=C1)N=CN=C2: Claimed donor 'O' not present in structure
+- [GROUNDING] Coordination contradicted for CC1=CC=C2C(=C1)N=CN=C2: Claimed denticity 6 but structure has 2 coordinating site(s)
+- [GROUNDING] Coordination contradicted for CC1=CC=C2C(=C1)N=CN=C2: Claimed donor 'O' not present in structure
+- [GROUNDING] Coordination contradicted for S(=O)(=O)Nc1ccc(cc1)S: Claimed denticity 1 but structure has 4 coordinating site(s)
+- [GROUNDING] Coordination contradicted for N[C@@H](CC(=O)O)CC(=O)O: Claimed donor 'S' not present in structure
+- [GROUNDING] Coordination contradicted for N[C@@H](CC(=O)O)CC(=O)O: Claimed donor 'N' not present in structure
+- [GROUNDING] Ligand dropped (reality): C1CCCCC1O[C@H]2CCCCC2O[C@H]3CCCCC3O[C@H]4CCCCC4O[C@H]5CCCCC5O[C@H]1CCCCC1: molecular weight out of range: 574.9
+- [GROUNDING] Ligand dropped (reality): C1CCCCC1O[C@H]2CCCCC2O[C@H]3CCCCC3O[C@H]4CCCCC4O[C@H]5CCCCC5O[C@H]1CCCCC1: molecular weight out of range: 574.9
+- [GROUNDING] Coordination contradicted for CS(=O)(=O)c1ccc(S(N)(=O)=O)cc1: Claimed donor 'N' not present in structure
+- Bridge filter found 0 ligands above min_delta_log_k=0.3; using top-3 unconditionally.
+- [GROUNDING] Coordination contradicted for NC(N)=NCCC(N)C(=O)O: Claimed donor 'N' not present in structure
+- [GROUNDING] Coordination contradicted for NC(N)=NCCC(N)C(=O)O: Claimed donor 'N' not present in structure
+- [GROUNDING] Ligand dropped (reality): C1N(CC1)CC(N)C(=O)Nc1ccc(Nc2ccc(Nc3ccc(N)cc3)cc2)cc1: molecular weight out of range: 416.5
+- [GROUNDING] Ligand dropped (reality): C1N(CC1)CC(N)C(=O)Nc1ccc(S(=O)(=O)Nc2ccc(S)cc2)cc1: molecular weight out of range: 406.5
+- [GROUNDING] Coordination contradicted for NC(CCN1CC(S(=O)(=O)Nc2ccc(NC(=O)C(N)CCN3CCC3)cc2)CC1)NC(=O)C: Claimed denticity 1 but structure has 7 coordinating site(s)
+- [GROUNDING] Coordination contradicted for NC(CN1CCC1)C(=O)NC1=C(N2CCN(CC(=O)O)CC2)C=C1: Claimed denticity 1 but structure has 3 coordinating site(s)
+- [GROUNDING] Ligand dropped (reality): NC(CCN1CC(S(=O)(=O)Nc2ccc(NC(=O)C(N)CCN3CCC3)cc2)CC1)NC(=O)C: molecular weight out of range: 495.7
+- [GROUNDING] Ligand dropped (reality): NC(CN1CCC1)C(=O)NC(=C1C(=C(C=C1)N2CCN(CC2)CC(=O)O)C=C1)C=C1: molecular weight out of range: 411.5
+- Bridge filter found 0 ligands above min_delta_log_k=0.3; using top-3 unconditionally.
+summary:
+- command: selectivity-des
+- status: completed

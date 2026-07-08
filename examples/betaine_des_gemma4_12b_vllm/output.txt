@@ -1,0 +1,214 @@
+=== DES Search: betaine (C[N+](C)(C)CC(=O)[O-]) ===
+Screened 21 candidate(s). 6 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
+Top candidate: acetamide (CC(=O)N) — min Tm 335.4 K (Δ5.3%) | high confidence
+===================================================
+
+compound | is_des | min_tm_k | eutectic_x_b | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
+acetamide (CC(=O)N) | True | 335.35 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.96 | mean=336.08 K | spread=335.64-336.30 K | std=0.31 K | high confidence | min Tm=335.35 K, absolute<= 340.00 K, relative_drop=0.053
+CC(=O)NCCO | True | 325.70 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.86 | mean=325.63 K | spread=324.26-327.41 K | std=1.31 K | high confidence | min Tm=325.70 K, absolute<= 340.00 K, relative_drop=0.088
+phenol (c1ccc(O)cc1) | True | 294.92 | 0.10 | source=llm; id=brainstorm | trust=0.90 | mean=294.02 K | spread=292.17-295.15 K | std=1.32 K | high confidence | min Tm=294.92 K, absolute<= 340.00 K, relative_drop=0.061
+glycerol (OCC(O)CO) | True | 267.65 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.75 | mean=275.95 K | spread=268.95-279.97 K | std=4.97 K | moderate-high confidence | min Tm=267.65 K, absolute<= 340.00 K, relative_drop=0.081
+CS(=O)(=O)C | True | 233.41 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.77 | mean=233.97 K | spread=230.79-236.34 K | std=2.34 K | moderate-high confidence | min Tm=233.41 K, absolute<= 340.00 K, relative_drop=0.126
+Cc1ccc(O)cc1 | True | 310.38 | 0.30 | source=llm; id=brainstorm | trust=0.43 | mean=313.62 K | spread=303.09-333.05 K | std=13.76 K | low confidence — consider experimental verification | min Tm=310.38 K, absolute<= 340.00 K, relative_drop=0.121
+CC(=O)NC(=O)C | False | 346.48 | 0.20 | source=llm; id=brainstorm | trust=0.87 | mean=347.64 K | spread=346.59-349.33 K | std=1.20 K | high confidence | min Tm=346.48 K, absolute<= 340.00 K, relative_drop=0.110
+C(=O)NC(=O)N | False | 388.98 | 0.20 | heuristic | trust=0.86 | mean=392.66 K | spread=391.21-394.00 K | std=1.14 K | high confidence | min Tm=388.98 K, absolute<= 340.00 K, relative_drop=0.122
+choline chloride (C[N+](C)(C)CCO.[Cl-]) | False | 445.30 | 0.40 | source=heuristic; id=rule-based-family-library | trust=0.89 | mean=450.37 K | spread=448.52-452.43 K | std=1.60 K | high confidence | min Tm=445.30 K, absolute<= 340.00 K, relative_drop=0.213
+COCCCN | False | 240.68 | 0.10 | source=near_miss_analogue; id=COCCN | trust=0.81 | mean=242.53 K | spread=240.53-246.07 K | std=2.51 K | moderate-high confidence | min Tm=240.68 K, absolute<= 340.00 K, relative_drop=0.018
+CNCCOC | False | 248.19 | 0.10 | source=near_miss_analogue; id=COCCN | trust=0.80 | mean=249.21 K | spread=246.72-252.93 K | std=2.68 K | moderate-high confidence | min Tm=248.19 K, absolute<= 340.00 K, relative_drop=-0.144
+CC(=O)NS(=O)2C1=CC=C(C=C1)S2 | False | 385.12 | 0.30 | source=llm; id=brainstorm | trust=0.77 | mean=395.70 K | spread=391.62-398.86 K | std=3.02 K | moderate-high confidence | min Tm=385.12 K, absolute<= 340.00 K, relative_drop=0.174
+urea (NC(=O)N) | False | 354.92 | 0.30 | source=heuristic; id=rule-based-family-library | trust=0.87 | mean=361.02 K | spread=358.94-363.50 K | std=1.88 K | high confidence | min Tm=354.92 K, absolute<= 340.00 K, relative_drop=0.125
+O=C1NC(=O)NC1 | False | 411.36 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.71 | mean=415.29 K | spread=410.06-419.25 K | std=3.85 K | moderate-high confidence | min Tm=411.36 K, absolute<= 340.00 K, relative_drop=0.108
+C[N+](C)(C)C.[Cl-] | False | 470.42 | 0.40 | source=heuristic; id=rule-based-family-library | trust=0.85 | mean=476.82 K | spread=474.14-479.81 K | std=2.32 K | moderate-high confidence | min Tm=470.42 K, absolute<= 340.00 K, relative_drop=0.169
+COCCO | False | 257.15 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.84 | mean=252.34 K | spread=250.10-255.19 K | std=2.12 K | moderate-high confidence | min Tm=257.15 K, absolute<= 340.00 K, relative_drop=-0.257
+acetic acid (CC(=O)O) | False | 358.21 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.56 | mean=363.01 K | spread=353.88-370.38 K | std=6.85 K | moderate confidence — consider experimental verification | min Tm=358.21 K, absolute<= 340.00 K, relative_drop=-0.236
+O=C1CCCN1 | False | 365.19 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.74 | mean=368.58 K | spread=365.18-375.17 K | std=4.66 K | moderate-high confidence | min Tm=365.19 K, absolute<= 340.00 K, relative_drop=-0.127
+OC[C@H](O)[C@H](O)CO | False | 357.97 | 0.30 | source=heuristic; id=rule-based-family-library | trust=0.60 | mean=363.34 K | spread=359.68-370.60 K | std=5.13 K | moderate confidence — consider experimental verification | min Tm=357.97 K, absolute<= 340.00 K, relative_drop=0.093
+ethylene glycol (OCCO) | False | 273.25 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.54 | mean=266.61 K | spread=259.98-277.96 K | std=8.06 K | low confidence — consider experimental verification | min Tm=273.25 K, absolute<= 340.00 K, relative_drop=-0.049
+dimethyl sulfoxide (CS(=O)C) | False | 268.71 | 0.10 | source=heuristic; id=rule-based-family-library | trust=0.50 | mean=276.85 K | spread=267.40-284.16 K | std=7.01 K | moderate confidence — consider experimental verification | min Tm=268.71 K, absolute<= 340.00 K, relative_drop=-0.065
+
+Physical sanity — non-physical eutectic (predicted Tm above both pure components):
+- CNCCOC: min Tm 248.2 K > min(T1,T2)=217.0 K — treat prediction with caution
+- COCCO: min Tm 257.1 K > min(T1,T2)=204.5 K — treat prediction with caution
+- acetic acid (CC(=O)O): min Tm 358.2 K > min(T1,T2)=289.9 K — treat prediction with caution
+- O=C1CCCN1: min Tm 365.2 K > min(T1,T2)=324.1 K — treat prediction with caution
+- ethylene glycol (OCCO): min Tm 273.3 K > min(T1,T2)=260.6 K — treat prediction with caution
+- dimethyl sulfoxide (CS(=O)C): min Tm 268.7 K > min(T1,T2)=252.2 K — treat prediction with caution
+
+Melting-point inputs:
+component | Tm_K | source | confidence
+betaine (C[N+](C)(C)CC(=O)[O-]) | 566.00 | experimental | 0.95
+acetamide (CC(=O)N) | 354.06 | experimental | 0.95
+CC(=O)NCCO | 357.10 | qspr | 0.64
+phenol (c1ccc(O)cc1) | 314.15 | experimental | 0.95
+glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
+CS(=O)(=O)C | 266.99 | qspr | 0.40
+Cc1ccc(O)cc1 | 353.26 | qspr | 0.70
+CC(=O)NC(=O)C | 389.30 | qspr | 0.69
+C(=O)NC(=O)N | 442.78 | qspr | 0.57
+choline chloride (C[N+](C)(C)CCO.[Cl-]) | 578.15 | experimental | 0.95
+COCCCN | 245.20 | qspr | 0.69
+CNCCOC | 216.99 | qspr | 0.71
+CC(=O)NS(=O)2C1=CC=C(C=C1)S2 | 465.98 | qspr | 0.59
+urea (NC(=O)N) | 405.85 | experimental | 0.95
+O=C1NC(=O)NC1 | 461.39 | qspr | 0.40
+C[N+](C)(C)C.[Cl-] | 612.87 | experimental | 0.95
+COCCO | 204.55 | qspr | 0.79
+acetic acid (CC(=O)O) | 289.85 | experimental | 0.95
+O=C1CCCN1 | 324.08 | qspr | 0.81
+OC[C@H](O)[C@H](O)CO | 394.70 | experimental | 0.95
+ethylene glycol (OCCO) | 260.60 | experimental | 0.95
+dimethyl sulfoxide (CS(=O)C) | 252.24 | qspr | 0.50
+
+LLM candidate reviews:
+O | reject | confidence=1.00 | The candidate 'O' is a single oxygen atom, which is not a viable chemical compound for a Deep Eutectic Solvent (DES) or any stable chemical mixture. It lacks the necessary functional groups or molecular structure to form hydrogen bonds or interact with Component A. | Invalid chemical species; Not a viable DES component
+OCCO | deprioritize | confidence=0.85 | The candidate OCCO (ethylene glycol) is a short diol, which was explicitly flagged as a caution family in prior predictions. While it is a common DES component, the chemical pattern memory suggests avoiding short diols in favor of more complex polyols or specific productive families like phenols and carboxylic acids. | Flagged as caution family: short diol; Prior bad example: OCCCO
+OCC(O)CO | deprioritize | confidence=0.92 | The candidate is a short diol (glycerol), which was explicitly flagged as a caution family in the chemical lessons. Furthermore, it was listed as a representative bad example in the prior predictions. | Short diol flagged as caution; Listed as bad example in history
+CC(=O)N | keep | confidence=0.92 | Acetamide is a classic amide and a known productive DES component. It shares the amide functional group with the target component and aligns with the chemical pattern memory for productive families. | Matches representative good example; Strong amide character
+CC(=O)O | keep | confidence=0.92 | Acetic acid is a classic carboxylic acid, which is identified as a productive DES family in the chemical lessons. It shares the carboxylic acid functional group with the target component A. | Strongly aligns with productive family patterns; Simple carboxylic acid structure
+CN | reject | confidence=0.95 | The candidate 'CN' (methylamine) is a simple primary amine, whereas Component A is a zwitterionic amino acid derivative (specifically, a dimethylated version of a glycine-like structure). While both contain amine functionality, CN lacks the carboxylate group and the specific structural complexity required to form a stable deep eutectic solvent (DES) with Component A. The chemical lessons suggest focusing on carboxylic acids and phenols; CN is too small and lacks the necessary hydrogen bonding network to be a productive partner. | Too small; Lacks carboxylate group; Low potential for stable DES formation with Component A
+C[N+](C)(C)C.[Cl-] | deprioritize | confidence=0.85 | The candidate is a quaternary ammonium salt with a chloride counterion. While quaternary ammonium salts can form DES, the specific structure C[N+](C)(C)C is a simple alkyl ammonium cation which lacks significant hydrogen bonding potential or complexation sites compared to the carboxylate-based components identified as productive in prior lessons. | Low hydrogen bonding capacity; Simple salt structure; Lacks functional groups like phenols or carboxylic acids favored in previous cycles
+C[N+](C)(C)CCO.[Cl-] | keep | confidence=0.85 | The candidate is a quaternary ammonium salt with a primary alcohol group. It maintains the core quaternary ammonium structure of Component A while replacing the carboxylate with a hydroxyl group, potentially forming a stable DES with hydrogen bond donors/acceptors. | Quaternary ammonium salt; Alcohol functionality; Potential for strong H-bonding
+NC(=O)N | deprioritize | confidence=0.85 | The candidate is urea, which was explicitly listed as a 'caution' family in the chemistry lessons. While it has amide and amine features, the prior predictions suggest it may not be as productive as the carboxylic acid or phenol families. | Urea derivatives flagged in caution list; Amide/amine features present but risk of poor DES formation
+OC[C@H](O)[C@H](O)CO | deprioritize | confidence=0.85 | The candidate is a short diol (erythritol), which was explicitly flagged as a caution family in the chemical lessons. While it has multiple hydroxyl groups, the prior predictions suggest it may not form stable deep eutectic solvents with the target component compared to phenols or carboxylic acids. | Short diol flagged in caution list; Potential for low melting point but poor DES stability
+OCCCO | reject | confidence=0.95 | The candidate OCCCO (1,2-propanediol) is explicitly listed as a 'bad example' in the chemical lessons from prior predictions. Furthermore, the chemistry lessons suggest caution with 'short diol' families, making this a low-probability candidate for a productive DES with the given component. | Explicitly flagged as bad example; Short diol family cautioned
+COCCO | deprioritize | confidence=0.85 | The candidate COCCO is a simple diol/ether structure. While small molecules are often good candidates, prior chemistry lessons specifically suggest caution with 'short diol' families and 'analogue' structures. Given the productive families are Carboxylic acids and Phenols, this simple ether/diol lacks the specific functional groups (like the carboxylate or phenolic hydroxyl) that have shown success in previous cycles. | Short diol/ether structure; Lacks carboxylate or phenol functionality; Prior lessons suggest caution with short diols
+O=C1CCCN1 | deprioritize | confidence=0.85 | The candidate O=C1CCCN1 (1-pyrrolidinone) is a cyclic amide. While the component A is a zwitterionic species with amide and amine features, the candidate lacks the necessary hydrogen bond donor (HBD) capacity found in the productive families like phenols or carboxylic acids. It is a relatively weak hydrogen bond acceptor compared to the target's amphoteric nature. | Lacks HBD; Cyclic amide structure; Weak interaction potential compared to phenols
+O=C1NC(=O)NC1 | deprioritize | confidence=0.85 | The candidate is a urea derivative. Chemical lessons from prior predictions specifically suggest caution with Urea derivatives and note them as a repeated failure family in this context. | Urea derivatives are flagged as caution families; Prior bad example C(=O)NC(=O)N is structurally similar
+CS(=O)C | deprioritize | confidence=0.85 | The candidate is a small thioether/sulfoxide derivative. While it possesses a sulfur atom, it lacks the strong hydrogen bonding capacity (HBD) or the specific carboxylic acid/phenol functionality identified as productive in prior lessons. It is less likely to form a stable deep eutectic solvent with the ammonium carboxylate component compared to the preferred families. | Lacks HBD; Sulfoxide group is less polar than carboxylate/phenol; Low potential for strong interaction with Component A
+CS(=O)(=O)C | deprioritize | confidence=0.85 | The candidate is methanesulfonyl methane. While it possesses a strong hydrogen bond acceptor (sulfonyl group), it lacks the necessary hydrogen bond donor functionality to form a stable deep eutectic solvent with the ammonium carboxylate component (Component A). Component A is a zwitterionic species that typically requires a strong H-bond donor like a phenol or carboxylic acid to stabilize the complex. | Lacks H-bond donor; Sulfonyl group is a strong acceptor but insufficient alone; Component A is a zwitterion
+OC1=CC=CC=N1 | reject | confidence=0.95 | The candidate 2-hydroxypyridine is explicitly listed as a 'bad example' in the chemical lessons from prior predictions. Additionally, the component A is a zwitterionic species with phenol-like features, and the lessons suggest focusing on phenols and carboxylic acids rather than hydroxypyridines. | Explicitly flagged as bad example; Avoid hydroxypyridine family
+CN(C)C=O | reject | confidence=0.95 | The candidate CN(C)C=O is an imine/isocyanide-like structure that lacks the carboxylate/amide functionality of the target Component A (C[N+](C)(C)CC(=O)[O-]). It is chemically unstable and does not match the productive amide/carboxylate patterns identified in the chemical lessons. | Mismatch in functional group; Unstable species; Does not align with productive DES families
+CCOCC | reject | confidence=0.95 | The candidate CCOCC is a simple ether. Based on the chemical lessons, short diols and simple ethers are often identified as 'bad examples' or 'caution' families for this specific component interaction. The component A is a zwitterionic species with a carboxylate group, which typically pairs better with hydrogen bond donors like phenols or carboxylic acids rather than simple ethers. | Matches 'bad example' pattern for short ethers; Lacks the necessary H-bond donor strength compared to productive families like phenols
+CC(=O)NCCO | keep | confidence=0.92 | The candidate CC(=O)NCCO is a hydroxyamide, which was identified as a productive DES family in prior predictions. It contains both an amide group and a hydroxyl group, providing multiple hydrogen bonding sites (HBD and HBA) suitable for forming stable deep eutectic solvent networks. | Matches productive hydroxyamide family; Strong H-bonding potential; Consistent with representative good examples
+
+LLM brainstorm:
+c1ccc(O)cc1 | Phenols | Phenol is a highly productive family with a 67% hit rate and strong UCB score; provides excellent hydrogen bonding for the quaternary ammonium cation.
+CC(=O)N | Amides | Acetamide is a productive amide family that provides strong H-bonding sites and structural compatibility with the carboxylate group.
+CC(=O)NCCO | Hydroxyamides | Hydroxyamide was identified as a productive family; combines amide and hydroxyl functionality for enhanced interaction.
+NC(=O)NC=O | Urea derivatives | Urea derivatives have a high UCB score suggesting potential for eutectic formation despite mixed prior results; provides multiple H-bonding sites.
+CC(=O)NS(=O)2C1=CC=C(C=C1)S2 | Sulfonamides | Sulfonamides have a high UCB score and are structurally distinct from failed carboxylic acids; offers strong H-bond donor/acceptor capabilities.
+Cc1ccc(O)cc1 | Phenols | O-cresol is a phenol derivative to probe the phenol success while introducing electronic effects to lower the melting point.
+CC(=O)NC(=O)C | Urea derivatives | N-methylurea provides multiple H-bonding sites and is a known real molecule in the provided list.
+CC(=O)NC(=O)C | Urea derivatives | N-methylurea provides multiple H-bonding sites and is a known real molecule in the provided list.
+CC(=O)NC(=O)C | Urea derivatives | N-methylurea provides multiple H-bonding sites and is a known real molecule in the provided list.
+CC(=O)NC(=O)C | Urea derivatives | N-methylurea provides multiple H-bonding sites and is a known real molecule in the provided list.
+CC(=O)NC(=O)C | Urea derivatives | N-methylurea provides multiple H-bonding sites and is a known real molecule in the provided list.
+CC(=O)NC(=O)C | Urea derivatives | N-methylurea provides multiple H-bonding sites and is a known real molecule in the provided list.
+CC(=O)NC(=O)C | Urea derivatives | N-methylurea provides multiple H-bonding sites and is a known real molecule in the provided list.
+CC(=O)NC(=O)C | Urea derivatives | N-methylurea provides multiple H-bonding sites and is a known real molecule in the provided list.
+CC(=O)NC(=O)C | Urea derivatives | N-methylurea provides multiple H-bonding sites and is a known real molecule in the provided list.
+CC(=O)NC(=O)C | Urea derivatives | N-methylurea provides multiple H-bonding sites and is a known real molecule in the provided list.
+CC(=O)NC(=O)C | Urea derivatives | N-methylurea provides multiple H-bonding sites and is a known real molecule in the provided list.
+CC(=O)NC(=O)C | Urea derivatives | N-methylurea provides multiple H-bonding sites and is a known real molecule in the provided list.
+CC(=O)NC(=O)C | Urea derivatives | N-methylurea provides multiple H-bonding sites and is a known real molecule in the provided list.
+CC(=O)NC(=O)C | Urea derivatives | N-methylurea provides multiple H-bonding sites and is a known real molecule in the provided list.
+
+LLM explanations:
+CC(=O)N | Productive amide family; shows favorable melting point drop and aligns with prior successful predictions. | is_des=True, min_tm_k=335.35, relative_drop=0.053
+CC(=O)NCCO | Hydroxyamide family; highly productive with significant relative drop in melting point. | is_des=True, min_tm_k=325.70, relative_drop=0.088
+c1ccc(O)cc1 | Phenol family; identified as a productive family in prior cycles with low melting point. | is_des=True, min_tm_k=294.92, relative_drop=0.061
+OCC(O)CO | Diol family; shows successful DES formation despite caution notes on short diols. | is_des=True, min_tm_k=267.65, relative_drop=0.081
+CS(=O)(=O)C | Sulfonyl family; shows strong relative drop and successful DES formation. | is_des=True, min_tm_k=233.41, relative_drop=0.126
+Cc1ccc(O)cc1 | Substituted phenol; productive family with high relative drop. | is_des=True, min_tm_k=310.38, relative_drop=0.121
+CC(=O)NC(=O)C | Urea derivative; penalized by prior chemistry lessons as a caution family. | is_des=False, min_tm_k=346.48, relative_drop=0.110
+C(=O)NC(=O)N | Urea derivative; failed to meet DES criteria; consistent with caution warnings. | is_des=False, min_tm_k=388.98, relative_drop=0.122
+C[N+](C)(C)CCO.[Cl-] | Quaternary ammonium salt; high melting point prevents DES formation. | is_des=False, min_tm_k=445.30, relative_drop=0.213
+COCCCN | Amine; failed to show significant melting point drop. | is_des=False, min_tm_k=240.68, relative_drop=0.018
+CNCCOC | Ether/Amine; negative relative drop indicates poor DES compatibility. | is_des=False, min_tm_k=248.19, relative_drop=-0.144
+CC(=O)NS(=O)2C1=CC=C(C=C1)S2 | Complex sulfonamide; high melting point and failed DES formation. | is_des=False, min_tm_k=385.12, relative_drop=0.174
+NC(=O)N | Simple urea; failed to meet DES criteria; consistent with caution warnings. | is_des=False, min_tm_k=354.92, relative_drop=0.125
+O=C1NC(=O)NC1 | Cyclic urea; high melting point prevents DES formation. | is_des=False, min_tm_k=411.36, relative_drop=0.108
+C[N+](C)(C)C.[Cl-] | Quaternary ammonium salt; very high melting point; failed DES formation. | is_des=False, min_tm_k=470.42, relative_drop=0.169
+COCCO | Ether; negative relative drop suggests poor interaction with Component A. | is_des=False, min_tm_k=257.15, relative_drop=-0.257
+CC(=O)O | Carboxylic acid; failed DES formation despite being a productive family (likely due to specific interaction). | is_des=False, min_tm_k=358.21, relative_drop=-0.236
+O=C1CCCN1 | Lactam; high melting point prevents DES formation. | is_des=False, min_tm_k=365.19, relative_drop=-0.127
+OC[C@H](O)[C@H](O)CO | Polyol; failed to meet DES criteria. | is_des=False, min_tm_k=357.97, relative_drop=0.093
+OCCO | Ether; negative relative drop indicates poor DES compatibility. | is_des=False, min_tm_k=273.25, relative_drop=-0.049
+CS(=O)C | Sulfonyl; negative relative drop suggests poor interaction with Component A. | is_des=False, min_tm_k=268.71, relative_drop=-0.065
+
+LLM critique:
+c1ccc(O)cc1 | Highly productive | Phenols are a known productive family; ensure diversity in substitution patterns.
+CC(=O)NCCO | Productive | Hydroxyamide family is productive; good balance of H-bond donor and acceptor.
+Cc1ccc(O)cc1 | Productive | Substituted phenol; consistent with productive chemical pattern memory.
+CC(=O)N | Productive | Amide family is productive; simple structure may have limited solubility.
+OCC(O)CO | Productive | Short diol; though productive, be wary of high hygroscopicity.
+CS(=O)(=O)C | Productive | Sulfonyl group provides strong dipole; check for potential reactivity.
+CC(=O)O | Caution | Carboxylic acid is a mixed result family; high melting point often leads to poor solubility.
+C(=O)NC(=O)N | Avoid | Urea derivative; explicitly flagged as a caution family in prior predictions.
+O=C1NC(=O)NC1 | Avoid | Urea derivative; high melting point and poor solubility expected.
+NC(=O)N | Avoid | Urea derivative; penalized by chemical pattern memory.
+CC(=O)NS(=O)2C1=CC=C(C=C1)S2 | Avoid | Complex sulfonamide; high melting point and poor solubility profile.
+CC(=O)NC(=O)C | Avoid | Urea derivative; high melting point exceeds DES threshold.
+C[N+](C)(C)CCO.[Cl-] | Avoid | Quaternary ammonium salt; very high melting point and poor solubility.
+C[N+](C)(C)C.[Cl-] | Avoid | Quaternary ammonium salt; extreme melting point and poor solubility.
+O=C1CCCN1 | Avoid | High melting point; lacks sufficient H-bond donor capacity.
+OC[C@H](O)[C@H](O)CO | Avoid | Polyol; high melting point and potential for high viscosity.
+COCCCN | Avoid | Low relative drop; lacks sufficient interaction strength for DES formation.
+CNCCOC | Avoid | Negative relative drop; poor interaction with Component A.
+COCCO | Avoid | Negative relative drop; poor interaction with Component A.
+OCCO | Avoid | Negative relative drop; poor interaction with Component A.
+CS(=O)C | Avoid | Negative relative drop; poor interaction with Component A.
+
+Viscosity predictions:
+smiles_a | smiles_b | viscosity | units | model | source
+C[N+](C)(C)CC(=O)[O-] | OCCO | 15.00 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | OCC(O)CO | 17.29 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | CC(=O)N | 14.00 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | CC(=O)O | 13.81 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | C[N+](C)(C)C.[Cl-] | 13.55 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | C[N+](C)(C)CCO.[Cl-] | 15.37 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | NC(=O)N | 15.78 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | OC[C@H](O)[C@H](O)CO | 19.63 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | COCCO | 14.44 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | O=C1CCCN1 | 14.46 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | O=C1NC(=O)NC1 | 16.68 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | CS(=O)C | 13.12 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | CS(=O)(=O)C | 13.85 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | CC(=O)NCCO | 16.00 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | COCCCN | 14.66 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | CNCCOC | 14.61 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | c1ccc(O)cc1 | 14.22 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | NC(=O)NC=O | 16.75 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | CC(=O)NS(=O)2C1=CC=C(C=C1)S2 | 18.23 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | Cc1ccc(O)cc1 | 14.34 | mPa*s | DESignSolvents | artifact
+C[N+](C)(C)CC(=O)[O-] | CC(=O)NC(=O)C | 15.00 | mPa*s | DESignSolvents | artifact
+
+Grounding verdicts:
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'CC(=O)N'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'CC(=O)NCCO'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'c1ccc(O)cc1'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'OCC(O)CO'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'Cc1ccc(O)cc1'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'CC(=O)NC(=O)C'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'C(=O)NC(=O)N'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'C[N+](C)(C)CCO.[Cl-]'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'COCCCN'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'CNCCOC'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'CC(=O)NS(=O)2C1=CC=C(C=C1)S2'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'NC(=O)N'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'O=C1NC(=O)NC1'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'COCCO'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'CC(=O)O'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'O=C1CCCN1'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'OC[C@H](O)[C@H](O)CO'
+- ✓ verified | DES plausibility of 'C[N+](C)(C)CC(=O)[O-]' + 'OCCO'
+- ✓ known | partner reality: CC(=O)N
+- ◆ novel (plausible) | partner reality: CC(=O)NCCO
+- ✓ known | partner reality: c1ccc(O)cc1
+- ◆ novel (plausible) | partner reality: Cc1ccc(O)cc1
+- ◆ novel (plausible) | partner reality: CC(=O)NC(=O)C
+- ◆ novel (plausible) | partner reality: C(=O)NC(=O)N
+- ◆ novel (plausible) | partner reality: CC(=O)NS(=O)2C1=CC=C(C=C1)S2
+
+Run memory:
+- Suppressed near-duplicate proposal: COCCCO
+- Suppressed near-duplicate proposal: COCCN
+- Applied chemical pattern memory ranking bias to 13 candidate(s).
+- Chemical pattern memory favored productive families: Phenols, amide, hydroxyamide.
+- Chemical pattern memory penalized caution families: analogue, Urea derivatives, choline-like.
+summary:
+- command: des
+- workflow: des
+- ranked candidates: 21
+- reuse memory: yes
+- exports written: yes

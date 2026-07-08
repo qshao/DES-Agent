@@ -1,0 +1,68 @@
+=== DES Search: CCN(CC)CC(=O)Nc1c(C)cccc1C ===
+Screened 3 candidate(s). 1 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
+Top candidate: c1cccc(n1)N — min Tm 227.1 K (Δ33.4%) | moderate-high confidence
+==============================================
+
+Chemistry lessons:
+productive patterns: Tetrazoles (1)
+avoid patterns: Ureas (1), alcohol (1)
+cycle summary:
+- Productive patterns: Tetrazoles (1).
+- Avoid patterns: Ureas (1), alcohol (1).
+- Representative examples: c1cccc(n1)N, NC(=O)NC=O, O.
+run summary:
+- Representative good examples: c1cccc(n1)N.
+- Representative bad examples: NC(=O)NC=O, O.
+- Stay near the productive families and probe close analogs first.
+- Try adjacent chemistry away from the repeated failure families.
+- Evidence is mixed; keep the next cycle balanced.
+- Productive patterns: Tetrazoles (1).
+- Avoid patterns: Ureas (1), alcohol (1).
+- Representative examples: c1cccc(n1)N, NC(=O)NC=O, O.
+next steps:
+- Stay near the productive families and probe close analogs first.
+- Try adjacent chemistry away from the repeated failure families.
+warnings:
+- Evidence is mixed; keep the next cycle balanced.
+
+compound | is_des | min_tm_k | eutectic_x_b | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
+c1cccc(n1)N | True | 227.07 | 0.40 | source=llm; id=brainstorm | trust=0.73 | mean=232.68 K | spread=226.98-236.99 K | std=4.20 K | moderate-high confidence | min Tm=227.07 K, absolute<= 260.00 K, relative_drop=0.334
+NC(=O)NC=O | False | 264.06 | 0.40 | source=llm; id=brainstorm | trust=0.76 | mean=263.90 K | spread=260.25-268.13 K | std=3.24 K | moderate-high confidence | min Tm=264.06 K, absolute<= 260.00 K, relative_drop=0.226
+water (O) | False | 238.18 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.75 | mean=234.19 K | spread=230.35-236.28 K | std=2.72 K | moderate-high confidence | min Tm=238.18 K, absolute<= 260.00 K, relative_drop=0.089
+
+Melting-point inputs:
+component | Tm_K | source | confidence
+CCN(CC)CC(=O)Nc1c(C)cccc1C | 341.15 | experimental | 0.95
+c1cccc(n1)N | 432.69 | qspr | 0.62
+NC(=O)NC=O | 412.38 | qspr | 0.57
+water (O) | 261.48 | qspr | 0.40
+
+LLM candidate reviews:
+OCCO | reject | confidence=0.95 | The candidate OCCO (ethylene glycol) is a simple diol and does not share significant structural motifs or functional similarity with the target Component A, which is a tertiary amine substituted amide with a substituted aniline group. | Low structural similarity; Different functional groups
+OCC(O)CO | reject | confidence=0.95 | The candidate (glycerol) is a simple polyol and does not share significant structural motifs or functional group complexity with the target component A (a substituted amide/aniline derivative). | Low structural similarity; Different chemical class
+CC(=O)N | reject | confidence=0.95 | The candidate CC(=O)N (acetamide) is a simple primary amide and does not capture the structural complexity or the specific tertiary amine and aromatic features of the parent component CCN(CC)CC(=O)Nc1c(C)cccc1C. | Too small; Lacks aromatic ring; Lacks tertiary amine
+CC(=O)O | reject | confidence=0.95 | The candidate 'CC(=O)O' (acetic acid) is a simple carboxylic acid and does not represent a significant structural fragment or functional group unique to the parent molecule 'CCN(CC)CC(=O)Nc1c(C)cccc1C'. It is too small and generic to be a meaningful sub-component for decomposition or analysis. | Candidate is a trivial fragment; Does not capture the tertiary amine or aromatic core
+
+LLM brainstorm:
+NS(=O)2C=CC(=C1)S(=O)2 | Sulfonamides | Sulfonamide provides strong hydrogen bond donor/acceptor capabilities to complement the amide linkage of Component A.
+c1cccc(n1)N | Tetrazoles | Tetrazole acts as a bioisostere for carboxylic acids, offering distinct geometry and acidic character to interact with the amine/amide sites.
+c1ccnc1 | Imidazoles | Imidazole offers a basic nitrogen center and aromaticity to contrast with the tertiary amine and substituted aniline of Component A.
+cc1c[nH]nc1 | Pyrazoles | Pyrazole provides a compact heterocyclic scaffold with specific hydrogen bonding patterns to explore different crystal packing.
+NC(=O)NC=O | Ureas | Urea provides strongly directional hydrogen bonding capable of forming robust networks with the amide group in Component A.
+
+LLM explanations:
+c1cccc(n1)N | Candidate identified as DES based on melting point criteria. | min Tm=227.07 K, absolute<= 260.00 K, relative_drop=0.334
+NC(=O)NC=O | Candidate failed DES criteria due to high melting point. | min Tm=264.06 K, absolute<= 260.00 K, relative_drop=0.226
+O | Candidate failed DES criteria. | min Tm=238.18 K, absolute<= 260.00 K, relative_drop=0.089
+
+LLM critique:
+c1cccc(n1)N | Pass | The candidate meets the melting point threshold (227.07 K) and is classified as DES-compatible.
+NC(=O)NC=O | Fail | Melting point (264.06 K) exceeds the maximum threshold of 260.00 K.
+O | Fail | While the melting point is below the threshold, the molecule is too simple and lacks the structural complexity required for a viable DES component.
+
+Warnings:
+- LLM candidate review returned wrong SMILES for O
+
+Run memory:
+- Chemical pattern memory favored productive families: Tetrazoles.
+- Chemical pattern memory penalized caution families: Ureas, alcohol.

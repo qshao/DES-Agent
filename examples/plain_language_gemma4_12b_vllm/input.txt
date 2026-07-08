@@ -1,0 +1,1 @@
+Using the local Gemma 4-12B model (served via vLLM), find up to 5 candidate partners for ethanol (CCO), keep the brainstorm balanced across families, and predict DES melting temperature with the shipped ml_des_mp checkpoint and config.

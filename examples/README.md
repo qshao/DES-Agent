@@ -60,6 +60,13 @@ Chemical pattern memory shows up most clearly in `des_run_memory_feedback/` and 
 - [`ni_co_selectivity_des_nemotron/`](./ni_co_selectivity_des_nemotron) for Ni²⁺/Co²⁺ selectivity with Nemotron-3-Nano
 - [`ni_co_selectivity_des_qwen36/`](./ni_co_selectivity_des_qwen36) for Ni²⁺/Co²⁺ selectivity with Qwen 3.6
 
+**vLLM backend twins** — same inputs and workflow parameters as their Ollama counterparts above, backed by a local `vllm serve` OpenAI-compatible server instead of Ollama (see [`docs/vllm-example-run-report-2026-07-07.md`](/home/qshao/DES-Agent/docs/vllm-example-run-report-2026-07-07.md) for exact server commands, GB10 workarounds, and timings):
+
+- [`gemma4_12b_vllm/`](./gemma4_12b_vllm), [`betaine_des_gemma4_12b_vllm/`](./betaine_des_gemma4_12b_vllm), [`lidocaine_gemma4_12b_vllm/`](./lidocaine_gemma4_12b_vllm), [`plain_language_gemma4_12b_vllm/`](./plain_language_gemma4_12b_vllm), [`plain_language_metal_binding_gemma4_12b_vllm/`](./plain_language_metal_binding_gemma4_12b_vllm), [`ni_co_selectivity_des_vllm/`](./ni_co_selectivity_des_vllm) — `google/gemma-4-12B-it` (bf16)
+- [`qwen3_6_vllm/`](./qwen3_6_vllm), [`ni_co_selectivity_des_qwen36_vllm/`](./ni_co_selectivity_des_qwen36_vllm), [`task_router_vllm/`](./task_router_vllm), [`task_execute_vllm/`](./task_execute_vllm) — `Qwen/Qwen3.6-35B-A3B-FP8`
+
+`nemotron_3_nano`/`ni_co_selectivity_des_nemotron` have no vLLM twin — no local Hugging Face checkpoint for `nemotron-3-nano` is available offline.
+
 Before adapting a folder, run `python -m des_multi_agent.cli doctor` to verify the core repo and checked-in examples are present. If you also want optional local checks, you can run `python -m des_multi_agent.cli doctor --check checkpoint`, `python -m des_multi_agent.cli doctor --check discovery`, `python -m des_multi_agent.cli doctor --check artifacts`, or `python -m des_multi_agent.cli doctor --check config`. Use `doctor --check llm --llm-config llm.example.yaml` only when you want a live local LLM probe.
 
 If you want to compare two saved runs from the same workflow, use `python -m des_multi_agent.cli compare-runs <run-a> <run-b>` or add `--json` for a machine-readable summary.

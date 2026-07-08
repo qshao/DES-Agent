@@ -1,0 +1,44 @@
+Plain-language request:
+Using the local Gemma 4-12B model (served via vLLM), find up to 5 candidate partners for ethanol (CCO), keep the brainstorm balanced across families, and predict DES melting temperature with the shipped ml_des_mp checkpoint and config.
+
+Raw Gemma router output:
+```json
+{
+  "workflow": "des",
+  "needs_clarification": false,
+  "clarifying_questions": [],
+  "job": {
+    "model": "Gemma 4-12B",
+    "inference_engine": "vLLM",
+    "target_molecule": "ethanol",
+    "smiles": "CCO",
+    "max_candidates": 5,
+    "balancing_strategy": "balanced_across_families",
+    "prediction_task": "melting_temperature",
+    "checkpoint": "ml_des_mp",
+    "config": "shipped"
+  }
+}
+```
+
+Normalized DES job:
+{"clarifying_questions": [], "job": {"checkpoint_path": "/home/qshao/DES-Agent/ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt", "component_a": "CCO", "config_path": "shipped", "discovery_path": null, "ligand_smiles": null, "llm_config": "/home/qshao/DES-Agent/examples/plain_language_gemma4_12b_vllm/llm.gemma4_12b_vllm.yaml", "metal_ion": null, "n": 5, "stability_constant_model_path": null, "viscosity_model_path": null}, "needs_clarification": false, "workflow": "des"}
+
+Proposal diversity settings: mode=balanced, max_similarity=0.82, per_family_budget=2
+Traceback (most recent call last):
+  File "/home/qshao/DES-Agent/examples/plain_language_gemma4_12b_vllm/run_example.py", line 152, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/home/qshao/DES-Agent/examples/plain_language_gemma4_12b_vllm/run_example.py", line 117, in main
+    outcome = run_search_report(
+        component_a=job.component_a or "",
+    ...<10 lines>...
+        },
+    )
+  File "/home/qshao/DES-Agent/des_multi_agent/orchestrator.py", line 732, in run_search_report
+    config_path = resolve_existing_path(config_path)
+  File "/home/qshao/DES-Agent/des_multi_agent/paths.py", line 19, in resolve_existing_path
+    return _resolve_existing_path(path, base_dir=base_dir)
+  File "/home/qshao/DES-Agent/ml_des_mp/src/shared_paths.py", line 37, in resolve_existing_path
+    raise FileNotFoundError(f"Path does not exist: {resolved}")
+FileNotFoundError: Path does not exist: /home/qshao/DES-Agent/shipped

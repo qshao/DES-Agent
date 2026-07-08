@@ -1,0 +1,183 @@
+=== Selectivity-DES Pipeline: Ni2+ over Co2+ ===
+Outer cycles run: 2 | Converged: yes
+Shortlisted ligands: 5 | DES-compatible: 4
+====================================================
+
+--- Section 1: Selectivity Results ---
+
+ligand | log_k_target | log_k_competitor | delta_log_k | score | des_compatible
+O=C(O)CN(CC(=O)O)CC(=O)O | 14.86 | 14.78 | 0.08 | 5.99 | no
+O=C(O)CNCC(=O)O | 13.07 | 12.99 | 0.08 | 5.28 | yes
+O=C(O)c1ccccc1O | 11.75 | 11.67 | 0.08 | 4.75 | yes
+NCC(=O)O | 11.23 | 11.15 | 0.08 | 4.54 | yes
+Oc1ccccc1O | 10.89 | 10.81 | 0.08 | 4.41 | yes
+Oc1cccc2ncccc12 | 10.87 | 10.79 | 0.08 | 4.40 | no
+c1cnc2ccc3ncccc3c2c1 | 10.84 | 10.76 | 0.08 | 4.39 | no
+CC(=O)NO | 10.58 | 10.50 | 0.08 | 4.28 | no
+c1ccc(-c2ccccn2)nc1 | 10.45 | 10.37 | 0.08 | 4.23 | no
+CC(=O)CC(C)=O | 9.39 | 9.31 | 0.08 | 3.80 | no
+
+--- Section 2: DES Partners ---
+
+Ligand: O=C(O)CN(CC(=O)O)CC(=O)O  (score=5.99, ΔlogK=0.08) — DES-compatible: NO
+  partner | min_tm_k | eutectic_ratio | tm_src | rationale
+  CC(=O)N | 336.2 | 0.10 | experimental (0.95) | min Tm=336.19 K, absolute<= 350.00 K, relative_drop=0.050
+  OC[C@H](O)[C@H](O)CO | 373.6 | 0.10 | experimental (0.95) | min Tm=373.62 K, absolute<= 350.00 K, relative_drop=0.053
+  NC(=O)N | 375.8 | 0.10 | experimental (0.95) | min Tm=375.76 K, absolute<= 350.00 K, relative_drop=0.074
+  C[N+](C)(C)C.[Cl-] | 406.3 | 0.50 | experimental (0.95) | min Tm=406.32 K, absolute<= 350.00 K, relative_drop=0.118
+  CC(=O)O | 365.2 | 0.10 | experimental (0.95) | min Tm=365.20 K, absolute<= 350.00 K, relative_drop=-0.260
+  CNCCOC | 301.1 | 0.10 | qspr (0.71) | min Tm=301.12 K, absolute<= 350.00 K, relative_drop=-0.388
+  CS(=O)(=O)C | 320.5 | 0.10 | qspr (0.40) | min Tm=320.53 K, absolute<= 350.00 K, relative_drop=-0.201
+  OCC(O)CO | 354.7 | 0.10 | experimental (0.95) | min Tm=354.74 K, absolute<= 350.00 K, relative_drop=-0.218
+  CCCOCCC | 284.1 | 0.10 | qspr (0.60) | min Tm=284.08 K, absolute<= 350.00 K, relative_drop=-0.450
+  O=C1NC(=O)NC1 | 388.6 | 0.30 | qspr (0.40) | min Tm=388.60 K, absolute<= 350.00 K, relative_drop=0.156
+  CCCCOCC | 278.4 | 0.10 | qspr (0.74) | min Tm=278.37 K, absolute<= 350.00 K, relative_drop=-0.543
+  C[N+](C)(C)CCO.[Cl-] | 388.3 | 0.40 | experimental (0.95) | min Tm=388.30 K, absolute<= 350.00 K, relative_drop=0.157
+  CCOCC | 309.6 | 0.10 | qspr (0.78) | min Tm=309.60 K, absolute<= 350.00 K, relative_drop=-0.981
+  CN(C)C=O | 328.5 | 0.10 | qspr (0.78) | min Tm=328.53 K, absolute<= 350.00 K, relative_drop=-0.555
+  O=C1CCCN1 | 356.4 | 0.10 | qspr (0.81) | min Tm=356.40 K, absolute<= 350.00 K, relative_drop=-0.100
+  O | 364.1 | 0.10 | qspr (0.40) | min Tm=364.09 K, absolute<= 350.00 K, relative_drop=-0.392
+  CN | 354.6 | 0.10 | qspr (0.67) | min Tm=354.60 K, absolute<= 350.00 K, relative_drop=-1.022
+  CS(=O)C | 330.9 | 0.10 | qspr (0.50) | min Tm=330.89 K, absolute<= 350.00 K, relative_drop=-0.312
+  COCCCN | 297.1 | 0.10 | qspr (0.69) | min Tm=297.14 K, absolute<= 350.00 K, relative_drop=-0.212
+  OCCO | 360.9 | 0.10 | experimental (0.95) | min Tm=360.85 K, absolute<= 350.00 K, relative_drop=-0.385
+  OCCCO | 360.7 | 0.10 | qspr (0.61) | min Tm=360.73 K, absolute<= 350.00 K, relative_drop=-0.229
+  CC(=O)NCCO | 329.9 | 0.10 | qspr (0.64) | min Tm=329.92 K, absolute<= 350.00 K, relative_drop=0.076
+  OC1=CC=CC=N1 | 355.4 | 0.10 | qspr (0.52) | min Tm=355.35 K, absolute<= 350.00 K, relative_drop=-0.142
+  COCCO | 317.7 | 0.10 | qspr (0.79) | min Tm=317.75 K, absolute<= 350.00 K, relative_drop=-0.553
+
+Ligand: O=C(O)CNCC(=O)O  (score=5.28, ΔlogK=0.08) — DES-compatible: YES
+  partner | min_tm_k | eutectic_ratio | tm_src | rationale
+  NC(=O)N | 338.3 | 0.20 | experimental (0.95) | min Tm=338.28 K, absolute<= 350.00 K, relative_drop=0.166
+  CC(=O)NCCO | 310.6 | 0.20 | qspr (0.64) | min Tm=310.58 K, absolute<= 350.00 K, relative_drop=0.130
+  CNCCNC(C)=O | 304.4 | 0.20 | qspr (0.63) | min Tm=304.44 K, absolute<= 350.00 K, relative_drop=0.163
+  CC(=O)NCCCN | 301.1 | 0.20 | qspr (0.69) | min Tm=301.07 K, absolute<= 350.00 K, relative_drop=0.156
+  OCC(O)CO | 306.2 | 0.10 | experimental (0.95) | min Tm=306.21 K, absolute<= 350.00 K, relative_drop=-0.051
+  OCCO | 313.5 | 0.10 | experimental (0.95) | min Tm=313.52 K, absolute<= 350.00 K, relative_drop=-0.203
+  CNCCOC | 257.7 | 0.10 | qspr (0.71) | min Tm=257.67 K, absolute<= 350.00 K, relative_drop=-0.188
+  OC[C@H](O)[C@H](O)CO | 360.3 | 0.30 | experimental (0.95) | min Tm=360.29 K, absolute<= 350.00 K, relative_drop=0.087
+  COCCCN | 265.9 | 0.10 | qspr (0.69) | min Tm=265.90 K, absolute<= 350.00 K, relative_drop=-0.084
+  OCCCO | 321.8 | 0.10 | qspr (0.61) | min Tm=321.84 K, absolute<= 350.00 K, relative_drop=-0.097
+  C[N+](C)(C)CCO.[Cl-] | 370.2 | 0.40 | experimental (0.95) | min Tm=370.20 K, absolute<= 350.00 K, relative_drop=0.126
+  CCCCOCC | 247.2 | 0.10 | qspr (0.74) | min Tm=247.24 K, absolute<= 350.00 K, relative_drop=-0.370
+  CCCOCCC | 250.8 | 0.10 | qspr (0.60) | min Tm=250.80 K, absolute<= 350.00 K, relative_drop=-0.281
+  CC(=O)O | 323.7 | 0.10 | experimental (0.95) | min Tm=323.68 K, absolute<= 350.00 K, relative_drop=-0.117
+  CC(=O)N | 325.0 | 0.20 | experimental (0.95) | min Tm=324.97 K, absolute<= 350.00 K, relative_drop=0.082
+  CCOCC | 271.6 | 0.10 | qspr (0.78) | min Tm=271.57 K, absolute<= 350.00 K, relative_drop=-0.738
+  COCCO | 283.1 | 0.10 | qspr (0.79) | min Tm=283.07 K, absolute<= 350.00 K, relative_drop=-0.384
+  O=C1NC(=O)NC1 | 358.8 | 0.30 | qspr (0.40) | min Tm=358.81 K, absolute<= 350.00 K, relative_drop=0.153
+  CS(=O)(=O)C | 301.9 | 0.10 | qspr (0.40) | min Tm=301.86 K, absolute<= 350.00 K, relative_drop=-0.131
+  CS(=O)C | 296.9 | 0.10 | qspr (0.50) | min Tm=296.94 K, absolute<= 350.00 K, relative_drop=-0.177
+  CN | 320.1 | 0.10 | qspr (0.67) | min Tm=320.13 K, absolute<= 350.00 K, relative_drop=-0.826
+  O=C1CCCN1 | 328.1 | 0.10 | qspr (0.81) | min Tm=328.11 K, absolute<= 350.00 K, relative_drop=-0.012
+  OC1=CC=CC=N1 | 315.9 | 0.10 | qspr (0.52) | min Tm=315.85 K, absolute<= 350.00 K, relative_drop=-0.015
+  C[N+](C)(C)C.[Cl-] | 390.4 | 0.50 | experimental (0.95) | min Tm=390.42 K, absolute<= 350.00 K, relative_drop=0.078
+  CN(C)C=O | 300.6 | 0.10 | qspr (0.78) | min Tm=300.57 K, absolute<= 350.00 K, relative_drop=-0.423
+  O | 338.5 | 0.10 | qspr (0.40) | min Tm=338.48 K, absolute<= 350.00 K, relative_drop=-0.294
+
+Ligand: O=C(O)c1ccccc1O  (score=4.75, ΔlogK=0.08) — DES-compatible: YES
+  partner | min_tm_k | eutectic_ratio | tm_src | rationale
+  CC(=O)N | 309.8 | 0.30 | experimental (0.95) | min Tm=309.82 K, absolute<= 350.00 K, relative_drop=0.125
+  OC[C@H](O)[C@H](O)CO | 344.9 | 0.40 | experimental (0.95) | min Tm=344.92 K, absolute<= 350.00 K, relative_drop=0.126
+  OCC[C@@H](O)[C@@H](O)CO | 323.0 | 0.50 | qspr (0.81) | min Tm=322.95 K, absolute<= 350.00 K, relative_drop=0.132
+  NC(=O)N | 342.3 | 0.20 | experimental (0.95) | min Tm=342.29 K, absolute<= 350.00 K, relative_drop=0.157
+  NC[C@@H](O)[C@@H](O)CO | 330.2 | 0.60 | qspr (0.70) | min Tm=330.21 K, absolute<= 350.00 K, relative_drop=0.166
+  OCCO | 223.8 | 0.30 | experimental (0.95) | min Tm=223.83 K, absolute<= 350.00 K, relative_drop=0.141
+  C[N+](C)(C)CCO.[Cl-] | 328.6 | 0.50 | experimental (0.95) | min Tm=328.58 K, absolute<= 350.00 K, relative_drop=0.240
+  CCCOCC | 147.6 | 0.20 | qspr (0.78) | min Tm=147.55 K, absolute<= 350.00 K, relative_drop=0.125
+  OCCCO | 236.3 | 0.30 | qspr (0.61) | min Tm=236.27 K, absolute<= 350.00 K, relative_drop=0.195
+  OC1=CC=CC=N1 | 257.0 | 0.30 | qspr (0.52) | min Tm=257.00 K, absolute<= 350.00 K, relative_drop=0.174
+  O=C1CCCN1 | 262.9 | 0.20 | qspr (0.81) | min Tm=262.86 K, absolute<= 350.00 K, relative_drop=0.189
+  CC(=O)NCCO | 281.0 | 0.30 | qspr (0.64) | min Tm=281.00 K, absolute<= 350.00 K, relative_drop=0.213
+  O=C1NC(=O)NC1 | 293.6 | 0.40 | qspr (0.40) | min Tm=293.58 K, absolute<= 350.00 K, relative_drop=0.321
+  COCCO | 196.3 | 0.20 | qspr (0.79) | min Tm=196.31 K, absolute<= 350.00 K, relative_drop=0.040
+  OCC(O)CO | 267.3 | 0.20 | experimental (0.95) | min Tm=267.33 K, absolute<= 350.00 K, relative_drop=0.082
+  CS(=O)(=O)C | 281.3 | 0.10 | qspr (0.40) | min Tm=281.34 K, absolute<= 350.00 K, relative_drop=-0.054
+  CC(=O)O | 283.2 | 0.10 | experimental (0.95) | min Tm=283.24 K, absolute<= 350.00 K, relative_drop=0.023
+  CN | 230.7 | 0.10 | qspr (0.67) | min Tm=230.69 K, absolute<= 350.00 K, relative_drop=-0.316
+  C[N+](C)(C)C.[Cl-] | 375.8 | 0.60 | experimental (0.95) | min Tm=375.82 K, absolute<= 350.00 K, relative_drop=0.130
+  CS(=O)C | 249.1 | 0.10 | qspr (0.50) | min Tm=249.13 K, absolute<= 350.00 K, relative_drop=0.012
+  CCOCC | 143.2 | 0.10 | qspr (0.78) | min Tm=143.23 K, absolute<= 350.00 K, relative_drop=0.083
+  CN(C)C=O | 213.3 | 0.10 | qspr (0.78) | min Tm=213.35 K, absolute<= 350.00 K, relative_drop=-0.010
+  O | 281.0 | 0.10 | qspr (0.40) | min Tm=281.03 K, absolute<= 350.00 K, relative_drop=-0.075
+
+Ligand: NCC(=O)O  (score=4.54, ΔlogK=0.08) — DES-compatible: YES
+  partner | min_tm_k | eutectic_ratio | tm_src | rationale
+  CC(=O)NCCO | 286.8 | 0.40 | qspr (0.64) | min Tm=286.83 K, absolute<= 350.00 K, relative_drop=0.197
+  CC(=O)NCCN | 285.3 | 0.40 | qspr (0.69) | min Tm=285.28 K, absolute<= 350.00 K, relative_drop=0.211
+  CNCCNC(C)=O | 293.7 | 0.40 | qspr (0.63) | min Tm=293.66 K, absolute<= 350.00 K, relative_drop=0.193
+  C[N+](C)(C)CCO.[Cl-] | 343.3 | 0.50 | experimental (0.95) | min Tm=343.28 K, absolute<= 350.00 K, relative_drop=0.289
+  OCCO | 254.3 | 0.10 | experimental (0.95) | min Tm=254.34 K, absolute<= 350.00 K, relative_drop=0.024
+  OCC(O)CO | 278.1 | 0.20 | experimental (0.95) | min Tm=278.09 K, absolute<= 350.00 K, relative_drop=0.045
+  COCCO | 199.8 | 0.10 | qspr (0.79) | min Tm=199.77 K, absolute<= 350.00 K, relative_drop=0.023
+  NC(=O)N | 368.3 | 0.20 | experimental (0.95) | min Tm=368.33 K, absolute<= 350.00 K, relative_drop=0.092
+  COCCN | 213.6 | 0.10 | qspr (0.74) | min Tm=213.64 K, absolute<= 350.00 K, relative_drop=0.031
+  OCCCO | 273.9 | 0.20 | qspr (0.61) | min Tm=273.87 K, absolute<= 350.00 K, relative_drop=0.067
+  CC(=O)O | 349.1 | 0.10 | experimental (0.95) | min Tm=349.10 K, absolute<= 350.00 K, relative_drop=-0.204
+  CCCCOCC | 179.7 | 0.10 | qspr (0.74) | min Tm=179.69 K, absolute<= 350.00 K, relative_drop=0.004
+  OC[C@H](O)[C@H](O)CO | 360.6 | 0.40 | experimental (0.95) | min Tm=360.61 K, absolute<= 350.00 K, relative_drop=0.086
+  CCCOCCC | 194.4 | 0.10 | qspr (0.60) | min Tm=194.40 K, absolute<= 350.00 K, relative_drop=0.007
+  CC(=O)N | 337.1 | 0.10 | experimental (0.95) | min Tm=337.05 K, absolute<= 350.00 K, relative_drop=0.048
+  OC1=CC=CC=N1 | 301.9 | 0.10 | qspr (0.52) | min Tm=301.86 K, absolute<= 350.00 K, relative_drop=0.030
+  CCOCC | 210.9 | 0.10 | qspr (0.78) | min Tm=210.92 K, absolute<= 350.00 K, relative_drop=-0.350
+  O=C1NC(=O)NC1 | 389.2 | 0.30 | qspr (0.40) | min Tm=389.18 K, absolute<= 350.00 K, relative_drop=0.157
+  CS(=O)C | 281.4 | 0.10 | qspr (0.50) | min Tm=281.41 K, absolute<= 350.00 K, relative_drop=-0.116
+  CS(=O)(=O)C | 299.4 | 0.10 | qspr (0.40) | min Tm=299.36 K, absolute<= 350.00 K, relative_drop=-0.121
+  O=C1CCCN1 | 324.8 | 0.10 | qspr (0.81) | min Tm=324.76 K, absolute<= 350.00 K, relative_drop=-0.002
+  C[N+](C)(C)C.[Cl-] | 404.5 | 0.50 | experimental (0.95) | min Tm=404.48 K, absolute<= 350.00 K, relative_drop=0.162
+  CN(C)C=O | 303.2 | 0.10 | qspr (0.78) | min Tm=303.25 K, absolute<= 350.00 K, relative_drop=-0.435
+  CN | 349.9 | 0.10 | qspr (0.67) | min Tm=349.95 K, absolute<= 350.00 K, relative_drop=-0.996
+  O | 373.2 | 0.10 | qspr (0.40) | min Tm=373.22 K, absolute<= 350.00 K, relative_drop=-0.427
+
+Ligand: Oc1ccccc1O  (score=4.41, ΔlogK=0.08) — DES-compatible: YES
+  partner | min_tm_k | eutectic_ratio | tm_src | rationale
+  O=C1NC(=O)NC1 | 332.4 | 0.60 | qspr (0.40) | min Tm=332.35 K, absolute<= 350.00 K, relative_drop=0.129
+  OC[C@H](O)[C@H](O)CO | 330.7 | 0.70 | experimental (0.95) | min Tm=330.68 K, absolute<= 350.00 K, relative_drop=0.134
+  CC(=O)NCCO | 306.7 | 0.60 | qspr (0.64) | min Tm=306.67 K, absolute<= 350.00 K, relative_drop=0.141
+  CC(=O)N | 282.2 | 0.40 | experimental (0.95) | min Tm=282.22 K, absolute<= 350.00 K, relative_drop=0.203
+  OCC(O)CO | 250.5 | 0.50 | experimental (0.95) | min Tm=250.54 K, absolute<= 350.00 K, relative_drop=0.140
+  OCCCO | 259.9 | 0.50 | qspr (0.61) | min Tm=259.87 K, absolute<= 350.00 K, relative_drop=0.114
+  OCC[C@@H](O)[C@@H](O)CO | 316.8 | 0.70 | qspr (0.81) | min Tm=316.82 K, absolute<= 350.00 K, relative_drop=0.149
+  NC(=O)N | 286.6 | 0.40 | experimental (0.95) | min Tm=286.56 K, absolute<= 350.00 K, relative_drop=0.249
+  O=C1CCCN1 | 287.6 | 0.30 | qspr (0.81) | min Tm=287.56 K, absolute<= 350.00 K, relative_drop=0.113
+  OC1=CC=CC=N1 | 240.0 | 0.50 | qspr (0.52) | min Tm=239.95 K, absolute<= 350.00 K, relative_drop=0.229
+  NC[C@@H](O)[C@@H](O)CO | 333.5 | 0.70 | qspr (0.70) | min Tm=333.46 K, absolute<= 350.00 K, relative_drop=0.126
+  CS(=O)(=O)C | 233.6 | 0.40 | qspr (0.40) | min Tm=233.59 K, absolute<= 350.00 K, relative_drop=0.125
+  C[N+](C)(C)C.[Cl-] | 326.9 | 0.70 | experimental (0.95) | min Tm=326.94 K, absolute<= 350.00 K, relative_drop=0.143
+  OCCO | 226.8 | 0.50 | experimental (0.95) | min Tm=226.78 K, absolute<= 350.00 K, relative_drop=0.130
+  C[N+](C)(C)CCO.[Cl-] | 291.7 | 0.70 | experimental (0.95) | min Tm=291.67 K, absolute<= 350.00 K, relative_drop=0.236
+  COCCO | 200.3 | 0.20 | qspr (0.79) | min Tm=200.25 K, absolute<= 350.00 K, relative_drop=0.021
+  CS(=O)C | 229.6 | 0.20 | qspr (0.50) | min Tm=229.64 K, absolute<= 350.00 K, relative_drop=0.090
+  CC(=O)O | 270.7 | 0.20 | experimental (0.95) | min Tm=270.75 K, absolute<= 350.00 K, relative_drop=0.066
+  CN(C)C=O | 201.9 | 0.20 | qspr (0.78) | min Tm=201.94 K, absolute<= 350.00 K, relative_drop=0.044
+  CCOCC | 164.1 | 0.10 | qspr (0.78) | min Tm=164.06 K, absolute<= 350.00 K, relative_drop=-0.050
+  CCCOCC | 169.4 | 0.10 | qspr (0.78) | min Tm=169.40 K, absolute<= 350.00 K, relative_drop=-0.004
+  CN | 172.1 | 0.10 | qspr (0.67) | min Tm=172.06 K, absolute<= 350.00 K, relative_drop=0.019
+  O | 237.6 | 0.20 | qspr (0.40) | min Tm=237.62 K, absolute<= 350.00 K, relative_drop=0.091
+
+Warnings:
+- LLM review failed for NCC(=O)O: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Input Ligand SMILES:** `NCC(=O)O` (Glycine)\n   - **Metal Ion:** Ni2+\n   - **Context:** Ta...
+- LLM review failed for O=C(O)CNCC(=O)O: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Metal ion:** Ni2+\n   - **Ligand:** O=C(O)CNCC(=O)O (This is iminodiacetic acid, IDA)\n   -...
+- LLM review failed for O=C(O)CN(CC(=O)O)CC(=O)O: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Metal ion:** Ni2+\n   - **Ligand:** O=C(O)CN(CC(=O)O)CC(=O)O\n   - **Context:** Target meta...
+- LLM review failed for Oc1ccccc1O: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Metal ion:** Ni2+\n   - **Ligand:** Oc1ccccc1O (This is catechol, or 1,2-dihydroxybenzene)\...
+- LLM review failed for Oc1cccc2ncccc12: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Metal ion:** Ni2+\n   - **Ligand:** Oc1cccc2ncccc12 (This is a SMILES string)\n   - **Conte...
+- LLM review failed for CC(=O)CC(C)=O: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Metal ion:** Ni2+\n   - **Ligand:** CC(=O)CC(C)=O (SMILES)\n   - **Context:** Target metal:...
+- LLM review failed for CC(=O)NO: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Metal ion:** Ni2+\n   - **Ligand:** CC(=O)NO (SMILES)\n   - **Context:** Target metal: Ni2+...
+- LLM review failed for c1ccc(-c2ccccn2)nc1: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Metal ion:** Ni2+\n   - **Ligand:** c1ccc(-c2ccccn2)nc1\n   - **Context:** Target metal: Ni...
+- LLM review failed for c1cnc2ccc3ncccc3c2c1: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Metal ion:** Ni2+\n   - **Ligand:** c1cnc2ccc3ncccc3c2c1 (SMILES)\n   - **Context:** Target...
+- LLM review failed for O=C(O)c1ccccc1O: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Metal ion:** Ni2+\n   - **Ligand:** O=C(O)c1ccccc1O (Salicylic acid / 2-hydroxybenzoic acid...
+- Bridge filter found 0 ligands above min_delta_log_k=0.3; using top-5 unconditionally.
+- LLM review failed for NCC(=O)O: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Metal ion:** Ni2+\n   - **Ligand:** NCC(=O)O (Glycine)\n   - **Context:** Target metal: Ni2...
+- LLM review failed for O=C(O)CNCC(=O)O: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Metal ion:** Ni2+\n   - **Ligand:** O=C(O)CNCC(=O)O (N-(carboxymethyl)glycine, also known a...
+- LLM review failed for O=C(O)CN(CC(=O)O)CC(=O)O: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Metal ion:** Ni2+\n   - **Ligand:** O=C(O)CN(CC(=O)O)CC(=O)O\n   - **Context:** Target meta...
+- LLM review failed for Oc1ccccc1O: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Metal ion:** Ni2+\n   - **Ligand:** Oc1ccccc1O (Catechol / 1,2-dihydroxybenzene)\n   - **Co...
+- LLM review failed for Oc1cccc2ncccc12: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Metal ion:** Ni2+\n   - **Ligand:** Oc1cccc2ncccc12 (SMILES)\n   - **Context:** Target meta...
+- LLM review failed for CC(=O)CC(C)=O: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Metal ion:** Ni2+\n   - **Ligand:** CC(=O)CC(C)=O (This is 2,4-pentanedione, also known as ...
+- LLM review failed for CC(=O)NO: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Metal ion:** Ni2+\n   - **Ligand:** CC(=O)NO (Acetohydroxamic acid)\n   - **Context:** Targ...
+- LLM review failed for c1ccc(-c2ccccn2)nc1: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Metal ion:** Ni2+\n   - **Ligand:** c1ccc(-c2ccccn2)nc1\n   - **Context:** Target metal: Ni...
+- LLM review failed for c1cnc2ccc3ncccc3c2c1: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Metal ion:** Ni2+\n   - **Ligand:** c1cnc2ccc3ncccc3c2c1 (SMILES)\n   - **Context:** Target...
+- LLM review failed for O=C(O)c1ccccc1O: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Metal ion:** Ni2+\n   - **Ligand:** O=C(O)c1ccccc1O (Salicylic acid / 2-hydroxybenzoic acid...
+- Bridge filter found 0 ligands above min_delta_log_k=0.3; using top-5 unconditionally.
+summary:
+- command: selectivity-des
+- status: completed

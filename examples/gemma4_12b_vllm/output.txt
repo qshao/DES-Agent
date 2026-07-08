@@ -1,0 +1,111 @@
+=== DES Search: ethanol (CCO) ===
+Screened 10 candidate(s). 2 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
+Top candidate: ethylene glycol (OCCO) — min Tm 155.5 K (Δ12.1%) | moderate-high confidence
+=================================
+
+Chemistry lessons:
+productive patterns: diol (1), short diol (1)
+avoid patterns: amide (1), carboxylic acid (1), polyol (1), ether alcohol (1), hydroxypyridine (1), lactam (1), hydroxyamide (1), sugar-like polyol (1)
+cycle summary:
+- Productive patterns: diol (1), short diol (1).
+- Avoid patterns: amide (1), carboxylic acid (1), polyol (1).
+- Representative examples: OCCO, OCCCO, CC(=O)N.
+run summary:
+- Representative good examples: OCCO, OCCCO.
+- Representative bad examples: CC(=O)N, CC(=O)O, OCC(O)CO.
+- Stay near the productive families and probe close analogs first.
+- Try adjacent chemistry away from the repeated failure families.
+- Some supporting results were low-trust; treat the lesson cautiously.
+- Evidence is mixed; keep the next cycle balanced.
+- Productive patterns: diol (1), short diol (1).
+- Avoid patterns: amide (1), carboxylic acid (1), polyol (1).
+- Representative examples: OCCO, OCCCO, CC(=O)N.
+next steps:
+- Stay near the productive families and probe close analogs first.
+- Try adjacent chemistry away from the repeated failure families.
+warnings:
+- Some supporting results were low-trust; treat the lesson cautiously.
+- Evidence is mixed; keep the next cycle balanced.
+
+compound | is_des | min_tm_k | eutectic_x_b | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
+ethylene glycol (OCCO) | True | 155.49 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.74 | mean=160.79 K | spread=155.73-165.61 K | std=4.04 K | moderate-high confidence | min Tm=155.49 K, absolute<= 260.00 K, relative_drop=0.121
+1,3-propanediol (OCCCO) | True | 155.07 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.48 | mean=150.61 K | spread=140.85-155.78 K | std=6.91 K | moderate confidence — consider experimental verification | min Tm=155.07 K, absolute<= 260.00 K, relative_drop=0.124
+acetamide (CC(=O)N) | False | 168.39 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.94 | mean=173.00 K | spread=172.85-173.09 K | std=0.11 K | high confidence | min Tm=168.39 K, absolute<= 260.00 K, relative_drop=0.048
+acetic acid (CC(=O)O) | False | 171.54 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.86 | mean=172.13 K | spread=170.93-173.97 K | std=1.32 K | high confidence | min Tm=171.54 K, absolute<= 260.00 K, relative_drop=0.031
+glycerol (OCC(O)CO) | False | 167.57 | 0.90 | source=heuristic; id=rule-based-family-library | trust=0.87 | mean=168.35 K | spread=166.70-169.78 K | std=1.27 K | high confidence | min Tm=167.57 K, absolute<= 260.00 K, relative_drop=0.053
+COCCO | False | 162.36 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.83 | mean=165.63 K | spread=163.87-167.35 K | std=1.42 K | high confidence | min Tm=162.36 K, absolute<= 260.00 K, relative_drop=0.082
+OC1=CC=CC=N1 | False | 167.01 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.76 | mean=168.49 K | spread=166.71-171.23 K | std=1.96 K | high confidence | min Tm=167.01 K, absolute<= 260.00 K, relative_drop=0.056
+O=C1CCCN1 | False | 161.54 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.74 | mean=161.42 K | spread=158.31-166.42 K | std=3.57 K | moderate-high confidence | min Tm=161.54 K, absolute<= 260.00 K, relative_drop=0.087
+CC(=O)NCCO | False | 170.61 | 0.90 | source=heuristic; id=rule-based-family-library | trust=0.69 | mean=173.06 K | spread=169.93-179.04 K | std=4.23 K | moderate confidence — consider experimental verification | min Tm=170.61 K, absolute<= 260.00 K, relative_drop=0.036
+OC[C@H](O)[C@H](O)CO | False | 242.11 | 0.90 | source=heuristic; id=rule-based-family-library | trust=0.49 | mean=241.72 K | spread=228.82-249.92 K | std=9.23 K | low confidence — consider experimental verification | min Tm=242.11 K, absolute<= 260.00 K, relative_drop=-0.368
+
+Physical sanity — non-physical eutectic (predicted Tm above both pure components):
+- OC[C@H](O)[C@H](O)CO: min Tm 242.1 K > min(T1,T2)=177.0 K — treat prediction with caution
+
+Melting-point inputs:
+component | Tm_K | source | confidence
+ethanol (CCO) | 176.96 | qspr | 0.67
+ethylene glycol (OCCO) | 260.60 | experimental | 0.95
+1,3-propanediol (OCCCO) | 293.44 | qspr | 0.61
+acetamide (CC(=O)N) | 354.06 | experimental | 0.95
+acetic acid (CC(=O)O) | 289.85 | experimental | 0.95
+glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
+COCCO | 204.55 | qspr | 0.79
+OC1=CC=CC=N1 | 311.05 | qspr | 0.52
+O=C1CCCN1 | 324.08 | qspr | 0.81
+CC(=O)NCCO | 357.10 | qspr | 0.64
+OC[C@H](O)[C@H](O)CO | 394.70 | experimental | 0.95
+
+LLM candidate reviews:
+O | reject | confidence=1.00 | The candidate 'O' is a single oxygen atom and does not form a chemically stable or meaningful coordination complex with the CCO fragment in this context. | Insufficient denticity; Single atom candidate
+OCCO | keep | confidence=0.95 | The candidate OCCO maintains the core structural features of the component CCO (polyol, amphoteric role, and donor atoms) while increasing the chain length, which is a standard structural variation for this class of molecules. | Maintains denticity; Consistent with polyol feature
+OCC(O)CO | keep | confidence=0.95 | The candidate OCC(O)CO (glycerol) matches the computed facts for Component A (CCO) as it is a polyol with 3 hydroxyl groups (HBD=3, HBA=3), acts as an amphoteric species, and has a denticity of 3. | Matches all computed features; Consistent with polyol description
+CC(=O)N | keep | confidence=0.95 | The candidate CC(=O)N (acetamide) correctly reflects the chemical environment of the CCO component modified by the CCO functional group logic, maintaining the amide and amine features identified in the computed facts. | Matches donor atoms and denticity; Consistent with amphoteric role
+CC(=O)O | keep | confidence=0.98 | The candidate CC(=O)O correctly represents the carboxylic acid functional group derived from the CCO component, matching the computed facts for HBD=1, HBA=1, and the presence of carboxylic acid features. | Matches all computed chemical properties; Correctly identifies the acid form
+CN | reject | confidence=0.95 | The candidate CN (methylamine) is a simple primary amine, whereas the reference component CCO (ethanol) is an alcohol. While both are small organic molecules, the chemical functionality (amine vs. alcohol) and the presence of the nitrogen donor atom in the candidate do not align with the structural characteristics of the reference component. | Functional group mismatch; Different donor atom types
+C[N+](C)(C)C.[Cl-] | reject | confidence=1.00 | The candidate is a quaternary ammonium salt (trimethylammonium chloride), which does not match the target component CCO (ethanol). | Incorrect chemical identity; Does not match target component
+C[N+](C)(C)CCO.[Cl-] | reject | confidence=0.95 | The candidate C[N+](C)(C)CCO.[Cl-] does not match the structural requirements of the component CCO. The presence of a quaternary ammonium group and a chlorine counterion significantly alters the chemical identity and properties from the target component. | Structural mismatch with component CCO; Incorrect functional groups
+NC(=O)N | reject | confidence=0.95 | The candidate NC(=O)N (urea) does not match the computed facts for Component A (CCO). The computed facts specify a role of amphoteric with 2 N and 1 O donor atoms and a denticity of 3, whereas the candidate's structural properties and chemical identity are inconsistent with the target component's requirements. | Candidate does not match the specified computed facts for Component A.
+OC[C@H](O)[C@H](O)CO | keep | confidence=0.95 | The candidate is a polyol (glycerol derivative) which matches the 'polyol' feature and the amphoteric role. It maintains the core CCO backbone while satisfying the HBD=4 and HBA=4 requirements. | Matches polyol feature; Consistent with CCO component
+OCCCO | keep | confidence=0.95 | The candidate OCCCO maintains the core polyol feature and amphoteric nature of the parent component CCO. It preserves the donor atom count and denticity while extending the carbon chain, which is a standard structural variation for this component. | Maintains polyol feature; Preserves amphoteric role
+COCCO | keep | confidence=0.92 | The candidate COCCO is a valid derivative of the CCO component. It maintains the amphoteric nature and oxygen donor atoms while slightly increasing the carbon chain length, which is a standard structural variation for this class of compounds. | Maintains denticity of 2; Consistent with requested deterministic expansion
+O=C1CCCN1 | keep | confidence=0.95 | The candidate O=C1CCCN1 (1-pyrrolidinone) contains both an amide group and an amine-derived nitrogen, matching the required features and the amphoteric role described in the computed facts. | Matches amide and amine features; Consistent with denticity and donor atom counts
+O=C1NC(=O)NC1 | reject | confidence=0.95 | The candidate molecule (urea) does not match the chemical properties or structural characteristics of the target component CCO (ethanol). The target is an alcohol with a primary carbon chain, while the candidate is a cyclic amide/urea derivative. | Structural mismatch; Functional group mismatch
+CS(=O)C | reject | confidence=0.95 | The candidate CS(=O)C (dimethyl sulfoxide) does not match the structural requirements of the component CCO. The component CCO represents an ethanol-like backbone, whereas the candidate is a sulfur-based sulfoxide. | Structural mismatch between CCO and CS(=O)C
+CS(=O)(=O)C | reject | confidence=0.95 | The candidate CS(=O)(=O)C (methanesulfonic acid) does not match the chemical environment or structural characteristics of the component CCO (ethanol). The computed facts indicate a donor role with sulfur and oxygen atoms, which is inconsistent with the simple alcohol structure of the target component. | Structural mismatch; Functional group inconsistency
+CN(C)C=O | reject | confidence=0.95 | The candidate CN(C)C=O (N,N-dimethylethanamide) does not match the computed facts for Component A (CCO). The computed facts specify a role of HBA with a denticity of 2 and an amide feature, but the starting component CCO is an alcohol/ether fragment, not an amide. The candidate is chemically inconsistent with the provided component context. | Mismatch between component CCO and amide candidate; Incorrect role assignment for the provided fragment
+CCOCC | reject | confidence=0.95 | The candidate CCOCC is a simple diethyl ether derivative/alkane chain fragment that does not provide the necessary functional group complexity or coordination environment expected from the component CCO (ethanol) in a meaningful chemical transformation context. | Low structural diversity; Redundant with component
+CC(=O)NCCO | keep | confidence=0.95 | The candidate CC(=O)NCCO correctly incorporates the CCO component and satisfies the required features (amide and amine groups) and denticity (3) derived from the CCO component's properties. | Matches amide and amine features; Maintains CCO backbone
+
+LLM explanations:
+OCCO | Candidate meets DES criteria with a minimum melting temperature of 155.49 K. | is_des=True, min_tm_k=155.49, relative_drop=0.121
+OCCCO | Candidate meets DES criteria with a minimum melting temperature of 155.07 K. | is_des=True, min_tm_k=155.07, relative_drop=0.124
+CC(=O)N | Candidate does not meet DES criteria; melting temperature is 168.39 K. | is_des=False, min_tm_k=168.39, relative_drop=0.048
+CC(=O)O | Candidate does not meet DES criteria; melting temperature is 171.54 K. | is_des=False, min_tm_k=171.54, relative_drop=0.031
+OCC(O)CO | Candidate does not meet DES criteria; melting temperature is 167.57 K. | is_des=False, min_tm_k=167.57, relative_drop=0.053
+COCCO | Candidate does not meet DES criteria; melting temperature is 162.36 K. | is_des=False, min_tm_k=162.36, relative_drop=0.082
+OC1=CC=CC=N1 | Candidate does not meet DES criteria; melting temperature is 167.01 K. | is_des=False, min_tm_k=167.01, relative_drop=0.056
+O=C1CCCN1 | Candidate does not meet DES criteria; melting temperature is 161.54 K. | is_des=False, min_tm_k=161.54, relative_drop=0.087
+CC(=O)NCCO | Candidate does not meet DES criteria; melting temperature is 170.61 K. | is_des=False, min_tm_k=170.61, relative_drop=0.036
+OC[C@H](O)[C@H](O)CO | Candidate does not meet DES criteria; melting temperature is 242.11 K. | is_des=False, min_tm_k=242.11, relative_drop=-0.368
+
+LLM critique:
+OCCO | High priority DES candidate. | Low melting point (155.49 K) is favorable, but ensure structural stability in the mixture.
+OCCCO | High priority DES candidate. | Lowest melting point (155.07 K) identified; monitor for potential high volatility.
+CC(=O)N | Excluded. | Failed is_des criteria; melting point too high for target range.
+CC(=O)O | Excluded. | Failed is_des criteria; melting point too high for target range.
+OCC(O)CO | Excluded. | Failed is_des criteria; melting point too high for target range.
+COCCO | Excluded. | Failed is_des criteria; melting point too high for target range.
+OC1=CC=CC=N1 | Excluded. | Failed is_des criteria; melting point too high for target range.
+O=C1CCCN1 | Excluded. | Failed is_des criteria; melting point too high for target range.
+CC(=O)NCCO | Excluded. | Failed is_des criteria; melting point too high for target range.
+OC[C@H](O)[C@H](O)CO | Excluded. | Failed is_des criteria; melting point (242.11 K) is near the upper limit.
+
+Warnings:
+- LLM brainstorming failed: LLM response is not valid JSON. Excerpt: [\n  {\n    "smiles": "OC(=O)CC(=O)O",\n    "rationale": "Malonic acid provides a classic carboxylic acid network with multiple H-bonding sites to complement...
+- LLM candidate review returned wrong SMILES for OC1=CC=CC=N1
+- LLM chemistry assessment failed for OCCO: LLM response is not valid JSON. Excerpt: [\n  {\n    "smiles": "OCCO",\n    "decision": "is_des",\n    "confidence": 0.74,\n    "rationale": "The molecule OCCO (ethylene glycol) exhibits strong hydr...
+
+Run memory:
+- Chemical pattern memory favored productive families: diol, short diol.
+- Chemical pattern memory penalized caution families: amide, carboxylic acid, polyol.

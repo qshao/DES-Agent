@@ -1,0 +1,4 @@
+Component A: CCO
+Candidate search count: 20
+Checkpoint: ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt
+LLM: vLLM Qwen/Qwen3.6-35B-A3B-FP8 (OpenAI-compatible server on localhost:8000)

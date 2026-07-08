@@ -1,0 +1,9 @@
+llm:
+  enabled: true
+  provider: vllm
+  model_name: google/gemma-4-12B-it
+  api_base_url: http://localhost:8000/v1
+  max_candidates: 20
+  max_tokens: 1024
+  temperature: 0.2
+  timeout_seconds: 300.0

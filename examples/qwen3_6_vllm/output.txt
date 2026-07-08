@@ -1,0 +1,112 @@
+=== DES Search: ethanol (CCO) ===
+Screened 20 candidate(s). 5 predicted DES-former(s) (min Tm ≤ 260 K with ≥10% relative drop).
+Top candidate: CCOCC — min Tm 137.5 K (Δ12.0%) | high confidence
+=================================
+
+Chemistry lessons:
+productive patterns: ether (1), amine (1), dimethylformamide-like (1), diol (1), short diol (1)
+avoid patterns: amide (1), choline-like (1), carboxylic acid (1), polyol (1), ether alcohol (1), urea (1), hydroxypyridine (1), lactam (1), sulfone (1), sulfoxide (1), hydroxyamide (1), cyclic urea (1), alcohol (1), sugar-like polyol (1), quaternary ammonium salt (1)
+cycle summary:
+- Productive patterns: ether (1), amine (1), dimethylformamide-like (1).
+- Avoid patterns: amide (1), choline-like (1), carboxylic acid (1).
+- Representative examples: CCOCC, CN, CN(C)C=O.
+run summary:
+- Representative good examples: CCOCC, CN, CN(C)C=O.
+- Representative bad examples: CC(=O)N, C[N+](C)(C)CCO.[Cl-], CC(=O)O.
+- Stay near the productive families and probe close analogs first.
+- Try adjacent chemistry away from the repeated failure families.
+- Some supporting results were low-trust; treat the lesson cautiously.
+- Evidence is mixed; keep the next cycle balanced.
+- Productive patterns: ether (1), amine (1), dimethylformamide-like (1).
+- Avoid patterns: amide (1), choline-like (1), carboxylic acid (1).
+- Representative examples: CCOCC, CN, CN(C)C=O.
+next steps:
+- Stay near the productive families and probe close analogs first.
+- Try adjacent chemistry away from the repeated failure families.
+warnings:
+- Some supporting results were low-trust; treat the lesson cautiously.
+- Evidence is mixed; keep the next cycle balanced.
+
+compound | is_des | min_tm_k | eutectic_x_b | source | trust | mean_tm_k | spread_k | std_k | confidence | rationale
+CCOCC | True | 137.53 | 0.20 | source=heuristic; id=rule-based-family-library | trust=0.86 | mean=134.65 K | spread=133.83-136.00 K | std=0.96 K | high confidence | min Tm=137.53 K, absolute<= 260.00 K, relative_drop=0.120
+CN | True | 137.72 | 0.30 | source=heuristic; id=rule-based-family-library | trust=0.79 | mean=139.65 K | spread=137.53-142.03 K | std=1.85 K | high confidence | min Tm=137.72 K, absolute<= 260.00 K, relative_drop=0.215
+CN(C)C=O | True | 141.04 | 0.40 | source=heuristic; id=rule-based-family-library | trust=0.79 | mean=142.58 K | spread=140.32-145.83 K | std=2.35 K | moderate-high confidence | min Tm=141.04 K, absolute<= 260.00 K, relative_drop=0.203
+ethylene glycol (OCCO) | True | 155.49 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.74 | mean=160.79 K | spread=155.73-165.61 K | std=4.04 K | moderate-high confidence | min Tm=155.49 K, absolute<= 260.00 K, relative_drop=0.121
+1,3-propanediol (OCCCO) | True | 155.07 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.48 | mean=150.61 K | spread=140.85-155.78 K | std=6.91 K | moderate confidence — consider experimental verification | min Tm=155.07 K, absolute<= 260.00 K, relative_drop=0.124
+acetamide (CC(=O)N) | False | 168.39 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.94 | mean=173.00 K | spread=172.85-173.09 K | std=0.11 K | high confidence | min Tm=168.39 K, absolute<= 260.00 K, relative_drop=0.048
+choline chloride (C[N+](C)(C)CCO.[Cl-]) | False | 173.16 | 0.90 | source=heuristic; id=rule-based-family-library | trust=0.89 | mean=172.83 K | spread=171.59-173.57 K | std=0.88 K | high confidence | min Tm=173.16 K, absolute<= 260.00 K, relative_drop=0.021
+acetic acid (CC(=O)O) | False | 171.54 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.86 | mean=172.13 K | spread=170.93-173.97 K | std=1.32 K | high confidence | min Tm=171.54 K, absolute<= 260.00 K, relative_drop=0.031
+glycerol (OCC(O)CO) | False | 167.57 | 0.90 | source=heuristic; id=rule-based-family-library | trust=0.87 | mean=168.35 K | spread=166.70-169.78 K | std=1.27 K | high confidence | min Tm=167.57 K, absolute<= 260.00 K, relative_drop=0.053
+COCCO | False | 162.36 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.83 | mean=165.63 K | spread=163.87-167.35 K | std=1.42 K | high confidence | min Tm=162.36 K, absolute<= 260.00 K, relative_drop=0.082
+urea (NC(=O)N) | False | 173.66 | 0.90 | source=heuristic; id=rule-based-family-library | trust=0.80 | mean=171.82 K | spread=168.41-174.21 K | std=2.47 K | moderate-high confidence | min Tm=173.66 K, absolute<= 260.00 K, relative_drop=0.019
+OC1=CC=CC=N1 | False | 167.01 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.76 | mean=168.49 K | spread=166.71-171.23 K | std=1.96 K | high confidence | min Tm=167.01 K, absolute<= 260.00 K, relative_drop=0.056
+O=C1CCCN1 | False | 161.54 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.74 | mean=161.42 K | spread=158.31-166.42 K | std=3.57 K | moderate-high confidence | min Tm=161.54 K, absolute<= 260.00 K, relative_drop=0.087
+CS(=O)(=O)C | False | 172.17 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.79 | mean=172.96 K | spread=171.87-174.49 K | std=1.11 K | high confidence | min Tm=172.17 K, absolute<= 260.00 K, relative_drop=0.027
+dimethyl sulfoxide (CS(=O)C) | False | 162.08 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.67 | mean=163.05 K | spread=157.27-165.94 K | std=4.08 K | moderate confidence — consider experimental verification | min Tm=162.08 K, absolute<= 260.00 K, relative_drop=0.084
+CC(=O)NCCO | False | 170.61 | 0.90 | source=heuristic; id=rule-based-family-library | trust=0.69 | mean=173.06 K | spread=169.93-179.04 K | std=4.23 K | moderate confidence — consider experimental verification | min Tm=170.61 K, absolute<= 260.00 K, relative_drop=0.036
+O=C1NC(=O)NC1 | False | 169.65 | 0.80 | source=heuristic; id=rule-based-family-library | trust=0.67 | mean=169.44 K | spread=164.84-173.83 K | std=3.67 K | moderate confidence — consider experimental verification | min Tm=169.65 K, absolute<= 260.00 K, relative_drop=0.041
+water (O) | False | 165.87 | 0.60 | source=heuristic; id=rule-based-family-library | trust=0.74 | mean=166.41 K | spread=163.72-169.10 K | std=2.20 K | moderate-high confidence | min Tm=165.87 K, absolute<= 260.00 K, relative_drop=0.063
+OC[C@H](O)[C@H](O)CO | False | 242.11 | 0.90 | source=heuristic; id=rule-based-family-library | trust=0.49 | mean=241.72 K | spread=228.82-249.92 K | std=9.23 K | low confidence — consider experimental verification | min Tm=242.11 K, absolute<= 260.00 K, relative_drop=-0.368
+C[N+](C)(C)C.[Cl-] | False | 226.03 | 0.90 | source=heuristic; id=rule-based-family-library | trust=0.43 | mean=223.36 K | spread=204.06-234.03 K | std=13.67 K | low confidence — consider experimental verification | min Tm=226.03 K, absolute<= 260.00 K, relative_drop=-0.277
+
+Physical sanity — non-physical eutectic (predicted Tm above both pure components):
+- OC[C@H](O)[C@H](O)CO: min Tm 242.1 K > min(T1,T2)=177.0 K — treat prediction with caution
+- C[N+](C)(C)C.[Cl-]: min Tm 226.0 K > min(T1,T2)=177.0 K — treat prediction with caution
+
+Melting-point inputs:
+component | Tm_K | source | confidence
+ethanol (CCO) | 176.96 | qspr | 0.67
+CCOCC | 156.27 | qspr | 0.78
+CN | 175.36 | qspr | 0.67
+CN(C)C=O | 211.29 | qspr | 0.78
+ethylene glycol (OCCO) | 260.60 | experimental | 0.95
+1,3-propanediol (OCCCO) | 293.44 | qspr | 0.61
+acetamide (CC(=O)N) | 354.06 | experimental | 0.95
+choline chloride (C[N+](C)(C)CCO.[Cl-]) | 578.15 | experimental | 0.95
+acetic acid (CC(=O)O) | 289.85 | experimental | 0.95
+glycerol (OCC(O)CO) | 291.22 | experimental | 0.95
+COCCO | 204.55 | qspr | 0.79
+urea (NC(=O)N) | 405.85 | experimental | 0.95
+OC1=CC=CC=N1 | 311.05 | qspr | 0.52
+O=C1CCCN1 | 324.08 | qspr | 0.81
+CS(=O)(=O)C | 266.99 | qspr | 0.40
+dimethyl sulfoxide (CS(=O)C) | 252.24 | qspr | 0.50
+CC(=O)NCCO | 357.10 | qspr | 0.64
+O=C1NC(=O)NC1 | 461.39 | qspr | 0.40
+water (O) | 261.48 | qspr | 0.40
+OC[C@H](O)[C@H](O)CO | 394.70 | experimental | 0.95
+C[N+](C)(C)C.[Cl-] | 612.87 | experimental | 0.95
+
+Warnings:
+- LLM brainstorming failed: LLM response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Output Format:** Raw JSON only, no markdown fences, no commentary. JSON array of candidate ...
+- LLM candidate review failed for O: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Input SMILES:** `CCO` (Ethanol)\n   - **Component A:** CCO\n   - **Computed facts:** HBD=0,...
+- LLM candidate review failed for OCCO: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Output Format:** Raw JSON only, no markdown fences, no commentary.\n   - **Structure:** Sin...
+- LLM candidate review failed for OCC(O)CO: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Input SMILES:** `OCC(O)CO` (This is glycerol)\n   - **Component A:** CCO (Ethanol)\n   - **...
+- LLM candidate review failed for CC(=O)N: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Output Format:** Raw JSON only, no markdown fences, no commentary.\n   - **Structure:** Sin...
+- LLM candidate review failed for CC(=O)O: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Input Format:** Raw JSON only, no markdown fences, no commentary.\n   - **Output Requiremen...
+- LLM candidate review failed for CN: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Output Format:** Raw JSON only, no markdown fences, no commentary.\n   - **Structure:** Sin...
+- LLM candidate review failed for C[N+](C)(C)C.[Cl-]: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Output Format:** Raw JSON only, no markdown fences, no commentary.\n   - **Structure:** Sin...
+- LLM candidate review failed for C[N+](C)(C)CCO.[Cl-]: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Output Format:** Raw JSON only, no markdown fences, no commentary.\n   - **Structure:** Sin...
+- LLM candidate review failed for NC(=O)N: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Input SMILES:** `NC(=O)N` (Urea)\n   - **Context:** Component A: CCO (This likely refers to...
+- LLM candidate review failed for OC[C@H](O)[C@H](O)CO: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Input SMILES:** `OC[C@H](O)[C@H](O)CO` (This is glycerol, specifically (2R,3S)-butane-1,2,3...
+- LLM candidate review failed for OCCCO: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Output Format:** Raw JSON only, no markdown fences, no commentary.\n   - **Structure:** Sin...
+- LLM candidate review failed for COCCO: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Output Format:** Raw JSON only, no markdown fences, no commentary.\n   - **Structure:** Sin...
+- LLM candidate review failed for O=C1CCCN1: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Output Format:** Raw JSON only, no markdown fences, no commentary.\n   - **Structure:** Sin...
+- LLM candidate review failed for O=C1NC(=O)NC1: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Output Format:** Raw JSON only, no markdown fences, no commentary.\n   - **Structure:** Sin...
+- LLM candidate review failed for CS(=O)C: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Output Format:** Raw JSON only, no markdown fences, no commentary.\n   - **Structure:** Sin...
+- LLM candidate review failed for CS(=O)(=O)C: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Output Format:** Raw JSON only, no markdown fences, no commentary.\n   - **Structure:** Sin...
+- LLM candidate review failed for OC1=CC=CC=N1: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Input SMILES:** `OC1=CC=CC=N1` (This is 2-hydroxypyridine or 2-pyridone tautomer, but SMILE...
+- LLM candidate review failed for CN(C)C=O: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Output Format:** Raw JSON only, no markdown fences, no commentary.\n   - **Structure:** Sin...
+- LLM candidate review failed for CCOCC: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Input SMILES:** `CCO` (Ethanol)\n   - **Component A:** CCO\n   - **Computed facts:** HBD=0,...
+- LLM candidate review failed for CC(=O)NCCO: Candidate review response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Input SMILES:** `CC(=O)NCCO` (This is N-(2-hydroxyethyl)acetamide, also known as acetamide,...
+- LLM contradiction detection failed: LLM response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Input Data:**\n     - Deterministic H-bond plausibility labels for 20 SMILES strings (CCOCC...
+- LLM chemistry assessment failed for CCOCC: LLM response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Output Format:** Raw JSON only. No markdown fences, no commentary.\n   - **Structure:** JSO...
+- LLM chemistry assessment failed for CN: LLM response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Output Format:** Raw JSON only, no markdown fences, no commentary.\n   - **Structure:** JSO...
+- LLM chemistry assessment failed for CN(C)C=O: LLM response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Output Format:** Raw JSON only, no markdown fences, no commentary.\n   - **Structure:** JSO...
+- LLM chemistry assessment failed for OCCO: LLM response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Output Format:** Raw JSON only, no markdown fences, no commentary.\n   - **Structure:** JSO...
+- LLM chemistry assessment failed for OCCCO: LLM response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Output Format:** Raw JSON only, no markdown fences, no commentary.\n   - **Structure:** JSO...
+- LLM chemistry next-step guidance failed: LLM response is not valid JSON. Excerpt: Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Output Format:** Raw JSON only, no markdown fences, no commentary.\n   - **Content:** JSON ...
+
+Run memory:
+- Chemical pattern memory favored productive families: ether, amine, dimethylformamide-like.
+- Chemical pattern memory penalized caution families: amide, choline-like, carboxylic acid.

@@ -1,0 +1,5 @@
+Component A: CCO
+Candidate search count: 20
+Checkpoint: ml_des_mp/runs/chemberta_random_row_fold01of05_best.pt
+LLM: vLLM google/gemma-4-12B-it (OpenAI-compatible server on localhost:8000)
+Proposal diversity: balanced, max similarity 0.82, per-family budget 2
