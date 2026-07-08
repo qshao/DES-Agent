@@ -15,6 +15,7 @@ from des_multi_agent.request_normalization import normalize_request_text
 from des_multi_agent.llm.factory import build_llm_provider
 from des_multi_agent.llm.parser import extract_json_object
 from des_multi_agent.reporting import format_metal_binding_report
+from des_multi_agent.router_normalization import apply_field_aliases, resolve_path_or_default
 from des_multi_agent.task_router_schema import RouterJob, RouterResponse
 from des_multi_agent.workflows.metal_binding import run_metal_binding_workflow
 
@@ -47,6 +48,7 @@ def _extract_smiles_text(value) -> str | None:
 
 
 def _normalize_router_job(raw_job: dict, request_text: str) -> RouterJob:
+    raw_job = apply_field_aliases(raw_job)
     metal_ion = (
         raw_job.get("metal_ion")
         or raw_job.get("target_metal")
@@ -61,11 +63,7 @@ def _normalize_router_job(raw_job: dict, request_text: str) -> RouterJob:
         or raw_job.get("ligand")
         or _extract_field(r"ligand[_\s-]*smiles\s*[:=]?\s*([A-Za-z0-9@+\-#=\[\]\(\)\\/]+)", request_text)
     )
-    stability_value = raw_job.get("stability_constant_model_path") or raw_job.get("checkpoint") or str(DEFAULT_STABILITY_PATH)
-    if stability_value in {None, "", "default", "artifact"}:
-        stability_path = str(DEFAULT_STABILITY_PATH)
-    else:
-        stability_path = str(stability_value)
+    stability_path = resolve_path_or_default(raw_job.get("stability_constant_model_path"), DEFAULT_STABILITY_PATH)
 
     return RouterJob(
         metal_ion=str(metal_ion).strip() if metal_ion is not None else None,
